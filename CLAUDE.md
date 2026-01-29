@@ -77,9 +77,12 @@
 │   └── package.json
 ├── /docs                       # Documentation
 ├── /prompts                    # AI prompts
+│   ├── /claude-ai              # Claude AI project instructions
+│   └── /ignore                 # Working notes (not for context)
 └── /.claude                    # Claude Code automation
-    ├── /commands
-    └── /agents
+    ├── /agents                 # Specialized AI agents
+    ├── /commands               # Slash commands
+    └── /metrics                # Usage tracking
 ```
 
 ---
