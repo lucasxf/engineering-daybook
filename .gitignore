@@ -1,0 +1,227 @@
+# =============================================================================
+# Engineering Daybook - .gitignore
+# Monorepo: Java/Maven (backend) + Next.js (web) + Expo (mobile)
+# =============================================================================
+
+# =============================================================================
+# OS Generated
+# =============================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# =============================================================================
+# IDEs and Editors
+# =============================================================================
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.idea_modules/
+
+# VS Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# NetBeans
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+
+# =============================================================================
+# Java / Maven (Backend)
+# =============================================================================
+
+# Compiled class files
+*.class
+
+# Log files
+*.log
+
+# Package files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Maven
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/.mvn/timing.properties
+backend/pom.xml.tag
+backend/pom.xml.releaseBackup
+backend/pom.xml.versionsBackup
+backend/pom.xml.next
+backend/release.properties
+backend/dependency-reduced-pom.xml
+backend/buildNumber.properties
+backend/.mvn/wrapper/MavenWrapperDownloader.java
+
+# Maven Wrapper (keep wrapper scripts, ignore downloaded jar)
+!backend/.mvn/wrapper/maven-wrapper.properties
+!backend/mvnw
+!backend/mvnw.cmd
+
+# =============================================================================
+# Node.js / JavaScript / TypeScript (Web & Mobile)
+# =============================================================================
+
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Cache
+.npm/
+.eslintcache
+.cache/
+*.tsbuildinfo
+
+# Environment files (keep examples)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+!.env.local.example
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# =============================================================================
+# Next.js (Web)
+# =============================================================================
+web/.next/
+web/out/
+web/.vercel
+
+# =============================================================================
+# Expo / React Native (Mobile)
+# =============================================================================
+mobile/.expo/
+mobile/dist/
+mobile/web-build/
+mobile/*.jks
+mobile/*.p8
+mobile/*.p12
+mobile/*.key
+mobile/*.mobileprovision
+mobile/*.orig.*
+
+# Expo EAS
+mobile/.easignore
+
+# Metro bundler
+mobile/.metro-health-check*
+
+# Android
+mobile/android/app/build/
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/android/*.iml
+mobile/android/.idea/
+
+# iOS
+mobile/ios/Pods/
+mobile/ios/.xcode.env.local
+mobile/ios/build/
+mobile/ios/*.xcworkspace
+!mobile/ios/*.xcworkspace/contents.xcworkspacedata
+mobile/ios/*.xcuserstate
+
+# =============================================================================
+# Testing
+# =============================================================================
+coverage/
+*.lcov
+.coverage
+htmlcov/
+test-results/
+playwright-report/
+playwright/.cache/
+
+# =============================================================================
+# Docker
+# =============================================================================
+.docker/
+
+# =============================================================================
+# Secrets and Credentials
+# =============================================================================
+*.pem
+*.key
+*.crt
+*.pfx
+secrets/
+credentials/
+.secrets
+
+# =============================================================================
+# Miscellaneous
+# =============================================================================
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Backup files
+*.bak
+*.backup
+
+# Local development
+local/
+tmp/
+temp/
+
+# =============================================================================
+# Project Specific
+# =============================================================================
+
+# Keep prompts in version control (as stated in project directives)
+# /prompts is NOT ignored
+
+# Local overrides (for personal settings not to be committed)
+*.local.yml
+*.local.yaml
+*.local.json
