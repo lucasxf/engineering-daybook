@@ -1,0 +1,123 @@
+# Automation Usage Metrics
+# Collected by pulse agent, analyzed by automation-sentinel agent
+
+[metadata]
+timestamp = "2026-01-29T00:00:00Z"
+commit_sha = ""
+branch = "develop"
+schema_version = "1.0.0"
+updated_by = "manual"
+
+# Agent Usage Metrics
+[agent_usage.automation-sentinel]
+invocations = 0
+last_used = ""
+
+[agent_usage.backend-code-reviewer]
+invocations = 0
+last_used = ""
+
+[agent_usage.cross-project-architect]
+invocations = 0
+last_used = ""
+
+[agent_usage.frontend-ux-specialist]
+invocations = 0
+last_used = ""
+
+[agent_usage.learning-tutor]
+invocations = 0
+last_used = ""
+
+[agent_usage.product-manager]
+invocations = 0
+last_used = ""
+
+[agent_usage.pulse]
+invocations = 0
+last_used = ""
+
+[agent_usage.session-optimizer]
+invocations = 0
+last_used = ""
+
+[agent_usage.tech-writer]
+invocations = 0
+last_used = ""
+
+# Command Usage Metrics
+[command_usage.start-session]
+invocations = 0
+last_used = ""
+
+[command_usage.finish-session]
+invocations = 0
+last_used = ""
+
+[command_usage.create-pr]
+invocations = 0
+last_used = ""
+
+[command_usage.directive]
+invocations = 0
+last_used = ""
+
+[command_usage.update-roadmap]
+invocations = 0
+last_used = ""
+
+[command_usage.review-code]
+invocations = 0
+last_used = ""
+
+[command_usage.quick-test]
+invocations = 0
+last_used = ""
+
+[command_usage.build-quiet]
+invocations = 0
+last_used = ""
+
+[command_usage.verify-quiet]
+invocations = 0
+last_used = ""
+
+[command_usage.docker-start]
+invocations = 0
+last_used = ""
+
+[command_usage.docker-stop]
+invocations = 0
+last_used = ""
+
+[command_usage.api-doc]
+invocations = 0
+last_used = ""
+
+[command_usage.resume-session]
+invocations = 0
+last_used = ""
+
+[command_usage.save-response]
+invocations = 0
+last_used = ""
+
+[command_usage.test-service]
+invocations = 0
+last_used = ""
+
+# Productivity Metrics
+[productivity]
+current_total_locs = 0
+current_production_locs = 0
+current_test_locs = 0
+test_ratio_percent = 0.0
+total_locs_added = 0
+total_locs_deleted = 0
+net_locs = 0
+
+# Health Metrics
+[health]
+schema_errors = 0
+total_agents = 9
+total_commands = 15
