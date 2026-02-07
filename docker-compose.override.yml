@@ -1,0 +1,12 @@
+# Local development overrides
+# This file is automatically loaded by docker-compose
+
+version: '3.8'
+
+services:
+  postgres:
+    # Expose additional ports for debugging tools if needed
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    # Log all SQL queries (for development only)
+    command: ["postgres", "-c", "log_statement=all"]
