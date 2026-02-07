@@ -1,0 +1,18 @@
+# Local development profile
+# Uses Docker Compose PostgreSQL with default credentials
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ed
+    username: ed
+    password: ed
+  jpa:
+    show-sql: true
+  flyway:
+    clean-disabled: false
+
+logging:
+  level:
+    com.lucasxf.ed: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
