@@ -60,13 +60,16 @@ The project follows an iterative development approach, prioritizing a functional
 
 ### Milestone 1.1: Authentication (Week 3)
 
-| # | Feature | Priority |
-|---|---------|----------|
-| 1.1.1 | User registration (email/password) | Must Have |
-| 1.1.2 | User login (email/password) | Must Have |
-| 1.1.3 | Google OAuth login | Must Have |
-| 1.1.4 | JWT session management | Must Have |
-| 1.1.5 | Password reset flow | Should Have |
+**Spec:** [`docs/specs/features/authentication.md`](specs/features/authentication.md) — Draft
+
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 1.1.1 | User registration (email/password + handle) | Must Have | Spec Ready |
+| 1.1.2 | User login (email/password) | Must Have | Spec Ready |
+| 1.1.3 | Google OAuth login (with handle selection step) | Must Have | Spec Ready |
+| 1.1.4 | JWT session management | Must Have | Spec Ready |
+| 1.1.5 | Handle system (@username identity) | Must Have | Spec Ready |
+| 1.1.6 | Password reset flow | Should Have | Deferred (separate spec) |
 
 ### Milestone 1.2: POK Creation (Week 4)
 
@@ -300,3 +303,4 @@ This is a living document. Update it as the project evolves.
 |:-------:|:----:|:------:|:--------|
 | 1.0 | 2026-01-29 | Lucas Xavier Ferreira | Initial version |
 | 1.1 | 2026-02-07 | Lucas Xavier Ferreira | Added Spec-Driven Development workflow to Phase 0 tooling |
+| 1.2 | 2026-02-09 | Lucas Xavier Ferreira | Added Authentication spec link and handle system to Milestone 1.1 |

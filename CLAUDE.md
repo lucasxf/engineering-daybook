@@ -199,7 +199,7 @@ npx expo build                   # Build app
 
 ### Core Entities
 
-- **User:** App user (id, email, name, locale, theme)
+- **User:** App user (id, email, handle, name, locale, theme)
 - **POK:** Piece of Knowledge (id, userId, title, content, embedding, timestamps)
 - **Tag:** Category label (id, userId, name)
 - **PokTag:** Many-to-many relation (pokId, tagId, source)

@@ -122,13 +122,14 @@ Engineering Daybook follows a **layered architecture** pattern with clear separa
 ├───────────────────┤       ├───────────────────┤       ├───────────────────┤
 │ id (PK, UUID)     │──┐    │ id (PK, UUID)     │    ┌──│ id (PK, UUID)     │
 │ email             │  │    │ user_id (FK)      │◄───┘  │ name              │
-│ password_hash     │  │    │ title             │       │ user_id (FK)      │
-│ name              │  └───►│ content           │       │ created_at        │
-│ locale (EN/PT-BR) │       │ embedding (vector)│       └───────────────────┘
-│ theme (light/dark)│       │ is_deleted        │                │
-│ created_at        │       │ created_at        │                │
-│ updated_at        │       │ updated_at        │                │
-└───────────────────┘       └───────────────────┘                │
+│ handle            │  │    │ title             │       │ user_id (FK)      │
+│ password_hash     │  │    │ content           │       │ created_at        │
+│ name              │  └───►│ embedding (vector)│       └───────────────────┘
+│ locale (EN/PT-BR) │       │ is_deleted        │                │
+│ theme (light/dark)│       │ created_at        │                │
+│ created_at        │       │ updated_at        │                │
+│ updated_at        │       └───────────────────┘                │
+└───────────────────┘                                            │
                                     │                            │
                                     │      ┌─────────────────────┘
                                     │      │
@@ -164,6 +165,7 @@ Engineering Daybook follows a **layered architecture** pattern with clear separa
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) NOT NULL UNIQUE,
+    handle VARCHAR(30) NOT NULL UNIQUE,
     password_hash VARCHAR(255),
     name VARCHAR(255) NOT NULL,
     locale VARCHAR(10) NOT NULL DEFAULT 'en',
@@ -172,6 +174,10 @@ CREATE TABLE users (
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+-- Handle: 3-30 chars, lowercase alphanumeric + hyphens, cannot start/end with hyphen
+ALTER TABLE users ADD CONSTRAINT chk_handle_format
+    CHECK (handle ~ '^[a-z0-9]([a-z0-9-]{1,28}[a-z0-9])?$');
 ```
 
 #### poks
@@ -241,11 +247,13 @@ CREATE INDEX idx_pok_audit_log_changed_at ON pok_audit_log(changed_at DESC);
 #### Authentication
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/v1/auth/register` | Register new user |
+| POST | `/api/v1/auth/register` | Register new user (email, password, name, handle) |
 | POST | `/api/v1/auth/login` | Login with email/password |
-| POST | `/api/v1/auth/google` | Login with Google OAuth |
+| POST | `/api/v1/auth/google` | Login with Google OAuth (returns temp token if first time) |
+| POST | `/api/v1/auth/google/complete` | Complete Google signup with handle selection |
 | POST | `/api/v1/auth/refresh` | Refresh JWT token |
 | POST | `/api/v1/auth/logout` | Invalidate session |
+| GET | `/api/v1/auth/handle/available` | Check handle availability (?h=lucasxf) |
 
 #### POKs
 | Method | Endpoint | Description |
@@ -584,3 +592,4 @@ Implement internationalization (i18n) for both English and Brazilian Portuguese 
 | Version | Date | Author | Changes |
 |:-------:|:----:|:------:|:--------|
 | 1.0 | 2026-01-29 | Lucas Xavier Ferreira | Initial version |
+| 1.1 | 2026-02-09 | Lucas Xavier Ferreira | Added handle field to users table and auth API endpoints |
