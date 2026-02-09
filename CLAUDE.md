@@ -160,6 +160,8 @@ main ← develop ← feature/xxx
 
 **Branch naming:** `type/short-description` (lowercase, hyphens)
 
+**Pre-work check:** Always verify the current branch (`git branch --show-current`) before starting any task. Ensure the branch matches the work being done — never commit changes to an unrelated branch. (Added 2026-02-09)
+
 **Commit format (Conventional Commits):**
 ```
 feat: add POK creation endpoint
