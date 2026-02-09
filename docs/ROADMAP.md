@@ -299,3 +299,4 @@ This is a living document. Update it as the project evolves.
 | Version | Date | Author | Changes |
 |:-------:|:----:|:------:|:--------|
 | 1.0 | 2026-01-29 | Lucas Xavier Ferreira | Initial version |
+| 1.1 | 2026-02-07 | Lucas Xavier Ferreira | Added Spec-Driven Development workflow to Phase 0 tooling |
