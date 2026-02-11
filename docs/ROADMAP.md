@@ -38,19 +38,19 @@ The project follows an iterative development approach, prioritizing a functional
 | # | Deliverable | Status |
 |---|-------------|--------|
 | 0.1 | Project documentation (Vision, Requirements, Architecture, Glossary, Roadmap) | ✅ Done |
-| 0.2 | GitHub repository with README, LICENSE, .gitignore | 🔄 In Progress |
-| 0.3 | Monorepo structure (/backend, /web, /mobile, /docs) | ⏳ Pending |
-| 0.4 | CI/CD pipeline (GitHub Actions) | ⏳ Pending |
-| 0.5 | Release Please configuration | ⏳ Pending |
-| 0.6 | Development environment setup (local Docker, Supabase project) | ⏳ Pending |
-| 0.7 | Backend project scaffold (Spring Boot + Maven) | ⏳ Pending |
-| 0.8 | Web project scaffold (Next.js) | ⏳ Pending |
-| 0.9 | Claude Code workflow setup (agents, commands) | ⏳ Pending |
+| 0.2 | GitHub repository with README, LICENSE, .gitignore | ✅ Done |
+| 0.3 | Monorepo structure (/backend, /web, /mobile, /docs) | ✅ Done |
+| 0.4 | CI/CD pipeline (GitHub Actions) | ✅ Done |
+| 0.5 | Release Please configuration | ✅ Done |
+| 0.6 | Development environment setup (local Docker, Supabase project) | ✅ Done |
+| 0.7 | Backend project scaffold (Spring Boot + Maven) | ✅ Done |
+| 0.8 | Web project scaffold (Next.js) | ✅ Done |
+| 0.9 | Claude Code workflow setup (agents, commands) | ✅ Done |
 
 ### Exit Criteria
-- [ ] All developers can clone repo and run locally
-- [ ] CI pipeline runs on every PR
-- [ ] Documentation is complete and accessible
+- [x] All developers can clone repo and run locally
+- [x] CI pipeline runs on every PR
+- [x] Documentation is complete and accessible
 
 ---
 
@@ -60,13 +60,13 @@ The project follows an iterative development approach, prioritizing a functional
 
 ### Milestone 1.1: Authentication (Week 3)
 
-| # | Feature | Priority |
-|---|---------|----------|
-| 1.1.1 | User registration (email/password) | Must Have |
-| 1.1.2 | User login (email/password) | Must Have |
-| 1.1.3 | Google OAuth login | Must Have |
-| 1.1.4 | JWT session management | Must Have |
-| 1.1.5 | Password reset flow | Should Have |
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 1.1.1 | User registration (email/password) | Must Have | ✅ Backend done (PR #15) |
+| 1.1.2 | User login (email/password) | Must Have | ✅ Backend done (PR #15) |
+| 1.1.3 | Google OAuth login | Must Have | ⏳ Pending (separate PR) |
+| 1.1.4 | JWT session management | Must Have | ✅ Backend done (PR #15) |
+| 1.1.5 | Password reset flow | Should Have | ⏳ Pending (separate spec) |
 
 ### Milestone 1.2: POK Creation (Week 4)
 
@@ -299,3 +299,4 @@ This is a living document. Update it as the project evolves.
 | Version | Date | Author | Changes |
 |:-------:|:----:|:------:|:--------|
 | 1.0 | 2026-01-29 | Lucas Xavier Ferreira | Initial version |
+| 1.1 | 2026-02-11 | Lucas Xavier Ferreira | Phase 0 complete, Auth backend implemented (PR #15) |

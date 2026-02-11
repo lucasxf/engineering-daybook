@@ -10,7 +10,7 @@
 
 - **Repository:** https://github.com/lucasxf/engineering-daybook
 - **Author:** Lucas Xavier Ferreira
-- **Status:** Phase 0 (Foundation)
+- **Status:** Phase 1 (MVP)
 
 ---
 
@@ -214,15 +214,22 @@ npx expo build                   # Build app
 
 ## Current Focus
 
-**Phase 0: Foundation**
+**Phase 0: Foundation** — ✅ Complete
 - [x] Documentation (Vision, Requirements, Architecture, Glossary, Roadmap)
-- [ ] Repository structure
-- [ ] CI/CD pipeline
-- [ ] Backend scaffold
-- [ ] Web scaffold
-- [ ] Claude Code workflow
+- [x] Repository structure
+- [x] CI/CD pipeline
+- [x] Backend scaffold
+- [x] Web scaffold
+- [x] Claude Code workflow
 
-**Next Phase:** MVP (Auth, POK CRUD, Search, i18n, Dark Mode)
+**Phase 1: MVP** — 🔄 In Progress
+- [x] Authentication backend (JWT + email/password) — PR #15
+- [ ] Authentication web (login/register pages, middleware)
+- [ ] Authentication Google OAuth
+- [ ] POK CRUD
+- [ ] Search
+- [ ] i18n (EN/PT-BR)
+- [ ] Dark Mode
 
 ---
 
@@ -255,4 +262,4 @@ npx expo build                   # Build app
 
 ---
 
-*Last updated: 2026-01-29*
+*Last updated: 2026-02-11*
