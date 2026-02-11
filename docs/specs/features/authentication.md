@@ -1,8 +1,8 @@
 # Authentication
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-02-09
-> **Implemented:** _pending_
+> **Implemented:** 2026-02-11
 
 ---
 
@@ -26,34 +26,34 @@ Each user is also identified by a unique **handle** (e.g., `@lucasxf`). The hand
 
 ### Functional
 
-- [ ] FR1: User can register with email, password, display name, and handle (AUTH-01)
+- [x] FR1: User can register with email, password, display name, and handle (AUTH-01)
 - [ ] FR2: User can sign in with Google OAuth (AUTH-02)
-- [ ] FR3: User can sign in with email and password (AUTH-01)
-- [ ] FR4: JWT access + refresh tokens are issued on successful authentication. Access token claims include: userId, email, handle, and issued/expiration timestamps (AUTH-04)
-- [ ] FR5: JWT access token is short-lived (15 min); refresh token is long-lived (7 days)
-- [ ] FR6: User can refresh their session using a valid refresh token; the old refresh token is rotated (invalidated and replaced) on each refresh
-- [ ] FR7: User can sign out (invalidate current session)
+- [x] FR3: User can sign in with email and password (AUTH-01)
+- [x] FR4: JWT access + refresh tokens are issued on successful authentication. Access token claims include: userId, email, handle, and issued/expiration timestamps (AUTH-04)
+- [x] FR5: JWT access token is short-lived (15 min); refresh token is long-lived (7 days)
+- [x] FR6: User can refresh their session using a valid refresh token; the old refresh token is rotated (invalidated and replaced) on each refresh
+- [x] FR7: User can sign out (invalidate current session)
 - [ ] FR8: User session persists across browser/app restarts via refresh token (AUTH-04)
-- [ ] FR9: User profile is created on first registration with default locale (EN) and theme (dark)
-- [ ] FR10: Handle must be unique, 3-30 characters, lowercase alphanumeric and hyphens only, no consecutive hyphens, must start and end with alphanumeric. Pattern: `^[a-z0-9](?:[a-z0-9]|-(?=[a-z0-9])){1,28}[a-z0-9]$` (e.g., `lucasxf`, `lucas-xf`)
-- [ ] FR11: Handle is immutable after registration (changing handle is a separate future feature)
-- [ ] FR12: Handle is stored without the `@` prefix; the `@` is a display convention only
+- [x] FR9: User profile is created on first registration with default locale (EN) and theme (dark)
+- [x] FR10: Handle must be unique, 3-30 characters, lowercase alphanumeric and hyphens only, no consecutive hyphens, must start and end with alphanumeric. Pattern: `^[a-z0-9](?:[a-z0-9]|-(?=[a-z0-9])){1,28}[a-z0-9]$` (e.g., `lucasxf`, `lucas-xf`)
+- [x] FR11: Handle is immutable after registration (changing handle is a separate future feature)
+- [x] FR12: Handle is stored without the `@` prefix; the `@` is a display convention only
 - [ ] FR13: For Google OAuth first-time registration, user is prompted to choose a handle before account creation completes
-- [ ] FR14: User can maintain concurrent sessions across multiple devices (each device receives its own refresh token)
-- [ ] FR15: Email must be valid per RFC 5322, max 255 characters, and normalized to lowercase before storage
-- [ ] FR16: Password must be 8-128 characters, containing at least 1 uppercase letter, 1 lowercase letter, and 1 number (128-char max prevents bcrypt DoS)
+- [x] FR14: User can maintain concurrent sessions across multiple devices (each device receives its own refresh token)
+- [x] FR15: Email must be valid per RFC 5322, max 255 characters, and normalized to lowercase before storage
+- [x] FR16: Password must be 8-128 characters, containing at least 1 uppercase letter, 1 lowercase letter, and 1 number (128-char max prevents bcrypt DoS)
 - [ ] FR17: Client must automatically refresh the access token when it receives a 401 Unauthorized response, using the refresh token. If refresh fails, redirect to login
 
 ### Non-Functional
 
-- [ ] NFR1: All auth endpoints must respond within 500ms (PERF-01)
-- [ ] NFR2: Passwords must be hashed with bcrypt (SEC-02)
+- [x] NFR1: All auth endpoints must respond within 500ms (PERF-01)
+- [x] NFR2: Passwords must be hashed with bcrypt (SEC-02)
 - [ ] NFR3: All API calls must be over HTTPS in production (SEC-01)
 - [ ] NFR4: Auth endpoints must be rate-limited collectively: 10 requests per minute per IP across all auth endpoints — /register, /login, /google, /refresh, /logout (SEC-05)
-- [ ] NFR5: SQL injection prevention via parameterized queries (SEC-06)
-- [ ] NFR6: Test coverage > 80% for auth module (MAINT-01)
-- [ ] NFR7: Refresh tokens must be rotated on each refresh (invalidate old token, issue new token) to prevent token replay attacks
-- [ ] NFR8: Handle availability checks must use an indexed column to support high-frequency requests without database overload
+- [x] NFR5: SQL injection prevention via parameterized queries (SEC-06)
+- [x] NFR6: Test coverage > 80% for auth module (MAINT-01)
+- [x] NFR7: Refresh tokens must be rotated on each refresh (invalidate old token, issue new token) to prevent token replay attacks
+- [x] NFR8: Handle availability checks must use an indexed column to support high-frequency requests without database overload
 
 ### Deferred (Out of Scope for this Spec)
 
@@ -364,20 +364,39 @@ Each user is also identified by a unique **handle** (e.g., `@lucasxf`). The hand
 
 ## Post-Implementation Notes
 
-> _This section is filled AFTER implementation._
-
-### Commits
-- `hash`: message
+### Commits (Backend PR)
+- `c02acc0`: chore: add security and JWT dependencies
+- `1b95143`: feat: add users and refresh_tokens database migrations
+- `9eef8a8`: feat: add User and RefreshToken domain entities
+- `68d5781`: feat: add UserRepository and RefreshTokenRepository
+- `32c0369`: feat: add AuthProperties, JwtService, AuthService, and auth DTOs
+- `57d476e`: test: add JwtService and AuthService unit tests
+- `14102f7`: feat: add SecurityConfig, JwtAuthenticationFilter, and AuthController
+- `973d14a`: test: add AuthController MockMvc tests
+- `62e20f7`: fix: update HealthControllerTest for Spring Security context
 
 ### Architectural Decisions
 
-**Decision: [Title]**
-- **Options:** [A, B, C]
-- **Chosen:** [B]
-- **Rationale:** [Why]
+**Decision: Refresh token storage format**
+- **Options:** Store raw token, store bcrypt hash, store SHA-256 hash
+- **Chosen:** SHA-256 hash (hex-encoded)
+- **Rationale:** SHA-256 is deterministic (needed for lookup-by-hash), fast for comparison, and sufficient for opaque random tokens. Bcrypt is unnecessary since refresh tokens are high-entropy random values, not user-chosen passwords.
+
+**Decision: Refresh token rotation strategy**
+- **Options:** Hard-delete old token, soft-delete (revoke) old token
+- **Chosen:** Soft-delete via `revoked_at` timestamp
+- **Rationale:** Preserves audit trail. Allows detection of token reuse (potential compromise indicator). Cleanup can be done via scheduled batch deletion of expired/revoked tokens.
+
+**Decision: Exception-to-HTTP-status mapping**
+- **Options:** Custom exception hierarchy, single exception with message routing
+- **Chosen:** `IllegalArgumentException` with message-based routing in `GlobalExceptionHandler`
+- **Rationale:** Keeps service layer simple without custom exception classes. Message patterns ("already"/"taken" → 409, "Invalid" → 401) are clear enough for the current scope. Can be refactored to custom exceptions if the pattern grows.
 
 ### Deviations from Spec
-- [Any changes from original plan and why]
+- **Split into multiple PRs:** Spec covers full-stack (backend + web + Google OAuth). Implementation is split into 3 PRs: backend auth (this PR), web auth, and Google OAuth. This allows incremental review and reduces PR size.
+- **Rate limiting (NFR4) deferred:** Not implemented in this PR. Will be added as a separate concern (e.g., Spring Boot rate limiter or API gateway) in a follow-up.
+- **HTTPS enforcement (NFR3) deferred:** Infrastructure concern handled at the hosting layer (Railway/Render), not in application code.
 
 ### Lessons Learned
-- [What worked, what to do differently]
+- `@MockBean` moved to `org.springframework.test.context.bean.override.mockito.MockitoBean` in Spring Boot 3.4+. The old import `org.springframework.boot.test.mock.bean.MockBean` no longer exists.
+- Adding Spring Security requires updating ALL existing `@WebMvcTest` classes to include `@Import(SecurityConfig.class)` and mock the `JwtService` dependency, otherwise they fail to load the application context.
