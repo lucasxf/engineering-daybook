@@ -1,0 +1,20 @@
+{
+  "common": {
+    "appName": "Engineering Daybook",
+    "tagline": "Capture, organize e relembre seus aprendizados diários"
+  },
+  "home": {
+    "welcome": "Bem-vindo ao Engineering Daybook",
+    "description": "Uma ferramenta de gestão de conhecimento pessoal para engenheiros.",
+    "getStarted": "Começar"
+  },
+  "theme": {
+    "light": "Claro",
+    "dark": "Escuro",
+    "system": "Sistema"
+  },
+  "language": {
+    "en": "English",
+    "pt-BR": "Português (Brasil)"
+  }
+}
