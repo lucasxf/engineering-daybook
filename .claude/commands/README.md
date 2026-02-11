@@ -13,6 +13,7 @@
 | `/directive` | Add coding directive to CLAUDE.md | `/directive "Always use records for DTOs"` |
 | `/update-roadmap` | Update ROADMAP.md with progress | `/update-roadmap "Completed POK CRUD"` |
 | `/review-code` | Trigger backend-code-reviewer agent | `/review-code PokService` |
+| `/review-pr` | Review and address feedback on an open PR | `/review-pr 12` |
 | `/quick-test` | Run tests in quiet mode | `/quick-test backend` |
 | `/build-quiet` | Run build in quiet mode | `/build-quiet backend` |
 | `/verify-quiet` | Run full verification (build + tests) | `/verify-quiet all` |
@@ -52,6 +53,16 @@
 
 # Add documentation
 /api-doc PokController
+```
+
+### After PR Review
+
+```bash
+# Address review feedback on the only open PR
+/review-pr
+
+# Address feedback on a specific PR
+/review-pr 12
 ```
 
 ### Finishing a Session

@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+
+      "Bash(git status *)",
+      "Bash(git log *)",
+      "Bash(git diff *)",
+      "Bash(git branch *)",
+      "Bash(git show *)",
+      "Bash(git show-ref *)",
+      "Bash(git ls-tree *)",
+      "Bash(git fetch *)",
+      "Bash(git checkout *)",
+      "Bash(git stash *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git update-index *)",
+      "Bash(git -C *)",
+
+      "Bash(gh pr *)",
+      "Bash(gh api *)",
+      "Bash(gh repo *)",
+      "Bash(gh run *)",
+
+      "Bash(./mvnw *)",
+      "Bash(mvn *)",
+
+      "Bash(npm run *)",
+      "Bash(npm test *)",
+      "Bash(npm install *)",
+      "Bash(npx expo *)",
+
+      "Bash(docker compose *)"
+    ]
+  }
+}

@@ -6,6 +6,12 @@ spring:
   flyway:
     enabled: false
 
+auth:
+  jwt:
+    secret: test-secret-for-unit-tests-must-be-at-least-256-bits-long-for-hs256-algorithm
+    access-token-expiry: 15m
+    refresh-token-expiry: 7d
+
 logging:
   level:
     root: WARN
