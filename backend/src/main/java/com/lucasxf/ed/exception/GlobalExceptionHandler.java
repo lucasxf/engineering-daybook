@@ -44,6 +44,32 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(error);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiError> handleIllegalArgument(
+            IllegalArgumentException ex,
+            HttpServletRequest request) {
+
+        String message = ex.getMessage();
+        HttpStatus status;
+
+        if (message != null && (message.contains("already") || message.contains("taken"))) {
+            status = HttpStatus.CONFLICT;
+        } else if (message != null && message.contains("Invalid")) {
+            status = HttpStatus.UNAUTHORIZED;
+        } else {
+            status = HttpStatus.BAD_REQUEST;
+        }
+
+        ApiError error = new ApiError(
+            status.value(),
+            status.getReasonPhrase(),
+            message,
+            request.getRequestURI()
+        );
+
+        return ResponseEntity.status(status).body(error);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGenericException(
             Exception ex,
