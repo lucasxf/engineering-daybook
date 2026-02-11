@@ -2,6 +2,7 @@ package com.lucasxf.ed;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 /**
  * Main entry point for Engineering Daybook backend.
@@ -13,6 +14,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @since 2026-01-29
  */
 @SpringBootApplication
+@ConfigurationPropertiesScan
 public class EdApplication {
 
     public static void main(String[] args) {
