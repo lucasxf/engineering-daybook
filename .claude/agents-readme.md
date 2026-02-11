@@ -207,6 +207,8 @@ What's your task?
 │
 ├─ Reviewing backend/Java code → backend-code-reviewer
 │
+├─ Addressing PR review feedback → /address-pr-review command
+│
 ├─ Designing UI/UX screens → frontend-ux-specialist
 │
 ├─ Learning concepts → learning-tutor
