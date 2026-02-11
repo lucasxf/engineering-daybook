@@ -1,6 +1,6 @@
 # Authentication
 
-> **Status:** Draft
+> **Status:** In Progress
 > **Created:** 2026-02-09
 > **Implemented:** _pending_
 
