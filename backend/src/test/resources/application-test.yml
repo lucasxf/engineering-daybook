@@ -1,0 +1,12 @@
+# Test profile configuration
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  flyway:
+    enabled: false
+
+logging:
+  level:
+    root: WARN
+    com.lucasxf.ed: INFO
