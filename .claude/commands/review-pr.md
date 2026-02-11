@@ -1,5 +1,5 @@
 ---
-description: Address review feedback on an open pull request
+description: Review and address feedback on an open pull request
 argument-hint: <optional-pr-number>
 ---
 
@@ -27,17 +27,19 @@ gh pr list --state open --json number,title,headRefName,author --template '{{ran
 - If **exactly 1 open PR** → Auto-select it and confirm to user
 - If **multiple open PRs** → Use AskUserQuestion to prompt: "Which PR would you like to address?" with the list of PRs as options
 
+**After selecting the PR, assign the number to `$PR_NUMBER` before proceeding.** All subsequent steps depend on this variable being set.
+
 ## 2. Checkout PR Branch
 
 ```bash
-# Get PR branch name
+# Get PR branch name (requires $PR_NUMBER from Step 1)
 PR_BRANCH=$(gh pr view $PR_NUMBER --json headRefName --jq .headRefName)
 
 # Checkout the branch
 git checkout "$PR_BRANCH"
 ```
 
-If there are uncommitted changes, stash them first and inform the user.
+If there are uncommitted changes, stash them first and inform the user. **Track the original branch name so we can return to it later.**
 
 ## 3. Fetch All Review Comments
 
@@ -121,11 +123,11 @@ For each approved item:
 3. After all changes are applied, run relevant tests:
 
 ```bash
-# If backend files were changed
-cd backend && ./mvnw test -q
+# If backend files were changed (run in subshell to avoid directory leaking)
+(cd backend && ./mvnw test -q)
 
-# If web files were changed
-cd web && npm test --silent
+# If web files were changed (run in subshell to avoid directory leaking)
+(cd web && npm test --silent)
 ```
 
 **If tests fail** → STOP. Show the failure. Ask user whether to revert or debug.
@@ -171,3 +173,16 @@ Branch: $PR_BRANCH
 2. Reply to any outstanding questions on the PR
 3. Re-request review if needed
 ```
+
+## 9. Restore Original State
+
+If changes were stashed in Step 2:
+```bash
+# Return to the original branch
+git checkout $ORIGINAL_BRANCH
+
+# Restore stashed changes
+git stash pop
+```
+
+Inform the user that their stashed changes have been restored.
