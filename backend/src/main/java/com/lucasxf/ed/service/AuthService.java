@@ -150,7 +150,7 @@ public class AuthService {
             rawRefreshToken,
             user.getHandle(),
             user.getId(),
-            jwtService.getRefreshTokenExpiry().toSeconds()
+            jwtService.getAccessTokenExpiry().toSeconds()
         );
     }
 }

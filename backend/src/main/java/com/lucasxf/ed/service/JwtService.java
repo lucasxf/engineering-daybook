@@ -117,6 +117,10 @@ public class JwtService {
         }
     }
 
+    public Duration getAccessTokenExpiry() {
+        return accessTokenExpiry;
+    }
+
     public Duration getRefreshTokenExpiry() {
         return refreshTokenExpiry;
     }
