@@ -30,7 +30,7 @@ export default function RegisterPage() {
       <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
         {t('hasAccount')}{' '}
         <Link
-          href={`/${params.locale}/login`}
+          href={`/${params.locale}/login` as never}
           className="font-medium text-primary-600 hover:text-primary-500"
         >
           {t('logInLink')}

@@ -68,7 +68,7 @@ export function RegisterForm({ locale }: RegisterFormProps) {
         displayName: data.displayName,
         handle: data.handle,
       });
-      router.push(`/${locale}`);
+      router.push(`/${locale}` as never);
     } catch (error) {
       if (error instanceof ApiRequestError) {
         setServerError(

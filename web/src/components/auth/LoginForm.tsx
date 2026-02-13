@@ -47,7 +47,7 @@ export function LoginForm({ locale, redirectTo }: LoginFormProps) {
     setServerError(null);
     try {
       await login(data);
-      router.push(redirectTo || `/${locale}`);
+      router.push((redirectTo || `/${locale}`) as never);
     } catch (error) {
       if (error instanceof ApiRequestError) {
         if (error.status === 401) {

@@ -21,7 +21,7 @@ export function UserMenu() {
 
   const handleLogout = async () => {
     await logout();
-    router.push(`/${params.locale}/login`);
+    router.push(`/${params.locale}/login` as never);
   };
 
   return (
