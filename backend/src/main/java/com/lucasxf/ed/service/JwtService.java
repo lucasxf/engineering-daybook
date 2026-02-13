@@ -116,6 +116,43 @@ public class JwtService {
         }
     }
 
+    /**
+     * Generates a short-lived temp token for two-step Google OAuth signup.
+     * Contains Google user claims and a {@code type=google_signup} marker.
+     * Expires after 5 minutes.
+     */
+    public String generateTempToken(String googleSub, String email, String name) {
+        Instant now = Instant.now();
+        return Jwts.builder()
+            .claim("type", "google_signup")
+            .claim("googleSub", googleSub)
+            .claim("email", email)
+            .claim("name", name)
+            .issuedAt(Date.from(now))
+            .expiration(Date.from(now.plus(Duration.ofMinutes(5))))
+            .signWith(signingKey)
+            .compact();
+    }
+
+    /**
+     * Parses and validates a temp token issued for Google OAuth signup.
+     *
+     * @return the token claims containing googleSub, email, and name
+     * @throws IllegalArgumentException if the token is invalid, expired, or not a temp token
+     */
+    public Claims parseTempToken(String token) {
+        try {
+            Claims claims = parseClaims(token);
+            String type = claims.get("type", String.class);
+            if (!"google_signup".equals(type)) {
+                throw new IllegalArgumentException("Invalid or expired temp token");
+            }
+            return claims;
+        } catch (JwtException e) {
+            throw new IllegalArgumentException("Invalid or expired temp token", e);
+        }
+    }
+
     public Duration getAccessTokenExpiry() {
         return accessTokenExpiry;
     }
