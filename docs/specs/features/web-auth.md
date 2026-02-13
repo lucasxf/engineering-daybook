@@ -1,8 +1,8 @@
 # Web Authentication
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-02-13
-> **Implemented:** _pending_
+> **Implemented:** 2026-02-13
 
 ---
 
@@ -419,17 +419,40 @@ web/src/
 > _This section is filled AFTER implementation._
 
 ### Commits
-- `hash`: message
+- `c376a02`: chore: add web auth dependencies
+- `f80202e`: feat: add validation schemas and API client
+- `d0ed5da`: feat: add auth context and hooks
+- `645cff4`: feat: add reusable UI components for forms
+- `67102ec`: feat: add auth form components
+- `ecc4885`: feat: add login and register pages
+- `1c11319`: feat: update middleware and layout for auth
+- `7cbabfe`: feat: add i18n auth strings for EN and PT-BR
+- `a404221`: fix: resolve typed routes and Suspense issues
+- `419a5db`: test: add validation and API client tests
 
 ### Architectural Decisions
 
 **Decision: Refresh Token Storage (MVP)**
 - **Options:** httpOnly cookie (backend change), localStorage, in-memory only
-- **Chosen:** _pending_
-- **Rationale:** _pending_
+- **Chosen:** In-memory only (Option C)
+- **Rationale:** Keeps the PR scoped to frontend-only without requiring backend changes. Acceptable trade-off for MVP — users re-authenticate on page refresh. Follow-up PR can add httpOnly cookie support by adjusting backend Set-Cookie headers.
+
+**Decision: Middleware Auth Strategy**
+- **Options:** Server-side middleware token check, client-side protection only
+- **Chosen:** Client-side protection via AuthContext
+- **Rationale:** Since tokens are stored in memory (not cookies), Next.js middleware cannot access them. Auth protection is handled entirely client-side by AuthContext. Server-side middleware still handles i18n routing only.
+
+**Decision: Next.js Typed Routes Workaround**
+- **Options:** Remove experimental typedRoutes, cast dynamic routes
+- **Chosen:** Cast dynamic route strings with `as never`
+- **Rationale:** Keeps the experimental feature enabled for static routes while allowing dynamic locale-based routes. The `as never` cast is a known workaround for Next.js typed routes with dynamic segments.
 
 ### Deviations from Spec
-- [Any changes from original plan and why]
+- **No `contexts/` directory in spec's file list** — Created `contexts/AuthContext.tsx` instead of placing in `lib/` for better separation
+- **Vitest instead of Jest** — Spec mentioned tests but Vitest was chosen as the test runner (faster, better ESM support, Vite ecosystem)
+- **No `FormField` used in RegisterForm for HandleInput** — HandleInput is self-contained with its own availability feedback, so FormField wraps it at the page level
 
 ### Lessons Learned
-- [What worked, what to do differently]
+- Next.js experimental `typedRoutes` conflicts with dynamic string routes — need `as never` casts
+- `useSearchParams()` in a client component requires a Suspense boundary for SSG
+- Zod v4 changed the API slightly — `safeParse` returns differently than v3, but the `success` boolean pattern still works
