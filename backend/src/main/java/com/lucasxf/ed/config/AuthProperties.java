@@ -12,7 +12,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  */
 @ConfigurationProperties(prefix = "auth")
 public record AuthProperties(
-    JwtProperties jwt
+    JwtProperties jwt,
+    GoogleProperties google
 ) {
 
     /**
@@ -22,6 +23,14 @@ public record AuthProperties(
         String secret,
         Duration accessTokenExpiry,
         Duration refreshTokenExpiry
+    ) {
+    }
+
+    /**
+     * Google OAuth configuration.
+     */
+    public record GoogleProperties(
+        String clientId
     ) {
     }
 }
