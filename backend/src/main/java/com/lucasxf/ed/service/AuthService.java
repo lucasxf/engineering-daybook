@@ -3,8 +3,6 @@ package com.lucasxf.ed.service;
 import java.time.Instant;
 import java.util.Locale;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +14,7 @@ import com.lucasxf.ed.dto.LoginRequest;
 import com.lucasxf.ed.dto.RegisterRequest;
 import com.lucasxf.ed.repository.RefreshTokenRepository;
 import com.lucasxf.ed.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 
 import static java.util.Objects.requireNonNull;
 
@@ -25,10 +24,10 @@ import static java.util.Objects.requireNonNull;
  * @author Lucas Xavier Ferreira
  * @since 2026-02-11
  */
+@Slf4j
 @Service
 public class AuthService {
 
-    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -150,7 +149,7 @@ public class AuthService {
             rawRefreshToken,
             user.getHandle(),
             user.getId(),
-            jwtService.getRefreshTokenExpiry().toSeconds()
+            jwtService.getAccessTokenExpiry().toSeconds()
         );
     }
 }

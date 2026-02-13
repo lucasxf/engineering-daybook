@@ -13,11 +13,10 @@ import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.lucasxf.ed.config.AuthProperties;
+import lombok.extern.slf4j.Slf4j;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -32,10 +31,10 @@ import static java.util.Objects.requireNonNull;
  * @author Lucas Xavier Ferreira
  * @since 2026-02-11
  */
+@Slf4j
 @Service
 public class JwtService {
 
-    private static final Logger log = LoggerFactory.getLogger(JwtService.class);
 
     private final SecretKey signingKey;
     private final Duration accessTokenExpiry;
@@ -116,6 +115,11 @@ public class JwtService {
             throw new IllegalStateException("SHA-256 algorithm not available", e);
         }
     }
+
+    public Duration getAccessTokenExpiry() {
+        return accessTokenExpiry;
+    }
+
 
     public Duration getRefreshTokenExpiry() {
         return refreshTokenExpiry;

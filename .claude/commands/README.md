@@ -22,7 +22,8 @@
 | `/api-doc` | Add OpenAPI docs to controller | `/api-doc PokController` |
 | `/test-service` | Run tests for specific service | `/test-service PokService` |
 | `/save-response` | Save Claude's response to file | `/save-response notes.md` |
-| `/implement-spec` | Implement feature from spec file (TDD + approval gates) | `/implement-spec docs/specs/features/pok-creation.md` |
+| `/write-spec` | Write feature spec from template | `/write-spec "POK CRUD"` |
+| `/implement-spec` | Implement feature from spec with TDD | `/implement-spec docs/specs/features/pok-crud.md` |
 
 ## Session Workflow
 
@@ -106,6 +107,23 @@ cp docs/specs/template.md docs/specs/features/my-feature.md
 | `mobile` | Expo/React Native | CLAUDE.md, ROADMAP.md, README.md |
 | `docs` | Documentation only | CLAUDE.md, ROADMAP.md, README.md |
 | `full` | Everything | All context files |
+
+## Spec-Driven Development Workflow
+
+```bash
+# 1. Write the spec (delegates to product-manager agent)
+/write-spec "POK CRUD"
+
+# 2. Review and approve the generated spec
+# (edit docs/specs/features/pok-crud.md if needed)
+
+# 3. Implement from the spec (TDD, approval gates)
+/implement-spec docs/specs/features/pok-crud.md
+```
+
+Pipeline: `/write-spec` → spec file → `/implement-spec`
+
+---
 
 ## Anti-Cyclic Dependency Rule
 
