@@ -14,6 +14,20 @@ This command delegates to `product-manager` agent (and optionally `frontend-ux-s
 
 ---
 
+## Phase 0: Branch Verification
+
+Before making any file changes or commits:
+
+1. Run `git branch --show-current` to get the current branch
+2. Run `git status --short` to check for uncommitted changes
+3. Display to the user: **"Current branch: `<branch>`"**
+4. Evaluate whether the branch is appropriate for writing a spec (typically `docs/*` or `main`)
+5. **If the branch looks unrelated to the work** (e.g., a feature branch for a different task): STOP. Warn the user: "You're on branch `<branch>`. This doesn't look like the right branch for writing a spec. Please switch to the correct branch before continuing."
+6. **If there are uncommitted changes:** Warn the user and ask whether to proceed or stash first.
+7. **If the branch looks appropriate:** Proceed.
+
+---
+
 ## Phase 1: Setup
 
 ### 1.1 Parse Input
