@@ -60,6 +60,20 @@ export const registerSchema = z
 
 export type RegisterFormData = z.infer<typeof registerSchema>;
 
+export const chooseHandleSchema = z.object({
+  handle: z
+    .string()
+    .min(3, 'auth.errors.handleMinLength')
+    .max(30, 'auth.errors.handleMaxLength')
+    .regex(HANDLE_PATTERN, 'auth.errors.handleFormat'),
+  displayName: z
+    .string()
+    .min(1, 'auth.errors.displayNameRequired')
+    .max(100, 'auth.errors.displayNameMaxLength'),
+});
+
+export type ChooseHandleFormData = z.infer<typeof chooseHandleSchema>;
+
 /**
  * Computes a simple password strength score.
  * Returns 'weak' | 'medium' | 'strong'.

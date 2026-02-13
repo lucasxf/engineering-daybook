@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { GoogleOAuthWrapper } from '@/components/providers/GoogleOAuthWrapper';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -20,7 +21,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <AuthProvider>{children}</AuthProvider>
+          <GoogleOAuthWrapper>
+            <AuthProvider>{children}</AuthProvider>
+          </GoogleOAuthWrapper>
         </ThemeProvider>
       </body>
     </html>
