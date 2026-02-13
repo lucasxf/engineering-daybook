@@ -35,6 +35,7 @@ import static java.util.Objects.requireNonNull;
 @Service
 public class JwtService {
 
+    private static final String INVALID_TEMP_TOKEN_MESSAGE = "Invalid or expired temp token";
 
     private final SecretKey signingKey;
     private final Duration accessTokenExpiry;
@@ -145,11 +146,11 @@ public class JwtService {
             Claims claims = parseClaims(token);
             String type = claims.get("type", String.class);
             if (!"google_signup".equals(type)) {
-                throw new IllegalArgumentException("Invalid or expired temp token");
+                throw new IllegalArgumentException(INVALID_TEMP_TOKEN_MESSAGE);
             }
             return claims;
         } catch (JwtException e) {
-            throw new IllegalArgumentException("Invalid or expired temp token", e);
+            throw new IllegalArgumentException(INVALID_TEMP_TOKEN_MESSAGE, e);
         }
     }
 
