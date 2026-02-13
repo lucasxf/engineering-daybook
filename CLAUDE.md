@@ -123,6 +123,7 @@ public class PokService {
 **Rules:**
 - Constructor injection only (no `@Autowired` on fields)
 - Use `@ConfigurationProperties` instead of `@Value`
+- Use Lombok `@Slf4j` for logging instead of explicit `LoggerFactory.getLogger()` declarations (Added 2026-02-13)
 - 4 spaces indentation, 100 chars line limit
 - Javadoc with `@author` and `@since` on public classes
 - Tests required: unit + integration with Testcontainers
