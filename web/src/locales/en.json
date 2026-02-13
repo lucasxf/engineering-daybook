@@ -35,6 +35,13 @@
     "signUp": "Sign up",
     "signingUp": "Creating account...",
     "logOut": "Log out",
+    "googleSignIn": "Sign in with Google",
+    "googleSignUp": "Sign up with Google",
+    "orContinueWith": "or continue with",
+    "chooseHandleTitle": "Choose your handle",
+    "chooseHandleSubtitle": "Pick a unique handle to complete your registration",
+    "completeRegistration": "Complete Registration",
+    "completingRegistration": "Creating account...",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "noAccount": "Don't have an account?",
@@ -63,6 +70,9 @@
       "handleMaxLength": "Handle must be at most 30 characters",
       "handleFormat": "Handle must be lowercase letters, numbers, and hyphens only",
       "invalidCredentials": "Invalid email or password",
+      "googleEmailConflict": "This email is already registered with a password. Please sign in with email and password.",
+      "googleCancelled": "Sign-in cancelled. Please try again.",
+      "sessionExpired": "Session expired. Please try again.",
       "unexpected": "Something went wrong. Please try again."
     }
   }
