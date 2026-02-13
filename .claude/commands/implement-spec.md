@@ -14,6 +14,20 @@ This command delegates to `tech-writer` and `backend-code-reviewer` agents. Thes
 
 ---
 
+## Phase 0: Branch Verification
+
+Before making any file changes or commits:
+
+1. Run `git branch --show-current` to get the current branch
+2. Run `git status --short` to check for uncommitted changes
+3. Display to the user: **"Current branch: `<branch>`"**
+4. Evaluate whether the branch is appropriate for this implementation (typically a `feat/*`, `fix/*`, or `docs/*` branch matching the spec being implemented)
+5. **If the branch looks unrelated to the work** (e.g., `main`, or a branch for a different feature): STOP. Warn the user: "You're on branch `<branch>`. This doesn't look like the right branch for implementing this spec. Please create or switch to the correct branch before continuing."
+6. **If there are uncommitted changes:** Warn the user and ask whether to proceed or stash first.
+7. **If the branch looks appropriate:** Proceed.
+
+---
+
 ## Phase 1: Validation
 
 ### 1.1 Read and Parse Spec
