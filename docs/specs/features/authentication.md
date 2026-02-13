@@ -248,12 +248,6 @@ Each user is also identified by a unique **handle** (e.g., `@lucasxf`). The hand
 
 4. **Stateless API (JWT)** — No server-side sessions. JWT access token in Authorization header. Refresh token in httpOnly cookie (web) or secure storage (mobile, future).
 
-<<<<<<< HEAD
-5. **Handle as user identity** — Each user has a unique, immutable handle (e.g., `lucasxf`). Stored lowercase without `@` prefix. Validated as `^[a-z0-9]([a-z0-9-]{1,28}[a-z0-9])?$` (3-30 chars, alphanumeric + hyphens, cannot start/end with hyphen). The handle is included in JWT claims alongside userId for convenience. A `GET /auth/handle/available` endpoint supports real-time availability checks during registration.
-
-6. **Google OAuth two-step registration** — When a user signs in with Google for the first time, the backend returns a temporary token (not a full session) that requires the user to pick a handle before account creation completes. This avoids auto-generating handles from email prefixes, which could conflict or be undesirable.
-
-=======
 5. **Handle as user identity** — Each user has a unique, immutable handle (e.g., `lucasxf`). Stored lowercase without `@` prefix. Validated as `^[a-z0-9](?:[a-z0-9]|-(?=[a-z0-9])){1,28}[a-z0-9]$` (3-30 chars, alphanumeric + hyphens, no consecutive hyphens, cannot start/end with hyphen). The handle is included in JWT claims alongside userId for convenience. A `GET /auth/handle/available` endpoint supports real-time availability checks during registration. The `handle` column must have a unique index.
 
 6. **Google OAuth two-step registration** — When a user signs in with Google for the first time, the backend returns a temporary token (not a full session) that requires the user to pick a handle before account creation completes. This avoids auto-generating handles from email prefixes, which could conflict or be undesirable.
@@ -288,18 +282,13 @@ Each user is also identified by a unique **handle** (e.g., `@lucasxf`). The hand
 - `profile` (required to prefill display name)
 - No additional scopes requested
 
->>>>>>> main
 ### Test Strategy
 
 - [x] Full TDD (tests first for all code)
   - Unit tests: AuthService, JwtService, AuthController (MockMvc)
   - Integration tests: Full auth flows with Testcontainers (PostgreSQL)
-<<<<<<< HEAD
-  - Web: Component tests for Login/Register pages, middleware redirect tests
-=======
   - Web: Component tests with Vitest + React Testing Library for Login/Register pages, middleware redirect tests
   - Coverage target: >80% backend, >70% frontend auth components
->>>>>>> main
 
 ### File Changes
 
@@ -375,25 +364,6 @@ Each user is also identified by a unique **handle** (e.g., `@lucasxf`). The hand
 
 ## Post-Implementation Notes
 
-<<<<<<< HEAD
-> _This section is filled AFTER implementation._
-
-### Commits
-- `hash`: message
-
-### Architectural Decisions
-
-**Decision: [Title]**
-- **Options:** [A, B, C]
-- **Chosen:** [B]
-- **Rationale:** [Why]
-
-### Deviations from Spec
-- [Any changes from original plan and why]
-
-### Lessons Learned
-- [What worked, what to do differently]
-=======
 ### Commits (Backend PR)
 - `c02acc0`: chore: add security and JWT dependencies
 - `1b95143`: feat: add users and refresh_tokens database migrations
@@ -430,4 +400,3 @@ Each user is also identified by a unique **handle** (e.g., `@lucasxf`). The hand
 ### Lessons Learned
 - `@MockBean` moved to `org.springframework.test.context.bean.override.mockito.MockitoBean` in Spring Boot 3.4+. The old import `org.springframework.boot.test.mock.bean.MockBean` no longer exists.
 - Adding Spring Security requires updating ALL existing `@WebMvcTest` classes to include `@Import(SecurityConfig.class)` and mock the `JwtService` dependency, otherwise they fail to load the application context.
->>>>>>> main
