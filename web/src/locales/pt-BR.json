@@ -16,5 +16,54 @@
   "language": {
     "en": "English",
     "pt-BR": "Português (Brasil)"
+  },
+  "auth": {
+    "loginTitle": "Bem-vindo de volta",
+    "loginSubtitle": "Entre no seu Engineering Daybook",
+    "registerTitle": "Crie sua conta",
+    "registerSubtitle": "Comece a capturar seus aprendizados diários",
+    "email": "E-mail",
+    "password": "Senha",
+    "confirmPassword": "Confirmar senha",
+    "displayName": "Nome de exibição",
+    "handle": "Identificador",
+    "handleHint": "3-30 caracteres, letras minúsculas, números e hífens",
+    "handleAvailable": "Identificador disponível",
+    "handleTaken": "Identificador já está em uso",
+    "logIn": "Entrar",
+    "loggingIn": "Entrando...",
+    "signUp": "Cadastrar",
+    "signingUp": "Criando conta...",
+    "logOut": "Sair",
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha",
+    "noAccount": "Não tem uma conta?",
+    "signUpLink": "Cadastre-se",
+    "hasAccount": "Já tem uma conta?",
+    "logInLink": "Entrar",
+    "passwordStrength": {
+      "weak": "Fraca",
+      "medium": "Média",
+      "strong": "Forte"
+    },
+    "errors": {
+      "emailRequired": "E-mail é obrigatório",
+      "emailInvalid": "Formato de e-mail inválido",
+      "passwordRequired": "Senha é obrigatória",
+      "passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
+      "passwordMaxLength": "A senha deve ter no máximo 128 caracteres",
+      "passwordUppercase": "A senha deve conter pelo menos uma letra maiúscula",
+      "passwordLowercase": "A senha deve conter pelo menos uma letra minúscula",
+      "passwordNumber": "A senha deve conter pelo menos um número",
+      "confirmPasswordRequired": "Confirme sua senha",
+      "passwordsMismatch": "As senhas não coincidem",
+      "displayNameRequired": "Nome de exibição é obrigatório",
+      "displayNameMaxLength": "O nome de exibição deve ter no máximo 100 caracteres",
+      "handleMinLength": "O identificador deve ter pelo menos 3 caracteres",
+      "handleMaxLength": "O identificador deve ter no máximo 30 caracteres",
+      "handleFormat": "O identificador deve conter apenas letras minúsculas, números e hífens",
+      "invalidCredentials": "E-mail ou senha inválidos",
+      "unexpected": "Algo deu errado. Tente novamente."
+    }
   }
 }
