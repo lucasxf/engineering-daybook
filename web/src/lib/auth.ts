@@ -25,6 +25,22 @@ export interface LoginPayload {
   password: string;
 }
 
+export interface GoogleLoginResponse {
+  requiresHandle: boolean;
+  tempToken: string | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  handle: string | null;
+  userId: string | null;
+  expiresIn: number | null;
+}
+
+export interface CompleteGoogleSignupPayload {
+  tempToken: string;
+  handle: string;
+  displayName: string;
+}
+
 export function loginApi(payload: LoginPayload): Promise<AuthResponse> {
   return apiPublicFetch<AuthResponse>('/auth/login', {
     method: 'POST',
@@ -59,4 +75,20 @@ export function checkHandleApi(
   return apiPublicFetch<HandleAvailabilityResponse>(
     `/auth/handle/available?h=${encodeURIComponent(handle)}`
   );
+}
+
+export function googleLoginApi(idToken: string): Promise<GoogleLoginResponse> {
+  return apiPublicFetch<GoogleLoginResponse>('/auth/google', {
+    method: 'POST',
+    body: JSON.stringify({ idToken }),
+  });
+}
+
+export function completeGoogleSignupApi(
+  payload: CompleteGoogleSignupPayload
+): Promise<AuthResponse> {
+  return apiPublicFetch<AuthResponse>('/auth/google/complete', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
 }

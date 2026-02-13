@@ -16,9 +16,13 @@ import {
   registerApi,
   refreshApi,
   logoutApi,
+  googleLoginApi,
+  completeGoogleSignupApi,
   type AuthResponse,
   type LoginPayload,
   type RegisterPayload,
+  type GoogleLoginResponse,
+  type CompleteGoogleSignupPayload,
 } from '@/lib/auth';
 
 interface JwtPayload {
@@ -42,6 +46,8 @@ export interface AuthContextValue {
   login: (payload: LoginPayload) => Promise<void>;
   register: (payload: RegisterPayload) => Promise<void>;
   logout: () => Promise<void>;
+  googleLogin: (idToken: string) => Promise<GoogleLoginResponse>;
+  completeGoogleSignup: (payload: CompleteGoogleSignupPayload) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -126,6 +132,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [handleAuthResponse]
   );
 
+  const googleLoginAction = useCallback(
+    async (idToken: string): Promise<GoogleLoginResponse> => {
+      const response = await googleLoginApi(idToken);
+      if (!response.requiresHandle && response.accessToken && response.refreshToken) {
+        handleAuthResponse({
+          accessToken: response.accessToken,
+          refreshToken: response.refreshToken,
+          handle: response.handle!,
+          userId: response.userId!,
+          expiresIn: response.expiresIn!,
+        });
+      }
+      return response;
+    },
+    [handleAuthResponse]
+  );
+
+  const completeGoogleSignup = useCallback(
+    async (payload: CompleteGoogleSignupPayload) => {
+      const response = await completeGoogleSignupApi(payload);
+      handleAuthResponse(response);
+    },
+    [handleAuthResponse]
+  );
+
   const logout = useCallback(async () => {
     const token = refreshTokenRef.current;
     clearAuth();
@@ -184,8 +215,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       login,
       register,
       logout,
+      googleLogin: googleLoginAction,
+      completeGoogleSignup,
     }),
-    [user, isLoading, login, register, logout]
+    [user, isLoading, login, register, logout, googleLoginAction, completeGoogleSignup]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
