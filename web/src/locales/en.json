@@ -16,5 +16,54 @@
   "language": {
     "en": "English",
     "pt-BR": "Português (Brasil)"
+  },
+  "auth": {
+    "loginTitle": "Welcome back",
+    "loginSubtitle": "Sign in to your Engineering Daybook",
+    "registerTitle": "Create your account",
+    "registerSubtitle": "Capture what you learn — your future self will thank you",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "displayName": "Display name",
+    "handle": "Handle",
+    "handleHint": "3-30 characters, lowercase letters, numbers, and hyphens",
+    "handleAvailable": "Handle is available",
+    "handleTaken": "Handle is already taken",
+    "logIn": "Log in",
+    "loggingIn": "Logging in...",
+    "signUp": "Sign up",
+    "signingUp": "Creating account...",
+    "logOut": "Log out",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "noAccount": "Don't have an account?",
+    "signUpLink": "Sign up",
+    "hasAccount": "Already have an account?",
+    "logInLink": "Log in",
+    "passwordStrength": {
+      "weak": "Weak",
+      "medium": "Medium",
+      "strong": "Strong"
+    },
+    "errors": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email format",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordMaxLength": "Password must be at most 128 characters",
+      "passwordUppercase": "Password must contain at least one uppercase letter",
+      "passwordLowercase": "Password must contain at least one lowercase letter",
+      "passwordNumber": "Password must contain at least one number",
+      "confirmPasswordRequired": "Please confirm your password",
+      "passwordsMismatch": "Passwords do not match",
+      "displayNameRequired": "Display name is required",
+      "displayNameMaxLength": "Display name must be at most 100 characters",
+      "handleMinLength": "Handle must be at least 3 characters",
+      "handleMaxLength": "Handle must be at most 30 characters",
+      "handleFormat": "Handle must be lowercase letters, numbers, and hyphens only",
+      "invalidCredentials": "Invalid email or password",
+      "unexpected": "Something went wrong. Please try again."
+    }
   }
 }

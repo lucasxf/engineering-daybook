@@ -227,7 +227,7 @@ npx expo build                   # Build app
 
 **Phase 1: MVP** — 🔄 In Progress
 - [x] Authentication backend (JWT + email/password) — PR #15
-- [ ] Authentication web (login/register pages, middleware)
+- [x] Authentication web (login/register pages, auth context, i18n) — PR #17
 - [ ] Authentication Google OAuth
 - [ ] POK CRUD
 - [ ] Search
@@ -307,4 +307,4 @@ cp docs/specs/template.md docs/specs/features/my-feature.md
 
 ---
 
-*Last updated: 2026-02-11*
+*Last updated: 2026-02-13*

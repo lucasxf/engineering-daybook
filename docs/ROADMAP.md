@@ -62,10 +62,10 @@ The project follows an iterative development approach, prioritizing a functional
 
 | # | Feature | Priority | Status |
 |---|---------|----------|--------|
-| 1.1.1 | User registration (email/password) | Must Have | ✅ Backend done (PR #15) |
-| 1.1.2 | User login (email/password) | Must Have | ✅ Backend done (PR #15) |
+| 1.1.1 | User registration (email/password) | Must Have | ✅ Backend (PR #15) + Web (PR #17) |
+| 1.1.2 | User login (email/password) | Must Have | ✅ Backend (PR #15) + Web (PR #17) |
 | 1.1.3 | Google OAuth login | Must Have | ⏳ Pending (separate PR) |
-| 1.1.4 | JWT session management | Must Have | ✅ Backend done (PR #15) |
+| 1.1.4 | JWT session management | Must Have | ✅ Backend (PR #15) + Web (PR #17) |
 | 1.1.5 | Password reset flow | Should Have | ⏳ Pending (separate spec) |
 
 ### Milestone 1.2: POK Creation (Week 4)
@@ -300,3 +300,4 @@ This is a living document. Update it as the project evolves.
 |:-------:|:----:|:------:|:--------|
 | 1.0 | 2026-01-29 | Lucas Xavier Ferreira | Initial version |
 | 1.1 | 2026-02-11 | Lucas Xavier Ferreira | Phase 0 complete, Auth backend implemented (PR #15) |
+| 1.2 | 2026-02-13 | Lucas Xavier Ferreira | Auth web implemented — login/register pages, auth context, i18n (PR #17) |
