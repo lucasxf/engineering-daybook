@@ -16,6 +16,7 @@ import javax.crypto.SecretKey;
 import org.springframework.stereotype.Service;
 
 import com.lucasxf.ed.config.AuthProperties;
+import com.lucasxf.ed.exception.InvalidTokenException;
 import lombok.extern.slf4j.Slf4j;
 
 import io.jsonwebtoken.Claims;
@@ -139,18 +140,18 @@ public class JwtService {
      * Parses and validates a temp token issued for Google OAuth signup.
      *
      * @return the token claims containing googleSub, email, and name
-     * @throws IllegalArgumentException if the token is invalid, expired, or not a temp token
+     * @throws InvalidTokenException if the token is invalid, expired, or not a temp token
      */
     public Claims parseTempToken(String token) {
         try {
             Claims claims = parseClaims(token);
             String type = claims.get("type", String.class);
             if (!"google_signup".equals(type)) {
-                throw new IllegalArgumentException(INVALID_TEMP_TOKEN_MESSAGE);
+                throw new InvalidTokenException(INVALID_TEMP_TOKEN_MESSAGE);
             }
             return claims;
         } catch (JwtException e) {
-            throw new IllegalArgumentException(INVALID_TEMP_TOKEN_MESSAGE, e);
+            throw new InvalidTokenException(INVALID_TEMP_TOKEN_MESSAGE, e);
         }
     }
 
