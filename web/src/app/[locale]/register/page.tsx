@@ -3,8 +3,13 @@
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { RegisterForm } from '@/components/auth/RegisterForm';
-import { GoogleLoginButton } from '@/components/auth/GoogleLoginButton';
+
+const GoogleLoginButton = dynamic(
+  () => import('@/components/auth/GoogleLoginButton').then(m => m.GoogleLoginButton),
+  { ssr: false }
+);
 import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
 
