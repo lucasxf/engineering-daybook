@@ -51,11 +51,15 @@ public class GlobalExceptionHandler {
         String message = ex.getMessage();
         HttpStatus status;
 
-        if (message != null && (message.contains("already") || message.contains("taken"))) {
-            status = HttpStatus.CONFLICT;
-        } else if (message != null && (message.contains("Invalid")
-                || message.contains("expired"))) {
-            status = HttpStatus.UNAUTHORIZED;
+        if (message != null) {
+            String lowerMessage = message.toLowerCase();
+            if (lowerMessage.contains("already") || lowerMessage.contains("taken")) {
+                status = HttpStatus.CONFLICT;
+            } else if (lowerMessage.contains("invalid") || lowerMessage.contains("expired")) {
+                status = HttpStatus.UNAUTHORIZED;
+            } else {
+                status = HttpStatus.BAD_REQUEST;
+            }
         } else {
             status = HttpStatus.BAD_REQUEST;
         }
