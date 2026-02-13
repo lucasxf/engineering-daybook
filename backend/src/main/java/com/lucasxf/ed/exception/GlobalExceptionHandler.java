@@ -53,7 +53,8 @@ public class GlobalExceptionHandler {
 
         if (message != null && (message.contains("already") || message.contains("taken"))) {
             status = HttpStatus.CONFLICT;
-        } else if (message != null && message.contains("Invalid")) {
+        } else if (message != null && (message.contains("Invalid")
+                || message.contains("expired"))) {
             status = HttpStatus.UNAUTHORIZED;
         } else {
             status = HttpStatus.BAD_REQUEST;

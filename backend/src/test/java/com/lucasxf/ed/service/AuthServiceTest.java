@@ -53,11 +53,17 @@ class AuthServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private GoogleTokenVerifierService googleTokenVerifier;
+
     private AuthService authService;
 
     @BeforeEach
     void setUp() {
-        authService = new AuthService(userRepository, refreshTokenRepository, jwtService, passwordEncoder);
+        authService = new AuthService(
+            userRepository, refreshTokenRepository, jwtService,
+            passwordEncoder, googleTokenVerifier
+        );
     }
 
     @Nested
