@@ -1,6 +1,6 @@
 # Google OAuth Authentication
 
-> **Status:** Approved
+> **Status:** In Progress
 > **Created:** 2026-02-13
 > **Implemented:** _pending_
 
