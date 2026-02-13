@@ -50,6 +50,7 @@ export function useHandleAvailability(
 
     // Reset if handle is empty or invalid format
     if (!handle || handle.length < 3 || !HANDLE_PATTERN.test(handle)) {
+      abortRef.current?.abort();
       setState({ isChecking: false, isAvailable: null });
       return;
     }

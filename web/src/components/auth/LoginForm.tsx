@@ -43,11 +43,19 @@ export function LoginForm({ locale, redirectTo }: LoginFormProps) {
     }
   };
 
+  const getSafeRedirect = (target?: string): string => {
+    // Only allow relative paths starting with / to prevent open redirects
+    if (target && target.startsWith('/') && !target.startsWith('//')) {
+      return target;
+    }
+    return `/${locale}`;
+  };
+
   const onSubmit = async (data: LoginFormData) => {
     setServerError(null);
     try {
       await login(data);
-      router.push((redirectTo || `/${locale}`) as never);
+      router.push(getSafeRedirect(redirectTo) as never);
     } catch (error) {
       if (error instanceof ApiRequestError) {
         if (error.status === 401) {
