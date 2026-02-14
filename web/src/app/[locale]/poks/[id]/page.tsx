@@ -68,7 +68,7 @@ export default function ViewPokPage() {
   if (loading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
-        <Spinner size="large" />
+        <Spinner />
       </div>
     );
   }

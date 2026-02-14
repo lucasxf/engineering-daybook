@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 /**
@@ -11,6 +12,7 @@ import { useTranslations } from 'next-intl';
  */
 export function EmptyState() {
   const t = useTranslations('poks.emptyState');
+  const params = useParams<{ locale: string }>();
 
   return (
     <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-8 text-center dark:border-gray-700">
@@ -33,7 +35,7 @@ export function EmptyState() {
         {t('message')}
       </p>
       <Link
-        href="/poks/new"
+        href={`/${params.locale}/poks/new` as never}
         className="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-500 dark:hover:bg-blue-600"
       >
         {t('cta')}

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { Pok } from '@/lib/pokApi';
 
 interface PokCardProps {
@@ -17,6 +18,7 @@ interface PokCardProps {
  * @param pok the POK to display
  */
 export function PokCard({ pok }: PokCardProps) {
+  const params = useParams<{ locale: string }>();
   // Determine header: title if present, otherwise first 50 chars of content
   const header = pok.title && pok.title.trim()
     ? pok.title
@@ -34,7 +36,7 @@ export function PokCard({ pok }: PokCardProps) {
 
   return (
     <Link
-      href={`/poks/${pok.id}`}
+      href={`/${params.locale}/poks/${pok.id}` as never}
       className="block rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800"
     >
       <article>

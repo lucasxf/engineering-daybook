@@ -71,7 +71,6 @@ export function PokForm({
         label={t('form.contentLabel')}
         error={errors.content?.message}
         htmlFor="pok-content"
-        required
       >
         <textarea
           id="pok-content"
