@@ -47,8 +47,12 @@ export function PokForm({
     },
   });
 
+  const handleFormSubmit = async (data: PokFormData) => {
+    await onSubmit(data);
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4" noValidate>
       <FormField
         label={t('form.titleLabel')}
         error={errors.title?.message}

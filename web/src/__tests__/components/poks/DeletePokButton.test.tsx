@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DeletePokButton } from '@/components/poks/DeletePokButton';
 import { NextIntlClientProvider } from 'next-intl';
+import { vi } from 'vitest';
 
 const messages = {
   poks: {
@@ -11,12 +12,13 @@ const messages = {
       confirmMessage: 'Are you sure you want to delete this POK? It will be hidden from your list.',
       confirmButton: 'Confirm',
       cancelButton: 'Cancel',
+      deleting: 'Deleting...',
     },
   },
 };
 
 describe('DeletePokButton', () => {
-  const mockOnDelete = jest.fn();
+  const mockOnDelete = vi.fn();
 
   const renderButton = (props = {}) => {
     return render(

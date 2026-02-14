@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PokForm } from '@/components/poks/PokForm';
 import { NextIntlClientProvider } from 'next-intl';
+import { vi } from 'vitest';
 
 // Mock translations
 const messages = {
@@ -13,6 +14,7 @@ const messages = {
       contentPlaceholder: 'What did you learn today?',
       createButton: 'Create POK',
       updateButton: 'Update POK',
+      submitting: 'Saving...',
     },
     errors: {
       titleTooLong: 'Title must be 200 characters or less',
@@ -23,7 +25,7 @@ const messages = {
 };
 
 describe('PokForm', () => {
-  const mockOnSubmit = jest.fn();
+  const mockOnSubmit = vi.fn();
 
   const renderForm = (props = {}) => {
     return render(
@@ -174,6 +176,8 @@ describe('PokForm', () => {
     const submitButton = screen.getByRole('button');
     await user.click(submitButton);
 
-    expect(submitButton).toBeDisabled();
+    await waitFor(() => {
+      expect(submitButton).toBeDisabled();
+    });
   });
 });
