@@ -35,6 +35,13 @@
     "signUp": "Cadastrar",
     "signingUp": "Criando conta...",
     "logOut": "Sair",
+    "googleSignIn": "Entrar com Google",
+    "googleSignUp": "Cadastrar com Google",
+    "orContinueWith": "ou continue com",
+    "chooseHandleTitle": "Escolha seu identificador",
+    "chooseHandleSubtitle": "Escolha um identificador único para concluir seu cadastro",
+    "completeRegistration": "Concluir cadastro",
+    "completingRegistration": "Criando conta...",
     "showPassword": "Mostrar senha",
     "hidePassword": "Ocultar senha",
     "noAccount": "Não tem uma conta?",
@@ -63,6 +70,9 @@
       "handleMaxLength": "O identificador deve ter no máximo 30 caracteres",
       "handleFormat": "O identificador deve conter apenas letras minúsculas, números e hífens",
       "invalidCredentials": "E-mail ou senha inválidos",
+      "googleEmailConflict": "Este e-mail já está cadastrado com senha. Faça login com e-mail e senha.",
+      "googleCancelled": "Login cancelado. Tente novamente.",
+      "sessionExpired": "Sessão expirada. Tente novamente.",
       "unexpected": "Algo deu errado. Tente novamente."
     }
   }

@@ -112,7 +112,16 @@ Present the complete plan and ask:
 **"Implementation plan ready. Approve to proceed? (y/n)"**
 
 - **If no:** Ask what to adjust, regenerate plan, present again
-- **If yes:** Proceed to Phase 3
+- **If yes:** Proceed to Phase 2.4
+
+### 2.4 Create Task List
+
+After the user approves the plan, create tasks using TaskCreate for each commit in the Commit Plan. Each task should have:
+- **subject:** The commit message from the plan (e.g., "feat: add Google OAuth configuration")
+- **activeForm:** Present continuous form (e.g., "Adding Google OAuth configuration")
+- **description:** The files involved and what changes
+
+Mark each task as `in_progress` before starting it and `completed` when the commit is done. This provides visual progress tracking and helps with session resumability.
 
 ---
 

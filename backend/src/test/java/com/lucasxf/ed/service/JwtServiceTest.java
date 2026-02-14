@@ -5,10 +5,20 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import com.lucasxf.ed.config.AuthProperties;
 import com.lucasxf.ed.config.AuthProperties.JwtProperties;
+import com.lucasxf.ed.exception.InvalidTokenException;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
+import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -30,7 +40,7 @@ class JwtServiceTest {
     @BeforeEach
     void setUp() {
         var jwtProps = new JwtProperties(SECRET, Duration.ofMinutes(15), Duration.ofDays(7));
-        var authProps = new AuthProperties(jwtProps);
+        var authProps = new AuthProperties(jwtProps, null);
         jwtService = new JwtService(authProps);
     }
 
@@ -83,7 +93,8 @@ class JwtServiceTest {
     void isTokenValid_wrongSecret() {
         var otherProps = new AuthProperties(
             new JwtProperties("other-secret-that-is-also-256-bits-long-for-hs256-signing-algorithm",
-                Duration.ofMinutes(15), Duration.ofDays(7))
+                Duration.ofMinutes(15), Duration.ofDays(7)),
+            null
         );
         var otherService = new JwtService(otherProps);
 
@@ -96,7 +107,8 @@ class JwtServiceTest {
     @DisplayName("should reject an expired token")
     void isTokenValid_expiredToken() {
         var shortProps = new AuthProperties(
-            new JwtProperties(SECRET, Duration.ofMillis(1), Duration.ofDays(7))
+            new JwtProperties(SECRET, Duration.ofMillis(1), Duration.ofDays(7)),
+            null
         );
         var shortService = new JwtService(shortProps);
 
@@ -136,5 +148,57 @@ class JwtServiceTest {
     @DisplayName("should return refresh token expiry duration")
     void getRefreshTokenExpiry() {
         assertThat(jwtService.getRefreshTokenExpiry()).isEqualTo(Duration.ofDays(7));
+    }
+
+    @Nested
+    @DisplayName("tempToken")
+    class TempToken {
+
+        @Test
+        @DisplayName("should generate a temp token with google_signup type and correct claims")
+        void generateTempToken_validClaims() {
+            String token = jwtService.generateTempToken("google-sub-123", "alice@gmail.com", "Alice Smith");
+
+            assertThat(token).isNotBlank();
+
+            Claims claims = jwtService.parseTempToken(token);
+            assertThat(claims.get("type", String.class)).isEqualTo("google_signup");
+            assertThat(claims.get("googleSub", String.class)).isEqualTo("google-sub-123");
+            assertThat(claims.get("email", String.class)).isEqualTo("alice@gmail.com");
+            assertThat(claims.get("name", String.class)).isEqualTo("Alice Smith");
+        }
+
+        @Test
+        @DisplayName("should reject an expired temp token")
+        void parseTempToken_expired() {
+            // Build an already-expired temp token directly
+            Instant past = Instant.now().minusSeconds(60);
+            String token = Jwts.builder()
+                .claim("type", "google_signup")
+                .claim("googleSub", "sub")
+                .claim("email", "email@test.com")
+                .claim("name", "Name")
+                .issuedAt(Date.from(past.minusSeconds(60)))
+                .expiration(Date.from(past))
+                .signWith(Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8)))
+                .compact();
+
+            assertThatThrownBy(() -> jwtService.parseTempToken(token))
+                .isInstanceOf(InvalidTokenException.class)
+                .hasMessageContaining("Invalid or expired temp token");
+        }
+
+        @Test
+        @DisplayName("should reject a non-temp-token JWT")
+        void parseTempToken_wrongType() {
+            // Generate a regular access token (no "type" claim)
+            String accessToken = jwtService.generateAccessToken(
+                UUID.randomUUID(), "test@example.com", "testuser"
+            );
+
+            assertThatThrownBy(() -> jwtService.parseTempToken(accessToken))
+                .isInstanceOf(InvalidTokenException.class)
+                .hasMessageContaining("Invalid or expired temp token");
+        }
     }
 }

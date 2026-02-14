@@ -20,6 +20,9 @@ import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.dto.AuthResponse;
 import com.lucasxf.ed.dto.LoginRequest;
 import com.lucasxf.ed.dto.RegisterRequest;
+import com.lucasxf.ed.exception.ResourceConflictException;
+import com.lucasxf.ed.exception.AuthenticationException;
+import com.lucasxf.ed.exception.InvalidTokenException;
 import com.lucasxf.ed.repository.RefreshTokenRepository;
 import com.lucasxf.ed.repository.UserRepository;
 
@@ -53,11 +56,17 @@ class AuthServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private GoogleTokenVerifierService googleTokenVerifier;
+
     private AuthService authService;
 
     @BeforeEach
     void setUp() {
-        authService = new AuthService(userRepository, refreshTokenRepository, jwtService, passwordEncoder);
+        authService = new AuthService(
+            userRepository, refreshTokenRepository, jwtService,
+            passwordEncoder, googleTokenVerifier
+        );
     }
 
     @Nested
@@ -95,7 +104,7 @@ class AuthServiceTest {
             when(userRepository.existsByEmail("taken@example.com")).thenReturn(true);
 
             assertThatThrownBy(() -> authService.register(request))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceConflictException.class)
                 .hasMessageContaining("Email already registered");
 
             verify(userRepository, never()).save(any());
@@ -109,7 +118,7 @@ class AuthServiceTest {
             when(userRepository.existsByHandle("taken")).thenReturn(true);
 
             assertThatThrownBy(() -> authService.register(request))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceConflictException.class)
                 .hasMessageContaining("Handle already taken");
 
             verify(userRepository, never()).save(any());
@@ -168,7 +177,7 @@ class AuthServiceTest {
             when(userRepository.findByEmail("wrong@example.com")).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> authService.login(request))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(AuthenticationException.class)
                 .hasMessageContaining("Invalid credentials");
         }
 
@@ -182,7 +191,7 @@ class AuthServiceTest {
             when(passwordEncoder.matches("WrongPass1", "hashed")).thenReturn(false);
 
             assertThatThrownBy(() -> authService.login(request))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(AuthenticationException.class)
                 .hasMessageContaining("Invalid credentials");
         }
     }
@@ -219,7 +228,7 @@ class AuthServiceTest {
             when(refreshTokenRepository.findByTokenHash("bad-hash")).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> authService.refreshToken("bad-token"))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(InvalidTokenException.class)
                 .hasMessageContaining("Invalid refresh token");
         }
     }

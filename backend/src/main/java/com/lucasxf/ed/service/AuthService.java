@@ -10,11 +10,18 @@ import org.springframework.transaction.annotation.Transactional;
 import com.lucasxf.ed.domain.RefreshToken;
 import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.dto.AuthResponse;
+import com.lucasxf.ed.dto.GoogleLoginResponse;
 import com.lucasxf.ed.dto.LoginRequest;
 import com.lucasxf.ed.dto.RegisterRequest;
+import com.lucasxf.ed.exception.AuthenticationException;
+import com.lucasxf.ed.exception.InvalidTokenException;
+import com.lucasxf.ed.exception.ResourceConflictException;
 import com.lucasxf.ed.repository.RefreshTokenRepository;
 import com.lucasxf.ed.repository.UserRepository;
+import com.lucasxf.ed.service.GoogleTokenVerifierService.GoogleUserInfo;
 import lombok.extern.slf4j.Slf4j;
+
+import io.jsonwebtoken.Claims;
 
 import static java.util.Objects.requireNonNull;
 
@@ -33,15 +40,18 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final GoogleTokenVerifierService googleTokenVerifier;
 
     public AuthService(UserRepository userRepository,
                        RefreshTokenRepository refreshTokenRepository,
                        JwtService jwtService,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder,
+                       GoogleTokenVerifierService googleTokenVerifier) {
         this.userRepository = requireNonNull(userRepository);
         this.refreshTokenRepository = requireNonNull(refreshTokenRepository);
         this.jwtService = requireNonNull(jwtService);
         this.passwordEncoder = requireNonNull(passwordEncoder);
+        this.googleTokenVerifier = requireNonNull(googleTokenVerifier);
     }
 
     /**
@@ -54,10 +64,10 @@ public class AuthService {
         String normalizedEmail = request.email().toLowerCase(Locale.ROOT);
 
         if (userRepository.existsByEmail(normalizedEmail)) {
-            throw new IllegalArgumentException("Email already registered");
+            throw new ResourceConflictException("Email already registered");
         }
         if (userRepository.existsByHandle(request.handle())) {
-            throw new IllegalArgumentException("Handle already taken");
+            throw new ResourceConflictException("Handle already taken");
         }
 
         String hashedPassword = passwordEncoder.encode(request.password());
@@ -71,17 +81,17 @@ public class AuthService {
     /**
      * Authenticates a user with email and password.
      *
-     * @throws IllegalArgumentException if credentials are invalid
+     * @throws AuthenticationException if credentials are invalid
      */
     @Transactional
     public AuthResponse login(LoginRequest request) {
         String normalizedEmail = request.email().toLowerCase(Locale.ROOT);
 
         User user = userRepository.findByEmail(normalizedEmail)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
+            .orElseThrow(() -> new AuthenticationException("Invalid credentials"));
 
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
-            throw new IllegalArgumentException("Invalid credentials");
+            throw new AuthenticationException("Invalid credentials");
         }
 
         log.info("User logged in: handle={}", user.getHandle());
@@ -91,17 +101,17 @@ public class AuthService {
     /**
      * Refreshes the session by rotating the refresh token.
      *
-     * @throws IllegalArgumentException if the refresh token is invalid, expired, or revoked
+     * @throws InvalidTokenException if the refresh token is invalid, expired, or revoked
      */
     @Transactional
     public AuthResponse refreshToken(String rawRefreshToken) {
         String tokenHash = jwtService.hashRefreshToken(rawRefreshToken);
 
         RefreshToken existing = refreshTokenRepository.findByTokenHash(tokenHash)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid refresh token"));
+            .orElseThrow(() -> new InvalidTokenException("Invalid refresh token"));
 
         if (!existing.isValid()) {
-            throw new IllegalArgumentException("Invalid refresh token");
+            throw new InvalidTokenException("Invalid refresh token");
         }
 
         // Rotate: revoke old token
@@ -124,6 +134,64 @@ public class AuthService {
                 token.revoke();
                 log.info("User logged out: handle={}", token.getUser().getHandle());
             });
+    }
+
+    /**
+     * Authenticates a user with a Google ID token.
+     * <p>
+     * If the user exists with {@code auth_provider=google}, issues JWT tokens.
+     * If the user is new, returns a temp token for handle selection.
+     * If the email belongs to a local account, returns 409 Conflict.
+     *
+     * @throws ResourceConflictException if the email is already registered with a password
+     */
+    @Transactional
+    public GoogleLoginResponse googleLogin(String idToken) {
+        GoogleUserInfo userInfo = googleTokenVerifier.verify(idToken);
+        String normalizedEmail = userInfo.email().toLowerCase(Locale.ROOT);
+
+        return userRepository.findByEmail(normalizedEmail)
+            .map(existingUser -> {
+                if (!"google".equals(existingUser.getAuthProvider())) {
+                    log.warn("Google OAuth email conflict with local account: email={}",
+                        normalizedEmail);
+                    throw new ResourceConflictException(
+                        "This email is already registered with a password. "
+                            + "Please sign in with email and password.");
+                }
+                log.info("Google OAuth login: handle={}", existingUser.getHandle());
+                return GoogleLoginResponse.existingUser(issueTokens(existingUser));
+            })
+            .orElseGet(() -> {
+                log.info("Google OAuth new user: email={}", normalizedEmail);
+                String tempToken = jwtService.generateTempToken(
+                    userInfo.sub(), normalizedEmail, userInfo.name()
+                );
+                return GoogleLoginResponse.newUser(tempToken);
+            });
+    }
+
+    /**
+     * Completes registration for a new Google OAuth user by creating their account.
+     *
+     * @throws InvalidTokenException if the temp token is invalid or expired
+     * @throws ResourceConflictException if the handle is already taken
+     */
+    @Transactional
+    public AuthResponse completeGoogleSignup(String tempToken, String handle, String displayName) {
+        Claims claims = jwtService.parseTempToken(tempToken);
+
+        if (userRepository.existsByHandle(handle)) {
+            throw new ResourceConflictException("Handle already taken");
+        }
+
+        String email = claims.get("email", String.class);
+        var user = new User(email, null, displayName, handle);
+        user.setAuthProvider("google");
+        userRepository.save(user);
+
+        log.info("Google OAuth user created: handle={}, email={}", handle, email);
+        return issueTokens(user);
     }
 
     /**

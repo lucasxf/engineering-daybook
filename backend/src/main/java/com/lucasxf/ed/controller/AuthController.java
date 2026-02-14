@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lucasxf.ed.dto.AuthResponse;
+import com.lucasxf.ed.dto.CompleteGoogleSignupRequest;
+import com.lucasxf.ed.dto.GoogleLoginRequest;
+import com.lucasxf.ed.dto.GoogleLoginResponse;
 import com.lucasxf.ed.dto.HandleAvailabilityResponse;
 import com.lucasxf.ed.dto.LoginRequest;
 import com.lucasxf.ed.dto.RefreshTokenRequest;
@@ -78,6 +81,34 @@ public class AuthController {
     public ResponseEntity<Void> logout(@Valid @RequestBody RefreshTokenRequest request) {
         authService.logout(request.refreshToken());
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/google")
+    @Operation(summary = "Log in with Google",
+        description = "Verifies a Google ID token. Returns auth tokens for existing users "
+            + "or a temp token for new users who need to choose a handle.")
+    @ApiResponse(responseCode = "200", description = "Token verified — see requiresHandle field")
+    @ApiResponse(responseCode = "401", description = "Invalid or expired Google ID token")
+    @ApiResponse(responseCode = "409", description = "Email already registered with password")
+    public ResponseEntity<GoogleLoginResponse> googleLogin(
+        @Valid @RequestBody GoogleLoginRequest request) {
+        GoogleLoginResponse response = authService.googleLogin(request.idToken());
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/google/complete")
+    @Operation(summary = "Complete Google OAuth registration",
+        description = "Creates a new user account for a Google OAuth user with their chosen handle")
+    @ApiResponse(responseCode = "200", description = "Registration complete, tokens issued")
+    @ApiResponse(responseCode = "400", description = "Invalid handle format")
+    @ApiResponse(responseCode = "401", description = "Temp token expired")
+    @ApiResponse(responseCode = "409", description = "Handle already taken")
+    public ResponseEntity<AuthResponse> completeGoogleSignup(
+        @Valid @RequestBody CompleteGoogleSignupRequest request) {
+        AuthResponse response = authService.completeGoogleSignup(
+            request.tempToken(), request.handle(), request.displayName()
+        );
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/handle/available")

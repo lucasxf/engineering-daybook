@@ -31,6 +31,8 @@ auth:
     secret: ${JWT_SECRET:dev-only-secret-change-in-production-must-be-at-least-256-bits-long-for-hs256}
     access-token-expiry: 15m
     refresh-token-expiry: 7d
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:placeholder-configure-in-env}
 
 springdoc:
   api-docs:

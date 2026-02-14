@@ -3,7 +3,13 @@
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { RegisterForm } from '@/components/auth/RegisterForm';
+
+const GoogleLoginButton = dynamic(
+  () => import('@/components/auth/GoogleLoginButton').then(m => m.GoogleLoginButton),
+  { ssr: false }
+);
 import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
 
@@ -26,6 +32,16 @@ export default function RegisterPage() {
       </div>
 
       <RegisterForm locale={params.locale} />
+
+      <div className="my-6 flex items-center gap-3">
+        <hr className="flex-1 border-slate-300 dark:border-slate-600" />
+        <span className="text-xs text-slate-500 dark:text-slate-400">
+          {t('orContinueWith')}
+        </span>
+        <hr className="flex-1 border-slate-300 dark:border-slate-600" />
+      </div>
+
+      <GoogleLoginButton mode="register" />
 
       <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
         {t('hasAccount')}{' '}
