@@ -21,6 +21,51 @@ import lombok.extern.slf4j.Slf4j;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiError> handleAuthentication(
+            AuthenticationException ex,
+            HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+            HttpStatus.UNAUTHORIZED.value(),
+            HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+            ex.getMessage(),
+            request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    @ExceptionHandler(ResourceConflictException.class)
+    public ResponseEntity<ApiError> handleResourceConflict(
+            ResourceConflictException ex,
+            HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+            HttpStatus.CONFLICT.value(),
+            HttpStatus.CONFLICT.getReasonPhrase(),
+            ex.getMessage(),
+            request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ApiError> handleInvalidToken(
+            InvalidTokenException ex,
+            HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+            HttpStatus.UNAUTHORIZED.value(),
+            HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+            ex.getMessage(),
+            request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleValidationException(
             MethodArgumentNotValidException ex,
@@ -51,11 +96,15 @@ public class GlobalExceptionHandler {
         String message = ex.getMessage();
         HttpStatus status;
 
-        if (message != null && (message.contains("already") || message.contains("taken"))) {
-            status = HttpStatus.CONFLICT;
-        } else if (message != null && (message.contains("Invalid")
-                || message.contains("expired"))) {
-            status = HttpStatus.UNAUTHORIZED;
+        if (message != null) {
+            String lowerMessage = message.toLowerCase();
+            if (lowerMessage.contains("already") || lowerMessage.contains("taken")) {
+                status = HttpStatus.CONFLICT;
+            } else if (lowerMessage.contains("invalid") || lowerMessage.contains("expired")) {
+                status = HttpStatus.UNAUTHORIZED;
+            } else {
+                status = HttpStatus.BAD_REQUEST;
+            }
         } else {
             status = HttpStatus.BAD_REQUEST;
         }
