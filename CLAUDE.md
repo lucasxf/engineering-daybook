@@ -228,8 +228,8 @@ npx expo build                   # Build app
 **Phase 1: MVP** — 🔄 In Progress
 - [x] Authentication backend (JWT + email/password) — PR #15
 - [x] Authentication web (login/register pages, auth context, i18n) — PR #17
-- [ ] Authentication Google OAuth
-- [ ] POK CRUD
+- [x] Authentication Google OAuth — PR #20
+- [x] POK CRUD — feat/pok-crud
 - [ ] Search
 - [ ] i18n (EN/PT-BR)
 - [ ] Dark Mode
@@ -307,4 +307,4 @@ cp docs/specs/template.md docs/specs/features/my-feature.md
 
 ---
 
-*Last updated: 2026-02-13*
+*Last updated: 2026-02-14*
