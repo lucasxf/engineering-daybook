@@ -7,11 +7,17 @@ import { GoogleLogin, type CredentialResponse } from '@react-oauth/google';
 import { useAuth } from '@/hooks/useAuth';
 import { ApiRequestError } from '@/lib/api';
 
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '';
+
 interface GoogleLoginButtonProps {
   mode: 'login' | 'register';
 }
 
 export function GoogleLoginButton({ mode }: GoogleLoginButtonProps) {
+  // Don't render if Google OAuth is not configured
+  if (!GOOGLE_CLIENT_ID) {
+    return null;
+  }
   const t = useTranslations('auth');
   const params = useParams<{ locale: string }>();
   const router = useRouter();

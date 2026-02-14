@@ -36,6 +36,7 @@ import static java.util.Objects.requireNonNull;
 @Service
 public class JwtService {
 
+    private static final String GOOGLE_SIGNUP_TOKEN_TYPE = "google_signup";
     private static final String INVALID_TEMP_TOKEN_MESSAGE = "Invalid or expired temp token";
 
     private final SecretKey signingKey;
@@ -126,7 +127,7 @@ public class JwtService {
     public String generateTempToken(String googleSub, String email, String name) {
         Instant now = Instant.now();
         return Jwts.builder()
-            .claim("type", "google_signup")
+            .claim("type", GOOGLE_SIGNUP_TOKEN_TYPE)
             .claim("googleSub", googleSub)
             .claim("email", email)
             .claim("name", name)
@@ -146,7 +147,7 @@ public class JwtService {
         try {
             Claims claims = parseClaims(token);
             String type = claims.get("type", String.class);
-            if (!"google_signup".equals(type)) {
+            if (!GOOGLE_SIGNUP_TOKEN_TYPE.equals(type)) {
                 throw new InvalidTokenException(INVALID_TEMP_TOKEN_MESSAGE);
             }
             return claims;

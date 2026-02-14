@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import com.lucasxf.ed.config.AuthProperties;
 import com.lucasxf.ed.config.AuthProperties.JwtProperties;
+import com.lucasxf.ed.exception.InvalidTokenException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -183,7 +184,7 @@ class JwtServiceTest {
                 .compact();
 
             assertThatThrownBy(() -> jwtService.parseTempToken(token))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(InvalidTokenException.class)
                 .hasMessageContaining("Invalid or expired temp token");
         }
 
@@ -196,7 +197,7 @@ class JwtServiceTest {
             );
 
             assertThatThrownBy(() -> jwtService.parseTempToken(accessToken))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(InvalidTokenException.class)
                 .hasMessageContaining("Invalid or expired temp token");
         }
     }

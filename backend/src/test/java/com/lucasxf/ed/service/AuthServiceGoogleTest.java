@@ -16,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.dto.GoogleLoginResponse;
 import com.lucasxf.ed.dto.AuthResponse;
+import com.lucasxf.ed.exception.ResourceConflictException;
+import com.lucasxf.ed.exception.InvalidTokenException;
 import com.lucasxf.ed.repository.RefreshTokenRepository;
 import com.lucasxf.ed.repository.UserRepository;
 import com.lucasxf.ed.service.GoogleTokenVerifierService.GoogleUserInfo;
@@ -123,7 +125,7 @@ class AuthServiceGoogleTest {
             when(userRepository.findByEmail("carol@gmail.com")).thenReturn(Optional.of(localUser));
 
             assertThatThrownBy(() -> authService.googleLogin("valid-id-token"))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceConflictException.class)
                 .hasMessageContaining("already registered with a password");
         }
     }
@@ -184,7 +186,7 @@ class AuthServiceGoogleTest {
             assertThatThrownBy(() -> authService.completeGoogleSignup(
                 "temp-token", "taken", "Bob Smith"
             ))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceConflictException.class)
                 .hasMessageContaining("Handle already taken");
 
             verify(userRepository, never()).save(any());
@@ -194,13 +196,13 @@ class AuthServiceGoogleTest {
         @DisplayName("should throw when temp token is expired")
         void completeGoogleSignup_expiredToken() {
             when(jwtService.parseTempToken("expired-token"))
-                .thenThrow(new IllegalArgumentException("Invalid or expired temp token"));
+                .thenThrow(new InvalidTokenException("Invalid or expired temp token"));
 
             assertThatThrownBy(() -> authService.completeGoogleSignup(
                 "expired-token", "handle", "Name"
             ))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Session expired");
+                .isInstanceOf(InvalidTokenException.class)
+                .hasMessageContaining("Invalid or expired temp token");
 
             verify(userRepository, never()).save(any());
         }
