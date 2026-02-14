@@ -213,6 +213,29 @@ npx expo build                   # Build app
 > **POK content is SACRED.** Never modify, generate, or "improve" user-written content.
 > AI assists with tagging, search, and connections — never content modification.
 
+### User-Facing Terminology
+
+**CRITICAL RULE:** "POK" is internal domain jargon. Users must NEVER see it in the UI.
+
+| Context | Term to Use | Examples |
+|---------|-------------|----------|
+| **Internal code** | `POK`, `Pok` | File names, types, API routes, DB tables, tests, comments |
+| **User-facing UI** | `learning` | Buttons, labels, messages, page titles, form hints, notifications |
+| **i18n files** | `learning` (EN)<br>`aprendizado` (PT-BR) | All translation keys under `poks.*` namespace |
+
+**Why this matters:**
+- This app is specifically about capturing **learnings**, not generic notes/todos
+- Semantic precision helps users understand the focused scope
+- "POK" is meaningless jargon to anyone outside the development team
+
+**Examples:**
+- ❌ "Create POK" → ✅ "Save Learning"
+- ❌ "My POKs" → ✅ "My Learnings"
+- ❌ "POK created successfully" → ✅ "Learning saved successfully"
+- ❌ "Delete POK?" → ✅ "Delete learning?"
+
+**See also:** `docs/GLOSSARY.md` for term definitions
+
 ---
 
 ## Current Focus
