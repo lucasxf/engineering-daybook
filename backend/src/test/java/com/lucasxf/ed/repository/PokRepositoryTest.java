@@ -25,28 +25,42 @@ import com.lucasxf.ed.domain.User;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Integration tests for {@link PokRepository} using Testcontainers.
+ * Integration tests for {@link PokRepository} using Testcontainers (local) or service container (CI).
  *
  * @author Lucas Xavier Ferreira
  * @since 2026-02-14
  */
 @DataJpaTest
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class PokRepositoryTest {
 
     @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("pgvector/pgvector:pg15")
-        .withDatabaseName("testdb")
-        .withUsername("test")
-        .withPassword("test");
+    static PostgreSQLContainer<?> postgres = isRunningInCI()
+        ? null
+        : new PostgreSQLContainer<>("pgvector/pgvector:pg15")
+            .withDatabaseName("testdb")
+            .withUsername("test")
+            .withPassword("test");
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
+        if (isRunningInCI()) {
+            // Use GitHub Actions service container
+            registry.add("spring.datasource.url", () -> "jdbc:postgresql://localhost:5432/testdb");
+            registry.add("spring.datasource.username", () -> "test");
+            registry.add("spring.datasource.password", () -> "test");
+        } else {
+            // Use Testcontainers
+            registry.add("spring.datasource.url", postgres::getJdbcUrl);
+            registry.add("spring.datasource.username", postgres::getUsername);
+            registry.add("spring.datasource.password", postgres::getPassword);
+        }
         registry.add("spring.flyway.enabled", () -> "true");
+    }
+
+    private static boolean isRunningInCI() {
+        return System.getenv("CI") != null || System.getenv("GITHUB_ACTIONS") != null;
     }
 
     @Autowired
