@@ -2,7 +2,7 @@
 
 > A digital learning journal built for engineers who want to capture, organize, and recall their daily learnings.
 
-⚠️ **Status:** Phase 0 — Foundation (Documentation & Setup)
+⚠️ **Status:** Phase 1 — MVP (Authentication & POK CRUD Complete)
 
 ---
 
@@ -90,11 +90,14 @@ cd engineering-daybook
 # Backend
 cd backend
 ./mvnw spring-boot:run
+# API available at http://localhost:8080
+# Swagger UI at http://localhost:8080/swagger-ui.html
 
 # Web (new terminal)
 cd web
 npm install
 npm run dev
+# Web app available at http://localhost:3000
 
 # Mobile (new terminal)
 cd mobile
@@ -102,7 +105,42 @@ npm install
 npx expo start
 ```
 
-> ⚠️ Detailed setup instructions will be added as the project progresses.
+### Configuration
+
+The backend requires environment variables for:
+- Database connection (PostgreSQL)
+- JWT signing key
+- Google OAuth credentials (optional, for OAuth login)
+
+See `backend/src/main/resources/application.yml` for configuration details.
+
+---
+
+## Features
+
+### Implemented
+- **User Authentication**
+  - Email/password registration and login
+  - Google OAuth integration
+  - JWT-based session management
+  - Secure password hashing with BCrypt
+
+- **POK Management**
+  - Create, read, update, and delete POKs
+  - Rich text content with Markdown support
+  - Automatic and manual tagging
+  - Audit trail for all changes
+
+- **Web Application**
+  - Responsive design with Tailwind CSS
+  - Internationalization (EN/PT-BR) with next-intl
+  - Protected routes and authentication flows
+  - Modern React patterns with TypeScript
+
+### In Progress
+- Semantic search with vector embeddings
+- Dark mode support
+- Mobile application (Expo/React Native)
 
 ---
 
@@ -110,18 +148,40 @@ npx expo start
 
 See [ROADMAP.md](./docs/ROADMAP.md) for the full development plan.
 
-### Current Phase: Foundation (Weeks 1-2)
+### Phase 0: Foundation — ✅ Complete
 - [x] Project documentation
-- [ ] Repository structure
-- [ ] CI/CD pipeline
-- [ ] Development environment setup
+- [x] Repository structure
+- [x] CI/CD pipeline
+- [x] Development environment setup
+- [x] Backend scaffold
+- [x] Web scaffold
 
-### Next Phase: MVP (Weeks 3-8)
-- [ ] User authentication (email + Google)
-- [ ] Create POKs
-- [ ] Search/query POKs
+### Phase 1: MVP — 🔄 In Progress
+- [x] User authentication (email + password)
+- [x] Google OAuth integration
+- [x] POK CRUD (backend + web)
+- [ ] Semantic search
 - [ ] Dark mode
-- [ ] i18n (English + Portuguese)
+- [ ] i18n refinements
+
+---
+
+## API Documentation
+
+The backend exposes a RESTful API documented with OpenAPI (Swagger):
+
+- **Swagger UI:** `http://localhost:8080/swagger-ui.html` (when running locally)
+- **OpenAPI Spec:** `http://localhost:8080/v3/api-docs`
+
+Key endpoints:
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login with email/password
+- `POST /api/auth/google` - Login with Google OAuth
+- `GET /api/poks` - List user's POKs
+- `POST /api/poks` - Create new POK
+- `GET /api/poks/{id}` - Get POK by ID
+- `PUT /api/poks/{id}` - Update POK
+- `DELETE /api/poks/{id}` - Delete POK
 
 ---
 
@@ -164,3 +224,5 @@ This project is licensed under the [MIT License](./LICENSE).
 | Version | Date | Description |
 |:-------:|:----:|:-----------:|
 | 0.1.0 | 2026-01-29 | Initial documentation and project setup |
+| 0.2.0 | 2026-02-13 | Authentication (email/password + Google OAuth) |
+| 0.3.0 | 2026-02-14 | POK CRUD (backend + web implementation) |

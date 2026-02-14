@@ -14,15 +14,16 @@ interface GoogleLoginButtonProps {
 }
 
 export function GoogleLoginButton({ mode }: GoogleLoginButtonProps) {
-  // Don't render if Google OAuth is not configured
-  if (!GOOGLE_CLIENT_ID) {
-    return null;
-  }
   const t = useTranslations('auth');
   const params = useParams<{ locale: string }>();
   const router = useRouter();
   const { googleLogin } = useAuth();
   const [error, setError] = useState<string | null>(null);
+
+  // Don't render if Google OAuth is not configured
+  if (!GOOGLE_CLIENT_ID) {
+    return null;
+  }
 
   const handleSuccess = async (credentialResponse: CredentialResponse) => {
     if (!credentialResponse.credential) {

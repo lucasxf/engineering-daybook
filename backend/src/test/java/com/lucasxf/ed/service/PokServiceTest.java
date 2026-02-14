@@ -1,0 +1,366 @@
+package com.lucasxf.ed.service;
+
+import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
+import com.lucasxf.ed.domain.Pok;
+import com.lucasxf.ed.dto.CreatePokRequest;
+import com.lucasxf.ed.dto.PokResponse;
+import com.lucasxf.ed.dto.UpdatePokRequest;
+import com.lucasxf.ed.exception.PokAccessDeniedException;
+import com.lucasxf.ed.exception.PokNotFoundException;
+import com.lucasxf.ed.repository.PokRepository;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+
+/**
+ * Unit tests for {@link PokService}.
+ *
+ * @author Lucas Xavier Ferreira
+ * @since 2026-02-14
+ */
+@ExtendWith(MockitoExtension.class)
+class PokServiceTest {
+
+    @Mock
+    private PokRepository pokRepository;
+
+    @InjectMocks
+    private PokService pokService;
+
+    private UUID userId;
+    private UUID otherUserId;
+
+    @BeforeEach
+    void setUp() {
+        userId = UUID.randomUUID();
+        otherUserId = UUID.randomUUID();
+    }
+
+    // ===== CREATE POK TESTS =====
+
+    @Test
+    void create_withTitleAndContent_shouldCreatePok() {
+        // Given
+        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content");
+        Pok savedPok = new Pok(userId, "Test Title", "Test content");
+
+        when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
+
+        // When
+        PokResponse response = pokService.create(request, userId);
+
+        // Then
+        assertThat(response.title()).isEqualTo("Test Title");
+        assertThat(response.content()).isEqualTo("Test content");
+        assertThat(response.userId()).isEqualTo(userId);
+        assertThat(response.deletedAt()).isNull();
+
+        verify(pokRepository).save(any(Pok.class));
+    }
+
+    @Test
+    void create_withContentOnly_shouldCreatePokWithNullTitle() {
+        // Given: Title is null (optional for frictionless capture)
+        CreatePokRequest request = new CreatePokRequest(null, "Content without title");
+        Pok savedPok = new Pok(userId, null, "Content without title");
+
+        when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
+
+        // When
+        PokResponse response = pokService.create(request, userId);
+
+        // Then
+        assertThat(response.title()).isNull();
+        assertThat(response.content()).isEqualTo("Content without title");
+        assertThat(response.userId()).isEqualTo(userId);
+
+        verify(pokRepository).save(any(Pok.class));
+    }
+
+    @Test
+    void create_withEmptyStringTitle_shouldCreatePokWithEmptyTitle() {
+        // Given: Title is empty string (also valid)
+        CreatePokRequest request = new CreatePokRequest("", "Content with empty title");
+        Pok savedPok = new Pok(userId, "", "Content with empty title");
+
+        when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
+
+        // When
+        PokResponse response = pokService.create(request, userId);
+
+        // Then
+        assertThat(response.title()).isEmpty();
+        assertThat(response.content()).isEqualTo("Content with empty title");
+
+        verify(pokRepository).save(any(Pok.class));
+    }
+
+    // ===== GET POK BY ID TESTS =====
+
+    @Test
+    void getById_whenPokExistsAndUserOwnsIt_shouldReturnPok() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(userId, "Title", "Content");
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+
+        // When
+        PokResponse response = pokService.getById(pokId, userId);
+
+        // Then
+        assertThat(response.title()).isEqualTo("Title");
+        assertThat(response.content()).isEqualTo("Content");
+        assertThat(response.userId()).isEqualTo(userId);
+
+        verify(pokRepository).findByIdAndDeletedAtIsNull(pokId);
+    }
+
+    @Test
+    void getById_whenPokNotFound_shouldThrowPokNotFoundException() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.empty());
+
+        // When/Then
+        assertThatThrownBy(() -> pokService.getById(pokId, userId))
+            .isInstanceOf(PokNotFoundException.class)
+            .hasMessage("POK not found");
+
+        verify(pokRepository).findByIdAndDeletedAtIsNull(pokId);
+    }
+
+    @Test
+    void getById_whenPokBelongsToOtherUser_shouldThrowPokAccessDeniedException() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(otherUserId, "Title", "Content"); // Owned by otherUser
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+
+        // When/Then
+        assertThatThrownBy(() -> pokService.getById(pokId, userId))
+            .isInstanceOf(PokAccessDeniedException.class)
+            .hasMessage("You do not have permission to access this POK");
+
+        verify(pokRepository).findByIdAndDeletedAtIsNull(pokId);
+    }
+
+    // ===== LIST POKS TESTS =====
+
+    @Test
+    void getAll_shouldReturnPagedPoks() {
+        // Given
+        Pok pok1 = new Pok(userId, "Title 1", "Content 1");
+        Pok pok2 = new Pok(userId, null, "Content 2");
+        List<Pok> poks = List.of(pok1, pok2);
+        Page<Pok> pokPage = new PageImpl<>(poks, PageRequest.of(0, 20), 2);
+
+        Pageable pageable = PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "updatedAt"));
+
+        when(pokRepository.findByUserIdAndDeletedAtIsNull(eq(userId), any(Pageable.class)))
+            .thenReturn(pokPage);
+
+        // When
+        Page<PokResponse> result = pokService.getAll(userId, pageable);
+
+        // Then
+        assertThat(result.getTotalElements()).isEqualTo(2);
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getContent().get(0).title()).isEqualTo("Title 1");
+        assertThat(result.getContent().get(1).title()).isNull();
+
+        verify(pokRepository).findByUserIdAndDeletedAtIsNull(eq(userId), any(Pageable.class));
+    }
+
+    @Test
+    void getAll_whenNoPoks_shouldReturnEmptyPage() {
+        // Given
+        Page<Pok> emptyPage = Page.empty();
+        Pageable pageable = PageRequest.of(0, 20);
+
+        when(pokRepository.findByUserIdAndDeletedAtIsNull(eq(userId), any(Pageable.class)))
+            .thenReturn(emptyPage);
+
+        // When
+        Page<PokResponse> result = pokService.getAll(userId, pageable);
+
+        // Then
+        assertThat(result.getTotalElements()).isZero();
+        assertThat(result.getContent()).isEmpty();
+
+        verify(pokRepository).findByUserIdAndDeletedAtIsNull(eq(userId), any(Pageable.class));
+    }
+
+    @Test
+    void getAll_shouldExcludeSoftDeletedPoks() {
+        // Given: Repository already filters out soft-deleted POKs
+        Pok activePok = new Pok(userId, "Active", "Active content");
+        Page<Pok> pokPage = new PageImpl<>(List.of(activePok));
+
+        Pageable pageable = PageRequest.of(0, 20);
+
+        when(pokRepository.findByUserIdAndDeletedAtIsNull(eq(userId), any(Pageable.class)))
+            .thenReturn(pokPage);
+
+        // When
+        Page<PokResponse> result = pokService.getAll(userId, pageable);
+
+        // Then: Should only return active POKs (soft-deleted excluded by repository)
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).title()).isEqualTo("Active");
+        assertThat(result.getContent().get(0).deletedAt()).isNull();
+
+        verify(pokRepository).findByUserIdAndDeletedAtIsNull(eq(userId), any(Pageable.class));
+    }
+
+    // ===== UPDATE POK TESTS =====
+
+    @Test
+    void update_whenPokExistsAndUserOwnsIt_shouldUpdatePok() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok existingPok = new Pok(userId, "Old Title", "Old content");
+        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content");
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(existingPok));
+        when(pokRepository.save(any(Pok.class))).thenReturn(existingPok);
+
+        // When
+        PokResponse response = pokService.update(pokId, request, userId);
+
+        // Then
+        assertThat(response.title()).isEqualTo("New Title");
+        assertThat(response.content()).isEqualTo("New content");
+
+        verify(pokRepository).findByIdAndDeletedAtIsNull(pokId);
+        verify(pokRepository).save(existingPok);
+    }
+
+    @Test
+    void update_removingTitle_shouldUpdateToNullTitle() {
+        // Given: User wants to remove title (make it optional again)
+        UUID pokId = UUID.randomUUID();
+        Pok existingPok = new Pok(userId, "Old Title", "Content");
+        UpdatePokRequest request = new UpdatePokRequest(null, "Updated content");
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(existingPok));
+        when(pokRepository.save(any(Pok.class))).thenReturn(existingPok);
+
+        // When
+        PokResponse response = pokService.update(pokId, request, userId);
+
+        // Then
+        assertThat(response.title()).isNull();
+        assertThat(response.content()).isEqualTo("Updated content");
+
+        verify(pokRepository).save(existingPok);
+    }
+
+    @Test
+    void update_whenPokNotFound_shouldThrowPokNotFoundException() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        UpdatePokRequest request = new UpdatePokRequest("Title", "Content");
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.empty());
+
+        // When/Then
+        assertThatThrownBy(() -> pokService.update(pokId, request, userId))
+            .isInstanceOf(PokNotFoundException.class)
+            .hasMessage("POK not found");
+
+        verify(pokRepository).findByIdAndDeletedAtIsNull(pokId);
+    }
+
+    @Test
+    void update_whenPokBelongsToOtherUser_shouldThrowPokAccessDeniedException() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(otherUserId, "Title", "Content");
+        UpdatePokRequest request = new UpdatePokRequest("New", "New content");
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+
+        // When/Then
+        assertThatThrownBy(() -> pokService.update(pokId, request, userId))
+            .isInstanceOf(PokAccessDeniedException.class)
+            .hasMessage("You do not have permission to access this POK");
+
+        verify(pokRepository).findByIdAndDeletedAtIsNull(pokId);
+    }
+
+    // ===== SOFT DELETE TESTS =====
+
+    @Test
+    void softDelete_whenPokExistsAndUserOwnsIt_shouldMarkAsDeleted() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(userId, "Title", "Content");
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+
+        // When
+        pokService.softDelete(pokId, userId);
+
+        // Then
+        assertThat(pok.getDeletedAt()).isNotNull();
+        assertThat(pok.isDeleted()).isTrue();
+
+        verify(pokRepository).findByIdAndDeletedAtIsNull(pokId);
+        verify(pokRepository).save(pok);
+    }
+
+    @Test
+    void softDelete_whenPokNotFound_shouldThrowPokNotFoundException() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.empty());
+
+        // When/Then
+        assertThatThrownBy(() -> pokService.softDelete(pokId, userId))
+            .isInstanceOf(PokNotFoundException.class)
+            .hasMessage("POK not found");
+
+        verify(pokRepository).findByIdAndDeletedAtIsNull(pokId);
+    }
+
+    @Test
+    void softDelete_whenPokBelongsToOtherUser_shouldThrowPokAccessDeniedException() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(otherUserId, "Title", "Content");
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+
+        // When/Then
+        assertThatThrownBy(() -> pokService.softDelete(pokId, userId))
+            .isInstanceOf(PokAccessDeniedException.class)
+            .hasMessage("You do not have permission to access this POK");
+
+        verify(pokRepository).findByIdAndDeletedAtIsNull(pokId);
+    }
+}

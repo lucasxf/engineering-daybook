@@ -75,5 +75,58 @@
       "sessionExpired": "Sessão expirada. Tente novamente.",
       "unexpected": "Algo deu errado. Tente novamente."
     }
+  },
+  "poks": {
+    "create": {
+      "title": "Novo Aprendizado"
+    },
+    "list": {
+      "title": "Meus Aprendizados",
+      "createButton": "Novo Aprendizado"
+    },
+    "view": {
+      "backButton": "Voltar para lista",
+      "editButton": "Editar",
+      "created": "Criado",
+      "updated": "Atualizado"
+    },
+    "edit": {
+      "title": "Editar Aprendizado",
+      "cancelButton": "Cancelar"
+    },
+    "form": {
+      "titleLabel": "Título",
+      "titlePlaceholder": "Opcional - dê um título ao seu aprendizado",
+      "contentLabel": "Conteúdo",
+      "contentPlaceholder": "O que você aprendeu hoje?",
+      "createButton": "Salvar Aprendizado",
+      "updateButton": "Salvar Alterações",
+      "submitting": "Salvando..."
+    },
+    "emptyState": {
+      "message": "Nenhum aprendizado ainda. Comece a registrar o que você aprende!",
+      "cta": "Crie seu primeiro aprendizado"
+    },
+    "delete": {
+      "button": "Excluir",
+      "confirmTitle": "Excluir aprendizado?",
+      "confirmMessage": "Esta ação não pode ser desfeita. Este aprendizado será excluído permanentemente.",
+      "confirmButton": "Excluir",
+      "cancelButton": "Cancelar",
+      "deleting": "Excluindo..."
+    },
+    "success": {
+      "created": "Aprendizado salvo com sucesso",
+      "updated": "Aprendizado atualizado com sucesso",
+      "deleted": "Aprendizado excluído com sucesso"
+    },
+    "errors": {
+      "notFound": "Aprendizado não encontrado",
+      "forbidden": "Você não tem permissão para acessar este aprendizado",
+      "contentRequired": "O conteúdo é obrigatório e não pode estar em branco",
+      "titleTooLong": "O título deve ter no máximo 200 caracteres",
+      "contentTooLong": "O conteúdo deve ter no máximo 50.000 caracteres",
+      "unexpected": "Algo deu errado. Tente novamente."
+    }
   }
 }

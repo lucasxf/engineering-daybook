@@ -75,5 +75,58 @@
       "sessionExpired": "Session expired. Please try again.",
       "unexpected": "Something went wrong. Please try again."
     }
+  },
+  "poks": {
+    "create": {
+      "title": "New Learning"
+    },
+    "list": {
+      "title": "My Learnings",
+      "createButton": "New Learning"
+    },
+    "view": {
+      "backButton": "Back to list",
+      "editButton": "Edit",
+      "created": "Created",
+      "updated": "Updated"
+    },
+    "edit": {
+      "title": "Edit Learning",
+      "cancelButton": "Cancel"
+    },
+    "form": {
+      "titleLabel": "Title",
+      "titlePlaceholder": "Optional - give your learning a title",
+      "contentLabel": "Content",
+      "contentPlaceholder": "What did you learn today?",
+      "createButton": "Save Learning",
+      "updateButton": "Save Changes",
+      "submitting": "Saving..."
+    },
+    "emptyState": {
+      "message": "No learnings yet. Start capturing what you learn!",
+      "cta": "Create your first learning"
+    },
+    "delete": {
+      "button": "Delete",
+      "confirmTitle": "Delete learning?",
+      "confirmMessage": "This action cannot be undone. This learning will be permanently deleted.",
+      "confirmButton": "Delete",
+      "cancelButton": "Cancel",
+      "deleting": "Deleting..."
+    },
+    "success": {
+      "created": "Learning saved successfully",
+      "updated": "Learning updated successfully",
+      "deleted": "Learning deleted successfully"
+    },
+    "errors": {
+      "notFound": "Learning not found",
+      "forbidden": "You don't have permission to access this learning",
+      "contentRequired": "Content is required and must not be blank",
+      "titleTooLong": "Title must be 200 characters or less",
+      "contentTooLong": "Content must be 50,000 characters or less",
+      "unexpected": "Something went wrong. Please try again."
+    }
   }
 }
