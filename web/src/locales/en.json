@@ -75,5 +75,58 @@
       "sessionExpired": "Session expired. Please try again.",
       "unexpected": "Something went wrong. Please try again."
     }
+  },
+  "poks": {
+    "create": {
+      "title": "New POK"
+    },
+    "list": {
+      "title": "My POKs",
+      "createButton": "New POK"
+    },
+    "view": {
+      "backButton": "Back to list",
+      "editButton": "Edit",
+      "created": "Created",
+      "updated": "Updated"
+    },
+    "edit": {
+      "title": "Edit POK",
+      "cancelButton": "Cancel"
+    },
+    "form": {
+      "titleLabel": "Title",
+      "titlePlaceholder": "Optional - give your POK a title",
+      "contentLabel": "Content",
+      "contentPlaceholder": "What did you learn today?",
+      "createButton": "Create POK",
+      "updateButton": "Save changes",
+      "submitting": "Saving..."
+    },
+    "emptyState": {
+      "message": "No POKs yet. Start capturing what you learn!",
+      "cta": "Create your first POK"
+    },
+    "delete": {
+      "button": "Delete",
+      "confirmTitle": "Delete POK?",
+      "confirmMessage": "This action cannot be undone. The POK will be permanently deleted.",
+      "confirmButton": "Delete",
+      "cancelButton": "Cancel",
+      "deleting": "Deleting..."
+    },
+    "success": {
+      "created": "POK created successfully",
+      "updated": "POK updated successfully",
+      "deleted": "POK deleted successfully"
+    },
+    "errors": {
+      "notFound": "POK not found",
+      "forbidden": "You don't have permission to access this POK",
+      "contentRequired": "Content is required and must not be blank",
+      "titleTooLong": "Title must be 200 characters or less",
+      "contentTooLong": "Content must be 50,000 characters or less",
+      "unexpected": "Something went wrong. Please try again."
+    }
   }
 }

@@ -75,5 +75,58 @@
       "sessionExpired": "Sessão expirada. Tente novamente.",
       "unexpected": "Algo deu errado. Tente novamente."
     }
+  },
+  "poks": {
+    "create": {
+      "title": "Novo POK"
+    },
+    "list": {
+      "title": "Meus POKs",
+      "createButton": "Novo POK"
+    },
+    "view": {
+      "backButton": "Voltar para lista",
+      "editButton": "Editar",
+      "created": "Criado",
+      "updated": "Atualizado"
+    },
+    "edit": {
+      "title": "Editar POK",
+      "cancelButton": "Cancelar"
+    },
+    "form": {
+      "titleLabel": "Título",
+      "titlePlaceholder": "Opcional - dê um título ao seu POK",
+      "contentLabel": "Conteúdo",
+      "contentPlaceholder": "O que você aprendeu hoje?",
+      "createButton": "Criar POK",
+      "updateButton": "Salvar alterações",
+      "submitting": "Salvando..."
+    },
+    "emptyState": {
+      "message": "Nenhum POK ainda. Comece a registrar o que você aprende!",
+      "cta": "Crie seu primeiro POK"
+    },
+    "delete": {
+      "button": "Excluir",
+      "confirmTitle": "Excluir POK?",
+      "confirmMessage": "Esta ação não pode ser desfeita. O POK será excluído permanentemente.",
+      "confirmButton": "Excluir",
+      "cancelButton": "Cancelar",
+      "deleting": "Excluindo..."
+    },
+    "success": {
+      "created": "POK criado com sucesso",
+      "updated": "POK atualizado com sucesso",
+      "deleted": "POK excluído com sucesso"
+    },
+    "errors": {
+      "notFound": "POK não encontrado",
+      "forbidden": "Você não tem permissão para acessar este POK",
+      "contentRequired": "O conteúdo é obrigatório e não pode estar em branco",
+      "titleTooLong": "O título deve ter no máximo 200 caracteres",
+      "contentTooLong": "O conteúdo deve ter no máximo 50.000 caracteres",
+      "unexpected": "Algo deu errado. Tente novamente."
+    }
   }
 }
