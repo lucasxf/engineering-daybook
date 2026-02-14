@@ -1,0 +1,127 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
+import { pokApi, type Pok } from '@/lib/pokApi';
+import { ApiRequestError } from '@/lib/api';
+import { Button } from '@/components/ui/Button';
+import { Spinner } from '@/components/ui/Spinner';
+import { DeletePokButton } from '@/components/poks/DeletePokButton';
+
+/**
+ * Page for viewing a single POK.
+ *
+ * Features:
+ * - Fetches POK by ID
+ * - Displays title (if present) and content
+ * - Formatted timestamps
+ * - Edit button (links to edit page)
+ * - Delete button with confirmation
+ */
+export default function ViewPokPage() {
+  const t = useTranslations('poks');
+  const router = useRouter();
+  const params = useParams();
+  const pokId = params.id as string;
+
+  const [pok, setPok] = useState<Pok | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    loadPok();
+  }, [pokId]);
+
+  const loadPok = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await pokApi.getById(pokId);
+      setPok(data);
+    } catch (err) {
+      if (err instanceof ApiRequestError) {
+        setError(err.message);
+      } else {
+        setError(t('errors.unexpected'));
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await pokApi.delete(pokId);
+      router.push('/poks');
+    } catch (err) {
+      if (err instanceof ApiRequestError) {
+        setError(err.message);
+      } else {
+        setError(t('errors.unexpected'));
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex min-h-[400px] items-center justify-center">
+        <Spinner size="large" />
+      </div>
+    );
+  }
+
+  if (error || !pok) {
+    return (
+      <div className="mx-auto max-w-2xl py-8">
+        <div
+          role="alert"
+          className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-400"
+        >
+          {error || t('errors.notFound')}
+        </div>
+        <Link href="/poks">
+          <Button className="mt-4">{t('view.backButton')}</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-2xl py-8">
+      <div className="mb-6 flex items-center justify-between">
+        <Link href="/poks">
+          <Button variant="secondary">{t('view.backButton')}</Button>
+        </Link>
+        <div className="flex space-x-2">
+          <Link href={`/poks/${pokId}/edit`}>
+            <Button>{t('view.editButton')}</Button>
+          </Link>
+          <DeletePokButton onDelete={handleDelete} />
+        </div>
+      </div>
+
+      <article className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        {pok.title && (
+          <h1 className="mb-4 text-3xl font-bold text-gray-900 dark:text-gray-100">
+            {pok.title}
+          </h1>
+        )}
+        <div className="prose prose-gray max-w-none dark:prose-invert">
+          <p className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+            {pok.content}
+          </p>
+        </div>
+        <div className="mt-6 flex space-x-4 text-sm text-gray-500 dark:text-gray-500">
+          <time dateTime={pok.createdAt}>
+            {t('view.created')}: {new Date(pok.createdAt).toLocaleDateString()}
+          </time>
+          <time dateTime={pok.updatedAt}>
+            {t('view.updated')}: {new Date(pok.updatedAt).toLocaleDateString()}
+          </time>
+        </div>
+      </article>
+    </div>
+  );
+}
