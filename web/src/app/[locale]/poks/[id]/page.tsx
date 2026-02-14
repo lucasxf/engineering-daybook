@@ -32,6 +32,7 @@ export default function ViewPokPage() {
 
   useEffect(() => {
     loadPok();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pokId]);
 
   const loadPok = async () => {

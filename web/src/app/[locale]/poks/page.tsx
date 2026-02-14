@@ -27,6 +27,7 @@ export default function PoksPage() {
 
   useEffect(() => {
     loadPoks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadPoks = async () => {
