@@ -78,11 +78,11 @@
   },
   "poks": {
     "create": {
-      "title": "New POK"
+      "title": "New Learning"
     },
     "list": {
-      "title": "My POKs",
-      "createButton": "New POK"
+      "title": "My Learnings",
+      "createButton": "New Learning"
     },
     "view": {
       "backButton": "Back to list",
@@ -91,38 +91,38 @@
       "updated": "Updated"
     },
     "edit": {
-      "title": "Edit POK",
+      "title": "Edit Learning",
       "cancelButton": "Cancel"
     },
     "form": {
       "titleLabel": "Title",
-      "titlePlaceholder": "Optional - give your POK a title",
+      "titlePlaceholder": "Optional - give your learning a title",
       "contentLabel": "Content",
       "contentPlaceholder": "What did you learn today?",
-      "createButton": "Create POK",
-      "updateButton": "Save changes",
+      "createButton": "Save Learning",
+      "updateButton": "Save Changes",
       "submitting": "Saving..."
     },
     "emptyState": {
-      "message": "No POKs yet. Start capturing what you learn!",
-      "cta": "Create your first POK"
+      "message": "No learnings yet. Start capturing what you learn!",
+      "cta": "Create your first learning"
     },
     "delete": {
       "button": "Delete",
-      "confirmTitle": "Delete POK?",
-      "confirmMessage": "This action cannot be undone. The POK will be permanently deleted.",
+      "confirmTitle": "Delete learning?",
+      "confirmMessage": "This action cannot be undone. This learning will be permanently deleted.",
       "confirmButton": "Delete",
       "cancelButton": "Cancel",
       "deleting": "Deleting..."
     },
     "success": {
-      "created": "POK created successfully",
-      "updated": "POK updated successfully",
-      "deleted": "POK deleted successfully"
+      "created": "Learning saved successfully",
+      "updated": "Learning updated successfully",
+      "deleted": "Learning deleted successfully"
     },
     "errors": {
-      "notFound": "POK not found",
-      "forbidden": "You don't have permission to access this POK",
+      "notFound": "Learning not found",
+      "forbidden": "You don't have permission to access this learning",
       "contentRequired": "Content is required and must not be blank",
       "titleTooLong": "Title must be 200 characters or less",
       "contentTooLong": "Content must be 50,000 characters or less",
