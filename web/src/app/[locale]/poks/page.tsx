@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { PokList } from '@/components/poks/PokList';
 import { pokApi, type Pok } from '@/lib/pokApi';
@@ -21,6 +22,7 @@ import { Spinner } from '@/components/ui/Spinner';
  */
 export default function PoksPage() {
   const t = useTranslations('poks');
+  const params = useParams<{ locale: string }>();
   const [poks, setPoks] = useState<Pok[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +55,7 @@ export default function PoksPage() {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
           {t('list.title')}
         </h1>
-        <Link href="/poks/new">
+        <Link href={`/${params.locale}/poks/new` as never}>
           <Button>{t('list.createButton')}</Button>
         </Link>
       </div>

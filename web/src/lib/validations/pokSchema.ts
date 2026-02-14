@@ -17,7 +17,10 @@ export const pokSchema = z.object({
   content: z
     .string()
     .min(1, 'Content is required and must not be blank')
-    .max(50000, 'Content must be between 1 and 50,000 characters'),
+    .max(50000, 'Content must be between 1 and 50,000 characters')
+    .refine((val) => val.trim().length > 0, {
+      message: 'Content is required and must not be blank',
+    }),
 });
 
 /**

@@ -24,8 +24,8 @@ import type { PokFormData } from '@/lib/validations/pokSchema';
 export default function EditPokPage() {
   const t = useTranslations('poks');
   const router = useRouter();
-  const params = useParams();
-  const pokId = params.id as string;
+  const params = useParams<{ locale: string; id: string }>();
+  const pokId = params.id;
 
   const [pok, setPok] = useState<Pok | null>(null);
   const [loading, setLoading] = useState(true);
@@ -62,7 +62,7 @@ export default function EditPokPage() {
       });
 
       // Success - redirect to POK detail
-      router.push(`/poks/${pokId}`);
+      router.push(`/${params.locale}/poks/${pokId}` as never);
     } catch (err) {
       if (err instanceof ApiRequestError) {
         setError(err.message);
@@ -89,7 +89,7 @@ export default function EditPokPage() {
         >
           {error || t('errors.notFound')}
         </div>
-        <Link href="/poks">
+        <Link href={`/${params.locale}/poks` as never}>
           <Button className="mt-4">{t('view.backButton')}</Button>
         </Link>
       </div>
@@ -102,7 +102,7 @@ export default function EditPokPage() {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
           {t('edit.title')}
         </h1>
-        <Link href={`/poks/${pokId}`}>
+        <Link href={`/${params.locale}/poks/${pokId}` as never}>
           <Button variant="secondary">{t('edit.cancelButton')}</Button>
         </Link>
       </div>

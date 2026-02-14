@@ -23,8 +23,8 @@ import { DeletePokButton } from '@/components/poks/DeletePokButton';
 export default function ViewPokPage() {
   const t = useTranslations('poks');
   const router = useRouter();
-  const params = useParams();
-  const pokId = params.id as string;
+  const params = useParams<{ locale: string; id: string }>();
+  const pokId = params.id;
 
   const [pok, setPok] = useState<Pok | null>(null);
   const [loading, setLoading] = useState(true);
@@ -55,7 +55,7 @@ export default function ViewPokPage() {
   const handleDelete = async () => {
     try {
       await pokApi.delete(pokId);
-      router.push('/poks');
+      router.push(`/${params.locale}/poks` as never);
     } catch (err) {
       if (err instanceof ApiRequestError) {
         setError(err.message);
@@ -82,7 +82,7 @@ export default function ViewPokPage() {
         >
           {error || t('errors.notFound')}
         </div>
-        <Link href="/poks">
+        <Link href={`/${params.locale}/poks` as never}>
           <Button className="mt-4">{t('view.backButton')}</Button>
         </Link>
       </div>
@@ -92,11 +92,11 @@ export default function ViewPokPage() {
   return (
     <div className="mx-auto max-w-2xl py-8">
       <div className="mb-6 flex items-center justify-between">
-        <Link href="/poks">
+        <Link href={`/${params.locale}/poks` as never}>
           <Button variant="secondary">{t('view.backButton')}</Button>
         </Link>
         <div className="flex space-x-2">
-          <Link href={`/poks/${pokId}/edit`}>
+          <Link href={`/${params.locale}/poks/${pokId}/edit` as never}>
             <Button>{t('view.editButton')}</Button>
           </Link>
           <DeletePokButton onDelete={handleDelete} />
