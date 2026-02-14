@@ -1,6 +1,6 @@
 # POK CRUD (Create, Read, Update, Delete)
 
-> **Status:** Approved
+> **Status:** In Progress
 > **Created:** 2026-02-14
 > **Implemented:** _pending_
 
