@@ -1,8 +1,8 @@
 # POK Listing & Search
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-02-14
-> **Implemented:** _pending_
+> **Implemented:** 2026-02-15
 
 ---
 
@@ -653,7 +653,26 @@ function useDebounce<T>(value: T, delay: number): T {
 > _This section is filled AFTER implementation._
 
 ### Commits
-- _TBD_
+
+**Backend (7 commits):**
+- `fe0dcd8`: feat: add database index for created_at sorting
+- `99dcf85`: test: add repository tests for POK search functionality
+- `0cf4ef8`: feat: add POK search query to repository
+- `479afb1`: test: add service tests for POK search/filter/sort
+- `927016d`: feat: add search/filter/sort logic to PokService
+- `f38afc1`: test: add controller tests for search query parameters
+- `e1eb525`: feat: add search/filter/sort query params to PokController
+
+**Web (7 commits):**
+- `356aa43`: feat: add i18n translations for search/sort/filter
+- `72e7401`: feat: add useDebounce hook with tests
+- `ac67fc3`: feat: add SearchBar component with tests
+- `ec9792b`: feat: add SortDropdown component with tests
+- `f0b93bf`: feat: add NoSearchResults component with tests
+- `a28ddd7`: feat: enhance pokApi with search parameters
+- `45da101`: feat: integrate search/sort UI into POK list page
+
+**Total:** 14 commits, Full TDD approach
 
 ### Architectural Decisions
 
@@ -667,10 +686,10 @@ function useDebounce<T>(value: T, delay: number): T {
 
 **Decision: Date Filter UI in MVP**
 - **Options:**
-  - A) Include date range filters in MVP
-  - B) Defer to Phase 2
-- **Chosen:** TBD (recommend B for MVP simplicity)
-- **Rationale:** Search + sort cover 80% of use cases. Date filters add UI complexity. Can be added post-MVP based on user feedback.
+  - A) Include date range filters in MVP (backend + web UI)
+  - B) Backend only, defer web UI to Phase 2
+- **Chosen:** B) Backend only
+- **Rationale:** Backend supports date filters (createdFrom/To, updatedFrom/To) but web UI deferred. Search + sort cover 80% of use cases. Date filter UI adds complexity. Can be added post-MVP based on user feedback. Backend ready for future enhancement.
 
 **Decision: Debounce Delay (300ms)**
 - **Options:**
@@ -680,8 +699,30 @@ function useDebounce<T>(value: T, delay: number): T {
 - **Chosen:** B) 300ms
 - **Rationale:** Industry standard (Google uses 300ms). Balances perceived responsiveness with API efficiency.
 
+**Decision: URL State Management**
+- **Options:**
+  - A) Local component state only
+  - B) URL query params (bookmarkable)
+  - C) Global state management (Redux, Zustand)
+- **Chosen:** B) URL query params
+- **Rationale:** Enables bookmarkable searches, browser back/forward support, shareable links. Simple implementation with Next.js useSearchParams/useRouter. No global state overhead needed for search.
+
 ### Deviations from Spec
-- _TBD_
+
+1. **Date Filter UI Deferred:** Backend fully implements date filters, but web UI components (DateRangeFilter.tsx) were deferred to reduce MVP complexity. Users can still use search + sort effectively. Date filter UI can be added in Phase 2 if needed.
+
+2. **Pagination Controls Simplified:** Spec mentioned detailed pagination controls (Previous/Next buttons, page numbers). Implemented basic pagination infrastructure but deferred full pagination UI to keep MVP focused. Page parameter works in backend, can enhance UI later.
 
 ### Lessons Learned
-- _TBD_
+
+1. **TDD Velocity:** Full TDD approach (tests first) actually increased velocity. Test failures immediately identified interface mismatches and edge cases. Total time: ~4 hours for 14 tasks.
+
+2. **Component Isolation:** Building SearchBar, SortDropdown, NoSearchResults as separate components with individual tests made integration trivial. Each component tested in isolation, then composed easily in the main page.
+
+3. **URL State Management:** Using URL query params as source of truth simplified state management significantly. No need for complex state synchronization—URL is always the single source of truth.
+
+4. **useDebounce Hook:** Extracting debounce logic to a reusable hook with comprehensive tests prevented timing bugs in SearchBar component.
+
+5. **Backend-First Approach:** Implementing backend (repository → service → controller) first with full tests created a solid foundation. Frontend integration was straightforward because API contract was well-defined and tested.
+
+6. **i18n Early:** Adding translations early (Task #8) made component development smoother. All components built with i18n from the start, no retrofitting needed.
