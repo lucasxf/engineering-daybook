@@ -82,17 +82,19 @@ The project follows an iterative development approach, prioritizing a functional
 | 1.2.6 | Input validation | Must Have | ✅ Backend + Web (feat/pok-crud) |
 | 1.2.7 | Success/error feedback UI | Must Have | ✅ Web (feat/pok-crud) |
 
+#### Milestone 1.3: POK Listing & Search
+
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 1.3.1 | List all POKs (paginated) | Must Have | ✅ Backend + Web (feat/pok-listing-search) |
+| 1.3.2 | Keyword search | Must Have | ✅ Backend + Web (feat/pok-listing-search) |
+| 1.3.3 | Filter by date range | Should Have | ✅ Backend + Web (feat/pok-listing-search) |
+| 1.3.4 | Sort by date created/updated | Must Have | ✅ Backend + Web (feat/pok-listing-search) |
+| 1.3.5 | Empty states and loading UI | Must Have | ✅ Web (feat/pok-listing-search) |
+
+**Note:** feat/pok-listing-search (pending PR)
+
 ### In Progress
-
-### Milestone 1.3: POK Listing & Search (Weeks 5-6)
-
-| # | Feature | Priority |
-|---|---------|----------|
-| 1.3.1 | List all POKs (paginated) | Must Have |
-| 1.3.2 | Keyword search | Must Have |
-| 1.3.3 | Filter by date range | Should Have |
-| 1.3.4 | Sort by date created/updated | Must Have |
-| 1.3.5 | Empty states and loading UI | Must Have |
 
 ### Milestone 1.4: UI/UX Polish (Weeks 7-8)
 
@@ -309,3 +311,4 @@ This is a living document. Update it as the project evolves.
 | 1.2 | 2026-02-13 | Lucas Xavier Ferreira | Auth web implemented — login/register pages, auth context, i18n (PR #17) |
 | 1.3 | 2026-02-13 | Lucas Xavier Ferreira | Google OAuth implemented — backend + web (PR #20) |
 | 1.4 | 2026-02-14 | Lucas Xavier Ferreira | POK CRUD implemented — full CRUD operations backend + web (feat/pok-crud) |
+| 1.5 | 2026-02-15 | Lucas Xavier Ferreira | POK Listing & Search implemented — keyword search, sorting, filters (feat/pok-listing-search) |
