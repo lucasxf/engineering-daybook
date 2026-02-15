@@ -1,6 +1,6 @@
 # POK Listing & Search
 
-> **Status:** Draft
+> **Status:** In Progress
 > **Created:** 2026-02-14
 > **Implemented:** _pending_
 
