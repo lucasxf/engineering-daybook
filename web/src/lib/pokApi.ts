@@ -32,6 +32,18 @@ export interface PokPage {
   number: number;
 }
 
+export interface PokSearchParams {
+  keyword?: string;
+  sortBy?: 'createdAt' | 'updatedAt';
+  sortDirection?: 'ASC' | 'DESC';
+  createdFrom?: string; // ISO 8601
+  createdTo?: string;   // ISO 8601
+  updatedFrom?: string; // ISO 8601
+  updatedTo?: string;   // ISO 8601
+  page?: number;
+  size?: number;
+}
+
 /**
  * API client for POK CRUD operations.
  *
@@ -53,20 +65,36 @@ export const pokApi = {
   },
 
   /**
-   * Retrieves all POKs for the authenticated user with pagination.
+   * Retrieves and searches POKs for the authenticated user.
    *
-   * @param page page number (0-indexed, default 0)
-   * @param size page size (default 20)
-   * @returns a page of POKs sorted by most recently updated
-   * @throws ApiRequestError on unauthorized (401)
+   * Supports:
+   * - Keyword search (searches title and content)
+   * - Sorting (by createdAt or updatedAt, ASC/DESC)
+   * - Date range filtering (creation and update dates)
+   * - Pagination
+   *
+   * @param params optional search/filter/sort parameters
+   * @returns a page of matching POKs
+   * @throws ApiRequestError on validation errors (400), unauthorized (401)
    */
-  async getAll(page = 0, size = 20): Promise<PokPage> {
-    const queryParams = new URLSearchParams({
-      page: page.toString(),
-      size: size.toString(),
-    });
+  async getAll(params?: PokSearchParams): Promise<PokPage> {
+    const queryParams = new URLSearchParams();
 
-    return apiFetch<PokPage>(`/poks?${queryParams}`);
+    // Add parameters only if they have values
+    if (params?.keyword) queryParams.set('keyword', params.keyword);
+    if (params?.sortBy) queryParams.set('sortBy', params.sortBy);
+    if (params?.sortDirection) queryParams.set('sortDirection', params.sortDirection);
+    if (params?.createdFrom) queryParams.set('createdFrom', params.createdFrom);
+    if (params?.createdTo) queryParams.set('createdTo', params.createdTo);
+    if (params?.updatedFrom) queryParams.set('updatedFrom', params.updatedFrom);
+    if (params?.updatedTo) queryParams.set('updatedTo', params.updatedTo);
+
+    // Always include page and size (with defaults)
+    queryParams.set('page', (params?.page ?? 0).toString());
+    queryParams.set('size', (params?.size ?? 20).toString());
+
+    const queryString = queryParams.toString();
+    return apiFetch<PokPage>(`/poks?${queryString}`);
   },
 
   /**
