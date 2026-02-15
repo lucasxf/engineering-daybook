@@ -104,23 +104,46 @@ public class PokController {
     }
 
     /**
-     * Lists all active (non-deleted) POKs for the authenticated user with pagination.
+     * Lists and searches active (non-deleted) POKs for the authenticated user.
      *
-     * <p>Results are sorted by most recently updated (updatedAt DESC) by default.
+     * <p>Supports:
+     * <ul>
+     *   <li>Keyword search (case-insensitive, searches title and content)</li>
+     *   <li>Sorting by createdAt or updatedAt (ASC/DESC, default: updatedAt DESC)</li>
+     *   <li>Date range filtering (creation and update dates)</li>
+     *   <li>Pagination (default: page 0, size 20, max 100)</li>
+     * </ul>
      *
-     * @param page           page number (0-indexed, default 0)
-     * @param size           page size (default 20, max 100)
+     * @param keyword       optional keyword to search in title and content
+     * @param sortBy        optional sort field (createdAt or updatedAt, default: updatedAt)
+     * @param sortDirection optional sort direction (ASC or DESC, default: DESC)
+     * @param createdFrom   optional minimum creation date (ISO 8601)
+     * @param createdTo     optional maximum creation date (ISO 8601)
+     * @param updatedFrom   optional minimum update date (ISO 8601)
+     * @param updatedTo     optional maximum update date (ISO 8601)
+     * @param page          page number (0-indexed, default 0)
+     * @param size          page size (default 20, max 100)
      * @param authentication the authenticated user
-     * @return a page of POKs
+     * @return a page of matching POKs
      */
     @GetMapping
     @Operation(
-        summary = "List user's POKs",
-        description = "Retrieves all active POKs for the authenticated user with pagination. Sorted by most recently updated."
+        summary = "List/search user's POKs",
+        description = "Retrieves and searches active POKs for the authenticated user. " +
+                      "Supports keyword search, sorting, date filters, and pagination. " +
+                      "Default sort: most recently updated (updatedAt DESC)."
     )
     @ApiResponse(responseCode = "200", description = "POKs retrieved successfully")
+    @ApiResponse(responseCode = "400", description = "Invalid query parameters (e.g., malformed dates)")
     @ApiResponse(responseCode = "401", description = "Unauthorized")
     public ResponseEntity<Page<PokResponse>> list(
+        @RequestParam(required = false) String keyword,
+        @RequestParam(required = false) String sortBy,
+        @RequestParam(required = false) String sortDirection,
+        @RequestParam(required = false) String createdFrom,
+        @RequestParam(required = false) String createdTo,
+        @RequestParam(required = false) String updatedFrom,
+        @RequestParam(required = false) String updatedTo,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int size,
         Authentication authentication
@@ -130,13 +153,19 @@ public class PokController {
         // Enforce max page size
         int pageSize = Math.min(size, 100);
 
-        Pageable pageable = PageRequest.of(
+        Page<PokResponse> response = pokService.search(
+            userId,
+            keyword,
+            sortBy,
+            sortDirection,
+            createdFrom,
+            createdTo,
+            updatedFrom,
+            updatedTo,
             page,
-            pageSize,
-            Sort.by(Sort.Direction.DESC, "updatedAt")
+            pageSize
         );
 
-        Page<PokResponse> response = pokService.getAll(userId, pageable);
         return ResponseEntity.ok(response);
     }
 
