@@ -434,4 +434,220 @@ class PokControllerTest {
         mockMvc.perform(delete("/api/v1/poks/{id}", pokId))
             .andExpect(status().isUnauthorized());
     }
+
+    // ===== SEARCH/FILTER/SORT TESTS =====
+
+    @Test
+    @WithMockUser
+    void searchPoks_withKeyword_shouldReturn200() throws Exception {
+        // Given
+        PokResponse pok = new PokResponse(
+            pokId, userId, "Spring Boot", "Content about Spring", null, Instant.now(), Instant.now()
+        );
+        Page<PokResponse> page = new PageImpl<>(List.of(pok), PageRequest.of(0, 20), 1);
+
+        when(pokService.search(
+            any(UUID.class),
+            eq("spring"),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(0),
+            eq(20)
+        )).thenReturn(page);
+
+        // When/Then
+        mockMvc.perform(get("/api/v1/poks")
+                .with(user(userId.toString()))
+                .param("keyword", "spring"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content[0].title").value("Spring Boot"))
+            .andExpect(jsonPath("$.totalElements").value(1));
+
+        verify(pokService).search(eq(userId), eq("spring"), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
+    }
+
+    @Test
+    @WithMockUser
+    void searchPoks_withSortParameters_shouldReturn200() throws Exception {
+        // Given
+        Page<PokResponse> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
+
+        when(pokService.search(
+            any(UUID.class),
+            eq(null),
+            eq("createdAt"),
+            eq("ASC"),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(0),
+            eq(20)
+        )).thenReturn(page);
+
+        // When/Then
+        mockMvc.perform(get("/api/v1/poks")
+                .with(user(userId.toString()))
+                .param("sortBy", "createdAt")
+                .param("sortDirection", "ASC"))
+            .andExpect(status().isOk());
+
+        verify(pokService).search(eq(userId), eq(null), eq("createdAt"), eq("ASC"), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
+    }
+
+    @Test
+    @WithMockUser
+    void searchPoks_withDateFilters_shouldReturn200() throws Exception {
+        // Given
+        Page<PokResponse> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
+
+        when(pokService.search(
+            any(UUID.class),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq("2026-01-01T00:00:00Z"),
+            eq("2026-01-31T23:59:59Z"),
+            eq(null),
+            eq(null),
+            eq(0),
+            eq(20)
+        )).thenReturn(page);
+
+        // When/Then
+        mockMvc.perform(get("/api/v1/poks")
+                .with(user(userId.toString()))
+                .param("createdFrom", "2026-01-01T00:00:00Z")
+                .param("createdTo", "2026-01-31T23:59:59Z"))
+            .andExpect(status().isOk());
+
+        verify(pokService).search(
+            eq(userId),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq("2026-01-01T00:00:00Z"),
+            eq("2026-01-31T23:59:59Z"),
+            eq(null),
+            eq(null),
+            eq(0),
+            eq(20)
+        );
+    }
+
+    @Test
+    @WithMockUser
+    void searchPoks_withAllParameters_shouldReturn200() throws Exception {
+        // Given
+        Page<PokResponse> page = new PageImpl<>(List.of(), PageRequest.of(1, 10), 0);
+
+        when(pokService.search(
+            any(UUID.class),
+            eq("docker"),
+            eq("updatedAt"),
+            eq("DESC"),
+            eq("2026-01-01T00:00:00Z"),
+            eq("2026-01-31T23:59:59Z"),
+            eq("2026-02-01T00:00:00Z"),
+            eq("2026-02-28T23:59:59Z"),
+            eq(1),
+            eq(10)
+        )).thenReturn(page);
+
+        // When/Then
+        mockMvc.perform(get("/api/v1/poks")
+                .with(user(userId.toString()))
+                .param("keyword", "docker")
+                .param("sortBy", "updatedAt")
+                .param("sortDirection", "DESC")
+                .param("createdFrom", "2026-01-01T00:00:00Z")
+                .param("createdTo", "2026-01-31T23:59:59Z")
+                .param("updatedFrom", "2026-02-01T00:00:00Z")
+                .param("updatedTo", "2026-02-28T23:59:59Z")
+                .param("page", "1")
+                .param("size", "10"))
+            .andExpect(status().isOk());
+
+        verify(pokService).search(
+            eq(userId),
+            eq("docker"),
+            eq("updatedAt"),
+            eq("DESC"),
+            eq("2026-01-01T00:00:00Z"),
+            eq("2026-01-31T23:59:59Z"),
+            eq("2026-02-01T00:00:00Z"),
+            eq("2026-02-28T23:59:59Z"),
+            eq(1),
+            eq(10)
+        );
+    }
+
+    @Test
+    @WithMockUser
+    void searchPoks_withDefaultParameters_shouldReturn200() throws Exception {
+        // Given: No parameters (should use defaults)
+        Page<PokResponse> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
+
+        when(pokService.search(
+            any(UUID.class),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(0),
+            eq(20)
+        )).thenReturn(page);
+
+        // When/Then
+        mockMvc.perform(get("/api/v1/poks")
+                .with(user(userId.toString())))
+            .andExpect(status().isOk());
+
+        verify(pokService).search(eq(userId), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
+    }
+
+    @Test
+    @WithMockUser
+    void searchPoks_withEmptyResults_shouldReturn200() throws Exception {
+        // Given: Search returns no results
+        Page<PokResponse> emptyPage = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
+
+        when(pokService.search(
+            any(UUID.class),
+            eq("nonexistent"),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(0),
+            eq(20)
+        )).thenReturn(emptyPage);
+
+        // When/Then
+        mockMvc.perform(get("/api/v1/poks")
+                .with(user(userId.toString()))
+                .param("keyword", "nonexistent"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content").isEmpty())
+            .andExpect(jsonPath("$.totalElements").value(0));
+
+        verify(pokService).search(eq(userId), eq("nonexistent"), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
+    }
+
+    @Test
+    void searchPoks_withoutAuthentication_shouldReturn401() throws Exception {
+        // When/Then
+        mockMvc.perform(get("/api/v1/poks")
+                .param("keyword", "test"))
+            .andExpect(status().isUnauthorized());
+    }
 }
