@@ -226,7 +226,7 @@ class PokControllerTest {
             2
         );
 
-        when(pokService.getAll(any(UUID.class), any())).thenReturn(page);
+        when(pokService.search(any(UUID.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20))).thenReturn(page);
 
         // When/Then
         mockMvc.perform(get("/api/v1/poks")
@@ -240,7 +240,7 @@ class PokControllerTest {
             .andExpect(jsonPath("$.number").value(0))
             .andExpect(jsonPath("$.size").value(20));
 
-        verify(pokService).getAll(eq(userId), any());
+        verify(pokService).search(eq(userId), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
     }
 
     @Test
@@ -249,7 +249,7 @@ class PokControllerTest {
         // Given
         Page<PokResponse> emptyPage = Page.empty(PageRequest.of(1, 10));
 
-        when(pokService.getAll(any(UUID.class), any())).thenReturn(emptyPage);
+        when(pokService.search(any(UUID.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(1), eq(10))).thenReturn(emptyPage);
 
         // When/Then
         mockMvc.perform(get("/api/v1/poks")

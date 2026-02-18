@@ -18,6 +18,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -495,7 +496,7 @@ class PokRepositoryTest {
         Instant jan1 = Instant.parse("2026-01-01T00:00:00Z");
         Instant feb1 = Instant.parse("2026-02-01T00:00:00Z");
 
-        Pok spring Jan = new Pok(testUser.getId(), "Spring Boot", "Learn Spring in January");
+        Pok springJan = new Pok(testUser.getId(), "Spring Boot", "Learn Spring in January");
         springJan.setCreatedAt(jan1);
         springJan.setUpdatedAt(jan1);
         entityManager.persist(springJan);
@@ -522,6 +523,6 @@ class PokRepositoryTest {
 
         // Then: Should return only Spring Data (matches both keyword and date)
         assertThat(result.getTotalElements()).isEqualTo(1);
-        assertThat(result.getContent().get(0).getTitle()).isEqualTo("Spring Data");
+        assertThat(result.getContent().getFirst().getTitle()).isEqualTo("Spring Data");
     }
 }

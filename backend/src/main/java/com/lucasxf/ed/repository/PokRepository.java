@@ -55,12 +55,12 @@ public interface PokRepository extends JpaRepository<Pok, UUID> {
      * @return a page of matching active POKs
      */
     @Query("SELECT p FROM Pok p WHERE p.userId = :userId AND p.deletedAt IS NULL " +
-           "AND (:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-           "                      OR LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
-           "AND (:createdFrom IS NULL OR p.createdAt >= :createdFrom) " +
-           "AND (:createdTo IS NULL OR p.createdAt <= :createdTo) " +
-           "AND (:updatedFrom IS NULL OR p.updatedAt >= :updatedFrom) " +
-           "AND (:updatedTo IS NULL OR p.updatedAt <= :updatedTo)")
+           "AND (:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%')) " +
+           "                      OR LOWER(p.content) LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%'))) " +
+           "AND p.createdAt >= COALESCE(:createdFrom, p.createdAt) " +
+           "AND p.createdAt <= COALESCE(:createdTo, p.createdAt) " +
+           "AND p.updatedAt >= COALESCE(:updatedFrom, p.updatedAt) " +
+           "AND p.updatedAt <= COALESCE(:updatedTo, p.updatedAt)")
     Page<Pok> searchPoks(
         @Param("userId") UUID userId,
         @Param("keyword") String keyword,

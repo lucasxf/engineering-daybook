@@ -109,7 +109,7 @@ public class Pok {
      *
      * @param createdAt the creation timestamp
      */
-    void setCreatedAt(Instant createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -119,7 +119,7 @@ public class Pok {
      *
      * @param updatedAt the update timestamp
      */
-    void setUpdatedAt(Instant updatedAt) {
+    public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
     }
 
