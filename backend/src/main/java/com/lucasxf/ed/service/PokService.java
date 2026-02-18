@@ -1,6 +1,7 @@
 package com.lucasxf.ed.service;
 
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -177,13 +178,21 @@ public class PokService {
      *
      * @param dateString the date string (ISO 8601 format)
      * @return the parsed Instant, or null if the string is null/empty
+     * @throws IllegalArgumentException if the string is not a valid ISO 8601 instant
      */
     private Instant parseInstant(String dateString) {
         if (dateString == null || dateString.isEmpty()) {
             return null;
         }
-        return Instant.parse(dateString);
+        try {
+            return Instant.parse(dateString);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid date format: '" + dateString + "'. Expected ISO 8601 (e.g. 2026-01-01T00:00:00Z)");
+        }
     }
+
+    private static final java.util.Set<String> ALLOWED_SORT_FIELDS =
+        java.util.Set.of("createdAt", "updatedAt");
 
     /**
      * Builds a Sort object from sortBy and sortDirection parameters.
@@ -191,9 +200,14 @@ public class PokService {
      * @param sortBy        the field to sort by (createdAt or updatedAt, default: updatedAt)
      * @param sortDirection the sort direction (ASC or DESC, default: DESC)
      * @return the Sort object
+     * @throws IllegalArgumentException if sortBy is not a whitelisted field
      */
     private Sort buildSort(String sortBy, String sortDirection) {
         String field = (sortBy != null && !sortBy.isEmpty()) ? sortBy : "updatedAt";
+        if (!ALLOWED_SORT_FIELDS.contains(field)) {
+            throw new IllegalArgumentException(
+                "Invalid sort field: '" + field + "'. Allowed values: " + ALLOWED_SORT_FIELDS);
+        }
         Sort.Direction direction = "ASC".equalsIgnoreCase(sortDirection)
             ? Sort.Direction.ASC
             : Sort.Direction.DESC;
