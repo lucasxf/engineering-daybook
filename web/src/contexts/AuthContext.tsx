@@ -62,6 +62,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const accessTokenRef = useRef<string | null>(null);
   const refreshTokenRef = useRef<string | null>(null);
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleAuthResponseRef = useRef<((response: AuthResponse) => void) | null>(null);
 
   const clearAuth = useCallback(() => {
     accessTokenRef.current = null;
@@ -97,7 +98,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         try {
           const response = await refreshApi(token);
-          handleAuthResponse(response);
+          handleAuthResponseRef.current?.(response);
         } catch {
           clearAuth();
         }
@@ -115,6 +116,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     },
     [extractUser, scheduleRefresh]
   );
+  handleAuthResponseRef.current = handleAuthResponse;
 
   const login = useCallback(
     async (payload: LoginPayload) => {
