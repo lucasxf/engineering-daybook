@@ -1,18 +1,18 @@
-import { useTranslations } from 'next-intl';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Button } from '@/components/ui/Button';
 import { type Locale } from '@/lib/i18n';
 
 interface HomePageProps {
-  params: { locale: Locale };
+  params: Promise<{ locale: Locale }>;
 }
 
 /**
  * Home page with i18n support.
  */
-export default function HomePage({ params: { locale } }: HomePageProps) {
+export default async function HomePage({ params }: HomePageProps) {
+  const { locale } = await params;
   setRequestLocale(locale);
-  const t = useTranslations('home');
+  const t = await getTranslations('home');
 
   return (
     <div className="flex flex-col items-center justify-center py-20">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { Suspense, useEffect, useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -24,7 +24,7 @@ import { EmptyState } from '@/components/poks/EmptyState';
  * - URL state management (bookmarkable)
  * - Loading, error, empty, and no-results states
  */
-export default function PoksPage() {
+function PoksContent() {
   const t = useTranslations('poks');
   const params = useParams<{ locale: string }>();
   const router = useRouter();
@@ -41,7 +41,9 @@ export default function PoksPage() {
     sortBy: (searchParams.get('sortBy') as 'createdAt' | 'updatedAt') || 'updatedAt',
     sortDirection: (searchParams.get('sortDirection') as 'ASC' | 'DESC') || 'DESC',
   });
-  const [page] = useState(parseInt(searchParams.get('page') || '0', 10));
+
+  // Derive page from URL directly so it updates reactively when URL changes
+  const page = parseInt(searchParams.get('page') || '0', 10);
 
   // Update URL when search/sort params change
   const updateURL = useCallback(
@@ -56,7 +58,7 @@ export default function PoksPage() {
       newParams.set('page', '0'); // Reset to first page on search/sort change
 
       const queryString = newParams.toString();
-      router.push(`/${params.locale}/poks${queryString ? `?${queryString}` : ''}`, {
+      router.push(`/${params.locale}/poks${queryString ? `?${queryString}` : ''}` as never, {
         scroll: false,
       });
     },
@@ -178,5 +180,13 @@ export default function PoksPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function PoksPage() {
+  return (
+    <Suspense>
+      <PoksContent />
+    </Suspense>
   );
 }
