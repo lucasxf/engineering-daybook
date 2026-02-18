@@ -20,7 +20,7 @@
 
     <properties>
         <java.version>21</java.version>
-        <springdoc.version>2.7.0</springdoc.version>
+        <springdoc.version>3.0.1</springdoc.version>
         <testcontainers.version>1.20.4</testcontainers.version>
         <google-api-client.version>2.7.2</google-api-client.version>
         <jjwt.version>0.13.0</jjwt.version>
