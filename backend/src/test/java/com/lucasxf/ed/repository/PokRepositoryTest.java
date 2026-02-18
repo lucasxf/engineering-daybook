@@ -1,26 +1,25 @@
 package com.lucasxf.ed.repository;
 
-import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
-
+import com.lucasxf.ed.domain.Pok;
+import com.lucasxf.ed.domain.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.lucasxf.ed.domain.Pok;
-import com.lucasxf.ed.domain.User;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 2026-02-14
  */
 @DataJpaTest
+@ActiveProfiles("test")
 @Testcontainers(disabledWithoutDocker = true)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class PokRepositoryTest {
@@ -56,7 +56,6 @@ class PokRepositoryTest {
             registry.add("spring.datasource.username", postgres::getUsername);
             registry.add("spring.datasource.password", postgres::getPassword);
         }
-        registry.add("spring.flyway.enabled", () -> "true");
     }
 
     private static boolean isRunningInCI() {

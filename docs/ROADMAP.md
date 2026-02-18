@@ -312,3 +312,4 @@ This is a living document. Update it as the project evolves.
 | 1.3 | 2026-02-13 | Lucas Xavier Ferreira | Google OAuth implemented — backend + web (PR #20) |
 | 1.4 | 2026-02-14 | Lucas Xavier Ferreira | POK CRUD implemented — full CRUD operations backend + web (feat/pok-crud) |
 | 1.5 | 2026-02-15 | Lucas Xavier Ferreira | POK Listing & Search implemented — keyword search, sorting, filters (feat/pok-listing-search) |
+| 1.6 | 2026-02-18 | Lucas Xavier Ferreira | Spring Boot upgraded 3.4 → 4.0.2; test imports migrated to SB4 package structure |
