@@ -5,7 +5,7 @@
 ## Tech Stack
 
 - **Java 21** (with Virtual Threads)
-- **Spring Boot 3.4**
+- **Spring Boot 4.0**
 - **PostgreSQL 15** with pgvector
 - **Flyway** for migrations
 - **SpringDoc OpenAPI** for API documentation
