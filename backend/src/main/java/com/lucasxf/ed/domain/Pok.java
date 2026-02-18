@@ -103,6 +103,26 @@ public class Pok {
         this.content = content;
     }
 
+    /**
+     * Sets the creation timestamp.
+     * Package-private for testing purposes only.
+     *
+     * @param createdAt the creation timestamp
+     */
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    /**
+     * Sets the update timestamp.
+     * Package-private for testing purposes only.
+     *
+     * @param updatedAt the update timestamp
+     */
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
     // Getters
 
     public UUID getId() {

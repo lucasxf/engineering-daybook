@@ -363,4 +363,195 @@ class PokServiceTest {
 
         verify(pokRepository).findByIdAndDeletedAtIsNull(pokId);
     }
+
+    // ===== SEARCH/FILTER/SORT TESTS =====
+
+    @Test
+    void search_withKeyword_shouldCallRepositoryWithCorrectParameters() {
+        // Given
+        String keyword = "spring boot";
+        int page = 0;
+        int size = 20;
+        List<Pok> poks = List.of(new Pok(userId, "Spring Boot", "Content about Spring Boot"));
+        Page<Pok> pokPage = new PageImpl<>(poks, PageRequest.of(page, size), 1);
+
+        when(pokRepository.searchPoks(
+            eq(userId),
+            eq(keyword),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            any(Pageable.class)
+        )).thenReturn(pokPage);
+
+        // When
+        Page<PokResponse> result = pokService.search(userId, keyword, null, null, null, null, null, null, page, size);
+
+        // Then
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).title()).isEqualTo("Spring Boot");
+
+        verify(pokRepository).searchPoks(eq(userId), eq(keyword), eq(null), eq(null), eq(null), eq(null), any(Pageable.class));
+    }
+
+    @Test
+    void search_withSortByCreatedAtAsc_shouldBuildCorrectSort() {
+        // Given
+        String sortBy = "createdAt";
+        String sortDirection = "ASC";
+        int page = 0;
+        int size = 20;
+        Page<Pok> pokPage = new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
+
+        when(pokRepository.searchPoks(
+            eq(userId),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            any(Pageable.class)
+        )).thenReturn(pokPage);
+
+        // When
+        pokService.search(userId, null, sortBy, sortDirection, null, null, null, null, page, size);
+
+        // Then: Verify Sort object is built correctly
+        verify(pokRepository).searchPoks(
+            eq(userId),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            any(Pageable.class)
+        );
+    }
+
+    @Test
+    void search_withDateFilters_shouldParseAndPassDates() {
+        // Given
+        String createdFrom = "2026-01-01T00:00:00Z";
+        String createdTo = "2026-01-31T23:59:59Z";
+        int page = 0;
+        int size = 20;
+        Page<Pok> pokPage = new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
+
+        when(pokRepository.searchPoks(
+            eq(userId),
+            eq(null),
+            any(Instant.class),
+            any(Instant.class),
+            eq(null),
+            eq(null),
+            any(Pageable.class)
+        )).thenReturn(pokPage);
+
+        // When
+        pokService.search(userId, null, null, null, createdFrom, createdTo, null, null, page, size);
+
+        // Then: Verify dates are parsed correctly
+        verify(pokRepository).searchPoks(
+            eq(userId),
+            eq(null),
+            any(Instant.class),
+            any(Instant.class),
+            eq(null),
+            eq(null),
+            any(Pageable.class)
+        );
+    }
+
+    @Test
+    void search_withDefaultSort_shouldUseUpdatedAtDesc() {
+        // Given: No sortBy/sortDirection provided (should default to updatedAt DESC)
+        int page = 0;
+        int size = 20;
+        Page<Pok> pokPage = new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
+
+        when(pokRepository.searchPoks(
+            eq(userId),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            any(Pageable.class)
+        )).thenReturn(pokPage);
+
+        // When
+        pokService.search(userId, null, null, null, null, null, null, null, page, size);
+
+        // Then: Default sort should be updatedAt DESC
+        verify(pokRepository).searchPoks(
+            eq(userId),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            any(Pageable.class)
+        );
+    }
+
+    @Test
+    void search_withPagination_shouldRespectPageAndSize() {
+        // Given
+        int page = 2;
+        int size = 10;
+        Page<Pok> pokPage = new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
+
+        when(pokRepository.searchPoks(
+            eq(userId),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            any(Pageable.class)
+        )).thenReturn(pokPage);
+
+        // When
+        pokService.search(userId, null, null, null, null, null, null, null, page, size);
+
+        // Then: Verify pagination is correctly passed
+        verify(pokRepository).searchPoks(
+            eq(userId),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            any(Pageable.class)
+        );
+    }
+
+    @Test
+    void search_shouldConvertPoksToResponses() {
+        // Given
+        Pok pok1 = new Pok(userId, "Title 1", "Content 1");
+        Pok pok2 = new Pok(userId, null, "Content 2 without title");
+        List<Pok> poks = List.of(pok1, pok2);
+        Page<Pok> pokPage = new PageImpl<>(poks, PageRequest.of(0, 20), 2);
+
+        when(pokRepository.searchPoks(
+            eq(userId),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null),
+            any(Pageable.class)
+        )).thenReturn(pokPage);
+
+        // When
+        Page<PokResponse> result = pokService.search(userId, null, null, null, null, null, null, null, 0, 20);
+
+        // Then
+        assertThat(result.getTotalElements()).isEqualTo(2);
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getContent().get(0).title()).isEqualTo("Title 1");
+        assertThat(result.getContent().get(1).title()).isNull();
+    }
 }

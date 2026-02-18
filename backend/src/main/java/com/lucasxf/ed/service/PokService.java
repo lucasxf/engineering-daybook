@@ -1,9 +1,13 @@
 package com.lucasxf.ed.service;
 
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -99,6 +103,116 @@ public class PokService {
         log.debug("Found {} POKs for user {}", poks.getTotalElements(), userId);
 
         return poks.map(PokResponse::from);
+    }
+
+    /**
+     * Searches POKs with optional keyword, date filters, and dynamic sorting.
+     *
+     * <p>All search parameters are optional:
+     * <ul>
+     *   <li>keyword: case-insensitive search in title and content</li>
+     *   <li>sortBy: field to sort by (createdAt or updatedAt, default: updatedAt)</li>
+     *   <li>sortDirection: ASC or DESC (default: DESC)</li>
+     *   <li>createdFrom/To: filter by creation date range</li>
+     *   <li>updatedFrom/To: filter by update date range</li>
+     * </ul>
+     *
+     * @param userId        the user ID
+     * @param keyword       optional keyword to search (null = no keyword filter)
+     * @param sortBy        optional sort field (null = default to updatedAt)
+     * @param sortDirection optional sort direction (null = default to DESC)
+     * @param createdFrom   optional minimum creation date (ISO 8601 string)
+     * @param createdTo     optional maximum creation date (ISO 8601 string)
+     * @param updatedFrom   optional minimum update date (ISO 8601 string)
+     * @param updatedTo     optional maximum update date (ISO 8601 string)
+     * @param page          page number (0-indexed)
+     * @param size          page size
+     * @return a page of matching POKs
+     */
+    @Transactional(readOnly = true)
+    public Page<PokResponse> search(
+        UUID userId,
+        String keyword,
+        String sortBy,
+        String sortDirection,
+        String createdFrom,
+        String createdTo,
+        String updatedFrom,
+        String updatedTo,
+        int page,
+        int size
+    ) {
+        log.debug("Searching POKs for user {} with keyword='{}', sortBy={}, sortDirection={}, page={}, size={}",
+            userId, keyword, sortBy, sortDirection, page, size);
+
+        // Parse date filters
+        Instant createdFromInstant = parseInstant(createdFrom);
+        Instant createdToInstant = parseInstant(createdTo);
+        Instant updatedFromInstant = parseInstant(updatedFrom);
+        Instant updatedToInstant = parseInstant(updatedTo);
+
+        // Build Sort object
+        Sort sort = buildSort(sortBy, sortDirection);
+
+        // Create Pageable
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        // Execute search
+        Page<Pok> poks = pokRepository.searchPoks(
+            userId,
+            keyword,
+            createdFromInstant,
+            createdToInstant,
+            updatedFromInstant,
+            updatedToInstant,
+            pageable
+        );
+
+        log.debug("Found {} POKs matching search criteria for user {}", poks.getTotalElements(), userId);
+
+        return poks.map(PokResponse::from);
+    }
+
+    /**
+     * Parses an ISO 8601 date string to Instant.
+     *
+     * @param dateString the date string (ISO 8601 format)
+     * @return the parsed Instant, or null if the string is null/empty
+     * @throws IllegalArgumentException if the string is not a valid ISO 8601 instant
+     */
+    private Instant parseInstant(String dateString) {
+        if (dateString == null || dateString.isEmpty()) {
+            return null;
+        }
+        try {
+            return Instant.parse(dateString);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid date format: '" + dateString + "'. Expected ISO 8601 (e.g. 2026-01-01T00:00:00Z)");
+        }
+    }
+
+    private static final java.util.Set<String> ALLOWED_SORT_FIELDS =
+        java.util.Set.of("createdAt", "updatedAt");
+
+    /**
+     * Builds a Sort object from sortBy and sortDirection parameters.
+     *
+     * @param sortBy        the field to sort by (createdAt or updatedAt, default: updatedAt)
+     * @param sortDirection the sort direction (ASC or DESC, default: DESC)
+     * @return the Sort object
+     * @throws IllegalArgumentException if sortBy is not a whitelisted field
+     */
+    private Sort buildSort(String sortBy, String sortDirection) {
+        String field = (sortBy != null && !sortBy.isEmpty()) ? sortBy : "updatedAt";
+        if (!ALLOWED_SORT_FIELDS.contains(field)) {
+            throw new IllegalArgumentException(
+                "Invalid sort field: '" + field + "'. Allowed values: " + ALLOWED_SORT_FIELDS);
+        }
+        Sort.Direction direction = "ASC".equalsIgnoreCase(sortDirection)
+            ? Sort.Direction.ASC
+            : Sort.Direction.DESC;
+
+        return Sort.by(direction, field);
     }
 
     /**

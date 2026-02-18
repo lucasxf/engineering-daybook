@@ -84,6 +84,30 @@
       "title": "Meus Aprendizados",
       "createButton": "Novo Aprendizado"
     },
+    "search": {
+      "placeholder": "Pesquisar seus aprendizados...",
+      "button": "Pesquisar",
+      "noResults": "Nenhum aprendizado encontrado",
+      "noResultsHint": "Tente ajustar seus termos de pesquisa ou filtros",
+      "clearButton": "Limpar pesquisa",
+      "error": "Falha ao pesquisar aprendizados. Tente novamente."
+    },
+    "sort": {
+      "label": "Ordenar por",
+      "newestFirst": "Mais recentes primeiro",
+      "oldestFirst": "Mais antigos primeiro",
+      "recentlyCreated": "Criados recentemente",
+      "firstCreated": "Primeiros criados"
+    },
+    "filter": {
+      "label": "Filtrar",
+      "createdFrom": "Criado de",
+      "createdTo": "Criado até",
+      "updatedFrom": "Atualizado de",
+      "updatedTo": "Atualizado até",
+      "applyButton": "Aplicar filtros",
+      "clearButton": "Limpar filtros"
+    },
     "view": {
       "backButton": "Voltar para lista",
       "editButton": "Editar",

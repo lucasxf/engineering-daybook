@@ -84,6 +84,30 @@
       "title": "My Learnings",
       "createButton": "New Learning"
     },
+    "search": {
+      "placeholder": "Search your learnings...",
+      "button": "Search",
+      "noResults": "No learnings found matching your search",
+      "noResultsHint": "Try adjusting your search terms or filters",
+      "clearButton": "Clear search",
+      "error": "Failed to search learnings. Please try again."
+    },
+    "sort": {
+      "label": "Sort by",
+      "newestFirst": "Newest first",
+      "oldestFirst": "Oldest first",
+      "recentlyCreated": "Recently created",
+      "firstCreated": "First created"
+    },
+    "filter": {
+      "label": "Filter",
+      "createdFrom": "Created from",
+      "createdTo": "Created to",
+      "updatedFrom": "Updated from",
+      "updatedTo": "Updated to",
+      "applyButton": "Apply filters",
+      "clearButton": "Clear filters"
+    },
     "view": {
       "backButton": "Back to list",
       "editButton": "Edit",

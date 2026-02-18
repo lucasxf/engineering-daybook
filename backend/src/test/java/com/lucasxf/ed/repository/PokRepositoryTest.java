@@ -18,6 +18,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -236,5 +237,292 @@ class PokRepositoryTest {
         assertThat(saved.getId()).isNotNull();
         assertThat(saved.getTitle()).isEmpty();
         assertThat(saved.getContent()).isEqualTo("Content with empty title");
+    }
+
+    // ============================
+    // Search/Filter/Sort Tests
+    // ============================
+
+    @Test
+    void searchPoks_shouldFindByKeywordInTitle() {
+        // Given: POKs with different titles
+        Pok postgres = new Pok(testUser.getId(), "PostgreSQL indexing strategies", "Database content");
+        entityManager.persist(postgres);
+
+        Pok react = new Pok(testUser.getId(), "React state management", "Frontend content");
+        entityManager.persist(react);
+
+        entityManager.flush();
+
+        // When: Search for "postgresql"
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        Page<Pok> result = pokRepository.searchPoks(
+            testUser.getId(), "postgresql", null, null, null, null, pageRequest
+        );
+
+        // Then: Should find POK with "PostgreSQL" in title (case-insensitive)
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getTitle()).contains("PostgreSQL");
+    }
+
+    @Test
+    void searchPoks_shouldFindByKeywordInContent() {
+        // Given: POKs with different content
+        Pok virtualThreads = new Pok(testUser.getId(), "Java 21", "Learned about Spring Boot virtual threads today");
+        entityManager.persist(virtualThreads);
+
+        Pok hooks = new Pok(testUser.getId(), "React", "React hooks are great");
+        entityManager.persist(hooks);
+
+        entityManager.flush();
+
+        // When: Search for "virtual threads"
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        Page<Pok> result = pokRepository.searchPoks(
+            testUser.getId(), "virtual threads", null, null, null, null, pageRequest
+        );
+
+        // Then: Should find POK with "virtual threads" in content
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getContent()).contains("virtual threads");
+    }
+
+    @Test
+    void searchPoks_shouldBeCaseInsensitive() {
+        // Given: POK with "Docker Compose" in title
+        Pok docker = new Pok(testUser.getId(), "Docker Compose", "Container orchestration");
+        entityManager.persist(docker);
+        entityManager.flush();
+
+        // When: Search for "docker compose" (lowercase)
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        Page<Pok> result = pokRepository.searchPoks(
+            testUser.getId(), "docker compose", null, null, null, null, pageRequest
+        );
+
+        // Then: Should find the POK (case-insensitive)
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getTitle()).isEqualTo("Docker Compose");
+    }
+
+    @Test
+    void searchPoks_shouldSortByCreatedAtAscending() throws InterruptedException {
+        // Given: 3 POKs created at different times
+        Pok oldest = new Pok(testUser.getId(), "Oldest", "Content 1");
+        entityManager.persist(oldest);
+        entityManager.flush();
+
+        Thread.sleep(10);
+
+        Pok middle = new Pok(testUser.getId(), "Middle", "Content 2");
+        entityManager.persist(middle);
+        entityManager.flush();
+
+        Thread.sleep(10);
+
+        Pok newest = new Pok(testUser.getId(), "Newest", "Content 3");
+        entityManager.persist(newest);
+        entityManager.flush();
+
+        // When: Search with sort by createdAt ASC
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "createdAt"));
+        Page<Pok> result = pokRepository.searchPoks(
+            testUser.getId(), null, null, null, null, null, pageRequest
+        );
+
+        // Then: Should return oldest first
+        assertThat(result.getContent())
+            .extracting(Pok::getTitle)
+            .containsExactly("Oldest", "Middle", "Newest");
+    }
+
+    @Test
+    void searchPoks_shouldFilterByCreationDateRange() {
+        // Given: POKs created on different dates
+        Instant jan1 = Instant.parse("2026-01-01T00:00:00Z");
+        Instant feb1 = Instant.parse("2026-02-01T00:00:00Z");
+        Instant mar1 = Instant.parse("2026-03-01T00:00:00Z");
+
+        Pok pokA = new Pok(testUser.getId(), "POK A", "Content A");
+        pokA.setCreatedAt(jan1);
+        pokA.setUpdatedAt(jan1);
+        entityManager.persist(pokA);
+
+        Pok pokB = new Pok(testUser.getId(), "POK B", "Content B");
+        pokB.setCreatedAt(feb1);
+        pokB.setUpdatedAt(feb1);
+        entityManager.persist(pokB);
+
+        Pok pokC = new Pok(testUser.getId(), "POK C", "Content C");
+        pokC.setCreatedAt(mar1);
+        pokC.setUpdatedAt(mar1);
+        entityManager.persist(pokC);
+
+        entityManager.flush();
+
+        // When: Filter by creation date range (Jan 15 to Feb 15)
+        Instant createdFrom = Instant.parse("2026-01-15T00:00:00Z");
+        Instant createdTo = Instant.parse("2026-02-15T23:59:59Z");
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        Page<Pok> result = pokRepository.searchPoks(
+            testUser.getId(), null, createdFrom, createdTo, null, null, pageRequest
+        );
+
+        // Then: Should return only POK B
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getTitle()).isEqualTo("POK B");
+    }
+
+    @Test
+    void searchPoks_shouldFilterByUpdateDateRange() {
+        // Given: POKs updated on different dates
+        Instant jan1 = Instant.parse("2026-01-01T00:00:00Z");
+        Instant feb1 = Instant.parse("2026-02-01T00:00:00Z");
+
+        Pok pokA = new Pok(testUser.getId(), "POK A", "Content A");
+        pokA.setCreatedAt(jan1);
+        pokA.setUpdatedAt(jan1);
+        entityManager.persist(pokA);
+
+        Pok pokB = new Pok(testUser.getId(), "POK B", "Content B");
+        pokB.setCreatedAt(jan1);
+        pokB.setUpdatedAt(feb1);
+        entityManager.persist(pokB);
+
+        entityManager.flush();
+
+        // When: Filter by update date range (Jan 15 to Mar 1)
+        Instant updatedFrom = Instant.parse("2026-01-15T00:00:00Z");
+        Instant updatedTo = Instant.parse("2026-03-01T23:59:59Z");
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        Page<Pok> result = pokRepository.searchPoks(
+            testUser.getId(), null, null, null, updatedFrom, updatedTo, pageRequest
+        );
+
+        // Then: Should return only POK B
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getTitle()).isEqualTo("POK B");
+    }
+
+    @Test
+    void searchPoks_shouldReturnEmptyWhenNoMatch() {
+        // Given: POKs with specific content
+        Pok pok1 = new Pok(testUser.getId(), "Java", "Content about Java");
+        entityManager.persist(pok1);
+
+        Pok pok2 = new Pok(testUser.getId(), "Spring", "Content about Spring");
+        entityManager.persist(pok2);
+
+        entityManager.flush();
+
+        // When: Search for non-existent keyword
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        Page<Pok> result = pokRepository.searchPoks(
+            testUser.getId(), "kubernetes", null, null, null, null, pageRequest
+        );
+
+        // Then: Should return empty page
+        assertThat(result.getTotalElements()).isEqualTo(0);
+        assertThat(result.getContent()).isEmpty();
+    }
+
+    @Test
+    void searchPoks_shouldHandleSpecialCharactersSafely() {
+        // Given: POK with normal content
+        Pok pok = new Pok(testUser.getId(), "Normal", "Normal content");
+        entityManager.persist(pok);
+        entityManager.flush();
+
+        // When: Search with SQL injection attempt (should be parameterized and safe)
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        Page<Pok> result = pokRepository.searchPoks(
+            testUser.getId(), "' OR 1=1--", null, null, null, null, pageRequest
+        );
+
+        // Then: Should not return any results (treated as literal string, not SQL)
+        assertThat(result.getTotalElements()).isEqualTo(0);
+        assertThat(result.getContent()).isEmpty();
+    }
+
+    @Test
+    void searchPoks_shouldOnlyReturnCurrentUsersPoks() {
+        // Given: POKs for both testUser and otherUser
+        Pok testUserPok = new Pok(testUser.getId(), "My secret learning", "My content");
+        entityManager.persist(testUserPok);
+
+        Pok otherUserPok = new Pok(otherUser.getId(), "Other secret learning", "Other content");
+        entityManager.persist(otherUserPok);
+
+        entityManager.flush();
+
+        // When: Search by testUser for "secret"
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        Page<Pok> result = pokRepository.searchPoks(
+            testUser.getId(), "secret", null, null, null, null, pageRequest
+        );
+
+        // Then: Should return only testUser's POK (user isolation)
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getUserId()).isEqualTo(testUser.getId());
+        assertThat(result.getContent().get(0).getTitle()).isEqualTo("My secret learning");
+    }
+
+    @Test
+    void searchPoks_shouldExcludeSoftDeletedPoks() {
+        // Given: Active and soft-deleted POKs
+        Pok active = new Pok(testUser.getId(), "Active POK", "Active content");
+        entityManager.persist(active);
+
+        Pok deleted = new Pok(testUser.getId(), "Deleted POK", "Deleted content");
+        deleted.softDelete();
+        entityManager.persist(deleted);
+
+        entityManager.flush();
+
+        // When: Search for "POK"
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        Page<Pok> result = pokRepository.searchPoks(
+            testUser.getId(), "POK", null, null, null, null, pageRequest
+        );
+
+        // Then: Should return only active POK
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getTitle()).isEqualTo("Active POK");
+    }
+
+    @Test
+    void searchPoks_shouldCombineKeywordAndDateFilters() {
+        // Given: POKs with different keywords and dates
+        Instant jan1 = Instant.parse("2026-01-01T00:00:00Z");
+        Instant feb1 = Instant.parse("2026-02-01T00:00:00Z");
+
+        Pok springJan = new Pok(testUser.getId(), "Spring Boot", "Learn Spring in January");
+        springJan.setCreatedAt(jan1);
+        springJan.setUpdatedAt(jan1);
+        entityManager.persist(springJan);
+
+        Pok springFeb = new Pok(testUser.getId(), "Spring Data", "Learn Spring in February");
+        springFeb.setCreatedAt(feb1);
+        springFeb.setUpdatedAt(feb1);
+        entityManager.persist(springFeb);
+
+        Pok reactJan = new Pok(testUser.getId(), "React", "Learn React in January");
+        reactJan.setCreatedAt(jan1);
+        reactJan.setUpdatedAt(jan1);
+        entityManager.persist(reactJan);
+
+        entityManager.flush();
+
+        // When: Search for "Spring" with creation date in February
+        Instant createdFrom = Instant.parse("2026-02-01T00:00:00Z");
+        Instant createdTo = Instant.parse("2026-02-28T23:59:59Z");
+        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "updatedAt"));
+        Page<Pok> result = pokRepository.searchPoks(
+            testUser.getId(), "Spring", createdFrom, createdTo, null, null, pageRequest
+        );
+
+        // Then: Should return only Spring Data (matches both keyword and date)
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().getFirst().getTitle()).isEqualTo("Spring Data");
     }
 }
