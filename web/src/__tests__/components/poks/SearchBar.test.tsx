@@ -3,7 +3,7 @@ import { SearchBar } from '@/components/poks/SearchBar';
 import { NextIntlClientProvider } from 'next-intl';
 
 // Mock useDebounce to avoid timing issues in tests
-jest.mock('@/hooks/useDebounce', () => ({
+vi.mock('@/hooks/useDebounce', () => ({
   useDebounce: (value: string) => value,
 }));
 
@@ -16,7 +16,7 @@ const messages = {
   },
 };
 
-const renderSearchBar = (props: Parameters<typeof SearchBar>[0] = { onSearch: jest.fn() }) => {
+const renderSearchBar = (props: Parameters<typeof SearchBar>[0] = { onSearch: vi.fn() }) => {
   return render(
     <NextIntlClientProvider locale="en" messages={messages}>
       <SearchBar {...props} />
@@ -33,7 +33,7 @@ describe('SearchBar', () => {
   });
 
   it('should render custom placeholder when provided', () => {
-    renderSearchBar({ onSearch: jest.fn(), placeholder: 'Custom placeholder' });
+    renderSearchBar({ onSearch: vi.fn(), placeholder: 'Custom placeholder' });
 
     const input = screen.getByPlaceholderText('Custom placeholder');
     expect(input).toBeInTheDocument();
@@ -47,7 +47,7 @@ describe('SearchBar', () => {
   });
 
   it('should call onSearch when Enter key is pressed', () => {
-    const onSearch = jest.fn();
+    const onSearch = vi.fn();
     renderSearchBar({ onSearch });
 
     const input = screen.getByPlaceholderText('Search your learnings...');
@@ -58,7 +58,7 @@ describe('SearchBar', () => {
   });
 
   it('should call onSearch when search button is clicked', () => {
-    const onSearch = jest.fn();
+    const onSearch = vi.fn();
     renderSearchBar({ onSearch });
 
     const input = screen.getByPlaceholderText('Search your learnings...');
@@ -71,7 +71,7 @@ describe('SearchBar', () => {
   });
 
   it('should call onSearch with debounced value (auto-trigger)', async () => {
-    const onSearch = jest.fn();
+    const onSearch = vi.fn();
     renderSearchBar({ onSearch });
 
     const input = screen.getByPlaceholderText('Search your learnings...');
@@ -94,7 +94,7 @@ describe('SearchBar', () => {
   });
 
   it('should initialize with initial value', () => {
-    renderSearchBar({ onSearch: jest.fn(), initialValue: 'initial search' });
+    renderSearchBar({ onSearch: vi.fn(), initialValue: 'initial search' });
 
     const input = screen.getByPlaceholderText('Search your learnings...') as HTMLInputElement;
     expect(input.value).toBe('initial search');

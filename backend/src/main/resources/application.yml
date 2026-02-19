@@ -13,7 +13,7 @@ spring:
       minimum-idle: 2
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     open-in-view: false
     properties:
       hibernate:

@@ -2,6 +2,7 @@ package com.lucasxf.ed.repository;
 
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.User;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -32,17 +31,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @DataJpaTest
 @ActiveProfiles("test")
-@Testcontainers(disabledWithoutDocker = true)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class PokRepositoryTest {
 
-    @Container
-    static PostgreSQLContainer<?> postgres = isRunningInCI()
-        ? null
-        : new PostgreSQLContainer<>("pgvector/pgvector:pg15")
-            .withDatabaseName("testdb")
-            .withUsername("test")
-            .withPassword("test");
+    static PostgreSQLContainer<?> postgres;
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
@@ -52,10 +44,24 @@ class PokRepositoryTest {
             registry.add("spring.datasource.username", () -> "test");
             registry.add("spring.datasource.password", () -> "test");
         } else {
-            // Use Testcontainers
+            // Start Testcontainers here — @DynamicPropertySource runs during context loading,
+            // before @BeforeAll, so the container must be started here to be available for
+            // property registration.
+            postgres = new PostgreSQLContainer<>("pgvector/pgvector:pg15")
+                .withDatabaseName("testdb")
+                .withUsername("test")
+                .withPassword("test");
+            postgres.start();
             registry.add("spring.datasource.url", postgres::getJdbcUrl);
             registry.add("spring.datasource.username", postgres::getUsername);
             registry.add("spring.datasource.password", postgres::getPassword);
+        }
+    }
+
+    @AfterAll
+    static void stopContainers() {
+        if (postgres != null && postgres.isRunning()) {
+            postgres.stop();
         }
     }
 

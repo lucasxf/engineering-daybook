@@ -1,7 +1,7 @@
 import { type LabelHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
-interface LabelProps extends LabelHTMLAttributes<HTMLLabelElement> {}
+type LabelProps = LabelHTMLAttributes<HTMLLabelElement>;
 
 /**
  * Reusable form label component.
