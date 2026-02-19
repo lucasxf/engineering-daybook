@@ -19,11 +19,6 @@ export function configureApiAuth(
   refreshAccessToken = refresher;
 }
 
-interface ApiError {
-  status: number;
-  message: string;
-}
-
 export class ApiRequestError extends Error {
   status: number;
 
