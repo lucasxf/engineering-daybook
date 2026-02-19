@@ -13,9 +13,9 @@
     </parent>
 
     <groupId>com.lucasxf</groupId>
-    <artifactId>engineering-daybook</artifactId>
+    <artifactId>learnimo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Engineering Daybook</name>
+    <name>learnimo</name>
     <description>A personal knowledge management tool for engineers</description>
 
     <properties>

@@ -1,6 +1,6 @@
 spring:
   application:
-    name: engineering-daybook
+    name: learnimo
   threads:
     virtual:
       enabled: true

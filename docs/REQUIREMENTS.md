@@ -1,6 +1,6 @@
-# Requirements — Engineering Daybook
+# Requirements — learnimo
 
-This document defines the functional and non-functional requirements for the Engineering Daybook project.
+This document defines the functional and non-functional requirements for the learnimo project.
 
 ---
 

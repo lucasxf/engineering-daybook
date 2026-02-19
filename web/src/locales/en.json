@@ -1,10 +1,10 @@
 {
   "common": {
-    "appName": "Engineering Daybook",
+    "appName": "learnimo",
     "tagline": "Capture, organize, and recall your daily learnings"
   },
   "home": {
-    "welcome": "Welcome to Engineering Daybook",
+    "welcome": "Welcome to learnimo",
     "description": "A personal knowledge management tool for engineers.",
     "getStarted": "Get Started"
   },
@@ -19,7 +19,7 @@
   },
   "auth": {
     "loginTitle": "Welcome back",
-    "loginSubtitle": "Sign in to your Engineering Daybook",
+    "loginSubtitle": "Sign in to your learnimo",
     "registerTitle": "Create your account",
     "registerSubtitle": "Capture what you learn — your future self will thank you",
     "email": "Email",

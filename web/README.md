@@ -1,6 +1,6 @@
-# Engineering Daybook - Web
+# learnimo - Web
 
-> Next.js 14 web application for Engineering Daybook
+> Next.js web application for learnimo
 
 ## Tech Stack
 

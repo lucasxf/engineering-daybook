@@ -1,6 +1,6 @@
-# Roadmap — Engineering Daybook
+# Roadmap — learnimo
 
-This document outlines the development phases, milestones, and timeline for the Engineering Daybook project.
+This document outlines the development phases, milestones, and timeline for the learnimo project.
 
 ---
 
@@ -94,9 +94,7 @@ The project follows an iterative development approach, prioritizing a functional
 
 **Note:** feat/pok-listing-search (pending PR)
 
-### In Progress
-
-### Milestone 1.4: UI/UX Polish (Weeks 7-8)
+#### Milestone 1.4: UI/UX Polish (Weeks 7-8)
 
 | # | Feature | Priority | Status |
 |---|---------|----------|--------|
@@ -106,6 +104,16 @@ The project follows an iterative development approach, prioritizing a functional
 | 1.4.4 | i18n: English support | Must Have | ✅ Web (feat/dark-mode-i18n) |
 | 1.4.5 | i18n: Portuguese (BR) support | Must Have | ✅ Web (feat/dark-mode-i18n) |
 | 1.4.6 | Accessibility basics (contrast, focus states) | Should Have | ✅ Web (feat/dark-mode-i18n) |
+
+### In Progress
+
+#### Deployment (learnimo.net)
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| 1.5.1 | Supabase DB setup | Must Have | 🔄 In Progress |
+| 1.5.2 | Railway backend deployment | Must Have | ⏳ Pending |
+| 1.5.3 | Vercel web deployment + learnimo.net domain | Must Have | ⏳ Pending |
+| 1.5.4 | Google OAuth production redirect URIs | Must Have | ⏳ Pending |
 
 ### MVP Exit Criteria
 - [ ] User can register, login, and logout
@@ -237,7 +245,7 @@ The project follows an iterative development approach, prioritizing a functional
 
 | # | Task | Priority |
 |---|------|----------|
-| 4.4.1 | Product naming finalization | Should Have |
+| 4.4.1 | Product naming finalization | Should Have | ✅ Done (learnimo) |
 | 4.4.2 | Landing page | Should Have |
 | 4.4.3 | Product Hunt / LinkedIn launch post | Could Have |
 | 4.4.4 | Feedback collection mechanism | Should Have |
@@ -315,3 +323,4 @@ This is a living document. Update it as the project evolves.
 | 1.6 | 2026-02-18 | Lucas Xavier Ferreira | Spring Boot upgraded 3.4 → 4.0.2; test imports migrated to SB4 package structure |
 | 1.7 | 2026-02-19 | Lucas Xavier Ferreira | UI/UX Polish — dark mode, i18n (EN/PT-BR), aria-labels, locale fixes (feat/dark-mode-i18n) |
 | 1.8 | 2026-02-19 | Lucas Xavier Ferreira | PR review fixes — PokCard 'use client', locale redirect, dead-code removal, i18n results count, a11y dialog + form |
+| 1.9 | 2026-02-19 | Lucas Xavier Ferreira | Rebranded to learnimo; CORS fix merged to main (PR #38); deployment preparation started — domain learnimo.net registered |
