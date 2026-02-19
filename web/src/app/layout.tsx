@@ -8,7 +8,7 @@ import { GoogleOAuthWrapper } from '@/components/providers/GoogleOAuthWrapper';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Engineering Daybook',
+  title: 'learnimo',
   description: 'Capture, organize, and recall your daily learnings',
 };
 

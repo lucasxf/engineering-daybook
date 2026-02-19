@@ -28,7 +28,7 @@ public class HealthController {
     @ApiResponse(responseCode = "200", description = "API is healthy")
     public ResponseEntity<HealthResponse> health() {
         return ResponseEntity.ok(
-            new HealthResponse("OK", "Engineering Daybook API is running")
+            new HealthResponse("OK", "learnimo API is running")
         );
     }
 }

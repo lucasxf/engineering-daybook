@@ -1,4 +1,4 @@
-# Engineering Daybook
+# learnimo
 
 > A digital learning journal built for engineers who want to capture, organize, and recall their daily learnings.
 
@@ -8,7 +8,7 @@
 
 ## Overview
 
-Engineering Daybook (ED) is a personal knowledge management tool specifically designed for engineers. Inspired by the concept from "The Pragmatic Programmer" book, where engineers in traditional industries would maintain physical notebooks to record daily learnings, ED brings this practice into the digital age with modern search, categorization, and (eventually) AI-powered insights.
+learnimo (ED) is a personal knowledge management tool specifically designed for engineers. Inspired by the concept from "The Pragmatic Programmer" book, where engineers in traditional industries would maintain physical notebooks to record daily learnings, ED brings this practice into the digital age with modern search, categorization, and (eventually) AI-powered insights.
 
 > "A tinta mais fraca constrói pontes mais fortes que a memória mais viva."
 > — Provérbio Yorubá (Nigéria)

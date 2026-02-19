@@ -1,6 +1,6 @@
-# Glossary — Engineering Daybook
+# Glossary — learnimo
 
-This document defines the terminology used throughout the Engineering Daybook project documentation, codebase, and communications.
+This document defines the terminology used throughout the learnimo project documentation, codebase, and communications.
 
 ---
 
@@ -8,8 +8,8 @@ This document defines the terminology used throughout the Engineering Daybook pr
 
 | Term | Definition |
 |------|------------|
-| **ED** | Engineering Daybook — the product/application itself |
-| **EDP** | Engineering Daybook Project — refers to the overall project (development, documentation, planning) |
+| **ED** | learnimo — the product/application itself |
+| **EDP** | learnimo Project — refers to the overall project (development, documentation, planning) |
 
 ---
 
@@ -17,7 +17,7 @@ This document defines the terminology used throughout the Engineering Daybook pr
 
 ### POK (Piece of Knowledge)
 
-**Definition:** The atomic/minimal unit of information in Engineering Daybook. A single learning entry recorded by the user.
+**Definition:** The atomic/minimal unit of information in learnimo. A single learning entry recorded by the user.
 
 **Synonym:** POL (Piece of Learning) — used interchangeably with POK.
 

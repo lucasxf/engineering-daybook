@@ -1,4 +1,4 @@
-# CLAUDE.md — Engineering Daybook
+# CLAUDE.md — learnimo
 
 > Context file for Claude Code sessions in this project.
 
@@ -6,7 +6,7 @@
 
 ## Project Overview
 
-**Engineering Daybook (ED)** is a personal knowledge management tool for engineers to capture, organize, and recall daily learnings.
+**learnimo (ED)** is a personal knowledge management tool for engineers to capture, organize, and recall daily learnings.
 
 - **Repository:** https://github.com/lucasxf/engineering-daybook
 - **Author:** Lucas Xavier Ferreira
