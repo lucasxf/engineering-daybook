@@ -22,22 +22,20 @@ export function useHandleAvailability(
     isAvailable: null,
   });
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const abortRef = useRef<AbortController | null>(null);
+  const requestIdRef = useRef(0);
 
   const checkAvailability = useCallback(async (value: string) => {
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
+    const requestId = ++requestIdRef.current;
 
     setState({ isChecking: true, isAvailable: null });
 
     try {
       const result = await checkHandleApi(value);
-      if (!controller.signal.aborted) {
+      if (requestId === requestIdRef.current) {
         setState({ isChecking: false, isAvailable: result.available });
       }
     } catch {
-      if (!controller.signal.aborted) {
+      if (requestId === requestIdRef.current) {
         setState({ isChecking: false, isAvailable: null });
       }
     }
@@ -65,13 +63,6 @@ export function useHandleAvailability(
       }
     };
   }, [handle, debounceMs, checkAvailability]);
-
-  // Cleanup abort controller on unmount
-  useEffect(() => {
-    return () => {
-      abortRef.current?.abort();
-    };
-  }, []);
 
   return state;
 }

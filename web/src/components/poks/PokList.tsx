@@ -1,3 +1,5 @@
+'use client';
+
 import { Pok } from '@/lib/pokApi';
 import { PokCard } from './PokCard';
 import { EmptyState } from './EmptyState';

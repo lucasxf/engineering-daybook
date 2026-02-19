@@ -11,7 +11,7 @@ interface FormFieldProps {
 
 /**
  * Form field wrapper with label, input slot, error message, and optional hint.
- * Connects error to input via aria-describedby for accessibility.
+ * Provides error/hint element IDs; consumers should wire up aria-describedby on their inputs.
  */
 export function FormField({
   label,
