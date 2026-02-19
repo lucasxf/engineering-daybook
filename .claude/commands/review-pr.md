@@ -34,19 +34,18 @@ gh pr list --state open --json number,title,headRefName,author --template '{{ran
 **Get PR checks status:**
 
 ```bash
-# Get all check runs for the PR
-gh pr checks $PR_NUMBER --json name,status,conclusion,detailsUrl
+# Get all check runs for the PR (use `state` and `link`; `status`/`conclusion`/`detailsUrl` are not valid JSON fields)
+gh pr checks $PR_NUMBER --json name,state,link
 ```
 
 **Analyze the results:**
 
-| Status | Conclusion | Meaning | Action |
-|--------|-----------|---------|--------|
-| `completed` | `success` | ✅ Passing | No action needed |
-| `completed` | `failure` | ❌ Failed | Investigate and fix |
-| `completed` | `cancelled` | ⚠️ Cancelled | May need re-run |
-| `in_progress` | N/A | 🔄 Running | Wait or proceed with review comments |
-| `queued` | N/A | ⏳ Queued | Wait or proceed with review comments |
+| State | Meaning | Action |
+|-------|---------|--------|
+| `pass` | ✅ Passing | No action needed |
+| `fail` | ❌ Failed | Investigate and fix |
+| `pending` | 🔄 Running/Queued | Wait or proceed with review comments |
+| `skipping` | ⚠️ Skipped | Usually no action needed |
 
 **If any checks failed:**
 

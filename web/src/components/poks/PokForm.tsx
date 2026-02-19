@@ -64,6 +64,7 @@ export function PokForm({
           placeholder={t('form.titlePlaceholder')}
           {...register('title')}
           aria-invalid={!!errors.title}
+          aria-describedby={errors.title ? 'pok-title-error' : undefined}
         />
       </FormField>
 
@@ -78,6 +79,7 @@ export function PokForm({
           placeholder={t('form.contentPlaceholder')}
           {...register('content')}
           aria-invalid={!!errors.content}
+          aria-describedby={errors.content ? 'pok-content-error' : undefined}
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
         />
       </FormField>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 
@@ -22,6 +22,14 @@ export function DeletePokButton({ onDelete }: DeletePokButtonProps) {
   const t = useTranslations('poks.delete');
   const [showDialog, setShowDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  useEffect(() => {
+    if (!showDialog) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setShowDialog(false);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showDialog]);
 
   const handleDelete = () => {
     setShowDialog(true);
@@ -74,6 +82,7 @@ export function DeletePokButton({ onDelete }: DeletePokButtonProps) {
                 onClick={handleCancel}
                 disabled={isDeleting}
                 type="button"
+                autoFocus
               >
                 {t('cancelButton')}
               </Button>
