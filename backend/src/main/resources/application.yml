@@ -26,6 +26,9 @@ spring:
 server:
   port: ${SERVER_PORT:8080}
 
+cors:
+  allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000}
+
 auth:
   jwt:
     secret: ${JWT_SECRET:dev-only-secret-change-in-production-must-be-at-least-256-bits-long-for-hs256}
