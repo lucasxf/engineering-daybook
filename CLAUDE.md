@@ -280,6 +280,7 @@ npx expo build                   # Build app
 3. **Quality over speed** — production-ready, not prototypes
 4. **Test everything** — no code without tests
 5. **Document decisions** — update ADRs when making architectural choices
+6. **Learn from command errors** — when a slash command (e.g., `/finish-session`, `/review-pr`) encounters an error during execution, fix the root cause in the command file (`.claude/commands/`) before continuing. Don't work around it; update the command so the error won't recur. (Added 2026-02-19)
 
 ---
 
