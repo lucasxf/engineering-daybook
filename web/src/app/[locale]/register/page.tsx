@@ -1,8 +1,10 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
 import dynamic from 'next/dynamic';
 import { RegisterForm } from '@/components/auth/RegisterForm';
 
@@ -10,17 +12,18 @@ const GoogleLoginButton = dynamic(
   () => import('@/components/auth/GoogleLoginButton').then(m => m.GoogleLoginButton),
   { ssr: false }
 );
-import { useAuth } from '@/hooks/useAuth';
-import { redirect } from 'next/navigation';
 
 export default function RegisterPage() {
   const t = useTranslations('auth');
   const params = useParams<{ locale: string }>();
+  const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
 
-  if (!isLoading && isAuthenticated) {
-    redirect(`/${params.locale}`);
-  }
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.replace(`/${params.locale}`);
+    }
+  }, [isLoading, isAuthenticated, router, params.locale]);
 
   return (
     <div className="mx-auto max-w-sm py-12">

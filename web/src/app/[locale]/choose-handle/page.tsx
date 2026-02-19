@@ -1,26 +1,30 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { useParams, useSearchParams } from 'next/navigation';
-import { redirect } from 'next/navigation';
+import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { ChooseHandleForm } from '@/components/auth/ChooseHandleForm';
 
 function ChooseHandleContent() {
   const t = useTranslations('auth');
   const params = useParams<{ locale: string }>();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated, isLoading } = useAuth();
 
   const tempToken = searchParams.get('t');
 
-  if (!isLoading && isAuthenticated) {
-    redirect(`/${params.locale}`);
-  }
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.replace(`/${params.locale}`);
+    } else if (!tempToken) {
+      router.replace(`/${params.locale}/login`);
+    }
+  }, [isLoading, isAuthenticated, tempToken, router, params.locale]);
 
-  if (!tempToken) {
-    redirect(`/${params.locale}/login`);
+  if (!tempToken || (!isLoading && isAuthenticated)) {
+    return null;
   }
 
   return (

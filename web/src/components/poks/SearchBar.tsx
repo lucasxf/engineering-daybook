@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { type KeyboardEvent, useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useDebounce } from '@/hooks/useDebounce';
 
@@ -29,7 +29,7 @@ export function SearchBar({ onSearch, initialValue = '', placeholder }: SearchBa
     onSearch(debouncedValue);
   }, [debouncedValue, onSearch]);
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       onSearch(value);
     }
@@ -45,7 +45,7 @@ export function SearchBar({ onSearch, initialValue = '', placeholder }: SearchBa
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        onKeyPress={handleKeyPress}
+        onKeyDown={handleKeyDown}
         placeholder={placeholder || t('placeholder')}
         aria-label={t('placeholder')}
         className="w-full rounded-md border border-gray-300 bg-white px-4 py-2 pr-10 text-sm text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400"

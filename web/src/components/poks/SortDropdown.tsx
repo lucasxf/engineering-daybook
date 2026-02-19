@@ -1,5 +1,6 @@
 'use client';
 
+import { type ChangeEvent } from 'react';
 import { useTranslations } from 'next-intl';
 
 export interface SortOption {
@@ -49,7 +50,7 @@ export function SortDropdown({ value, onChange }: SortDropdownProps) {
 
   const currentKey = `${value.sortBy}-${value.sortDirection}`;
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const selected = options.find((opt) => opt.key === e.target.value);
     if (selected) {
       onChange(selected.value);

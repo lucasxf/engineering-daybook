@@ -1,9 +1,10 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
 import dynamic from 'next/dynamic';
 import { LoginForm } from '@/components/auth/LoginForm';
 
@@ -11,19 +12,20 @@ const GoogleLoginButton = dynamic(
   () => import('@/components/auth/GoogleLoginButton').then(m => m.GoogleLoginButton),
   { ssr: false }
 );
-import { useAuth } from '@/hooks/useAuth';
-import { redirect } from 'next/navigation';
 
 function LoginContent() {
   const t = useTranslations('auth');
   const params = useParams<{ locale: string }>();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated, isLoading } = useAuth();
   const redirectTo = searchParams.get('redirect') || undefined;
 
-  if (!isLoading && isAuthenticated) {
-    redirect(`/${params.locale}`);
-  }
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.replace(`/${params.locale}`);
+    }
+  }, [isLoading, isAuthenticated, router, params.locale]);
 
   return (
     <div className="mx-auto max-w-sm py-12">
