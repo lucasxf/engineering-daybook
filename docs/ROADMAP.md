@@ -98,14 +98,14 @@ The project follows an iterative development approach, prioritizing a functional
 
 ### Milestone 1.4: UI/UX Polish (Weeks 7-8)
 
-| # | Feature | Priority |
-|---|---------|----------|
-| 1.4.1 | Dark mode (default) | Must Have |
-| 1.4.2 | Light mode toggle | Must Have |
-| 1.4.3 | Responsive design (mobile-friendly web) | Must Have |
-| 1.4.4 | i18n: English support | Must Have |
-| 1.4.5 | i18n: Portuguese (BR) support | Must Have |
-| 1.4.6 | Accessibility basics (contrast, focus states) | Should Have |
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 1.4.1 | Dark mode (default) | Must Have | ✅ Web (feat/dark-mode-i18n) |
+| 1.4.2 | Light mode toggle | Must Have | ✅ Web (feat/dark-mode-i18n) |
+| 1.4.3 | Responsive design (mobile-friendly web) | Must Have | ✅ Web (feat/dark-mode-i18n) |
+| 1.4.4 | i18n: English support | Must Have | ✅ Web (feat/dark-mode-i18n) |
+| 1.4.5 | i18n: Portuguese (BR) support | Must Have | ✅ Web (feat/dark-mode-i18n) |
+| 1.4.6 | Accessibility basics (contrast, focus states) | Should Have | ✅ Web (feat/dark-mode-i18n) |
 
 ### MVP Exit Criteria
 - [ ] User can register, login, and logout
@@ -313,3 +313,4 @@ This is a living document. Update it as the project evolves.
 | 1.4 | 2026-02-14 | Lucas Xavier Ferreira | POK CRUD implemented — full CRUD operations backend + web (feat/pok-crud) |
 | 1.5 | 2026-02-15 | Lucas Xavier Ferreira | POK Listing & Search implemented — keyword search, sorting, filters (feat/pok-listing-search) |
 | 1.6 | 2026-02-18 | Lucas Xavier Ferreira | Spring Boot upgraded 3.4 → 4.0.2; test imports migrated to SB4 package structure |
+| 1.7 | 2026-02-19 | Lucas Xavier Ferreira | UI/UX Polish — dark mode, i18n (EN/PT-BR), aria-labels, locale fixes (feat/dark-mode-i18n) |

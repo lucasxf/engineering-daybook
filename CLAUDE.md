@@ -163,6 +163,8 @@ main ← develop ← feature/xxx
 
 **Pre-work check:** Always verify the current branch (`git branch --show-current`) before starting any task. Ensure the branch matches the work being done — never commit changes to an unrelated branch. (Added 2026-02-09)
 
+**Quality gate:** Never commit when there are test, lint, build, or CI failures. Stop, show the error, and ask how to proceed. The only exception is if the user explicitly requests a bypass (e.g., "commit anyway" or "bypass") — in that case, warn clearly before proceeding. (Added 2026-02-19)
+
 **Commit format (Conventional Commits):**
 ```
 feat: add POK creation endpoint

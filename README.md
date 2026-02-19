@@ -134,12 +134,12 @@ See `backend/src/main/resources/application.yml` for configuration details.
 - **Web Application**
   - Responsive design with Tailwind CSS
   - Internationalization (EN/PT-BR) with next-intl
+  - Dark mode / light mode / system theme toggle
   - Protected routes and authentication flows
   - Modern React patterns with TypeScript
 
 ### In Progress
 - Semantic search with vector embeddings
-- Dark mode support
 - Mobile application (Expo/React Native)
 
 ---
@@ -160,9 +160,8 @@ See [ROADMAP.md](./docs/ROADMAP.md) for the full development plan.
 - [x] User authentication (email + password)
 - [x] Google OAuth integration
 - [x] POK CRUD (backend + web)
+- [x] Dark mode + i18n (EN/PT-BR)
 - [ ] Semantic search
-- [ ] Dark mode
-- [ ] i18n refinements
 
 ---
 
@@ -226,3 +225,4 @@ This project is licensed under the [MIT License](./LICENSE).
 | 0.1.0 | 2026-01-29 | Initial documentation and project setup |
 | 0.2.0 | 2026-02-13 | Authentication (email/password + Google OAuth) |
 | 0.3.0 | 2026-02-14 | POK CRUD (backend + web implementation) |
+| 0.4.0 | 2026-02-19 | UI/UX Polish — dark mode, i18n (EN/PT-BR), aria improvements |

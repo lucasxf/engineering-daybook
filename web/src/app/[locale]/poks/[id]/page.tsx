@@ -116,10 +116,10 @@ export default function ViewPokPage() {
         </div>
         <div className="mt-6 flex space-x-4 text-sm text-gray-500 dark:text-gray-500">
           <time dateTime={pok.createdAt}>
-            {t('view.created')}: {new Date(pok.createdAt).toLocaleDateString()}
+            {t('view.created')}: {new Date(pok.createdAt).toLocaleDateString(params.locale)}
           </time>
           <time dateTime={pok.updatedAt}>
-            {t('view.updated')}: {new Date(pok.updatedAt).toLocaleDateString()}
+            {t('view.updated')}: {new Date(pok.updatedAt).toLocaleDateString(params.locale)}
           </time>
         </div>
       </article>

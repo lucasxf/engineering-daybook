@@ -19,12 +19,15 @@ export function LanguageToggle() {
     window.location.href = newPathname;
   };
 
+  const ariaLabel =
+    locale === 'en' ? 'Switch to Português (Brasil)' : 'Switch to English';
+
   return (
     <Button
       variant="ghost"
       size="sm"
       onClick={toggleLanguage}
-      aria-label="Toggle language"
+      aria-label={ariaLabel}
     >
       {locale === 'en' ? 'EN' : 'PT'}
     </Button>
