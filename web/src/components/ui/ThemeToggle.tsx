@@ -33,12 +33,19 @@ export function ThemeToggle() {
     }
   };
 
+  const ariaLabel =
+    theme === 'dark'
+      ? 'Switch to light mode'
+      : theme === 'light'
+        ? 'Use system theme'
+        : 'Switch to dark mode';
+
   return (
     <Button
       variant="ghost"
       size="sm"
       onClick={toggleTheme}
-      aria-label="Toggle theme"
+      aria-label={ariaLabel}
     >
       {theme === 'dark' && (
         <svg
