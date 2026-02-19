@@ -58,46 +58,54 @@ The project follows an iterative development approach, prioritizing a functional
 
 **Goal:** Deliver a functional web application for personal use with core POK management features.
 
-### Milestone 1.1: Authentication (Week 3)
+### Implemented
+
+#### Milestone 1.1: Authentication
 
 | # | Feature | Priority | Status |
 |---|---------|----------|--------|
-| 1.1.1 | User registration (email/password) | Must Have | ✅ Backend done (PR #15) |
-| 1.1.2 | User login (email/password) | Must Have | ✅ Backend done (PR #15) |
-| 1.1.3 | Google OAuth login | Must Have | ⏳ Pending (separate PR) |
-| 1.1.4 | JWT session management | Must Have | ✅ Backend done (PR #15) |
+| 1.1.1 | User registration (email/password) | Must Have | ✅ Backend (PR #15) + Web (PR #17) |
+| 1.1.2 | User login (email/password) | Must Have | ✅ Backend (PR #15) + Web (PR #17) |
+| 1.1.3 | Google OAuth login | Must Have | ✅ Backend + Web (PR #20) |
+| 1.1.4 | JWT session management | Must Have | ✅ Backend (PR #15) + Web (PR #17) |
 | 1.1.5 | Password reset flow | Should Have | ⏳ Pending (separate spec) |
 
-### Milestone 1.2: POK Creation (Week 4)
+#### Milestone 1.2: POK CRUD
 
-| # | Feature | Priority |
-|---|---------|----------|
-| 1.2.1 | Create POK endpoint (backend) | Must Have |
-| 1.2.2 | Create POK form (frontend) | Must Have |
-| 1.2.3 | Auto-generate timestamps | Must Have |
-| 1.2.4 | Input validation | Must Have |
-| 1.2.5 | Success/error feedback UI | Must Have |
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 1.2.1 | Create POK endpoint (backend) | Must Have | ✅ Backend (feat/pok-crud) |
+| 1.2.2 | Read POK endpoints (backend) | Must Have | ✅ Backend (feat/pok-crud) |
+| 1.2.3 | Update POK endpoint (backend) | Must Have | ✅ Backend (feat/pok-crud) |
+| 1.2.4 | Delete POK endpoint (backend) | Must Have | ✅ Backend (feat/pok-crud) |
+| 1.2.5 | POK CRUD UI (web) | Must Have | ✅ Web (feat/pok-crud) |
+| 1.2.6 | Input validation | Must Have | ✅ Backend + Web (feat/pok-crud) |
+| 1.2.7 | Success/error feedback UI | Must Have | ✅ Web (feat/pok-crud) |
 
-### Milestone 1.3: POK Listing & Search (Weeks 5-6)
+#### Milestone 1.3: POK Listing & Search
 
-| # | Feature | Priority |
-|---|---------|----------|
-| 1.3.1 | List all POKs (paginated) | Must Have |
-| 1.3.2 | Keyword search | Must Have |
-| 1.3.3 | Filter by date range | Should Have |
-| 1.3.4 | Sort by date created/updated | Must Have |
-| 1.3.5 | Empty states and loading UI | Must Have |
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 1.3.1 | List all POKs (paginated) | Must Have | ✅ Backend + Web (feat/pok-listing-search) |
+| 1.3.2 | Keyword search | Must Have | ✅ Backend + Web (feat/pok-listing-search) |
+| 1.3.3 | Filter by date range | Should Have | ✅ Backend + Web (feat/pok-listing-search) |
+| 1.3.4 | Sort by date created/updated | Must Have | ✅ Backend + Web (feat/pok-listing-search) |
+| 1.3.5 | Empty states and loading UI | Must Have | ✅ Web (feat/pok-listing-search) |
+
+**Note:** feat/pok-listing-search (pending PR)
+
+### In Progress
 
 ### Milestone 1.4: UI/UX Polish (Weeks 7-8)
 
-| # | Feature | Priority |
-|---|---------|----------|
-| 1.4.1 | Dark mode (default) | Must Have |
-| 1.4.2 | Light mode toggle | Must Have |
-| 1.4.3 | Responsive design (mobile-friendly web) | Must Have |
-| 1.4.4 | i18n: English support | Must Have |
-| 1.4.5 | i18n: Portuguese (BR) support | Must Have |
-| 1.4.6 | Accessibility basics (contrast, focus states) | Should Have |
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 1.4.1 | Dark mode (default) | Must Have | ✅ Web (feat/dark-mode-i18n) |
+| 1.4.2 | Light mode toggle | Must Have | ✅ Web (feat/dark-mode-i18n) |
+| 1.4.3 | Responsive design (mobile-friendly web) | Must Have | ✅ Web (feat/dark-mode-i18n) |
+| 1.4.4 | i18n: English support | Must Have | ✅ Web (feat/dark-mode-i18n) |
+| 1.4.5 | i18n: Portuguese (BR) support | Must Have | ✅ Web (feat/dark-mode-i18n) |
+| 1.4.6 | Accessibility basics (contrast, focus states) | Should Have | ✅ Web (feat/dark-mode-i18n) |
 
 ### MVP Exit Criteria
 - [ ] User can register, login, and logout
@@ -300,3 +308,10 @@ This is a living document. Update it as the project evolves.
 |:-------:|:----:|:------:|:--------|
 | 1.0 | 2026-01-29 | Lucas Xavier Ferreira | Initial version |
 | 1.1 | 2026-02-11 | Lucas Xavier Ferreira | Phase 0 complete, Auth backend implemented (PR #15) |
+| 1.2 | 2026-02-13 | Lucas Xavier Ferreira | Auth web implemented — login/register pages, auth context, i18n (PR #17) |
+| 1.3 | 2026-02-13 | Lucas Xavier Ferreira | Google OAuth implemented — backend + web (PR #20) |
+| 1.4 | 2026-02-14 | Lucas Xavier Ferreira | POK CRUD implemented — full CRUD operations backend + web (feat/pok-crud) |
+| 1.5 | 2026-02-15 | Lucas Xavier Ferreira | POK Listing & Search implemented — keyword search, sorting, filters (feat/pok-listing-search) |
+| 1.6 | 2026-02-18 | Lucas Xavier Ferreira | Spring Boot upgraded 3.4 → 4.0.2; test imports migrated to SB4 package structure |
+| 1.7 | 2026-02-19 | Lucas Xavier Ferreira | UI/UX Polish — dark mode, i18n (EN/PT-BR), aria-labels, locale fixes (feat/dark-mode-i18n) |
+| 1.8 | 2026-02-19 | Lucas Xavier Ferreira | PR review fixes — PokCard 'use client', locale redirect, dead-code removal, i18n results count, a11y dialog + form |

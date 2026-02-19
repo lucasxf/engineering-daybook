@@ -1,8 +1,8 @@
 # Google OAuth Authentication
 
-> **Status:** Approved
+> **Status:** Implemented
 > **Created:** 2026-02-13
-> **Implemented:** _pending_
+> **Implemented:** 2026-02-13
 
 ---
 
@@ -323,20 +323,43 @@ This feature is **Milestone 1.1.3** in the roadmap (Must Have) and was planned i
 
 ## Post-Implementation Notes
 
-> _This section is filled AFTER implementation._
+> Filled 2026-02-13 after implementation.
 
 ### Commits
-- `hash`: message
+- `d1388c2`: chore: add google-api-client dependency
+- `02aaf64`: feat: add Google OAuth configuration
+- `59c5c0c`: feat: add Google ID token verification service
+- `4382482`: feat: add temp token support for two-step OAuth signup
+- `59d692b`: feat: add Google OAuth DTOs
+- `28b20be`: feat: add Google OAuth login and signup service methods
+- `5ab97a4`: feat: add Google OAuth REST endpoints
+- `d269a8d`: feat(web): add Google OAuth API and auth context integration
+- `4d8f01f`: feat(web): add Google login button and choose-handle page
+- `262ae81`: feat(web): add Google OAuth i18n strings
+- `4072aa8`: fix(web): use dynamic import for GoogleLoginButton to fix SSG
 
 ### Architectural Decisions
 
-**Decision: [Title]**
-- **Options:** [A, B, C]
-- **Chosen:** [B]
-- **Rationale:** [Why]
+**Decision: Use GoogleLogin component instead of useGoogleLogin hook**
+- **Options:** [GoogleLogin component (renders Google's button, returns ID token), useGoogleLogin hook (custom button, returns access token)]
+- **Chosen:** GoogleLogin component
+- **Rationale:** The hook returns an access token, not an ID token. The backend requires an ID token for server-side verification via JWKS. The GoogleLogin component returns the credential (ID token) directly and follows Google branding guidelines.
+
+**Decision: Dynamic import for GoogleLoginButton**
+- **Options:** [Static import, Dynamic import with ssr:false, Conditional render]
+- **Chosen:** Dynamic import with ssr:false
+- **Rationale:** The GoogleLogin component from @react-oauth/google requires GoogleOAuthProvider context during render, which fails during Next.js static site generation (SSG). Dynamic import with ssr:false prevents the component from rendering during build.
+
+**Decision: JJWT Claims builder for tests instead of DefaultClaims**
+- **Options:** [DefaultClaims constructor, Jwts.claims().add().build()]
+- **Chosen:** Jwts.claims().add().build()
+- **Rationale:** DefaultClaims has a protected constructor in JJWT 0.12.6. The builder pattern is the supported API.
 
 ### Deviations from Spec
-- [Any changes from original plan and why]
+- **GoogleLoginButton locale prop:** The spec mentioned localized Google button text. The GoogleLogin component doesn't accept a `locale` prop — localization is handled by Google's own scripts based on browser settings. Custom localized text (e.g., "Entrar com Google") is shown in error messages and i18n strings, not on the Google button itself.
+- **GoogleOAuthWrapper graceful fallback:** Added a wrapper component that renders children without the provider when `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is not set, allowing the app to function without Google OAuth configured.
 
 ### Lessons Learned
-- [What worked, what to do differently]
+- **JJWT 0.12.6 API:** The `DefaultClaims` constructor is protected; use the builder pattern `Jwts.claims().add(key, value).build()` instead.
+- **Next.js SSG + OAuth:** Client-only OAuth components need `dynamic(() => ..., { ssr: false })` to avoid SSG prerender errors.
+- **AuthProperties record expansion:** Adding fields to a Java record breaks all existing constructor calls — need to update all test files that instantiate the record.

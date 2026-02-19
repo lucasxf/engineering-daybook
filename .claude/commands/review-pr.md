@@ -1,11 +1,11 @@
 ---
-description: Review and address feedback on an open pull request
+description: Review and address feedback and CI/CD failures on an open pull request
 argument-hint: <optional-pr-number>
 ---
 
 @CLAUDE.md
 
-**Address PR Review Feedback**
+**Address PR Review Feedback & CI/CD Failures**
 
 Target PR: $ARGUMENTS
 
@@ -29,7 +29,83 @@ gh pr list --state open --json number,title,headRefName,author --template '{{ran
 
 **After selecting the PR, assign the number to `$PR_NUMBER` before proceeding.** All subsequent steps depend on this variable being set.
 
-## 2. Checkout PR Branch
+## 2. Check CI/CD Pipeline Status
+
+**Get PR checks status:**
+
+```bash
+# Get all check runs for the PR (use `state` and `link`; `status`/`conclusion`/`detailsUrl` are not valid JSON fields)
+gh pr checks $PR_NUMBER --json name,state,link
+```
+
+**Analyze the results:**
+
+| State | Meaning | Action |
+|-------|---------|--------|
+| `pass` | ✅ Passing | No action needed |
+| `fail` | ❌ Failed | Investigate and fix |
+| `pending` | 🔄 Running/Queued | Wait or proceed with review comments |
+| `skipping` | ⚠️ Skipped | Usually no action needed |
+
+**If any checks failed:**
+
+1. Display failed checks to user with links to logs
+2. For each failed check, determine the type:
+   - **Build failure** (compilation error, dependency issue)
+   - **Test failure** (unit tests, integration tests, e2e tests)
+   - **Linting/Formatting** (ESLint, Checkstyle, Prettier)
+   - **Type checking** (TypeScript, Java compilation)
+   - **Security scan** (dependency vulnerabilities)
+   - **Coverage** (test coverage below threshold)
+
+3. **Fetch detailed logs** for failed checks:
+
+```bash
+# Get the latest workflow run for this PR
+WORKFLOW_RUN=$(gh api repos/{owner}/{repo}/commits/$(gh pr view $PR_NUMBER --json headRefOid --jq .headRefOid)/check-runs --jq '.check_runs[0].id')
+
+# Get workflow logs (may require parsing)
+gh api repos/{owner}/{repo}/actions/runs/$WORKFLOW_RUN/logs
+```
+
+4. **Parse logs to identify specific failures:**
+   - Extract test names that failed
+   - Extract error messages
+   - Extract file paths and line numbers
+
+**Present CI/CD status to user:**
+
+```
+## PR #XX — CI/CD Status
+
+### ❌ Failed Checks (N)
+- **Backend Tests** — 3 tests failed
+  - `PokServiceTest.testCreate` — NullPointerException at line 42
+  - `PokControllerTest.testUpdate` — Expected 200, got 404
+  - `PokRepositoryTest.testSoftDelete` — Assertion failed
+  Details: https://github.com/.../actions/runs/123
+
+- **Web Build** — TypeScript compilation error
+  - `src/components/poks/PokForm.tsx:85` — Type 'string | undefined' is not assignable
+  Details: https://github.com/.../actions/runs/124
+
+### ✅ Passing Checks (N)
+- ESLint
+- Checkstyle
+- Build (mobile)
+
+### 🔄 In Progress (N)
+- E2E Tests (running)
+```
+
+**Ask user:** "Do you want to address CI/CD failures first, or review comments first?"
+
+Use AskUserQuestion with options:
+- **Fix CI/CD failures first** — Address pipeline issues before review comments
+- **Address review comments first** — Fix code review feedback before CI/CD
+- **Address both in parallel** — Handle CI/CD and review comments together
+
+## 3. Checkout PR Branch
 
 ```bash
 # Get PR branch name (requires $PR_NUMBER from Step 1)
@@ -41,7 +117,139 @@ git checkout "$PR_BRANCH"
 
 If there are uncommitted changes, stash them first and inform the user. **Track the original branch name so we can return to it later.**
 
-## 3. Fetch All Review Comments
+## 3A. Address CI/CD Failures (If User Selected This Option)
+
+**For each failed check:**
+
+### 3A.1. Test Failures
+
+**If tests failed:**
+
+1. **Run tests locally** to reproduce:
+```bash
+# Backend
+(cd backend && ./mvnw test)
+
+# Web
+(cd web && npm test)
+
+# Mobile
+(cd mobile && npm test)
+```
+
+2. **Analyze failures:**
+   - Read test file and implementation
+   - Identify root cause (logic error, incorrect assertion, missing mock, etc.)
+   - Check if related to recent changes in the PR
+
+3. **Fix the issue:**
+   - Update implementation code if logic is wrong
+   - Fix test assertions if expectations are incorrect
+   - Add missing mocks or test data
+   - Update test setup if configuration changed
+
+4. **Verify fix locally:**
+   - Re-run failed tests
+   - Ensure all tests pass before committing
+
+### 3A.2. Build/Compilation Failures
+
+**If build failed:**
+
+1. **Run build locally:**
+```bash
+# Backend
+(cd backend && ./mvnw compile)
+
+# Web
+(cd web && npm run build)
+```
+
+2. **Common issues:**
+   - **Missing import** → Add the import
+   - **Type error** → Fix type annotations or casts
+   - **Syntax error** → Fix the syntax
+   - **Dependency issue** → Update package.json or pom.xml
+   - **Circular dependency** → Refactor imports
+
+3. **Fix and verify:**
+   - Apply the fix
+   - Run build again
+   - Ensure clean build
+
+### 3A.3. Linting/Formatting Failures
+
+**If linting failed:**
+
+1. **Run linter locally:**
+```bash
+# Web (ESLint)
+(cd web && npm run lint)
+
+# Backend (Checkstyle)
+(cd backend && ./mvnw checkstyle:check)
+```
+
+2. **Auto-fix if possible:**
+```bash
+# ESLint auto-fix
+(cd web && npm run lint -- --fix)
+
+# Prettier auto-fix
+(cd web && npm run format)
+```
+
+3. **Manual fixes if needed:**
+   - Read the linting error
+   - Apply the required code style change
+   - Re-run linter to verify
+
+### 3A.4. Type Checking Failures
+
+**If TypeScript type check failed:**
+
+1. **Run type check locally:**
+```bash
+(cd web && npx tsc --noEmit)
+```
+
+2. **Fix type errors:**
+   - Add missing type annotations
+   - Fix incorrect types
+   - Add type guards or assertions
+   - Update TypeScript configuration if needed
+
+### 3A.5. Commit and Push CI/CD Fixes
+
+```bash
+# Stage changed files
+git add [changed-files]
+
+# Commit with descriptive message
+git commit -m "fix: resolve CI/CD pipeline failures
+
+Fixed:
+- [list of specific failures addressed]
+- [test names or build errors fixed]
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
+
+# Push to PR branch
+git push origin $PR_BRANCH
+```
+
+**Wait for CI/CD to re-run and verify fixes:**
+
+```bash
+# Watch CI/CD status
+gh pr checks $PR_NUMBER --watch
+```
+
+If checks still fail, repeat the analysis and fix process.
+
+---
+
+## 4. Fetch All Review Comments
 
 Collect comments from three GitHub API sources:
 
@@ -64,7 +272,7 @@ gh api repos/$REPO/pulls/$PR_NUMBER/reviews --paginate
 - Keep: GitHub Copilot, human reviewers, Claude
 - Exclude empty review bodies (e.g., approval without comment)
 
-## 4. Analyze and Categorize Comments
+## 5. Analyze and Categorize Comments
 
 For each comment, read the referenced file and surrounding code context (for inline comments), then classify:
 
@@ -87,7 +295,7 @@ Then recommend one of:
 - **Ignore** — Comment contradicts a project directive or convention (explain why, e.g., "This suggestion conflicts with our constructor injection convention per CLAUDE.md")
 - **Defer** — Valid but low-priority; can be addressed in a follow-up
 
-## 5. Present Plan to User
+## 6. Present Plan to User
 
 Display the categorized list grouped by priority:
 
@@ -115,7 +323,7 @@ Display the categorized list grouped by priority:
 
 Use AskUserQuestion with multiSelect to let the user pick which actionable items and suggestions to implement.
 
-## 6. Implement Approved Items
+## 7. Implement Approved Items
 
 For each approved item:
 1. Read the target file
@@ -132,7 +340,7 @@ For each approved item:
 
 **If tests fail** → STOP. Show the failure. Ask user whether to revert or debug.
 
-## 7. Commit and Push
+## 8. Commit and Push Review Comment Fixes
 
 ```bash
 # Stage only the changed files
@@ -150,17 +358,27 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
 git push origin $PR_BRANCH
 ```
 
-## 8. Summary
+## 9. Summary
 
 ```
-## PR Review Feedback — Summary
+## PR #XX Review & CI/CD — Summary
 
 PR: #XX (title)
 Branch: $PR_BRANCH
 
-### Implemented (N)
-- :white_check_mark: file.java:42 — description of fix
-- :white_check_mark: file.java:15 — description of fix
+### CI/CD Status
+- ✅ All checks passing (N/N)
+  OR
+- ⚠️ Still failing (N/N) — [list failures]
+
+### CI/CD Fixes Applied (N)
+- :wrench: Fixed PokServiceTest.testCreate — Added missing null check
+- :wrench: Fixed TypeScript error in PokForm.tsx:85 — Added type assertion
+- :wrench: Fixed ESLint errors — Ran auto-fix
+
+### Review Comment Fixes Applied (N)
+- :white_check_mark: file.java:42 — Used constructor injection
+- :white_check_mark: file.java:15 — Extracted utility method
 
 ### Skipped (N)
 - :fast_forward: file.java:80 — reason (user chose to skip / contradicts convention)
@@ -168,13 +386,18 @@ Branch: $PR_BRANCH
 ### Requires Manual Reply (N)
 - :speech_balloon: PR comment by @reviewer — "question text..."
 
+### Commits Pushed
+- fix: resolve CI/CD pipeline failures (if applicable)
+- fix: address PR review feedback (if applicable)
+
 ### Next Steps
-1. Review the pushed changes on the PR
-2. Reply to any outstanding questions on the PR
-3. Re-request review if needed
+1. Wait for CI/CD checks to complete: `gh pr checks $PR_NUMBER --watch`
+2. Review the pushed changes on the PR
+3. Reply to any outstanding questions on the PR
+4. Re-request review if needed
 ```
 
-## 9. Restore Original State
+## 10. Restore Original State
 
 If changes were stashed in Step 2:
 ```bash

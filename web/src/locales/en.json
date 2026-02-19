@@ -16,5 +16,142 @@
   "language": {
     "en": "English",
     "pt-BR": "Português (Brasil)"
+  },
+  "auth": {
+    "loginTitle": "Welcome back",
+    "loginSubtitle": "Sign in to your Engineering Daybook",
+    "registerTitle": "Create your account",
+    "registerSubtitle": "Capture what you learn — your future self will thank you",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "displayName": "Display name",
+    "handle": "Handle",
+    "handleHint": "3-30 characters, lowercase letters, numbers, and hyphens",
+    "handleAvailable": "Handle is available",
+    "handleTaken": "Handle is already taken",
+    "logIn": "Log in",
+    "loggingIn": "Logging in...",
+    "signUp": "Sign up",
+    "signingUp": "Creating account...",
+    "logOut": "Log out",
+    "googleSignIn": "Sign in with Google",
+    "googleSignUp": "Sign up with Google",
+    "orContinueWith": "or continue with",
+    "chooseHandleTitle": "Choose your handle",
+    "chooseHandleSubtitle": "Pick a unique handle to complete your registration",
+    "completeRegistration": "Complete Registration",
+    "completingRegistration": "Creating account...",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "noAccount": "Don't have an account?",
+    "signUpLink": "Sign up",
+    "hasAccount": "Already have an account?",
+    "logInLink": "Log in",
+    "passwordStrength": {
+      "weak": "Weak",
+      "medium": "Medium",
+      "strong": "Strong"
+    },
+    "errors": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Invalid email format",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordMaxLength": "Password must be at most 128 characters",
+      "passwordUppercase": "Password must contain at least one uppercase letter",
+      "passwordLowercase": "Password must contain at least one lowercase letter",
+      "passwordNumber": "Password must contain at least one number",
+      "confirmPasswordRequired": "Please confirm your password",
+      "passwordsMismatch": "Passwords do not match",
+      "displayNameRequired": "Display name is required",
+      "displayNameMaxLength": "Display name must be at most 100 characters",
+      "handleMinLength": "Handle must be at least 3 characters",
+      "handleMaxLength": "Handle must be at most 30 characters",
+      "handleFormat": "Handle must be lowercase letters, numbers, and hyphens only",
+      "invalidCredentials": "Invalid email or password",
+      "googleEmailConflict": "This email is already registered with a password. Please sign in with email and password.",
+      "googleCancelled": "Sign-in cancelled. Please try again.",
+      "sessionExpired": "Session expired. Please try again.",
+      "unexpected": "Something went wrong. Please try again."
+    }
+  },
+  "poks": {
+    "create": {
+      "title": "New Learning"
+    },
+    "list": {
+      "title": "My Learnings",
+      "createButton": "New Learning",
+      "resultsCount": "{count, plural, =1 {1 learning found} other {# learnings found}}"
+    },
+    "search": {
+      "placeholder": "Search your learnings...",
+      "button": "Search",
+      "noResults": "No learnings found matching your search",
+      "noResultsHint": "Try adjusting your search terms or filters",
+      "clearButton": "Clear search",
+      "error": "Failed to search learnings. Please try again."
+    },
+    "sort": {
+      "label": "Sort by",
+      "newestFirst": "Newest first",
+      "oldestFirst": "Oldest first",
+      "recentlyCreated": "Recently created",
+      "firstCreated": "First created"
+    },
+    "filter": {
+      "label": "Filter",
+      "createdFrom": "Created from",
+      "createdTo": "Created to",
+      "updatedFrom": "Updated from",
+      "updatedTo": "Updated to",
+      "applyButton": "Apply filters",
+      "clearButton": "Clear filters"
+    },
+    "view": {
+      "backButton": "Back to list",
+      "editButton": "Edit",
+      "created": "Created",
+      "updated": "Updated"
+    },
+    "edit": {
+      "title": "Edit Learning",
+      "cancelButton": "Cancel"
+    },
+    "form": {
+      "titleLabel": "Title",
+      "titlePlaceholder": "Optional - give your learning a title",
+      "contentLabel": "Content",
+      "contentPlaceholder": "What did you learn today?",
+      "createButton": "Save Learning",
+      "updateButton": "Save Changes",
+      "submitting": "Saving..."
+    },
+    "emptyState": {
+      "message": "No learnings yet. Start capturing what you learn!",
+      "cta": "Create your first learning"
+    },
+    "delete": {
+      "button": "Delete",
+      "confirmTitle": "Delete learning?",
+      "confirmMessage": "This action cannot be undone. This learning will be permanently deleted.",
+      "confirmButton": "Delete",
+      "cancelButton": "Cancel",
+      "deleting": "Deleting..."
+    },
+    "success": {
+      "created": "Learning saved successfully",
+      "updated": "Learning updated successfully",
+      "deleted": "Learning deleted successfully"
+    },
+    "errors": {
+      "notFound": "Learning not found",
+      "forbidden": "You don't have permission to access this learning",
+      "contentRequired": "Content is required and must not be blank",
+      "titleTooLong": "Title must be 200 characters or less",
+      "contentTooLong": "Content must be 50,000 characters or less",
+      "unexpected": "Something went wrong. Please try again."
+    }
   }
 }

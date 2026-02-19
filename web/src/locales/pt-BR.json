@@ -16,5 +16,142 @@
   "language": {
     "en": "English",
     "pt-BR": "Português (Brasil)"
+  },
+  "auth": {
+    "loginTitle": "Bem-vindo de volta",
+    "loginSubtitle": "Entre no seu Engineering Daybook",
+    "registerTitle": "Crie sua conta",
+    "registerSubtitle": "Registre o que você aprende — seu eu do futuro vai agradecer",
+    "email": "E-mail",
+    "password": "Senha",
+    "confirmPassword": "Confirmar senha",
+    "displayName": "Nome de exibição",
+    "handle": "Identificador",
+    "handleHint": "3-30 caracteres, letras minúsculas, números e hífens",
+    "handleAvailable": "Identificador disponível",
+    "handleTaken": "Identificador já está em uso",
+    "logIn": "Entrar",
+    "loggingIn": "Entrando...",
+    "signUp": "Cadastrar",
+    "signingUp": "Criando conta...",
+    "logOut": "Sair",
+    "googleSignIn": "Entrar com Google",
+    "googleSignUp": "Cadastrar com Google",
+    "orContinueWith": "ou continue com",
+    "chooseHandleTitle": "Escolha seu identificador",
+    "chooseHandleSubtitle": "Escolha um identificador único para concluir seu cadastro",
+    "completeRegistration": "Concluir cadastro",
+    "completingRegistration": "Criando conta...",
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha",
+    "noAccount": "Não tem uma conta?",
+    "signUpLink": "Cadastre-se",
+    "hasAccount": "Já tem uma conta?",
+    "logInLink": "Entrar",
+    "passwordStrength": {
+      "weak": "Fraca",
+      "medium": "Média",
+      "strong": "Forte"
+    },
+    "errors": {
+      "emailRequired": "E-mail é obrigatório",
+      "emailInvalid": "Formato de e-mail inválido",
+      "passwordRequired": "Senha é obrigatória",
+      "passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
+      "passwordMaxLength": "A senha deve ter no máximo 128 caracteres",
+      "passwordUppercase": "A senha deve conter pelo menos uma letra maiúscula",
+      "passwordLowercase": "A senha deve conter pelo menos uma letra minúscula",
+      "passwordNumber": "A senha deve conter pelo menos um número",
+      "confirmPasswordRequired": "Confirme sua senha",
+      "passwordsMismatch": "As senhas não coincidem",
+      "displayNameRequired": "Nome de exibição é obrigatório",
+      "displayNameMaxLength": "O nome de exibição deve ter no máximo 100 caracteres",
+      "handleMinLength": "O identificador deve ter pelo menos 3 caracteres",
+      "handleMaxLength": "O identificador deve ter no máximo 30 caracteres",
+      "handleFormat": "O identificador deve conter apenas letras minúsculas, números e hífens",
+      "invalidCredentials": "E-mail ou senha inválidos",
+      "googleEmailConflict": "Este e-mail já está cadastrado com senha. Faça login com e-mail e senha.",
+      "googleCancelled": "Login cancelado. Tente novamente.",
+      "sessionExpired": "Sessão expirada. Tente novamente.",
+      "unexpected": "Algo deu errado. Tente novamente."
+    }
+  },
+  "poks": {
+    "create": {
+      "title": "Novo Aprendizado"
+    },
+    "list": {
+      "title": "Meus Aprendizados",
+      "createButton": "Novo Aprendizado",
+      "resultsCount": "{count, plural, =1 {1 aprendizado encontrado} other {# aprendizados encontrados}}"
+    },
+    "search": {
+      "placeholder": "Pesquisar seus aprendizados...",
+      "button": "Pesquisar",
+      "noResults": "Nenhum aprendizado encontrado",
+      "noResultsHint": "Tente ajustar seus termos de pesquisa ou filtros",
+      "clearButton": "Limpar pesquisa",
+      "error": "Falha ao pesquisar aprendizados. Tente novamente."
+    },
+    "sort": {
+      "label": "Ordenar por",
+      "newestFirst": "Mais recentes primeiro",
+      "oldestFirst": "Mais antigos primeiro",
+      "recentlyCreated": "Criados recentemente",
+      "firstCreated": "Primeiros criados"
+    },
+    "filter": {
+      "label": "Filtrar",
+      "createdFrom": "Criado de",
+      "createdTo": "Criado até",
+      "updatedFrom": "Atualizado de",
+      "updatedTo": "Atualizado até",
+      "applyButton": "Aplicar filtros",
+      "clearButton": "Limpar filtros"
+    },
+    "view": {
+      "backButton": "Voltar para lista",
+      "editButton": "Editar",
+      "created": "Criado",
+      "updated": "Atualizado"
+    },
+    "edit": {
+      "title": "Editar Aprendizado",
+      "cancelButton": "Cancelar"
+    },
+    "form": {
+      "titleLabel": "Título",
+      "titlePlaceholder": "Opcional - dê um título ao seu aprendizado",
+      "contentLabel": "Conteúdo",
+      "contentPlaceholder": "O que você aprendeu hoje?",
+      "createButton": "Salvar Aprendizado",
+      "updateButton": "Salvar Alterações",
+      "submitting": "Salvando..."
+    },
+    "emptyState": {
+      "message": "Nenhum aprendizado ainda. Comece a registrar o que você aprende!",
+      "cta": "Crie seu primeiro aprendizado"
+    },
+    "delete": {
+      "button": "Excluir",
+      "confirmTitle": "Excluir aprendizado?",
+      "confirmMessage": "Esta ação não pode ser desfeita. Este aprendizado será excluído permanentemente.",
+      "confirmButton": "Excluir",
+      "cancelButton": "Cancelar",
+      "deleting": "Excluindo..."
+    },
+    "success": {
+      "created": "Aprendizado salvo com sucesso",
+      "updated": "Aprendizado atualizado com sucesso",
+      "deleted": "Aprendizado excluído com sucesso"
+    },
+    "errors": {
+      "notFound": "Aprendizado não encontrado",
+      "forbidden": "Você não tem permissão para acessar este aprendizado",
+      "contentRequired": "O conteúdo é obrigatório e não pode estar em branco",
+      "titleTooLong": "O título deve ter no máximo 200 caracteres",
+      "contentTooLong": "O conteúdo deve ter no máximo 50.000 caracteres",
+      "unexpected": "Algo deu errado. Tente novamente."
+    }
   }
 }

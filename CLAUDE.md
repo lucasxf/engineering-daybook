@@ -161,6 +161,10 @@ main ← develop ← feature/xxx
 
 **Branch naming:** `type/short-description` (lowercase, hyphens)
 
+**Pre-work check:** Always verify the current branch (`git branch --show-current`) before starting any task. Ensure the branch matches the work being done — never commit changes to an unrelated branch. (Added 2026-02-09)
+
+**Quality gate:** Never commit when there are test, lint, build, or CI failures. Stop, show the error, and ask how to proceed. The only exception is if the user explicitly requests a bypass (e.g., "commit anyway" or "bypass") — in that case, warn clearly before proceeding. (Added 2026-02-19)
+
 **Commit format (Conventional Commits):**
 ```
 feat: add POK creation endpoint
@@ -200,7 +204,7 @@ npx expo build                   # Build app
 
 ### Core Entities
 
-- **User:** App user (id, email, name, locale, theme)
+- **User:** App user (id, email, handle, name, locale, theme)
 - **POK:** Piece of Knowledge (id, userId, title, content, embedding, timestamps)
 - **Tag:** Category label (id, userId, name)
 - **PokTag:** Many-to-many relation (pokId, tagId, source)
@@ -210,6 +214,29 @@ npx expo build                   # Build app
 
 > **POK content is SACRED.** Never modify, generate, or "improve" user-written content.
 > AI assists with tagging, search, and connections — never content modification.
+
+### User-Facing Terminology
+
+**CRITICAL RULE:** "POK" is internal domain jargon. Users must NEVER see it in the UI.
+
+| Context | Term to Use | Examples |
+|---------|-------------|----------|
+| **Internal code** | `POK`, `Pok` | File names, types, API routes, DB tables, tests, comments |
+| **User-facing UI** | `learning` | Buttons, labels, messages, page titles, form hints, notifications |
+| **i18n files** | `learning` (EN)<br>`aprendizado` (PT-BR) | All translation keys under `poks.*` namespace |
+
+**Why this matters:**
+- This app is specifically about capturing **learnings**, not generic notes/todos
+- Semantic precision helps users understand the focused scope
+- "POK" is meaningless jargon to anyone outside the development team
+
+**Examples:**
+- ❌ "Create POK" → ✅ "Save Learning"
+- ❌ "My POKs" → ✅ "My Learnings"
+- ❌ "POK created successfully" → ✅ "Learning saved successfully"
+- ❌ "Delete POK?" → ✅ "Delete learning?"
+
+**See also:** `docs/GLOSSARY.md` for term definitions
 
 ---
 
@@ -225,9 +252,9 @@ npx expo build                   # Build app
 
 **Phase 1: MVP** — 🔄 In Progress
 - [x] Authentication backend (JWT + email/password) — PR #15
-- [ ] Authentication web (login/register pages, middleware)
-- [ ] Authentication Google OAuth
-- [ ] POK CRUD
+- [x] Authentication web (login/register pages, auth context, i18n) — PR #17
+- [x] Authentication Google OAuth — PR #20
+- [x] POK CRUD — feat/pok-crud
 - [ ] Search
 - [ ] i18n (EN/PT-BR)
 - [ ] Dark Mode
@@ -253,6 +280,49 @@ npx expo build                   # Build app
 3. **Quality over speed** — production-ready, not prototypes
 4. **Test everything** — no code without tests
 5. **Document decisions** — update ADRs when making architectural choices
+6. **Learn from command errors** — when a slash command (e.g., `/finish-session`, `/review-pr`) encounters an error during execution, fix the root cause in the command file (`.claude/commands/`) before continuing. Don't work around it; update the command so the error won't recur. (Added 2026-02-19)
+
+---
+
+## Spec-Driven Development
+
+**This project uses Spec-Driven Development (SDD) for complex features and architectural work.**
+
+### When to Use SDD
+
+- **Domain complexity** — Multiple business rules, edge cases, or architectural decisions
+- **Multi-layer work** — Touches domain, application, and infrastructure simultaneously
+- **New capabilities** — First-time patterns that need deliberate design
+- **Scoped POCs** — Experiments with clear acceptance criteria and constraints
+
+### When to Skip (Go Direct)
+
+- **Bug fixes** — Localized corrections with clear scope
+- **Refactorings** — Mechanical changes following established patterns
+- **Exploratory spikes** — Learning-focused work (crystallize into spec *after* if delivering)
+- **Pattern application** — Work fully covered by existing conventions in this file
+
+### Workflow
+
+```bash
+# 1. Create spec from template
+cp docs/specs/template.md docs/specs/features/my-feature.md
+
+# 2. Implement from spec (presents plan, waits for approval, follows TDD)
+/implement-spec docs/specs/features/my-feature.md
+
+# 3. Finish session as usual
+/finish-session "Completed my-feature"
+```
+
+### Principles
+
+1. **Specs are contracts** — Implementation follows spec or documents deviations
+2. **Specs are living documents** — Updated post-implementation with real decisions
+3. **Quality gates** — Plan approval before coding, TDD by default
+4. **Logical commits** — Each commit is a coherent, reviewable unit
+
+**Spec location:** `docs/specs/` | **Template:** `docs/specs/template.md`
 
 ---
 
@@ -263,4 +333,4 @@ npx expo build                   # Build app
 
 ---
 
-*Last updated: 2026-02-11*
+*Last updated: 2026-02-14*

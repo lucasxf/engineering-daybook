@@ -76,6 +76,28 @@
 /create-pr "Add POK creation feature"
 ```
 
+## Spec-Driven Development Workflow
+
+For complex features with design decisions, use Spec-Driven Development (see CLAUDE.md for full guidance):
+
+```bash
+# 1. Create spec from template
+cp docs/specs/template.md docs/specs/features/my-feature.md
+# Fill in: Context, Requirements, Constraints, Acceptance Criteria, Approach
+
+# 2. Implement from spec
+/implement-spec docs/specs/features/my-feature.md
+# Validates spec → presents plan → waits for approval → TDD → logical commits → updates spec
+
+# 3. Finish session as usual
+/finish-session "Completed my-feature"
+```
+
+**Use specs for:** Multi-layer features, new architectural patterns, complex business logic.
+**Go direct for:** Bug fixes, refactorings, config changes, mechanical tasks.
+
+---
+
 ## Stack Options
 
 | Stack | Description | Files Loaded |

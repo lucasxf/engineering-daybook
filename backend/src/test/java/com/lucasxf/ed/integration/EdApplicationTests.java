@@ -1,13 +1,12 @@
 package com.lucasxf.ed.integration;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -24,18 +23,30 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 @Testcontainers(disabledWithoutDocker = true)
 class EdApplicationTests {
 
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("pgvector/pgvector:pg15")
-        .withDatabaseName("ed_test")
-        .withUsername("test")
-        .withPassword("test");
+    static PostgreSQLContainer<?> postgres;
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
-        if (postgres.isRunning()) {
-            registry.add("spring.datasource.url", postgres::getJdbcUrl);
-            registry.add("spring.datasource.username", postgres::getUsername);
-            registry.add("spring.datasource.password", postgres::getPassword);
+        if (!DockerClientFactory.instance().isDockerAvailable()) {
+            return; // Class disabled by @Testcontainers(disabledWithoutDocker = true)
+        }
+        // Start container here — @DynamicPropertySource runs during Spring context loading,
+        // before @BeforeAll, so the container must be started here to be available for
+        // property registration.
+        postgres = new PostgreSQLContainer<>("pgvector/pgvector:pg15")
+            .withDatabaseName("ed_test")
+            .withUsername("test")
+            .withPassword("test");
+        postgres.start();
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+    }
+
+    @AfterAll
+    static void stopContainers() {
+        if (postgres != null && postgres.isRunning()) {
+            postgres.stop();
         }
     }
 
@@ -45,4 +56,5 @@ class EdApplicationTests {
             "Docker not available, skipping integration test");
         // Verifies that the Spring context loads successfully with PostgreSQL
     }
+    
 }

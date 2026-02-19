@@ -1,7 +1,7 @@
 'use client';
 
 import { useLocale } from 'next-intl';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Button } from './Button';
 import { type Locale } from '@/lib/i18n';
 
@@ -10,7 +10,6 @@ import { type Locale } from '@/lib/i18n';
  */
 export function LanguageToggle() {
   const locale = useLocale() as Locale;
-  const router = useRouter();
   const pathname = usePathname();
 
   const toggleLanguage = () => {
@@ -20,12 +19,15 @@ export function LanguageToggle() {
     window.location.href = newPathname;
   };
 
+  const ariaLabel =
+    locale === 'en' ? 'Switch to Português (Brasil)' : 'Switch to English';
+
   return (
     <Button
       variant="ghost"
       size="sm"
       onClick={toggleLanguage}
-      aria-label="Toggle language"
+      aria-label={ariaLabel}
     >
       {locale === 'en' ? 'EN' : 'PT'}
     </Button>

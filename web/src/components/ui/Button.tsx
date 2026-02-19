@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import { type ButtonHTMLAttributes } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
 }
 
@@ -26,6 +26,7 @@ export function Button({
           'bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600':
             variant === 'secondary',
           'hover:bg-gray-100 dark:hover:bg-gray-800': variant === 'ghost',
+          'bg-red-600 text-white hover:bg-red-700': variant === 'danger',
         },
         {
           'h-8 px-3 text-sm': size === 'sm',

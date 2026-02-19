@@ -16,6 +16,7 @@ import javax.crypto.SecretKey;
 import org.springframework.stereotype.Service;
 
 import com.lucasxf.ed.config.AuthProperties;
+import com.lucasxf.ed.exception.InvalidTokenException;
 import lombok.extern.slf4j.Slf4j;
 
 import io.jsonwebtoken.Claims;
@@ -34,6 +35,9 @@ import static java.util.Objects.requireNonNull;
 @Slf4j
 @Service
 public class JwtService {
+
+    private static final String GOOGLE_SIGNUP_TOKEN_TYPE = "google_signup";
+    private static final String INVALID_TEMP_TOKEN_MESSAGE = "Invalid or expired temp token";
 
     private final SecretKey signingKey;
     private final Duration accessTokenExpiry;
@@ -115,9 +119,47 @@ public class JwtService {
         }
     }
 
+    /**
+     * Generates a short-lived temp token for two-step Google OAuth signup.
+     * Contains Google user claims and a {@code type=google_signup} marker.
+     * Expires after 5 minutes.
+     */
+    public String generateTempToken(String googleSub, String email, String name) {
+        Instant now = Instant.now();
+        return Jwts.builder()
+            .claim("type", GOOGLE_SIGNUP_TOKEN_TYPE)
+            .claim("googleSub", googleSub)
+            .claim("email", email)
+            .claim("name", name)
+            .issuedAt(Date.from(now))
+            .expiration(Date.from(now.plus(Duration.ofMinutes(5))))
+            .signWith(signingKey)
+            .compact();
+    }
+
+    /**
+     * Parses and validates a temp token issued for Google OAuth signup.
+     *
+     * @return the token claims containing googleSub, email, and name
+     * @throws InvalidTokenException if the token is invalid, expired, or not a temp token
+     */
+    public Claims parseTempToken(String token) {
+        try {
+            Claims claims = parseClaims(token);
+            String type = claims.get("type", String.class);
+            if (!GOOGLE_SIGNUP_TOKEN_TYPE.equals(type)) {
+                throw new InvalidTokenException(INVALID_TEMP_TOKEN_MESSAGE);
+            }
+            return claims;
+        } catch (JwtException e) {
+            throw new InvalidTokenException(INVALID_TEMP_TOKEN_MESSAGE, e);
+        }
+    }
+
     public Duration getAccessTokenExpiry() {
         return accessTokenExpiry;
     }
+
 
     public Duration getRefreshTokenExpiry() {
         return refreshTokenExpiry;
