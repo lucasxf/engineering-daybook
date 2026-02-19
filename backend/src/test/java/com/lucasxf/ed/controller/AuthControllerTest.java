@@ -1,5 +1,6 @@
 package com.lucasxf.ed.controller;
 
+import com.lucasxf.ed.config.CorsProperties;
 import com.lucasxf.ed.dto.AuthResponse;
 import com.lucasxf.ed.security.SecurityConfig;
 import com.lucasxf.ed.service.AuthService;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
@@ -31,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @WebMvcTest(AuthController.class)
 @Import(SecurityConfig.class)
+@EnableConfigurationProperties(CorsProperties.class)
 @DisplayName("AuthController")
 class AuthControllerTest {
 

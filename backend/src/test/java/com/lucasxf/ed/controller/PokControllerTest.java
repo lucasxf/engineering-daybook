@@ -6,11 +6,13 @@ import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
 import com.lucasxf.ed.exception.PokAccessDeniedException;
 import com.lucasxf.ed.exception.PokNotFoundException;
+import com.lucasxf.ed.config.CorsProperties;
 import com.lucasxf.ed.security.SecurityConfig;
 import com.lucasxf.ed.service.JwtService;
 import com.lucasxf.ed.service.PokService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
@@ -41,6 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @WebMvcTest(PokController.class)
 @Import(SecurityConfig.class)
+@EnableConfigurationProperties(CorsProperties.class)
 class PokControllerTest {
 
     @Autowired
