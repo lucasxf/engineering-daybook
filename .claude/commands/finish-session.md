@@ -28,16 +28,24 @@ cd backend && ./mvnw verify -q        # compiles, tests, and checks in one pass
 ```
 
 **Web** — only if `web/` files changed:
+
+> **Windows/Git Bash note:** `npm run <script>` on Windows may silently return exit code 1
+> even when the underlying tool succeeds. If output is empty and exit code is 1, re-run
+> using the tool directly (e.g., `npx eslint src`, `npx next build`, `npx vitest run`).
+> Treat empty-output exit-1 as a shell wrapper issue, not a real failure — verify by running
+> the tool directly. If the direct invocation also fails with actual error messages, STOP.
+
 ```bash
-cd web && npm run lint                 # lint first (fast feedback)
-cd web && npm run build               # type-check + production build
-cd web && npm run test                # unit tests
+# Preferred: run tools directly so output is never swallowed by npm wrapper
+(cd web && npx eslint src)            # lint
+(cd web && npx next build)            # type-check + production build
+(cd web && npx vitest run)            # unit tests
 ```
 
 **Mobile** — only if `mobile/` files changed:
 ```bash
-cd mobile && npm run lint
-cd mobile && npm run test
+(cd mobile && npm run lint)
+(cd mobile && npm run test)
 ```
 
 If a layer was not touched this session, skip it entirely.
