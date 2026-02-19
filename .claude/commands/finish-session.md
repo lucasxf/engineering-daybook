@@ -1,5 +1,5 @@
 ---
-description: Finish session with tests, docs update, and commit
+description: Finish session with build, lint, tests, docs update, and commit
 argument-hint: <optional-commit-message-context>
 ---
 
@@ -16,20 +16,38 @@ This command delegates documentation tasks to `tech-writer` agent. The agent MUS
 
 Execute the following steps in order:
 
-## 1. Run Tests (if applicable)
+## 1. Build, Lint, and Test (if applicable)
 
+**If any check fails: STOP. Report the failure. Do not proceed to docs or commit.**
+
+For each layer, check whether files in that directory were modified this session before running:
+
+**Backend** — only if `backend/` files changed:
 ```bash
-# Backend (if backend files changed):
-cd backend && ./mvnw test -q
-
-# Web (if web files changed):
-cd web && npm run test
-
-# Mobile (if mobile files changed):
-cd mobile && npm run test
-
-# Choose based on what was modified this session
+cd backend && ./mvnw verify -q        # compiles, tests, and checks in one pass
 ```
+
+**Web** — only if `web/` files changed:
+```bash
+cd web && npm run lint                 # lint first (fast feedback)
+cd web && npm run build               # type-check + production build
+cd web && npm run test                # unit tests
+```
+
+**Mobile** — only if `mobile/` files changed:
+```bash
+cd mobile && npm run lint
+cd mobile && npm run test
+```
+
+If a layer was not touched this session, skip it entirely.
+
+**Failure protocol — HARD RULE:**
+- Show the exact error output
+- Do NOT update docs
+- Do NOT commit — under any circumstance
+- Ask the user how to proceed
+- The ONLY exception is if the user explicitly says "commit anyway" or "bypass" — in that case, warn clearly and proceed only with their confirmation
 
 ## 2. Update ROADMAP.md (REQUIRED - Delegate to tech-writer)
 
