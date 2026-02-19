@@ -1,6 +1,6 @@
-# Roadmap — Engineering Daybook
+# Roadmap — learnimo
 
-This document outlines the development phases, milestones, and timeline for the Engineering Daybook project.
+This document outlines the development phases, milestones, and timeline for the learnimo project.
 
 ---
 

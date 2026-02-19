@@ -41,6 +41,6 @@ class HealthControllerTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.status").value("OK"))
-            .andExpect(jsonPath("$.message").value("Engineering Daybook API is running"));
+            .andExpect(jsonPath("$.message").value("learnimo API is running"));
     }
 }

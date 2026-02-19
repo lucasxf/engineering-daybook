@@ -1,12 +1,12 @@
-# Architecture — Engineering Daybook
+# Architecture — learnimo
 
-This document describes the technical architecture, technology stack, data models, and key architectural decisions for the Engineering Daybook project.
+This document describes the technical architecture, technology stack, data models, and key architectural decisions for the learnimo project.
 
 ---
 
 ## 1. Architecture Overview
 
-Engineering Daybook follows a **layered architecture** pattern with clear separation of concerns. The system is designed as a **modular monolith** for the MVP, with the flexibility to evolve into microservices if needed.
+learnimo follows a **layered architecture** pattern with clear separation of concerns. The system is designed as a **modular monolith** for the MVP, with the flexibility to evolve into microservices if needed.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐

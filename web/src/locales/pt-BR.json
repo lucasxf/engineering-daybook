@@ -1,10 +1,10 @@
 {
   "common": {
-    "appName": "Engineering Daybook",
+    "appName": "learnimo",
     "tagline": "Capture, organize e relembre seus aprendizados diários"
   },
   "home": {
-    "welcome": "Bem-vindo ao Engineering Daybook",
+    "welcome": "Bem-vindo ao learnimo",
     "description": "Uma ferramenta de gestão de conhecimento pessoal para engenheiros.",
     "getStarted": "Começar"
   },
@@ -19,7 +19,7 @@
   },
   "auth": {
     "loginTitle": "Bem-vindo de volta",
-    "loginSubtitle": "Entre no seu Engineering Daybook",
+    "loginSubtitle": "Entre no seu learnimo",
     "registerTitle": "Crie sua conta",
     "registerSubtitle": "Registre o que você aprende — seu eu do futuro vai agradecer",
     "email": "E-mail",

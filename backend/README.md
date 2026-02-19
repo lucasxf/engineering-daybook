@@ -1,6 +1,6 @@
-# Engineering Daybook - Backend
+# learnimo - Backend
 
-> Spring Boot 3 REST API for Engineering Daybook
+> Spring Boot REST API for learnimo
 
 ## Tech Stack
 

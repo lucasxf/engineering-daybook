@@ -1,4 +1,4 @@
-# Project Vision — Engineering Daybook
+# Project Vision — learnimo
 
 > "A tinta mais fraca constrói pontes mais fortes que a memória mais viva."
 > — Provérbio Yorubá (Nigéria)
@@ -7,7 +7,7 @@
 
 ## 1. Origin
 
-The Engineering Daybook concept comes from "The Pragmatic Programmer" by David Thomas and Andrew Hunt. In the book, they describe how engineers in traditional industries would maintain physical notebooks to record daily learnings — and those with the fullest notebooks would take pride in their accumulated knowledge.
+The learnimo concept comes from "The Pragmatic Programmer" by David Thomas and Andrew Hunt. In the book, they describe how engineers in traditional industries would maintain physical notebooks to record daily learnings — and those with the fullest notebooks would take pride in their accumulated knowledge.
 
 This project brings that practice into the digital age, purpose-built for software engineers.
 
@@ -15,7 +15,7 @@ This project brings that practice into the digital age, purpose-built for softwa
 
 ## 2. Vision Statement
 
-**Engineering Daybook is a personal knowledge management tool that helps engineers capture, organize, and recall their daily learnings — without the noise of general-purpose tools or the unpredictability of AI-generated content.**
+**learnimo is a personal knowledge management tool that helps engineers capture, organize, and recall their daily learnings — without the noise of general-purpose tools or the unpredictability of AI-generated content.**
 
 The core promise: **Your knowledge, exactly as you recorded it, findable when you need it.**
 
@@ -75,7 +75,7 @@ Each piece of knowledge (POK) is:
 
 ---
 
-## 6. What Engineering Daybook IS
+## 6. What learnimo IS
 
 | Capability | Description |
 |------------|-------------|
@@ -88,7 +88,7 @@ Each piece of knowledge (POK) is:
 
 ---
 
-## 7. What Engineering Daybook is NOT
+## 7. What learnimo is NOT
 
 | Anti-Pattern | Why Not |
 |--------------|---------|
@@ -104,7 +104,7 @@ Each piece of knowledge (POK) is:
 
 ### vs. OneNote / Evernote / Notion
 
-| Aspect | General Tools | Engineering Daybook |
+| Aspect | General Tools | learnimo |
 |--------|---------------|---------------------|
 | **Focus** | Everything | Learnings only |
 | **Organization** | User-managed folders/pages | Auto-tagged atomic entries |
@@ -114,7 +114,7 @@ Each piece of knowledge (POK) is:
 
 ### vs. LLM Chat Apps (ChatGPT, Claude)
 
-| Aspect | Chat Apps | Engineering Daybook |
+| Aspect | Chat Apps | learnimo |
 |--------|-----------|---------------------|
 | **Data Source** | Training data + hallucination | Your own verified learnings |
 | **Persistence** | Conversation-based | Entry-based, permanent |
@@ -145,7 +145,7 @@ Each piece of knowledge (POK) is:
 
 ## 10. Future Vision (North Star)
 
-In 2+ years, Engineering Daybook could become:
+In 2+ years, learnimo could become:
 
 1. **The engineer's second brain** — seamlessly integrated into daily workflow
 2. **Interview prep companion** — auto-generating brag docs from your learning history
