@@ -1,8 +1,8 @@
 # Dark Mode + i18n
 
-> **Status:** Draft
+> **Status:** Implemented
 > **Created:** 2026-02-19
-> **Implemented:** _pending_
+> **Implemented:** 2026-02-19
 
 ---
 
@@ -208,12 +208,27 @@ new Date(pok.updatedAt).toLocaleDateString(params.locale, { year: 'numeric', mon
 
 ## Post-Implementation Notes
 
-> _This section is filled AFTER implementation._
-
 ### Commits
+- `037cab4`: test(ui): add unit tests for ThemeToggle and LanguageToggle (TDD RED)
+- `20b3686`: fix(i18n): add dynamic aria-labels to ThemeToggle and LanguageToggle (TDD GREEN)
+- `0ef315f`: fix(i18n): locale date formatting, pluralized count, and locale redirect
 
 ### Architectural Decisions
 
+**Decision: Hardcoded English aria-labels (not translated)**
+- **Options:** A) Hardcoded English strings, B) Add new i18n keys to locale files
+- **Chosen:** A — hardcoded English strings in the component
+- **Rationale:** ARIA labels are consumed by screen readers; screen reader users typically configure their preferred language at the OS level. English is universally understood for UI element descriptions. Adding translation keys for 3–4 short labels adds maintenance overhead with minimal benefit for Phase 1.
+
+**Decision: `params.locale` for date formatting (not `useLocale()`)**
+- **Options:** A) `useLocale()` from next-intl, B) `params.locale` from `useParams()`
+- **Chosen:** B — `params.locale` — already available in both components, avoids adding another import
+- **Rationale:** Functionally identical for our two locales (`en`, `pt-BR`); `params.locale` was already imported in both `PokCard` and `ViewPokPage`
+
 ### Deviations from Spec
+- Audit found 2 additional gaps not in the original spec: `toLocaleDateString()` with no locale in `poks/[id]/page.tsx` (view timestamps), and missing locale prefix in `poks/new/page.tsx` redirect. Both fixed in the i18n commit.
+- Dark mode audit confirmed FR6 was already fully satisfied — no component changes needed.
 
 ### Lessons Learned
+- `getByRole('button', { name: /EN/i })` fails when `aria-label` is set, because `aria-label` overrides the accessible name (even when visible text content is present). Use `toHaveTextContent('EN')` to check visible text independently.
+- ICU plural syntax in next-intl: `{count, plural, =1 {singular} other {# plural}}` — the `#` expands to the count value.
