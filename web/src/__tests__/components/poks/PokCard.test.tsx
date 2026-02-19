@@ -2,6 +2,10 @@ import { render, screen } from '@testing-library/react';
 import { PokCard } from '@/components/poks/PokCard';
 import { Pok } from '@/lib/pokApi';
 
+vi.mock('next/navigation', () => ({
+  useParams: () => ({ locale: 'en' }),
+}));
+
 describe('PokCard', () => {
   const basePok: Pok = {
     id: '123',

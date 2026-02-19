@@ -13,8 +13,7 @@ spring:
       minimum-idle: 2
   jpa:
     hibernate:
-      ddl-auto: validate
-    defer-datasource-initialization: true
+      ddl-auto: none
     open-in-view: false
     properties:
       hibernate:

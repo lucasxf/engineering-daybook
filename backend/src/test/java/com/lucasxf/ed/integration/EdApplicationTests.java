@@ -56,4 +56,5 @@ class EdApplicationTests {
             "Docker not available, skipping integration test");
         // Verifies that the Spring context loads successfully with PostgreSQL
     }
+    
 }

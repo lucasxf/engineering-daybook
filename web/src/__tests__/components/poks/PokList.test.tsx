@@ -3,6 +3,10 @@ import { PokList } from '@/components/poks/PokList';
 import { Pok } from '@/lib/pokApi';
 import { NextIntlClientProvider } from 'next-intl';
 
+vi.mock('next/navigation', () => ({
+  useParams: () => ({ locale: 'en' }),
+}));
+
 const messages = {
   poks: {
     emptyState: {

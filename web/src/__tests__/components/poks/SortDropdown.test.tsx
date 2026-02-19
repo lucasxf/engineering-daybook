@@ -24,7 +24,7 @@ const renderSortDropdown = (props: Parameters<typeof SortDropdown>[0]) => {
 
 describe('SortDropdown', () => {
   it('should render with label', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const value: SortOption = { sortBy: 'updatedAt', sortDirection: 'DESC' };
 
     renderSortDropdown({ value, onChange });
@@ -33,7 +33,7 @@ describe('SortDropdown', () => {
   });
 
   it('should render all sort options', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const value: SortOption = { sortBy: 'updatedAt', sortDirection: 'DESC' };
 
     renderSortDropdown({ value, onChange });
@@ -45,7 +45,7 @@ describe('SortDropdown', () => {
   });
 
   it('should display current selection', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const value: SortOption = { sortBy: 'createdAt', sortDirection: 'ASC' };
 
     renderSortDropdown({ value, onChange });
@@ -55,7 +55,7 @@ describe('SortDropdown', () => {
   });
 
   it('should call onChange when selection changes', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const value: SortOption = { sortBy: 'updatedAt', sortDirection: 'DESC' };
 
     renderSortDropdown({ value, onChange });
@@ -70,7 +70,7 @@ describe('SortDropdown', () => {
   });
 
   it('should call onChange with correct value for each option', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const value: SortOption = { sortBy: 'updatedAt', sortDirection: 'DESC' };
 
     renderSortDropdown({ value, onChange });
@@ -100,7 +100,7 @@ describe('SortDropdown', () => {
   });
 
   it('should be keyboard navigable', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const value: SortOption = { sortBy: 'updatedAt', sortDirection: 'DESC' };
 
     renderSortDropdown({ value, onChange });

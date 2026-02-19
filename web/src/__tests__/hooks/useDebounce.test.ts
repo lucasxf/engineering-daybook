@@ -2,11 +2,11 @@ import { renderHook, act } from '@testing-library/react';
 import { useDebounce } from '@/hooks/useDebounce';
 
 // Mock timers
-jest.useFakeTimers();
+vi.useFakeTimers();
 
 describe('useDebounce', () => {
   afterEach(() => {
-    jest.clearAllTimers();
+    vi.clearAllTimers();
   });
 
   it('should return initial value immediately', () => {
@@ -31,13 +31,13 @@ describe('useDebounce', () => {
 
     // Fast-forward 299ms
     act(() => {
-      jest.advanceTimersByTime(299);
+      vi.advanceTimersByTime(299);
     });
     expect(result.current).toBe('initial');
 
     // Fast-forward 1ms more (total 300ms)
     act(() => {
-      jest.advanceTimersByTime(1);
+      vi.advanceTimersByTime(1);
     });
     expect(result.current).toBe('updated');
   });
@@ -50,20 +50,20 @@ describe('useDebounce', () => {
 
     // Rapid changes (within 300ms)
     rerender({ value: 'ab' });
-    act(() => { jest.advanceTimersByTime(100); });
+    act(() => { vi.advanceTimersByTime(100); });
 
     rerender({ value: 'abc' });
-    act(() => { jest.advanceTimersByTime(100); });
+    act(() => { vi.advanceTimersByTime(100); });
 
     rerender({ value: 'abcd' });
-    act(() => { jest.advanceTimersByTime(100); });
+    act(() => { vi.advanceTimersByTime(100); });
 
     // Only 300ms total, but timer was reset each time
     expect(result.current).toBe('a');
 
     // Fast-forward remaining time
     act(() => {
-      jest.advanceTimersByTime(200);
+      vi.advanceTimersByTime(200);
     });
     expect(result.current).toBe('abcd');
   });
@@ -71,13 +71,13 @@ describe('useDebounce', () => {
   it('should cleanup timer on unmount', () => {
     const { unmount } = renderHook(() => useDebounce('test', 300));
 
-    const timeoutCount = jest.getTimerCount();
+    const timeoutCount = vi.getTimerCount();
     expect(timeoutCount).toBeGreaterThan(0);
 
     unmount();
 
     // Timer should be cleared on unmount
-    expect(jest.getTimerCount()).toBe(0);
+    expect(vi.getTimerCount()).toBe(0);
   });
 
   it('should support custom delay', () => {
@@ -90,13 +90,13 @@ describe('useDebounce', () => {
 
     // Should not update after 300ms (custom delay is 500ms)
     act(() => {
-      jest.advanceTimersByTime(300);
+      vi.advanceTimersByTime(300);
     });
     expect(result.current).toBe('initial');
 
     // Should update after 500ms
     act(() => {
-      jest.advanceTimersByTime(200);
+      vi.advanceTimersByTime(200);
     });
     expect(result.current).toBe('updated');
   });
