@@ -82,7 +82,8 @@
     },
     "list": {
       "title": "My Learnings",
-      "createButton": "New Learning"
+      "createButton": "New Learning",
+      "resultsCount": "{count, plural, =1 {1 learning found} other {# learnings found}}"
     },
     "search": {
       "placeholder": "Search your learnings...",

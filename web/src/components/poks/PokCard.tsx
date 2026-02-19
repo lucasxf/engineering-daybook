@@ -27,8 +27,8 @@ export function PokCard({ pok }: PokCardProps) {
   // Content preview: first 100 chars
   const contentPreview = truncate(pok.content, 100);
 
-  // Format date
-  const formattedDate = new Date(pok.updatedAt).toLocaleDateString('en-US', {
+  // Format date using the active locale
+  const formattedDate = new Date(pok.updatedAt).toLocaleDateString(params.locale, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',

@@ -176,7 +176,7 @@ function PoksContent() {
       {/* Results count (when not loading and has results) */}
       {!loading && poks.length > 0 && (
         <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
-          {totalElements} {totalElements === 1 ? 'learning' : 'learnings'} found
+          {t('list.resultsCount', { count: totalElements })}
         </div>
       )}
     </div>

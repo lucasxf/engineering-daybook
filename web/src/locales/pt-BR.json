@@ -82,7 +82,8 @@
     },
     "list": {
       "title": "Meus Aprendizados",
-      "createButton": "Novo Aprendizado"
+      "createButton": "Novo Aprendizado",
+      "resultsCount": "{count, plural, =1 {1 aprendizado encontrado} other {# aprendizados encontrados}}"
     },
     "search": {
       "placeholder": "Pesquisar seus aprendizados...",

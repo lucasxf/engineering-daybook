@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { PokForm } from '@/components/poks/PokForm';
 import { pokApi } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
@@ -19,6 +19,7 @@ import type { PokFormData } from '@/lib/validations/pokSchema';
 export default function NewPokPage() {
   const t = useTranslations('poks');
   const router = useRouter();
+  const params = useParams<{ locale: string }>();
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (data: PokFormData) => {
@@ -30,7 +31,7 @@ export default function NewPokPage() {
       });
 
       // Success - redirect to POK list
-      router.push('/poks');
+      router.push(`/${params.locale}/poks` as never);
     } catch (err) {
       if (err instanceof ApiRequestError) {
         setError(err.message);
