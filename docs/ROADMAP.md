@@ -9,27 +9,23 @@ This document outlines the development phases, milestones, and timeline for the 
 The project follows an iterative development approach, prioritizing a functional MVP for personal use before expanding features and audience.
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           DEVELOPMENT TIMELINE                               │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  Phase 0        Phase 1          Phase 2           Phase 3        Phase 4   │
-│  Foundation     MVP              Evolution         AI & Scale     Growth    │
-│                                                                              │
-│  ┌─────┐       ┌─────┐          ┌─────┐           ┌─────┐       ┌─────┐    │
-│  │Week │       │Week │          │Week │           │Week │       │Week │    │
-│  │ 1-2 │──────►│ 3-8 │─────────►│9-14 │──────────►│15-20│──────►│ 21+ │    │
-│  └─────┘       └─────┘          └─────┘           └─────┘       └─────┘    │
-│                                                                              │
-│  Setup &       Core             Enhanced          AI Features   Marketing   │
-│  Planning      Features         Experience        & Mobile      & Feedback  │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+  Phase 0        Phase 1        Phase 2        Phase 3        Phase 4
+  Foundation ──► MVP        ──► Evolution  ──► AI & Mobile ──► Growth
+  Setup &        Core           Enhanced       AI Features    Marketing
+  Planning       Features       Experience     & Mobile       & Feedback
+
+                                                    │
+                                                    ▼
+
+                              Phase 5        Phase 6        Phase 7
+                              Privacy    ──► Social     ──► Gamification
+                              POK            Follow /       Milestone
+                              Visibility     Profiles       Badges
 ```
 
 ---
 
-## Phase 0: Foundation (Weeks 1-2)
+## Phase 0: Foundation
 
 **Goal:** Project setup, documentation, and infrastructure ready for development.
 
@@ -54,7 +50,7 @@ The project follows an iterative development approach, prioritizing a functional
 
 ---
 
-## Phase 1: MVP (Weeks 3-8)
+## Phase 1: MVP
 
 **Goal:** Deliver a functional web application for personal use with core POK management features.
 
@@ -94,7 +90,7 @@ The project follows an iterative development approach, prioritizing a functional
 
 **Note:** feat/pok-listing-search (pending PR)
 
-#### Milestone 1.4: UI/UX Polish (Weeks 7-8)
+#### Milestone 1.4: UI/UX Polish
 
 | # | Feature | Priority | Status |
 |---|---------|----------|--------|
@@ -150,11 +146,11 @@ The project follows an iterative development approach, prioritizing a functional
 
 ---
 
-## Phase 2: Evolution (Weeks 9-14)
+## Phase 2: Evolution
 
 **Goal:** Enhance the core experience with editing, tagging, and better visualization.
 
-### Milestone 2.1: POK Editing & Deletion (Week 9-10)
+### Milestone 2.1: POK Editing & Deletion
 
 | # | Feature | Priority |
 |---|---------|----------|
@@ -164,18 +160,20 @@ The project follows an iterative development approach, prioritizing a functional
 | 2.1.4 | Audit trail logging | Must Have |
 | 2.1.5 | View POK history | Could Have |
 
-### Milestone 2.2: Tagging System (Weeks 11-12)
+### Milestone 2.2: Tagging System
 
 | # | Feature | Priority |
 |---|---------|----------|
-| 2.2.1 | Manual tag creation | Should Have |
+| 2.2.1 | Manual tag creation (learner creates new tags freely) | Must Have |
 | 2.2.2 | Assign tags to POKs | Should Have |
 | 2.2.3 | Filter POKs by tag | Must Have |
 | 2.2.4 | Tag management (rename, delete) | Should Have |
-| 2.2.5 | AI auto-tag suggestions | Must Have |
+| 2.2.5 | Basic AI auto-tag suggestions (explicit tags from content) | Must Have |
 | 2.2.6 | Approve/reject/modify suggested tags | Must Have |
 
-### Milestone 2.3: Visualization (Weeks 13-14)
+> **Note:** Intent-based related-concept tag suggestions (e.g., singleton POK → #designpatterns) ship in Phase 7 (AI-Assisted Tag Suggestions).
+
+### Milestone 2.3: Visualization
 
 | # | Feature | Priority |
 |---|---------|----------|
@@ -184,20 +182,29 @@ The project follows an iterative development approach, prioritizing a functional
 | 2.3.3 | Sort options (date, relevance) | Must Have |
 | 2.3.4 | Search result highlighting | Could Have |
 
+### Milestone 2.4: UX Delight
+
+| # | Feature | Priority |
+|---|---------|----------|
+| 2.4.1 | Random inspirational prompt on "add new learning" page — e.g., "TIL (Today I learned...)", "Essa semana eu aprendi que...", "Esse livro me ensinou..." — sourced from a localised dictionary/database, changes on every page load | Should Have |
+| 2.4.2 | Homepage personalization after first learning: replace the "Get Started" CTA with a persistent layout of (1) a textbox to input new learnings and (2) a search bar — the learner's primary daily workflow | Must Have |
+
 ### Evolution Exit Criteria
-- [ ] User can edit and delete POKs
+- [ ] Learner can edit and delete POKs
 - [ ] All changes are logged in audit trail
-- [ ] Tagging system works (manual + AI suggestions)
+- [ ] Tagging system works (manual creation + AI suggestions for explicit tags)
 - [ ] Timeline and tag views are functional
 - [ ] Author actively uses tags to organize POKs
+- [ ] Inspirational prompts appear on add-learning page
+- [ ] Homepage adapts after first learning is recorded
 
 ---
 
-## Phase 3: AI & Mobile (Weeks 15-20)
+## Phase 3: AI & Mobile
 
 **Goal:** Add semantic search, AI insights, and mobile app.
 
-### Milestone 3.1: Semantic Search (Weeks 15-16)
+### Milestone 3.1: Semantic Search
 
 | # | Feature | Priority |
 |---|---------|----------|
@@ -206,7 +213,7 @@ The project follows an iterative development approach, prioritizing a functional
 | 3.1.3 | Hybrid search (keyword + semantic) | Should Have |
 | 3.1.4 | Search relevance tuning | Should Have |
 
-### Milestone 3.2: AI Connections (Weeks 17-18)
+### Milestone 3.2: AI Connections
 
 | # | Feature | Priority |
 |---|---------|----------|
@@ -214,7 +221,7 @@ The project follows an iterative development approach, prioritizing a functional
 | 3.2.2 | "Related learnings" section on POK view | Should Have |
 | 3.2.3 | Connection strength indicators | Could Have |
 
-### Milestone 3.3: Mobile App (Weeks 19-20)
+### Milestone 3.3: Mobile App
 
 | # | Feature | Priority |
 |---|---------|----------|
@@ -234,11 +241,11 @@ The project follows an iterative development approach, prioritizing a functional
 
 ---
 
-## Phase 4: Growth & Polish (Weeks 21+)
+## Phase 4: Growth & Polish
 
 **Goal:** Prepare for external users, add export features, and gather feedback.
 
-### Milestone 4.1: Data Export (Week 21-22)
+### Milestone 4.1: Data Export
 
 | # | Feature | Priority |
 |---|---------|----------|
@@ -247,7 +254,7 @@ The project follows an iterative development approach, prioritizing a functional
 | 4.1.3 | Export filtered POKs | Could Have |
 | 4.1.4 | Brag doc generator | Could Have |
 
-### Milestone 4.2: Security Hardening (Week 23)
+### Milestone 4.2: Security Hardening
 
 | # | Feature | Priority |
 |---|---------|----------|
@@ -256,7 +263,7 @@ The project follows an iterative development approach, prioritizing a functional
 | 4.2.3 | Security headers review | Should Have |
 | 4.2.4 | Penetration testing (basic) | Could Have |
 
-### Milestone 4.3: Social Sharing (Week 24)
+### Milestone 4.3: External Sharing
 
 | # | Feature | Priority |
 |---|---------|----------|
@@ -265,7 +272,7 @@ The project follows an iterative development approach, prioritizing a functional
 | 4.3.3 | Share POK to Substack | Could Have |
 | 4.3.4 | Public read-only link generation | Could Have |
 
-### Milestone 4.4: Launch Preparation (Week 25+)
+### Milestone 4.4: Launch Preparation
 
 | # | Task | Priority |
 |---|------|----------|
@@ -283,6 +290,180 @@ The project follows an iterative development approach, prioritizing a functional
 
 ---
 
+---
+
+## Phase 5: Privacy (TBD)
+
+**Goal:** Give learners full control over the visibility of their POKs. Privacy infrastructure is the prerequisite for all social features.
+
+**Design Principles:**
+- Default is private — learners opt in to sharing, never out
+- Visibility can always be changed after creation
+- Phase 5 ships the initial two tiers (private / public); followers-only and colleagues-only unlock in Phase 6 when the social graph exists
+
+### Milestone 5.1: POK Visibility Controls
+
+| # | Feature | Priority |
+|---|---------|----------|
+| 5.1.1 | POK visibility field (private / public — Phase 5; followers-only / colleagues-only — Phase 6) | Must Have |
+| 5.1.2 | Default visibility setting per learner (default: private) | Must Have |
+| 5.1.3 | Set visibility at POK creation time | Must Have |
+| 5.1.4 | Edit visibility of an existing POK at any time | Must Have |
+| 5.1.5 | Access control enforcement — public POKs visible to all; private POKs visible only to owner; if owner changes a POK to private, all shares of it disappear from other learners' feeds and profiles | Must Have |
+| 5.1.6 | Share visibility constraint: a shared POK's visibility may be equal to or narrower than the original's (e.g., a followers-only POK can be shared as followers-only, colleagues-only, or private — but not public) | Must Have |
+| 5.1.7 | UI indicators for visibility level on POK cards and detail views | Should Have |
+
+### Milestone 5.2: Learner Profile Privacy
+
+| # | Feature | Priority |
+|---|---------|----------|
+| 5.2.1 | Profile visibility setting: public / followers-only / colleagues-only / private | Must Have |
+| 5.2.2 | Public profiles discoverable by any visitor; private profiles visible only to the owner | Must Have |
+| 5.2.3 | No visible follower count, colleague count, or total learning count on public profiles (anti-vanity principle) | Must Have |
+
+### Phase 5 Exit Criteria
+- [ ] POKs are private by default; learners can make individual POKs public
+- [ ] Learners can set their default visibility preference
+- [ ] Access control correctly enforced for all endpoints and UI views
+- [ ] Share cascade rule works: POK going private removes all downstream shares
+
+---
+
+## Phase 6: Social Capabilities (TBD)
+
+**Goal:** Enable learners to connect, follow each other, discover public learnings, and share content — all without rewarding vanity metrics.
+
+**Design Principles:**
+- No follower, colleague, or learning counts visible on public profiles (anti-vanity)
+- Learners can see their own counts privately (in their own profile/settings view)
+- Mutual follows = **colleagues** (emerges automatically — no separate request flow)
+- Social connections named to reinforce the learning context: colleagues, class, study group
+- Kindness is a first-class principle: the platform is an open space where learners may record mistakes — humiliation and harassment are not tolerated
+
+### Milestone 6.1: Following & Colleagues
+
+| # | Feature | Priority |
+|---|---------|----------|
+| 6.1.1 | Follow a learner | Must Have |
+| 6.1.2 | Unfollow a learner | Must Have |
+| 6.1.3 | Mutual follow = colleague (automatic, no separate request) | Must Have |
+| 6.1.4 | Followers-only and colleagues-only visibility tiers (unlocked from Phase 5 model) | Must Have |
+| 6.1.5 | Learner can privately see own counts: total learnings, followers, following, colleagues | Must Have |
+| 6.1.6 | Follow notification copy — e.g., "Learner Lucas wants to learn with you" / "Xavier is now learning from you" | Should Have |
+| 6.1.7 | Unfollow notification — notify the unfollowed learner when a colleague parts ways (copy TBD; tone: matter-of-fact, not dramatic) | Could Have |
+
+### Milestone 6.2: Classes & Study Groups
+
+| # | Feature | Priority |
+|---|---------|----------|
+| 6.2.1 | Learners can form an opt-in named group (Class / Study Group) with their colleagues | Could Have |
+| 6.2.2 | Groups are never auto-created by the system — always deliberate | Must Have (constraint) |
+| 6.2.3 | Group visibility and membership rules respect individual privacy settings | Must Have |
+
+### Milestone 6.3: Learner Profiles
+
+| # | Feature | Priority |
+|---|---------|----------|
+| 6.3.1 | Public profile page at `/learners/{handle}` | Must Have |
+| 6.3.2 | Profile shows avatar and display name | Must Have |
+| 6.3.3 | Optional short bio (few hundred characters max; no external links or social media redirects) | Should Have |
+| 6.3.4 | Avatar upload (Supabase Storage, size limits, format validation, resizing) | Must Have |
+| 6.3.5 | Profile respects visibility settings — private profiles not accessible to non-followers | Must Have |
+| 6.3.6 | No vanity metrics on public profiles: follower, colleague, and learning counts hidden from all viewers except the profile owner | Must Have |
+
+### Milestone 6.4: Share (Re-Learning)
+
+| # | Feature | Priority |
+|---|---------|----------|
+| 6.4.1 | Share a public POK (creates a reference in the learner's feed, attributed to the original author) | Should Have |
+| 6.4.2 | Shared POK appears in sharer's feed and profile, linked back to the original | Should Have |
+| 6.4.3 | Original author notified when their POK is shared (respects notification settings) | Should Have |
+| 6.4.4 | Shared POK visibility constrained to equal or narrower than original's | Must Have |
+| 6.4.5 | When original POK is changed to private, all downstream shares disappear from feeds and profiles | Must Have |
+
+### Milestone 6.5: Discovery Feed
+
+| # | Feature | Priority |
+|---|---------|----------|
+| 6.5.1 | Feed of public POKs from learners you follow | Must Have |
+| 6.5.2 | Discover public learners (search by handle or name) | Should Have |
+
+### Milestone 6.6: Community Principles & Content Moderation
+
+| # | Feature | Priority |
+|---|---------|----------|
+| 6.6.1 | Publish learnimo Manifest / Community Principles document — includes kindness rule: learners may make mistakes while learning; humiliation and harassment are not tolerated | Must Have |
+| 6.6.2 | Report/flag mechanism for inappropriate content on shared POKs | Must Have |
+| 6.6.3 | AI moderation agent to scan shared POK comments/notes for harmful or abusive language | Should Have |
+| 6.6.4 | Community guidelines linked from onboarding and profile pages | Should Have |
+
+### Phase 6 Exit Criteria
+- [ ] Learners can follow/unfollow others
+- [ ] Mutual follows correctly identified as colleagues
+- [ ] Profiles display correctly with appropriate visibility enforcement
+- [ ] Share feature works with proper attribution and visibility cascade rules
+- [ ] No vanity metrics (follower/colleague/learning counts) visible on public profiles
+- [ ] Community Principles document published and linked in-app
+- [ ] Report mechanism functional
+
+---
+
+## Phase 7: Gamification (TBD)
+
+**Goal:** Celebrate personal learning milestones with private-by-default badges — non-competitive, non-tracking, and aligned with the mission of encouraging consistent learning.
+
+**Design Principles:**
+- Badges are **personal celebrations**, not competitive rankings
+- No streaks, no consecutive-day tracking, no pressure mechanics
+- Badges are **private by default**; learner can choose to make specific badges public
+- Public badges must respect profile and POK privacy settings (no information leakage)
+
+### Milestone 7.1: AI-Assisted Tag Suggestions
+
+> **Note:** Basic manual tagging ships in Phase 2. This milestone adds AI-powered intent-based suggestions.
+
+| # | Feature | Priority |
+|---|---------|----------|
+| 7.1.1 | AI engine infers explicit tags from POK content (e.g., #springboot from the text) | Must Have |
+| 7.1.2 | AI engine infers related concept tags from intent (e.g., singleton POK → also suggests #designpatterns, #oop) | Should Have |
+| 7.1.3 | Suggested tags presented to learner for approval before saving — never auto-applied silently | Must Have |
+| 7.1.4 | Learner can propose additional tags not suggested by AI | Should Have |
+| 7.1.5 | Learner can create entirely new tags that don't exist yet | Must Have |
+| 7.1.6 | Tag suggestion model improves over time based on the learner's own tag history | Could Have |
+
+### Milestone 7.2: Milestone Badges
+
+| # | Badge Category | Examples | Priority |
+|---|---------------|----------|----------|
+| 7.2.1 | **Volume milestones** | 1st learning, 10th, 50th, 100th, 500th | Must Have |
+| 7.2.2 | **Tag depth** | 10 learnings with the same tag ("you're becoming an expert in #java") | Should Have |
+| 7.2.3 | **Tag breadth** | Used 5+ different tags ("curious mind") | Could Have |
+| 7.2.4 | **Weekly celebration** | Recorded 5+ learnings in a single week — a one-time celebration toast, no countdown UI, no pressure | Should Have |
+| 7.2.5 | **Revisitor** | Updated a learning 3+ times ("learning is iterative") | Could Have |
+| 7.2.6 | **Social** (Phase 6 dependency) | First share; first follower | Could Have |
+
+### Milestone 7.3: Badge Privacy & Display
+
+| # | Feature | Priority |
+|---|---------|----------|
+| 7.3.1 | All badges private by default | Must Have |
+| 7.3.2 | Learner can make individual badges public | Must Have |
+| 7.3.3 | Public badges visible on learner's profile (below avatar) | Should Have |
+| 7.3.4 | Public badges never expose counts or metrics that violate anti-vanity principle | Must Have |
+| 7.3.5 | Badge notification shown in-app at award time (celebration toast / modal) | Must Have |
+| 7.3.6 | Badge visual design — illustrations or icons per badge type (design assets TBD; may use AI image generation, stock icon libraries, or a commissioned designer) | Should Have |
+
+### Phase 7 Exit Criteria
+- [ ] AI tag suggestions surface both explicit and related-concept tags
+- [ ] Learner always approves tags before they are saved — no silent auto-tagging
+- [ ] Learners can create new tags that don't exist yet
+- [ ] Badges awarded automatically on milestone events (POK creation, updates)
+- [ ] All badges private by default; learner controls visibility per badge
+- [ ] No competitive elements, streak counters, or progress bars visible
+- [ ] Badge display on profiles respects all privacy settings
+
+---
+
 ## Future Considerations (Backlog)
 
 These items are out of scope for the initial roadmap but may be prioritized later:
@@ -290,12 +471,12 @@ These items are out of scope for the initial roadmap but may be prioritized late
 | Feature | Rationale |
 |---------|-----------|
 | AI Chat Interface | Query POKs via natural language conversation |
-| Graph Visualization | Visual map of POK connections |
+| Graph Visualization | Visual map of POK connections and tag relationships |
 | Browser Extension | Quick capture from any webpage |
 | IDE Plugin | Capture learnings without leaving the editor |
-| Team/Sharing Features | Curated knowledge sharing (opt-in) |
 | Offline Mode | Full offline-first with sync |
 | Voice Input | Record POKs via voice (mobile) |
+| Push Notifications | Mobile push notifications for social events (shares, new followers) |
 
 ---
 
@@ -313,13 +494,16 @@ These items are out of scope for the initial roadmap but may be prioritized late
 
 ## Success Milestones
 
-| Milestone | Target Date | Success Indicator |
-|-----------|-------------|-------------------|
-| 🏁 MVP Live | Week 8 | App deployed, author using daily |
-| 🏷️ Tagging Works | Week 12 | 50+ POKs tagged |
-| 🔍 Semantic Search | Week 16 | Search finds relevant POKs >80% of time |
-| 📱 Mobile App | Week 20 | Author captures POKs on mobile |
-| 🚀 Public Launch | Week 25+ | 10 external users |
+| Milestone | Success Indicator |
+|-----------|-------------------|
+| 🏁 MVP Live | App deployed, author using daily |
+| ✏️ Evolution | Tagging works; 50+ POKs tagged; author uses timeline view |
+| 🔍 Semantic Search | Search finds relevant POKs >80% of the time |
+| 📱 Mobile App | Author captures POKs on mobile |
+| 🔒 Privacy | All POKs have visibility controls; access enforcement confirmed |
+| 👥 Social | Author follows at least 3 learners; share feature in use |
+| 🏅 Gamification | First milestone badges awarded; AI tag suggestions in use |
+| 🚀 Public Launch | 10 external learners; community principles published |
 
 ---
 
@@ -352,3 +536,5 @@ This is a living document. Update it as the project evolves.
 | 2.1 | 2026-02-20 | Lucas Xavier Ferreira | Production bug fix — Google Sign-Up 500 (PgBouncer pooler env var); added AuthIntegrationTest with Testcontainers |
 | 2.2 | 2026-02-20 | Lucas Xavier Ferreira | Production infra fixes — added Flyway starter dependency (SB4), switched DB_HOST to Supabase IPv4 session-mode pooler (Railway IPv6 incompatibility), added explicit JDBC driver-class-name, removed database-platform, disabled Flyway in test profile |
 | 2.3 | 2026-02-20 | Lucas Xavier Ferreira | HomeCta auth-aware fix (authenticated users silently looped back to home; now routed to /poks); added Phase A page-level behavior tests (Vitest) — 8 new test files covering all pages, test count 101 → 161 |
+| 2.4 | 2026-02-20 | Lucas Xavier Ferreira | Added Phase 5 (Privacy), Phase 6 (Social Capabilities), Phase 7 (Gamification) to roadmap; updated timeline chart; added "Learner", "Friendship", and "Echo" to GLOSSARY |
+| 2.5 | 2026-02-20 | Lucas Xavier Ferreira | Revised Phases 5–7: resolved Echo→Share naming, colleagues/class terminology, bio rules, anti-vanity owned counts, community principles, AI moderation; added Phase 2 Milestone 2.4 (UX Delight: random prompts + homepage personalization); simplified timeline chart (removed week estimates); updated GLOSSARY (Colleague, Class/Study Group, Share) |
