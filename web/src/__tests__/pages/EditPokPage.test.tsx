@@ -68,7 +68,7 @@ describe('EditPokPage', () => {
   it('shows a loading spinner initially', () => {
     mockGetById.mockReturnValue(new Promise(() => {}));
     renderEditPage();
-    expect(document.querySelector('svg')).toBeInTheDocument();
+    expect(document.querySelector('svg.animate-spin')).toBeInTheDocument();
   });
 
   describe('successful load', () => {

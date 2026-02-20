@@ -11,9 +11,6 @@ interface HomeCtaProps {
 /**
  * Auth-aware home page call-to-action button.
  * Authenticated users go to their learnings; guests go to register.
- *
- * @author Lucas Xavier Ferreira
- * @since 2026-02-20
  */
 export function HomeCta({ locale }: HomeCtaProps) {
   const t = useTranslations('home');

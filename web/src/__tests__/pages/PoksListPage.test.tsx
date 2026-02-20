@@ -62,8 +62,7 @@ describe('PoksListPage', () => {
     // API never resolves during this test
     mockGetAll.mockReturnValue(new Promise(() => {}));
     renderPoksPage();
-    // Spinner is rendered as an SVG or status role
-    expect(document.querySelector('svg')).toBeInTheDocument();
+    expect(document.querySelector('svg.animate-spin')).toBeInTheDocument();
   });
 
   it('renders the page heading and create button', async () => {

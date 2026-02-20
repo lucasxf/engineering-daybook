@@ -59,7 +59,7 @@ describe('ViewPokPage', () => {
   it('shows a loading spinner initially', () => {
     mockGetById.mockReturnValue(new Promise(() => {}));
     renderViewPage();
-    expect(document.querySelector('svg')).toBeInTheDocument();
+    expect(document.querySelector('svg.animate-spin')).toBeInTheDocument();
   });
 
   describe('successful load', () => {
