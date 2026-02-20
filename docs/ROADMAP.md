@@ -128,6 +128,16 @@ The project follows an iterative development approach, prioritizing a functional
 | — | Added explicit `driver-class-name: org.postgresql.Driver` to `application.yml` | Must Have | ✅ Done |
 | — | Removed `database-platform` from `application.yml` (Hibernate auto-detects dialect; explicit value triggers warning) | Must Have | ✅ Done |
 | — | Disabled Flyway in test profile (`application-test.yml`) | Must Have | ✅ Done |
+| — | Fixed HomeCta auth-aware navigation — authenticated users redirected silently back to `/` when clicking "Get Started"; extracted `HomeCta` client component that routes authenticated users to `/poks` and unauthenticated users to `/register` | Must Have | ✅ Done |
+
+#### Milestone 1.6: Web Testing Quality
+
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| 1.6.1 | Page-level behavior tests (Vitest) — all pages, both auth states, link targets, redirects | Should Have | ✅ Done (2026-02-20) |
+| 1.6.2 | E2E tests with Playwright — 4 critical user journeys (register, login, create learning, authenticated home nav) | Should Have | ⏳ Planned (Phase B) |
+
+> **Phase B (Playwright E2E):** Planned after Phase 1 exit. Will use `page.route()` to mock API responses so no live backend is needed in CI. Covers the full browser navigation flows that Vitest/jsdom cannot test (e.g., auth redirect loops, multi-page flows). See ADR when implemented.
 
 ### MVP Exit Criteria
 - [ ] User can register, login, and logout
@@ -341,3 +351,4 @@ This is a living document. Update it as the project evolves.
 | 2.0 | 2026-02-20 | Lucas Xavier Ferreira | MVP deployed — learnimo.net live on Railway + Vercel + Supabase |
 | 2.1 | 2026-02-20 | Lucas Xavier Ferreira | Production bug fix — Google Sign-Up 500 (PgBouncer pooler env var); added AuthIntegrationTest with Testcontainers |
 | 2.2 | 2026-02-20 | Lucas Xavier Ferreira | Production infra fixes — added Flyway starter dependency (SB4), switched DB_HOST to Supabase IPv4 session-mode pooler (Railway IPv6 incompatibility), added explicit JDBC driver-class-name, removed database-platform, disabled Flyway in test profile |
+| 2.3 | 2026-02-20 | Lucas Xavier Ferreira | HomeCta auth-aware fix (authenticated users silently looped back to home; now routed to /poks); added Phase A page-level behavior tests (Vitest) — 8 new test files covering all pages, test count 101 → 161 |
