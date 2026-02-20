@@ -123,6 +123,11 @@ The project follows an iterative development approach, prioritizing a functional
 |---|------|----------|--------|
 | — | Diagnose Google Sign-Up 500 error in production | Must Have | ✅ Root cause: `SPRING_DATASOURCE_URL` Railway env var pointing to Supabase PgBouncer pooler — delete it |
 | — | Auth integration tests (Testcontainers) covering email/password + Google OAuth | Must Have | ✅ Done (`AuthIntegrationTest`) |
+| — | Add `spring-boot-starter-flyway` to `pom.xml` (required in Spring Boot 4 for Flyway auto-configuration) | Must Have | ✅ Done |
+| — | Railway IPv6 incompatibility — switched `DB_HOST` to Supabase IPv4 session-mode pooler (port 5432) | Must Have | ✅ Done |
+| — | Added explicit `driver-class-name: org.postgresql.Driver` to `application.yml` | Must Have | ✅ Done |
+| — | Removed `database-platform` from `application.yml` (Hibernate auto-detects dialect; explicit value triggers warning) | Must Have | ✅ Done |
+| — | Disabled Flyway in test profile (`application-test.yml`) | Must Have | ✅ Done |
 
 ### MVP Exit Criteria
 - [ ] User can register, login, and logout
@@ -335,3 +340,4 @@ This is a living document. Update it as the project evolves.
 | 1.9 | 2026-02-19 | Lucas Xavier Ferreira | Rebranded to learnimo; CORS fix merged to main (PR #38); deployment preparation started — domain learnimo.net registered |
 | 2.0 | 2026-02-20 | Lucas Xavier Ferreira | MVP deployed — learnimo.net live on Railway + Vercel + Supabase |
 | 2.1 | 2026-02-20 | Lucas Xavier Ferreira | Production bug fix — Google Sign-Up 500 (PgBouncer pooler env var); added AuthIntegrationTest with Testcontainers |
+| 2.2 | 2026-02-20 | Lucas Xavier Ferreira | Production infra fixes — added Flyway starter dependency (SB4), switched DB_HOST to Supabase IPv4 session-mode pooler (Railway IPv6 incompatibility), added explicit JDBC driver-class-name, removed database-platform, disabled Flyway in test profile |
