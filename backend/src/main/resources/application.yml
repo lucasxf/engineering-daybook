@@ -11,6 +11,7 @@ spring:
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: none
