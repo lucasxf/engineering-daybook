@@ -6,7 +6,8 @@
   "home": {
     "welcome": "Welcome to learnimo",
     "description": "Your knowledge journal.",
-    "getStarted": "Get Started"
+    "getStarted": "Get Started",
+    "viewLearnings": "View my learnings"
   },
   "theme": {
     "light": "Light",
