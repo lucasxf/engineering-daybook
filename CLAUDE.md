@@ -18,7 +18,7 @@
 
 ### Backend
 - **Language:** Java 21 (use Virtual Threads where applicable)
-- **Framework:** Spring Boot 3.2+
+- **Framework:** Spring Boot 4.0+
 - **Build:** Maven 3.9+
 - **Database:** PostgreSQL 15+ with pg_vector (Supabase)
 - **Migration:** Flyway
@@ -37,7 +37,8 @@
 
 ### Infrastructure
 - **Web Hosting:** Vercel
-- **Backend Hosting:** Railway or Render
+- **Backend Hosting:** Railway (`engineering-daybook-production.up.railway.app`)
+- **Domain:** learnimo.net (Vercel + Locaweb DNS)
 - **Database:** Supabase (managed PostgreSQL)
 - **CI/CD:** GitHub Actions
 - **Versioning:** Release Please + Conventional Commits
@@ -250,14 +251,15 @@ npx expo build                   # Build app
 - [x] Web scaffold
 - [x] Claude Code workflow
 
-**Phase 1: MVP** — 🔄 In Progress
+**Phase 1: MVP** — 🔄 In Progress (exit criterion: 1+ week usage)
 - [x] Authentication backend (JWT + email/password) — PR #15
 - [x] Authentication web (login/register pages, auth context, i18n) — PR #17
 - [x] Authentication Google OAuth — PR #20
 - [x] POK CRUD — feat/pok-crud
-- [ ] Search
-- [ ] i18n (EN/PT-BR)
-- [ ] Dark Mode
+- [x] Search
+- [x] i18n (EN/PT-BR)
+- [x] Dark Mode
+- [x] Deployed to production (learnimo.net)
 
 ---
 
@@ -333,4 +335,4 @@ cp docs/specs/template.md docs/specs/features/my-feature.md
 
 ---
 
-*Last updated: 2026-02-14*
+*Last updated: 2026-02-20*

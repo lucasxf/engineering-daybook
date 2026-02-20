@@ -105,15 +105,24 @@ The project follows an iterative development approach, prioritizing a functional
 | 1.4.5 | i18n: Portuguese (BR) support | Must Have | ✅ Web (feat/dark-mode-i18n) |
 | 1.4.6 | Accessibility basics (contrast, focus states) | Should Have | ✅ Web (feat/dark-mode-i18n) |
 
-### In Progress
-
-#### Deployment (learnimo.net)
+#### Milestone 1.5: Deployment (learnimo.net)
 | # | Task | Priority | Status |
 |---|------|----------|--------|
-| 1.5.1 | Supabase DB setup | Must Have | 🔄 In Progress |
-| 1.5.2 | Railway backend deployment | Must Have | ⏳ Pending |
-| 1.5.3 | Vercel web deployment + learnimo.net domain | Must Have | ⏳ Pending |
-| 1.5.4 | Google OAuth production redirect URIs | Must Have | ⏳ Pending |
+| 1.5.1 | Supabase DB setup | Must Have | ✅ Done |
+| 1.5.2 | Railway backend deployment | Must Have | ✅ Done (engineering-daybook-production.up.railway.app) |
+| 1.5.3 | Vercel web deployment + learnimo.net domain | Must Have | ✅ Done (learnimo.net) |
+| 1.5.4 | Google OAuth production redirect URIs | Must Have | ✅ Done |
+
+### In Progress
+
+⏳ Pending: Author using app for 1+ week (Phase 1 exit criterion)
+
+#### Production Bug Fix (2026-02-20)
+
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| — | Diagnose Google Sign-Up 500 error in production | Must Have | ✅ Root cause: `SPRING_DATASOURCE_URL` Railway env var pointing to Supabase PgBouncer pooler — delete it |
+| — | Auth integration tests (Testcontainers) covering email/password + Google OAuth | Must Have | ✅ Done (`AuthIntegrationTest`) |
 
 ### MVP Exit Criteria
 - [ ] User can register, login, and logout
@@ -121,7 +130,7 @@ The project follows an iterative development approach, prioritizing a functional
 - [ ] User can search and list their POKs
 - [ ] Dark mode works
 - [ ] Both EN and PT-BR languages work
-- [ ] App is deployed and accessible online
+- [x] App is deployed and accessible online
 - [ ] Author uses the app for 1+ week
 
 ---
@@ -324,3 +333,5 @@ This is a living document. Update it as the project evolves.
 | 1.7 | 2026-02-19 | Lucas Xavier Ferreira | UI/UX Polish — dark mode, i18n (EN/PT-BR), aria-labels, locale fixes (feat/dark-mode-i18n) |
 | 1.8 | 2026-02-19 | Lucas Xavier Ferreira | PR review fixes — PokCard 'use client', locale redirect, dead-code removal, i18n results count, a11y dialog + form |
 | 1.9 | 2026-02-19 | Lucas Xavier Ferreira | Rebranded to learnimo; CORS fix merged to main (PR #38); deployment preparation started — domain learnimo.net registered |
+| 2.0 | 2026-02-20 | Lucas Xavier Ferreira | MVP deployed — learnimo.net live on Railway + Vercel + Supabase |
+| 2.1 | 2026-02-20 | Lucas Xavier Ferreira | Production bug fix — Google Sign-Up 500 (PgBouncer pooler env var); added AuthIntegrationTest with Testcontainers |

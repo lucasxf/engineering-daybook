@@ -2,13 +2,13 @@
 
 > A digital learning journal built for engineers who want to capture, organize, and recall their daily learnings.
 
-⚠️ **Status:** Phase 1 — MVP (Authentication & POK CRUD Complete)
+🚀 **Status:** Phase 1 — MVP **Live at [learnimo.net](https://learnimo.net)**
 
 ---
 
 ## Overview
 
-learnimo (ED) is a personal knowledge management tool specifically designed for engineers. Inspired by the concept from "The Pragmatic Programmer" book, where engineers in traditional industries would maintain physical notebooks to record daily learnings, ED brings this practice into the digital age with modern search, categorization, and (eventually) AI-powered insights.
+learnimo (ED) is a personal knowledge management tool. Inspired by the concept from "The Pragmatic Programmer" book, where engineers in traditional industries would maintain physical notebooks to record daily learnings, ED brings this practice into the digital age with modern search, categorization, and (eventually) AI-powered insights.
 
 > "A tinta mais fraca constrói pontes mais fortes que a memória mais viva."
 > — Provérbio Yorubá (Nigéria)
@@ -226,3 +226,4 @@ This project is licensed under the [MIT License](./LICENSE).
 | 0.2.0 | 2026-02-13 | Authentication (email/password + Google OAuth) |
 | 0.3.0 | 2026-02-14 | POK CRUD (backend + web implementation) |
 | 0.4.0 | 2026-02-19 | UI/UX Polish — dark mode, i18n (EN/PT-BR), aria improvements |
+| 0.5.0 | 2026-02-20 | MVP deployed — learnimo.net live (Railway + Vercel + Supabase) |
