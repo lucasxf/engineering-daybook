@@ -117,6 +117,13 @@ The project follows an iterative development approach, prioritizing a functional
 
 ⏳ Pending: Author using app for 1+ week (Phase 1 exit criterion)
 
+#### Production Bug Fix (2026-02-20)
+
+| # | Task | Priority | Status |
+|---|------|----------|--------|
+| — | Diagnose Google Sign-Up 500 error in production | Must Have | ✅ Root cause: `SPRING_DATASOURCE_URL` Railway env var pointing to Supabase PgBouncer pooler — delete it |
+| — | Auth integration tests (Testcontainers) covering email/password + Google OAuth | Must Have | ✅ Done (`AuthIntegrationTest`) |
+
 ### MVP Exit Criteria
 - [ ] User can register, login, and logout
 - [ ] User can create POKs with title and content
@@ -327,3 +334,4 @@ This is a living document. Update it as the project evolves.
 | 1.8 | 2026-02-19 | Lucas Xavier Ferreira | PR review fixes — PokCard 'use client', locale redirect, dead-code removal, i18n results count, a11y dialog + form |
 | 1.9 | 2026-02-19 | Lucas Xavier Ferreira | Rebranded to learnimo; CORS fix merged to main (PR #38); deployment preparation started — domain learnimo.net registered |
 | 2.0 | 2026-02-20 | Lucas Xavier Ferreira | MVP deployed — learnimo.net live on Railway + Vercel + Supabase |
+| 2.1 | 2026-02-20 | Lucas Xavier Ferreira | Production bug fix — Google Sign-Up 500 (PgBouncer pooler env var); added AuthIntegrationTest with Testcontainers |
