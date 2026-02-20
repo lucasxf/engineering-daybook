@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * @since 2026-01-29
  */
 @SpringBootTest
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 class EdApplicationTests {
 
     static PostgreSQLContainer<?> postgres;
