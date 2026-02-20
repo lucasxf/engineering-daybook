@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { Button } from '@/components/ui/Button';
+import Link from 'next/link';
 import { type Locale } from '@/lib/i18n';
 
 interface HomePageProps {
@@ -20,7 +20,12 @@ export default async function HomePage({ params }: HomePageProps) {
       <p className="mb-8 text-lg text-gray-600 dark:text-gray-400">
         {t('description')}
       </p>
-      <Button size="lg">{t('getStarted')}</Button>
+      <Link
+        href={`/${locale}/register`}
+        className="inline-flex h-12 items-center justify-center rounded-md bg-primary-600 px-6 text-lg font-medium text-white transition-colors hover:bg-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+      >
+        {t('getStarted')}
+      </Link>
     </div>
   );
 }
