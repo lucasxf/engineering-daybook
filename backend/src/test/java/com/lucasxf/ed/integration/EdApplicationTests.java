@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * @since 2026-01-29
  */
 @SpringBootTest
-@Testcontainers(disabledWithoutDocker = true)
+@Testcontainers
 class EdApplicationTests {
 
     static PostgreSQLContainer<?> postgres;
@@ -56,5 +56,5 @@ class EdApplicationTests {
             "Docker not available, skipping integration test");
         // Verifies that the Spring context loads successfully with PostgreSQL
     }
-    
+
 }
