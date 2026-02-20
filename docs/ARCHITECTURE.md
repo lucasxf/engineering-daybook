@@ -26,7 +26,7 @@ learnimo follows a **layered architecture** pattern with clear separation of con
 │                           APPLICATION LAYER                                  │
 │                                 │                                            │
 │  ┌──────────────────────────────▼──────────────────────────────────────┐    │
-│  │                    Spring Boot 3 (Java 21)                          │    │
+│  │                    Spring Boot 4.0+ (Java 21)                        │    │
 │  │  ┌────────────┐  ┌────────────┐  ┌────────────┐  ┌────────────┐    │    │
 │  │  │    Auth    │  │    POK     │  │    Tag     │  │   Search   │    │    │
 │  │  │ Controller │  │ Controller │  │ Controller │  │ Controller │    │    │
@@ -83,7 +83,7 @@ learnimo follows a **layered architecture** pattern with clear separation of con
 
 | Component | Technology | Version | Purpose |
 |-----------|------------|---------|---------|
-| **Framework** | Spring Boot | 3.2+ | REST API, dependency injection |
+| **Framework** | Spring Boot | 4.0+ | REST API, dependency injection |
 | **Language** | Java | 21 (LTS) | Virtual Threads support |
 | **Build Tool** | Maven | 3.9+ | Dependency management |
 | **API Docs** | SpringDoc OpenAPI | 2+ | Swagger UI |
@@ -98,13 +98,13 @@ learnimo follows a **layered architecture** pattern with clear separation of con
 |-----------|------------|---------|
 | **Database** | PostgreSQL | 15+ | Primary data store |
 | **Vector Search** | pg_vector | Semantic search embeddings |
-| **Hosting** | Supabase | Managed PostgreSQL + Auth |
+| **Hosting** | Supabase | Managed PostgreSQL |
 
 ### 2.4 Infrastructure
 
 | Component | Technology | Purpose |
 |-----------|------------|---------|
-| **Backend Hosting** | Railway or Render | Java app hosting |
+| **Backend Hosting** | Railway | Java app hosting |
 | **Web Hosting** | Vercel | Next.js optimized hosting |
 | **CI/CD** | GitHub Actions | Build, test, deploy |
 | **Versioning** | Release Please | Automated releases |
@@ -505,27 +505,27 @@ Use Semantic Versioning convention with Conventional Commits and Release Please 
 
 ---
 
-### ADR-005: Supabase for Managed PostgreSQL and Auth
+### ADR-005: Supabase for Managed PostgreSQL
 
 **Status:** Accepted
 
 **Context:**
-Need a database hosting solution that is cheap, easy to maintain, and provides built-in authentication capabilities.
+Need a database hosting solution that is cheap, easy to maintain, and works well with a Spring Boot backend that handles its own authentication.
 
 **Decision:**
-Use Supabase as the managed PostgreSQL provider with built-in Auth.
+Use Supabase as the managed PostgreSQL provider. Authentication is handled entirely by the Spring Boot backend (Spring Security + JWT + direct Google ID token verification). Supabase is used as a database only — Supabase Auth is not used.
 
 **Rationale:**
 - Generous free tier (500MB database, 50K monthly active users)
 - pg_vector extension available out of the box
-- Built-in Auth with Google OAuth support (simplifies backend)
+- Familiar PostgreSQL tooling — standard JDBC drivers, Flyway migrations, no proprietary APIs
 - Dashboard for basic monitoring
 - Easy migration path to self-hosted PostgreSQL if needed
 
 **Consequences:**
 - Vendor dependency (mitigated by PostgreSQL portability)
 - May outgrow free tier (upgrade path is clear)
-- Some Supabase-specific features might create lock-in (avoided by using standard PostgreSQL features)
+- Using standard PostgreSQL features avoids Supabase lock-in
 
 ---
 
@@ -557,19 +557,27 @@ Implement internationalization (i18n) for both English and Brazilian Portuguese 
 ### 7.1 Authentication Flow
 
 ```
-┌─────────┐     ┌─────────────┐     ┌─────────────┐     ┌──────────┐
-│  Client │────►│   Backend   │────►│  Supabase   │────►│ Google   │
-│ (Web/   │     │ (Spring)    │     │    Auth     │     │  OAuth   │
-│  Mobile)│◄────│             │◄────│             │◄────│          │
-└─────────┘     └─────────────┘     └─────────────┘     └──────────┘
-     │                │
-     │    JWT Token   │
-     │◄───────────────┤
-     │                │
-     │  API Requests  │
-     │  (Bearer JWT)  │
-     ├───────────────►│
+                                                ┌──────────────┐
+                                           ┌───►│    Google    │
+┌─────────┐     ┌──────────────────────┐   │    │ (ID Token    │
+│  Client │────►│   Backend            │───┘    │  Verify)     │
+│ (Web/   │     │ (Spring Security)    │        └──────────────┘
+│  Mobile)│◄────│                      │
+└─────────┘     └──────────┬───────────┘
+     │                     │
+     │    JWT Token         │
+     │◄────────────────────┤
+     │                     │
+     │  API Requests        │
+     │  (Bearer JWT)        │        ┌─────────────────────┐
+     ├────────────────────►│        │   PostgreSQL         │
+                           └───────►│   (Supabase)         │
+                                    └─────────────────────┘
 ```
+
+**Email/password flow:** Client sends credentials → Spring Security validates (BCrypt) → JWT issued.
+
+**Google OAuth flow:** Client obtains Google ID token via `@react-oauth/google` → sends to `POST /api/v1/auth/google` → Spring Boot verifies the ID token directly with Google → JWT issued. No Supabase Auth involved.
 
 ### 7.2 Security Measures
 
@@ -577,7 +585,7 @@ Implement internationalization (i18n) for both English and Brazilian Portuguese 
 |-------|---------|----------------|
 | Transport | HTTPS only | Enforced at infrastructure level |
 | Authentication | JWT tokens | Short-lived access + refresh tokens |
-| Password | Bcrypt hashing | Via Supabase Auth or Spring Security |
+| Password | Bcrypt hashing | Via Spring Security (BCrypt) |
 | Authorization | Row-level security | Users can only access own data |
 | Input | Validation | Jakarta Validation + sanitization |
 | SQL | Parameterized queries | Spring Data JPA (no raw SQL) |
@@ -593,3 +601,4 @@ Implement internationalization (i18n) for both English and Brazilian Portuguese 
 |:-------:|:----:|:------:|:--------|
 | 1.0 | 2026-01-29 | Lucas Xavier Ferreira | Initial version |
 | 1.1 | 2026-02-09 | Lucas Xavier Ferreira | Added handle field to users table and auth API endpoints |
+| 1.2 | 2026-02-20 | Lucas Xavier Ferreira | Fixed auth flow (Spring Security + direct Google ID token — no Supabase Auth); updated to Spring Boot 4.0+; confirmed Railway as backend host; updated ADR-005 |

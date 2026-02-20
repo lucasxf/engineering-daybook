@@ -36,9 +36,9 @@ learnimo (ED) is a personal knowledge management tool. Inspired by the concept f
 |-------|------------|
 | **Frontend (Web)** | Next.js 14+, TypeScript, Tailwind CSS |
 | **Frontend (Mobile)** | Expo (React Native), TypeScript |
-| **Backend** | Java 21, Spring Boot 3, Maven |
+| **Backend** | Java 21, Spring Boot 4.0+, Maven |
 | **Database** | PostgreSQL 15+ with pg_vector |
-| **Infrastructure** | Vercel (web), Railway/Render (backend), Supabase (database) |
+| **Infrastructure** | Vercel (web), Railway (backend), Supabase (database) |
 | **CI/CD** | GitHub Actions |
 | **Versioning** | Semantic Versioning + Conventional Commits + Release Please |
 
@@ -91,7 +91,7 @@ cd engineering-daybook
 cd backend
 ./mvnw spring-boot:run
 # API available at http://localhost:8080
-# Swagger UI at http://localhost:8080/swagger-ui.html
+# Swagger UI at http://localhost:8080/swagger-ui
 
 # Web (new terminal)
 cd web
@@ -169,18 +169,18 @@ See [ROADMAP.md](./docs/ROADMAP.md) for the full development plan.
 
 The backend exposes a RESTful API documented with OpenAPI (Swagger):
 
-- **Swagger UI:** `http://localhost:8080/swagger-ui.html` (when running locally)
-- **OpenAPI Spec:** `http://localhost:8080/v3/api-docs`
+- **Swagger UI:** `http://localhost:8080/swagger-ui` (when running locally)
+- **OpenAPI Spec:** `http://localhost:8080/api-docs`
 
 Key endpoints:
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login with email/password
-- `POST /api/auth/google` - Login with Google OAuth
-- `GET /api/poks` - List user's POKs
-- `POST /api/poks` - Create new POK
-- `GET /api/poks/{id}` - Get POK by ID
-- `PUT /api/poks/{id}` - Update POK
-- `DELETE /api/poks/{id}` - Delete POK
+- `POST /api/v1/auth/register` - Register new user
+- `POST /api/v1/auth/login` - Login with email/password
+- `POST /api/v1/auth/google` - Login with Google OAuth
+- `GET /api/v1/poks` - List user's POKs
+- `POST /api/v1/poks` - Create new POK
+- `GET /api/v1/poks/{id}` - Get POK by ID
+- `PUT /api/v1/poks/{id}` - Update POK
+- `DELETE /api/v1/poks/{id}` - Delete POK
 
 ---
 
