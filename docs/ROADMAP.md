@@ -64,7 +64,7 @@ The project follows an iterative development approach, prioritizing a functional
 | 1.1.2 | User login (email/password) | Must Have | ✅ Backend (PR #15) + Web (PR #17) |
 | 1.1.3 | Google OAuth login | Must Have | ✅ Backend + Web (PR #20) |
 | 1.1.4 | JWT session management | Must Have | ✅ Backend (PR #15) + Web (PR #17) |
-| 1.1.5 | Password reset flow | Should Have | ⏳ Pending (separate spec) |
+| 1.1.5 | Password reset flow | Should Have | ✅ Implemented (2026-02-21) |
 
 #### Milestone 1.2: POK CRUD
 
@@ -112,6 +112,8 @@ The project follows an iterative development approach, prioritizing a functional
 ### In Progress
 
 ⏳ Pending: Author using app for 1+ week (Phase 1 exit criterion)
+
+> **Next priority: Milestone 1.7 UX Review** — Password reset (1.1.5) is complete. The remaining blocker for Phase 1 exit is resolving the critical friction issues in Milestone 1.7 (session persistence, post-login redirect, home page for guests, clickable logo, single-column feed). These must be addressed before the 1-week usage clock can meaningfully restart.
 
 #### Production Bug Fix (2026-02-20)
 
@@ -613,3 +615,4 @@ This is a living document. Update it as the project evolves.
 | 2.6 | 2026-02-20 | Lucas Xavier Ferreira | Milestone 2.1 complete — POK editing, deletion, and audit trail implemented (feat/pok-audit-trail); frontend history view (FR18-FR20) deferred; Toast component added; `/finish-session` command updated with unused import checks |
 | 2.7 | 2026-02-21 | Lucas Xavier Ferreira | Added Milestone 1.7 (MVP UX Review, 8 items); quick-entry design decision; UI tooling recommendation; 6.3.7 (clickable handle + avatar); cross-referenced 2.4.2 with 1.7.7 |
 | 2.8 | 2026-02-21 | Lucas Xavier Ferreira | Added JaCoCo code coverage to backend CI pipeline (PR #57) — 90% line coverage threshold enforced; added JwtAuthenticationFilterTest and GlobalExceptionHandlerTest to close coverage gap; backend coverage 86% → 93.9% |
+| 2.9 | 2026-02-21 | Lucas Xavier Ferreira | Milestone 1.1.5 complete — Password reset implemented end-to-end: V7 Flyway migration, PasswordResetToken entity + repo, EmailService (SMTP/Resend), PasswordResetService (12 unit tests), PasswordResetController (3 endpoints, 12 MockMvc tests), GlobalExceptionHandler fix; web: ForgotPasswordForm + ResetPasswordForm components, 2 new pages, LoginForm "Forgot password?" link, reset=success banner, i18n keys (EN/PT-BR), 19 new Vitest tests, all 177 tests pass |
