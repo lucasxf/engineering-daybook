@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { loginSchema, type LoginFormData } from '@/lib/validations';
 import { ApiRequestError } from '@/lib/api';
@@ -115,6 +116,15 @@ export function LoginForm({ locale, redirectTo }: LoginFormProps) {
           {...register('password')}
         />
       </FormField>
+
+      <div className="text-right">
+        <Link
+          href={`/${locale}/forgot-password` as never}
+          className="text-sm font-medium text-primary-600 hover:text-primary-500"
+        >
+          {t('forgotPassword')}
+        </Link>
+      </div>
 
       <Button
         type="submit"

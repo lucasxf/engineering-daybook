@@ -20,6 +20,7 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const { isAuthenticated, isLoading } = useAuth();
   const redirectTo = searchParams.get('redirect') || undefined;
+  const resetSuccess = searchParams.get('reset') === 'success';
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
@@ -35,6 +36,15 @@ function LoginContent() {
           {t('loginSubtitle')}
         </p>
       </div>
+
+      {resetSuccess && (
+        <div
+          role="status"
+          className="mb-4 rounded-md border border-green-300 bg-green-50 p-3 text-sm text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-400"
+        >
+          {t('resetPasswordSuccess')}
+        </div>
+      )}
 
       <LoginForm locale={params.locale} redirectTo={redirectTo} />
 

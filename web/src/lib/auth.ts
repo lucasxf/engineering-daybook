@@ -92,3 +92,26 @@ export function completeGoogleSignupApi(
     body: JSON.stringify(payload),
   });
 }
+
+export function requestPasswordResetApi(email: string): Promise<{ message: string }> {
+  return apiPublicFetch<{ message: string }>('/auth/password-reset/request', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+}
+
+export function validatePasswordResetTokenApi(token: string): Promise<{ valid: string }> {
+  return apiPublicFetch<{ valid: string }>(
+    `/auth/password-reset/validate?token=${encodeURIComponent(token)}`
+  );
+}
+
+export function confirmPasswordResetApi(
+  token: string,
+  newPassword: string
+): Promise<{ message: string }> {
+  return apiPublicFetch<{ message: string }>('/auth/password-reset/confirm', {
+    method: 'POST',
+    body: JSON.stringify({ token, newPassword }),
+  });
+}
