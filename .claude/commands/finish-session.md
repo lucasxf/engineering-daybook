@@ -36,6 +36,19 @@ Then run the unused import check (Java compiler does not catch these — Checkst
 # If any UnusedImports lines appear → STOP and fix before committing.
 # If the grep returns nothing → no unused imports detected, proceed.
 ```
+> **Timeout:** Always use `timeout: 300000` (5 minutes) for this Bash call. The default 2-minute
+> timeout causes false failures when Testcontainers integration tests are present. The Bash tool
+> exits with code 1 even though Maven succeeds — a known Windows + Testcontainers issue.
+
+Then run the unused import check (Java compiler does not catch these — Checkstyle does):
+```bash
+# Uses google_checks.xml bundled in the plugin — no pom.xml change needed
+(cd backend && mvn org.apache.maven.plugins:maven-checkstyle-plugin:3.3.1:checkstyle \
+  -Dcheckstyle.config.location=google_checks.xml -q 2>&1 \
+  | grep "UnusedImports")
+# If any UnusedImports lines appear → STOP and fix before committing.
+# If the grep returns nothing → no unused imports detected, proceed.
+```
 
 **Web** — only if `web/` files changed:
 

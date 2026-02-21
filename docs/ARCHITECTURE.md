@@ -552,6 +552,41 @@ Implement internationalization (i18n) for both English and Brazilian Portuguese 
 
 ---
 
+### ADR-007: Frontend Token Storage Strategy
+
+**Status:** Proposed (2026-02-21)
+
+**Context:**
+AUTH-04 requires session persistence across browser restarts. The current implementation stores JWT access and refresh tokens in React `useRef` (in-memory only) inside `AuthContext.tsx` (lines 62–63). Page refresh or new tab loses the session and logs the user out. This was an intentional MVP shortcut (commented in the code) but blocks the Phase 1 exit criterion.
+
+**Options:**
+
+| Option | Persistence | XSS Risk | CSRF Risk | Complexity |
+|--------|-------------|----------|-----------|------------|
+| A. `useRef` (current) | None (lost on refresh) | None | None | Minimal |
+| B. `localStorage` | Permanent | High (JS-accessible) | None | Low |
+| C. `httpOnly` cookie | Permanent | None (not JS-accessible) | Mitigated by SameSite | Medium |
+| D. `httpOnly` cookie + CSRF token | Permanent | None | None | Higher |
+
+**Decision:** Leaning toward **Option C** — `httpOnly` cookie with `SameSite=Strict`.
+
+**Rationale:**
+- Tokens are not accessible to JavaScript (XSS-safe)
+- `SameSite=Strict` mitigates CSRF for same-origin requests
+- Spring Boot has built-in cookie handling
+- Aligns with security best practices for JWT storage
+
+**Trade-offs:**
+- Backend must set `Set-Cookie` header instead of returning tokens in the JSON response body
+- Frontend must stop sending `Authorization: Bearer` header; auth becomes implicit via cookie
+- Refresh token rotation should be implemented alongside this change
+- CORS configuration needs review for cross-origin cookie credentials (Vercel → Railway)
+- Mobile app (Phase 3) will need a different strategy — `httpOnly` cookies are browser-only; mobile uses platform secure storage (e.g., Expo SecureStore)
+
+**Next Step:** Write spec `docs/specs/features/session-persistence.md` before implementation. Spec must cover backend `Set-Cookie` changes, CORS review, refresh rotation, and mobile strategy.
+
+---
+
 ## 7. Security Architecture
 
 ### 7.1 Authentication Flow
@@ -602,3 +637,4 @@ Implement internationalization (i18n) for both English and Brazilian Portuguese 
 | 1.0 | 2026-01-29 | Lucas Xavier Ferreira | Initial version |
 | 1.1 | 2026-02-09 | Lucas Xavier Ferreira | Added handle field to users table and auth API endpoints |
 | 1.2 | 2026-02-20 | Lucas Xavier Ferreira | Fixed auth flow (Spring Security + direct Google ID token — no Supabase Auth); updated to Spring Boot 4.0+; confirmed Railway as backend host; updated ADR-005 |
+| 1.3 | 2026-02-21 | Lucas Xavier Ferreira | Added ADR-007: Frontend Token Storage Strategy (proposed — resolves AUTH-04 implementation gap) |

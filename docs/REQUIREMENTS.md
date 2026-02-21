@@ -14,6 +14,8 @@ This document defines the functional and non-functional requirements for the lea
 | AUTH-02 | User can sign in with Google OAuth | Must Have | MVP |
 | AUTH-03 | User can reset password via email | Should Have | MVP |
 | AUTH-04 | User session persists across browser/app restarts | Must Have | MVP |
+
+> **Implementation gap (2026-02-21):** AUTH-04 is listed as Must Have / MVP but is NOT YET IMPLEMENTED. JWT tokens are currently stored in React `useRef` (in-memory only) and are lost on page refresh. Must be resolved in Milestone 1.7. Target: `httpOnly` cookie with `SameSite=Strict` (see ADR-007 in ARCHITECTURE.md).
 | AUTH-05 | User can sign out from all devices | Could Have | Post-MVP |
 | AUTH-06 | User can enable Multi-Factor Authentication (MFA) | Should Have | Evolution |
 
@@ -185,6 +187,11 @@ This document defines the functional and non-functional requirements for the lea
 | USE-03 | Search accessible from any screen | Must Have | MVP |
 | USE-04 | Dark mode support | Must Have | MVP |
 | USE-05 | Keyboard shortcuts for power users (web) | Could Have | Post-MVP |
+| USE-06 | Authenticated users land directly on the feed (learnings list), not on a welcome page | Must Have | MVP |
+| USE-07 | Brand/logo in header is always a clickable link to the user's primary view | Must Have | MVP |
+| USE-08 | Feed displays learnings in a single-column vertical layout (LIFO, newest on top) | Must Have | MVP |
+| USE-09 | Inline quick-entry available directly on the feed page for fast learning capture | Must Have | MVP |
+| USE-10 | Guest (unauthenticated) home page shows the login form directly — no intermediate "Get Started" screen | Must Have | MVP |
 
 ---
 
@@ -275,11 +282,16 @@ main                          # Production-ready releases only
 
 ### Must Have (MVP)
 - Email + Google authentication
+- Session persistence across browser restarts (AUTH-04)
 - Create, search, filter POKs
 - Basic keyword search
 - Mobile-responsive web app
 - Dark mode
 - English and Portuguese language support
+- Direct-to-feed post-login navigation (USE-06)
+- Clickable logo navigation (USE-07)
+- Single-column feed layout (USE-08)
+- Inline quick-entry on feed (USE-09)
 
 ### Must Have (Evolution)
 - Manual tagging with user control over suggested tags
@@ -314,3 +326,4 @@ main                          # Production-ready releases only
 | Version | Date | Author | Changes |
 |:-------:|:----:|:------:|:--------|
 | 1.0 | 2026-01-29 | Lucas Xavier Ferreira | Initial version |
+| 1.1 | 2026-02-21 | Lucas Xavier Ferreira | Added AUTH-04 implementation gap note; added USE-06 through USE-09 (MVP UX Review findings); updated MoSCoW summary |
