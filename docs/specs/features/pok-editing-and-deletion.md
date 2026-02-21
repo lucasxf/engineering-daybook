@@ -1,6 +1,6 @@
 # POK Editing & Deletion (Milestone 2.1)
 
-> **Status:** Approved
+> **Status:** In Progress
 > **Created:** 2026-02-20
 > **Implemented:** _pending_
 
