@@ -8,6 +8,7 @@ import { pokApi, type Pok } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
+import { Toast } from '@/components/ui/Toast';
 import { DeletePokButton } from '@/components/poks/DeletePokButton';
 
 /**
@@ -29,6 +30,7 @@ export default function ViewPokPage() {
   const [pok, setPok] = useState<Pok | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
 
   useEffect(() => {
     loadPok();
@@ -55,7 +57,7 @@ export default function ViewPokPage() {
   const handleDelete = async () => {
     try {
       await pokApi.delete(pokId);
-      router.push(`/${params.locale}/poks` as never);
+      setShowSuccessToast(true);
     } catch (err) {
       if (err instanceof ApiRequestError) {
         setError(err.message);
@@ -63,6 +65,10 @@ export default function ViewPokPage() {
         setError(t('errors.unexpected'));
       }
     }
+  };
+
+  const handleSuccessToastDismiss = () => {
+    router.push(`/${params.locale}/poks` as never);
   };
 
   if (loading) {
@@ -123,6 +129,10 @@ export default function ViewPokPage() {
           </time>
         </div>
       </article>
+
+      {showSuccessToast && (
+        <Toast message={t('success.deleted')} onDismiss={handleSuccessToastDismiss} />
+      )}
     </div>
   );
 }

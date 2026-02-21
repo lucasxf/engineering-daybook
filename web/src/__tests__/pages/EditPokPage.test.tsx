@@ -25,6 +25,15 @@ vi.mock('@/lib/api', () => ({
   ApiRequestError: class ApiRequestError extends Error {},
 }));
 
+vi.mock('@/components/ui/Toast', () => ({
+  Toast: ({ message, onDismiss }: { message: string; onDismiss: () => void }) => (
+    <div role="status">
+      {message}
+      <button data-testid="toast-dismiss" onClick={onDismiss}>Dismiss</button>
+    </div>
+  ),
+}));
+
 vi.mock('@/components/poks/PokForm', () => ({
   PokForm: ({ onSubmit, initialData }: { onSubmit: (d: { title: string; content: string }) => void; initialData?: { title: string; content: string } }) => (
     <div>
@@ -125,11 +134,23 @@ describe('EditPokPage', () => {
       );
     });
 
-    it('redirects to the detail page after update', async () => {
+    it('shows a success toast after update', async () => {
       const user = userEvent.setup();
       renderEditPage();
       await waitFor(() => screen.getByTestId('submit-form'));
       await user.click(screen.getByTestId('submit-form'));
+      await waitFor(() =>
+        expect(screen.getByRole('status')).toHaveTextContent('Learning updated successfully')
+      );
+    });
+
+    it('redirects to the detail page when the toast is dismissed', async () => {
+      const user = userEvent.setup();
+      renderEditPage();
+      await waitFor(() => screen.getByTestId('submit-form'));
+      await user.click(screen.getByTestId('submit-form'));
+      await waitFor(() => expect(screen.getByRole('status')).toBeInTheDocument());
+      await user.click(screen.getByTestId('toast-dismiss'));
       await waitFor(() =>
         expect(mockRouter.push).toHaveBeenCalledWith('/en/poks/pok-456')
       );
