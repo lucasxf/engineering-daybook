@@ -191,6 +191,7 @@ This document defines the functional and non-functional requirements for the lea
 | USE-07 | Brand/logo in header is always a clickable link to the user's primary view | Must Have | MVP |
 | USE-08 | Feed displays learnings in a single-column vertical layout (LIFO, newest on top) | Must Have | MVP |
 | USE-09 | Inline quick-entry available directly on the feed page for fast learning capture | Must Have | MVP |
+| USE-10 | Guest (unauthenticated) home page shows the login form directly — no intermediate "Get Started" screen | Must Have | MVP |
 
 ---
 

@@ -190,10 +190,10 @@
                         </goals>
                     </execution>
 
-                    <!-- Generate the report in the “prepare-package” phase -->
+                    <!-- Generate the report in the "verify" phase (after all tests, including Failsafe integration tests) -->
                     <execution>
                         <id>report</id>
-                        <phase>prepare-package</phase>
+                        <phase>verify</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>

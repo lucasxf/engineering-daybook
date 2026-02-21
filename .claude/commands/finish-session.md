@@ -48,7 +48,6 @@ Then run the unused import check (Java compiler does not catch these — Checkst
   | grep "UnusedImports")
 # If any UnusedImports lines appear → STOP and fix before committing.
 # If the grep returns nothing → no unused imports detected, proceed.
->>>>>>> ec0beac (chore: add JaCoCo code coverage to backend pipeline)
 ```
 
 **Web** — only if `web/` files changed:
