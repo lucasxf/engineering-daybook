@@ -1,8 +1,8 @@
 # POK Editing & Deletion (Milestone 2.1)
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-02-20
-> **Implemented:** _pending_
+> **Implemented:** 2026-02-20
 
 ---
 
@@ -283,17 +283,31 @@ i18n (en / pt-BR) → add keys: poks.history.*, poks.success.updated, poks.succe
 
 ## Post-Implementation Notes
 
-> _This section is filled AFTER implementation._
-
 ### Commits
-- _pending_
+- `2d7d0f8`: feat: add V6 migration for pok_audit_logs table
+- `addf08d`: feat: add PokAuditLog entity, repository, and DTO
+- `00e6f5a`: feat: add audit logging to PokService (TDD)
+- `7123631`: feat: add GET /api/v1/poks/{id}/history endpoint
+- `c65fe70`: feat: add Toast component and success notifications on edit/delete
 
 ### Architectural Decisions
 
-_pending_
+**Decision: Navigation triggered by Toast onDismiss, not a separate setTimeout**
+- **Options:** (A) `setTimeout` in page component to delay redirect, (B) redirect wired to Toast's `onDismiss` callback
+- **Chosen:** B
+- **Rationale:** Timer logic stays inside Toast. Page components stay simple. Tests can mock Toast with a dismiss button — no fake timers, no timing-sensitive waitFor loops.
+
+**Decision: ON DELETE RESTRICT on pok_audit_logs FK**
+- **Options:** ON DELETE CASCADE, ON DELETE RESTRICT, ON DELETE SET NULL
+- **Chosen:** ON DELETE RESTRICT
+- **Rationale:** Audit history must survive the POK lifecycle. Prevents accidental loss of audit trail if hard-delete is introduced later.
+
+**Decision: getHistory() accessible on soft-deleted POKs**
+- **Chosen:** `findById` (not `findByIdAndDeletedAtIsNull`) for the ownership check in getHistory
+- **Rationale:** A learner should still be able to see why a POK was deleted after soft-deleting it. The audit DELETE entry is the record of what happened.
 
 ### Deviations from Spec
-- _none yet_
+- FR18–FR20 (frontend history view) deferred by user decision — backend endpoint ships, UI deferred.
 
 ### Lessons Learned
-- _pending_
+- `vi.useFakeTimers()` + `userEvent` + `mockResolvedValue` is a fragile combination in Vitest — async microtasks and fake timers conflict. Better to design components so navigation is triggered by a callback (testable synchronously) rather than a raw `setTimeout`.
