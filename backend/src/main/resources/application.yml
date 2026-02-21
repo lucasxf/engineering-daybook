@@ -30,6 +30,19 @@ server:
 cors:
   allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000}
 
+spring:
+  mail:
+    host: ${MAIL_HOST:smtp.resend.com}
+    port: ${MAIL_PORT:465}
+    username: ${MAIL_USERNAME:resend}
+    password: ${MAIL_PASSWORD:placeholder-configure-in-env}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+
 auth:
   jwt:
     secret: ${JWT_SECRET:dev-only-secret-change-in-production-must-be-at-least-256-bits-long-for-hs256}
@@ -37,6 +50,8 @@ auth:
     refresh-token-expiry: 7d
   google:
     client-id: ${GOOGLE_CLIENT_ID:placeholder-configure-in-env}
+  password-reset:
+    token-expiry: 1h
 
 springdoc:
   api-docs:
