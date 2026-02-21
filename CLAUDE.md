@@ -241,6 +241,24 @@ npx expo build                   # Build app
 
 ---
 
+## UX Mandate
+
+> **Reduce friction. Seamless experience. Minimum clicks and screens.**
+
+This is a permanent, project-wide principle that applies to ALL features across ALL phases.
+
+**Rules:**
+- Every user action should require the fewest possible clicks/taps to complete
+- Eliminate intermediate screens that add no value (splash pages, confirmation-only screens)
+- Authenticated users land directly on their primary workflow (the feed), never on a welcome page
+- Prefer inline interactions (e.g., inline text entry) over navigation to separate pages when the interaction is simple
+- Navigation elements (logo, brand name) must always be clickable and link to the user's primary view
+- When evaluating any feature: "Can we remove a step?" If yes, remove it.
+
+*Added: 2026-02-21 (MVP UX Review)*
+
+---
+
 ## Current Focus
 
 **Phase 0: Foundation** — ✅ Complete
@@ -260,6 +278,7 @@ npx expo build                   # Build app
 - [x] i18n (EN/PT-BR)
 - [x] Dark Mode
 - [x] Deployed to production (learnimo.net)
+- [ ] MVP UX Review (Milestone 1.7) — fixing critical friction issues before Phase 1 exit
 
 ---
 
@@ -335,4 +354,4 @@ cp docs/specs/template.md docs/specs/features/my-feature.md
 
 ---
 
-*Last updated: 2026-02-20*
+*Last updated: 2026-02-21*

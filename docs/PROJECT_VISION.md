@@ -67,7 +67,15 @@ Each piece of knowledge (POK) is:
 - Powerful search (semantic, not just keyword)
 - No project management features bleeding in
 
-### 5.3 Trust & Integrity
+### 5.3 Minimum Friction
+
+- **Every interaction, fewest steps possible** — if a screen can be eliminated, eliminate it
+- **Post-login = primary workflow** — authenticated users land on their feed, not a welcome page
+- **Inline capture** — quick-entry should be available directly on the feed, not behind navigation
+- **Navigation is universal** — logo, brand, and key nav elements are always clickable
+- **Seamless experience** — the app should feel like an extension of thought, not a form to fill out
+
+### 5.4 Trust & Integrity
 
 - **What you write is what you get** — no AI "improving" your notes
 - AI features (when added) assist with *finding* and *connecting* knowledge, never *modifying* it
@@ -161,3 +169,4 @@ But first: **nail the MVP for one user (the author).**
 | Version | Date | Author | Changes |
 |:-------:|:----:|:------:|:--------|
 | 1.0 | 2026-01-29 | Lucas Xavier Ferreira | Initial version |
+| 1.1 | 2026-02-21 | Lucas Xavier Ferreira | Added § 5.3 Minimum Friction as core principle; renumbered Trust & Integrity to § 5.4 |
