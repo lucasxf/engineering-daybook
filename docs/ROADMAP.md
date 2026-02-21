@@ -135,6 +135,68 @@ The project follows an iterative development approach, prioritizing a functional
 
 > **Phase B (Playwright E2E):** Planned after Phase 1 exit. Will use `page.route()` to mock API responses so no live backend is needed in CI. Covers the full browser navigation flows that Vitest/jsdom cannot test (e.g., auth redirect loops, multi-page flows). See ADR when implemented.
 
+#### Milestone 1.7: MVP UX Review (2026-02-21)
+
+> Findings from first production usage. These friction issues block the Phase 1 exit criterion
+> ("author uses the app for 1+ week with satisfaction").
+
+**Critical (blocks Phase 1 exit):**
+
+| # | Issue | Req | Status |
+|---|-------|-----|--------|
+| 1.7.1 | Session lost on F5/refresh — JWT in `useRef` (in-memory only) | AUTH-04 | ⏳ Needs spec (ADR-007) |
+| 1.7.2 | Home page is an empty "Get Started" screen — guests should see login form directly | USE-06 | ⏳ Planned |
+| 1.7.3 | Post-login lands on home, not feed — extra click to reach learnings | USE-06 | ⏳ Planned |
+| 1.7.4 | "learnimo" title in header not clickable — should link to feed (auth) or home (guest) | USE-07 | ⏳ Planned |
+| 1.7.5 | Feed uses multi-column grid — should be single-column vertical, LIFO | USE-08 | ⏳ Planned |
+
+**Moderate (improves experience, can ship iteratively):**
+
+| # | Issue | Req | Status |
+|---|-------|-----|--------|
+| 1.7.6 | General visual quality — UI looks like a raw form | — | ⏳ Needs design pass |
+| 1.7.7 | No inline quick-entry — "New Learning" navigates to separate page | USE-09 | ⏳ Planned |
+| 1.7.8 | Google login button styling — white borders/margins clash with blue background | — | ⏳ Planned |
+
+**Notes:**
+- 1.7.1–1.7.5 must be resolved before Phase 1 exit criterion can be satisfied
+- 1.7.2: Guest home page becomes the login form directly (brand + tagline above, "Sign up" link below). Eliminates the intermediate "Get Started" screen.
+- 1.7.7: See quick-entry design decision below.
+- 1.7.8: Fix by adjusting the container/background around Google's standard button (not custom styling, to respect Google branding guidelines).
+
+##### Quick-Entry Design Decision (1.7.7)
+
+The inline quick-entry uses a **phased approach**:
+
+**Phase A (Milestone 1.7):** Single textarea, content-only. No title parsing.
+- Placeholder: "What did you learn?"
+- Submit: `Ctrl+Enter` / `Cmd+Enter`
+- After save: clear textarea, show toast, prepend new learning to list
+- The "New Learning" button remains for the full-form experience (deliberate entries with titles)
+- Rationale: Maximum friction reduction, zero learning curve, backend already supports null titles
+
+**Phase B (future, if needed):** Add first-line-as-title parsing.
+- First line renders bold/larger in real-time (Apple Notes / Bear pattern)
+- Subsequent lines render in normal body style
+- Single-line entries remain content-only (no title)
+- Only add this if Phase A usage reveals missing inline titles as a pain point
+
+**Precedent:** Apple Notes, Bear, and Day One all use first-line-as-title for personal knowledge capture.
+
+##### UI Improvement Tooling Recommendation (2026-02-21)
+
+> Open question from MVP review: What tool/approach for frontend UI improvement?
+
+**Recommended phased approach:**
+
+1. **Milestone 1.7 (layout/navigation fixes):** Use **Claude Code** directly. Items 1.7.2–1.7.5, 1.7.7–1.7.8 are structural changes (routing, grid layout, links) — not design work.
+2. **Visual polish (1.7.6):** Use **v0.dev** (Vercel's AI UI generator) to prototype improved component designs. Generates Tailwind + React directly — stays within the existing tech stack.
+3. **Future (Phase 2+):** If a comprehensive design system is needed, use **Figma** for mockups before implementation. A dedicated `ux-specialist` Claude agent (`.claude/agents/`) could review PRs for UX consistency and accessibility.
+
+**Why NOT Lovable/Bolt:** These tools generate entire apps from scratch. learnimo has an established codebase with patterns, tests, and conventions. Iterate on what exists.
+
+---
+
 ### MVP Exit Criteria
 - [ ] User can register, login, and logout
 - [ ] User can create POKs with title and content
@@ -196,7 +258,7 @@ The project follows an iterative development approach, prioritizing a functional
 | # | Feature | Priority |
 |---|---------|----------|
 | 2.4.1 | Random inspirational prompt on "add new learning" page — e.g., "TIL (Today I learned...)", "Essa semana eu aprendi que...", "Esse livro me ensinou..." — sourced from a localised dictionary/database, changes on every page load | Should Have |
-| 2.4.2 | Homepage personalization after first learning: replace the "Get Started" CTA with a persistent layout of (1) a textbox to input new learnings and (2) a search bar — the learner's primary daily workflow | Must Have |
+| 2.4.2 | Homepage personalization after first learning: replace the "Get Started" CTA with a persistent layout of (1) a textbox to input new learnings and (2) a search bar — the learner's primary daily workflow. **Note:** Inline quick-entry (USE-09) pulled forward to Milestone 1.7.7 as MVP-blocking. | Must Have |
 
 ### Evolution Exit Criteria
 - [x] Learner can edit and delete POKs
@@ -379,6 +441,7 @@ The project follows an iterative development approach, prioritizing a functional
 | 6.3.4 | Avatar upload (Supabase Storage, size limits, format validation, resizing) | Must Have |
 | 6.3.5 | Profile respects visibility settings — private profiles not accessible to non-followers | Must Have |
 | 6.3.6 | No vanity metrics on public profiles: follower, colleague, and learning counts hidden from all viewers except the profile owner | Must Have |
+| 6.3.7 | Clickable `@handle` in header links to own profile; avatar thumbnail displayed next to handle | Should Have |
 
 ### Milestone 6.4: Share (Re-Learning)
 
@@ -548,4 +611,5 @@ This is a living document. Update it as the project evolves.
 | 2.4 | 2026-02-20 | Lucas Xavier Ferreira | Added Phase 5 (Privacy), Phase 6 (Social Capabilities), Phase 7 (Gamification) to roadmap; updated timeline chart; added "Learner", "Friendship", and "Echo" to GLOSSARY |
 | 2.5 | 2026-02-20 | Lucas Xavier Ferreira | Revised Phases 5–7: resolved Echo→Share naming, colleagues/class terminology, bio rules, anti-vanity owned counts, community principles, AI moderation; added Phase 2 Milestone 2.4 (UX Delight: random prompts + homepage personalization); simplified timeline chart (removed week estimates); updated GLOSSARY (Colleague, Class/Study Group, Share) |
 | 2.6 | 2026-02-20 | Lucas Xavier Ferreira | Milestone 2.1 complete — POK editing, deletion, and audit trail implemented (feat/pok-audit-trail); frontend history view (FR18-FR20) deferred; Toast component added; `/finish-session` command updated with unused import checks |
-| 2.7 | 2026-02-21 | Lucas Xavier Ferreira | Added JaCoCo code coverage to backend CI pipeline (PR #57) — 90% line coverage threshold enforced; added JwtAuthenticationFilterTest and GlobalExceptionHandlerTest to close coverage gap; backend coverage 86% → 93.9% |
+| 2.7 | 2026-02-21 | Lucas Xavier Ferreira | Added Milestone 1.7 (MVP UX Review, 8 items); quick-entry design decision; UI tooling recommendation; 6.3.7 (clickable handle + avatar); cross-referenced 2.4.2 with 1.7.7 |
+| 2.8 | 2026-02-21 | Lucas Xavier Ferreira | Added JaCoCo code coverage to backend CI pipeline (PR #57) — 90% line coverage threshold enforced; added JwtAuthenticationFilterTest and GlobalExceptionHandlerTest to close coverage gap; backend coverage 86% → 93.9% |
