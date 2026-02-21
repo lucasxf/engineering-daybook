@@ -346,7 +346,7 @@ public class PokService {
             pok.getId(), userId, Action.UPDATE,
             oldTitle, pok.getTitle(),
             oldContent, pok.getContent(),
-            pok.getUpdatedAt()
+            Instant.now()
         );
         pokAuditLogRepository.save(entry);
     }
