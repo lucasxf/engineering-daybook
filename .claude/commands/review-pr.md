@@ -29,6 +29,62 @@ gh pr list --state open --json number,title,headRefName,author --template '{{ran
 
 **After selecting the PR, assign the number to `$PR_NUMBER` before proceeding.** All subsequent steps depend on this variable being set.
 
+## 1B. Check and Enrich PR Description
+
+**Get the current PR body:**
+
+```bash
+gh pr view $PR_NUMBER --repo $REPO --json body,title,commits --jq '{body: .body, title: .title}'
+```
+
+**Evaluate the body:**
+
+A PR description is considered **missing or inadequate** if any of these are true:
+- The body is empty or only whitespace
+- The body is a single generic line (e.g., "Develop", "fix", "update")
+- The body is shorter than ~100 characters with no structure (no bullets, no headings)
+
+**If the description is missing or inadequate:**
+
+1. Fetch the commits and diff to understand what the PR contains:
+
+```bash
+# List commits in the PR
+gh api repos/$REPO/pulls/$PR_NUMBER/commits --jq '.[].commit.message'
+
+# Get the PR diff summary (files changed)
+gh pr diff $PR_NUMBER --stat
+```
+
+2. Analyze the commits and file changes to draft a comprehensive description following this format:
+
+```markdown
+## Summary
+
+- [Bullet point per significant area of change]
+- [Each bullet is 1-2 sentences, describes the what + why]
+
+## Test plan
+
+- [ ] CI/CD passes (backend tests, web tests, build)
+- [ ] [Feature-specific check]
+- [ ] [Feature-specific check]
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+```
+
+3. Update the PR with the generated description AND a meaningful title (if the current title is also generic):
+
+```bash
+gh pr edit $PR_NUMBER --repo $REPO --title "<meaningful title>" --body "<generated body>"
+```
+
+4. Inform the user: "PR #XX was missing a description — I've added one based on the commits and diff."
+
+**If the description is already comprehensive:** Skip this step and proceed.
+
+---
+
 ## 2. Check CI/CD Pipeline Status
 
 **Get PR checks status:**
