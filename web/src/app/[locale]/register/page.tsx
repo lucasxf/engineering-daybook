@@ -21,7 +21,7 @@ export default function RegisterPage() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.replace(`/${params.locale}`);
+      router.replace(`/${params.locale}/poks`);
     }
   }, [isLoading, isAuthenticated, router, params.locale]);
 

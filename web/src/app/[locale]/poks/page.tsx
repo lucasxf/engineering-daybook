@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { PokList } from '@/components/poks/PokList';
+import { QuickEntry } from '@/components/poks/QuickEntry';
 import { SearchBar } from '@/components/poks/SearchBar';
 import { SortDropdown, type SortOption } from '@/components/poks/SortDropdown';
 import { NoSearchResults } from '@/components/poks/NoSearchResults';
@@ -13,6 +14,7 @@ import { ApiRequestError } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/poks/EmptyState';
+import { Toast } from '@/components/ui/Toast';
 
 /**
  * Page for listing and searching POKs.
@@ -34,6 +36,7 @@ function PoksContent() {
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [quickSaveToast, setQuickSaveToast] = useState(false);
 
   // Read initial state from URL
   const [keyword, setKeyword] = useState(searchParams.get('keyword') || '');
@@ -122,6 +125,13 @@ function PoksContent() {
     updateURL('', sortOption);
   }, [sortOption, updateURL]);
 
+  // Handle quick-entry save: prepend new learning to current list
+  const handleQuickSave = useCallback((pok: Pok) => {
+    setPoks((prev) => [pok, ...prev]);
+    setTotalElements((prev) => prev + 1);
+    setQuickSaveToast(true);
+  }, []);
+
   // Determine which content to display
   const hasSearchOrFilter = !!keyword;
   const isEmptyResults = !loading && poks.length === 0;
@@ -139,6 +149,9 @@ function PoksContent() {
           <Button>{t('list.createButton')}</Button>
         </Link>
       </div>
+
+      {/* Inline quick-entry */}
+      <QuickEntry onSaved={handleQuickSave} />
 
       {/* Search and Sort Controls */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -178,6 +191,13 @@ function PoksContent() {
         <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
           {t('list.resultsCount', { count: totalElements })}
         </div>
+      )}
+
+      {quickSaveToast && (
+        <Toast
+          message={t('success.created')}
+          onDismiss={() => setQuickSaveToast(false)}
+        />
       )}
     </div>
   );

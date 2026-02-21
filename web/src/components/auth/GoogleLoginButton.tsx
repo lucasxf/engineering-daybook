@@ -38,7 +38,7 @@ export function GoogleLoginButton({ mode }: GoogleLoginButtonProps) {
         const tempToken = encodeURIComponent(response.tempToken!);
         router.push(`/${params.locale}/choose-handle?t=${tempToken}` as never);
       } else {
-        router.push(`/${params.locale}` as never);
+        router.push(`/${params.locale}/poks` as never);
       }
     } catch (err) {
       if (err instanceof ApiRequestError) {
@@ -59,7 +59,7 @@ export function GoogleLoginButton({ mode }: GoogleLoginButtonProps) {
 
   return (
     <div>
-      <div className="flex justify-center">
+      <div className="flex justify-center rounded-md bg-white p-1 dark:bg-white">
         <GoogleLogin
           onSuccess={handleSuccess}
           onError={handleError}
