@@ -24,7 +24,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 import com.lucasxf.ed.dto.CreatePokRequest;
+import com.lucasxf.ed.dto.PokAuditLogResponse;
 import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
 import com.lucasxf.ed.service.PokService;
@@ -226,6 +229,34 @@ public class PokController {
         UUID userId = extractUserId(authentication);
         pokService.softDelete(id, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Retrieves the audit history for a POK.
+     *
+     * <p>Returns all audit entries for the POK (CREATE, UPDATE, DELETE events),
+     * ordered most-recent first. The POK must be owned by the authenticated user.
+     *
+     * @param id             the POK ID
+     * @param authentication the authenticated user
+     * @return list of audit log entries
+     */
+    @GetMapping("/{id}/history")
+    @Operation(
+        summary = "Get POK audit history",
+        description = "Returns all audit log entries for a POK (create, update, delete events), newest first. User must own the POK."
+    )
+    @ApiResponse(responseCode = "200", description = "History retrieved successfully")
+    @ApiResponse(responseCode = "401", description = "Unauthorized")
+    @ApiResponse(responseCode = "403", description = "Forbidden - POK belongs to another user")
+    @ApiResponse(responseCode = "404", description = "POK not found")
+    public ResponseEntity<List<PokAuditLogResponse>> getHistory(
+        @PathVariable UUID id,
+        Authentication authentication
+    ) {
+        UUID userId = extractUserId(authentication);
+        List<PokAuditLogResponse> history = pokService.getHistory(id, userId);
+        return ResponseEntity.ok(history);
     }
 
     /**

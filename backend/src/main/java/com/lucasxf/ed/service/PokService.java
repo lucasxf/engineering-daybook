@@ -11,10 +11,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.PokAuditLog;
 import com.lucasxf.ed.domain.PokAuditLog.Action;
 import com.lucasxf.ed.dto.CreatePokRequest;
+import com.lucasxf.ed.dto.PokAuditLogResponse;
 import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
 import com.lucasxf.ed.exception.PokAccessDeniedException;
@@ -300,6 +303,32 @@ public class PokService {
                 userId, pok.getId(), pok.getUserId());
             throw new PokAccessDeniedException("You do not have permission to access this POK");
         }
+    }
+
+    /**
+     * Retrieves the audit history for a POK, most recent first.
+     *
+     * @param id     the POK ID
+     * @param userId the requesting user's ID
+     * @return list of audit log entries, newest first
+     * @throws PokNotFoundException     if the POK is not found
+     * @throws PokAccessDeniedException if the POK belongs to another user
+     */
+    @Transactional(readOnly = true)
+    public List<PokAuditLogResponse> getHistory(UUID id, UUID userId) {
+        log.debug("Getting history for POK {} for user {}", id, userId);
+
+        // Verify the POK exists and the user owns it — we check including deleted POKs
+        // because history should still be accessible for deleted POKs.
+        Pok pok = pokRepository.findById(id)
+            .orElseThrow(() -> new PokNotFoundException("POK not found"));
+
+        verifyOwnership(pok, userId);
+
+        return pokAuditLogRepository.findByPokIdOrderByOccurredAtDesc(id)
+            .stream()
+            .map(PokAuditLogResponse::from)
+            .toList();
     }
 
     private void logCreate(Pok pok, UUID userId) {
