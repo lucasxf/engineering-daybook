@@ -2,6 +2,7 @@ package com.lucasxf.ed.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucasxf.ed.dto.CreatePokRequest;
+import com.lucasxf.ed.dto.PokAuditLogResponse;
 import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
 import com.lucasxf.ed.exception.PokAccessDeniedException;
@@ -644,6 +645,69 @@ class PokControllerTest {
         // When/Then
         mockMvc.perform(get("/api/v1/poks")
                 .param("keyword", "test"))
+            .andExpect(status().isUnauthorized());
+    }
+
+    // ===== GET HISTORY TESTS =====
+
+    @Test
+    @WithMockUser
+    void getHistory_withValidOwner_shouldReturn200WithEntries() throws Exception {
+        // Given
+        PokAuditLogResponse entry1 = new PokAuditLogResponse(
+            UUID.randomUUID(), pokId, userId, "CREATE",
+            null, "Title", null, "Content", Instant.now().minusSeconds(100)
+        );
+        PokAuditLogResponse entry2 = new PokAuditLogResponse(
+            UUID.randomUUID(), pokId, userId, "UPDATE",
+            "Title", "Updated Title", "Content", "Updated content", Instant.now()
+        );
+
+        when(pokService.getHistory(eq(pokId), any(UUID.class)))
+            .thenReturn(List.of(entry2, entry1));
+
+        // When/Then
+        mockMvc.perform(get("/api/v1/poks/{id}/history", pokId)
+                .with(user(userId.toString())))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$.length()").value(2))
+            .andExpect(jsonPath("$[0].action").value("UPDATE"))
+            .andExpect(jsonPath("$[1].action").value("CREATE"));
+
+        verify(pokService).getHistory(eq(pokId), eq(userId));
+    }
+
+    @Test
+    @WithMockUser
+    void getHistory_whenAccessDenied_shouldReturn403() throws Exception {
+        // Given
+        when(pokService.getHistory(eq(pokId), any(UUID.class)))
+            .thenThrow(new PokAccessDeniedException("You do not have permission to access this POK"));
+
+        // When/Then
+        mockMvc.perform(get("/api/v1/poks/{id}/history", pokId)
+                .with(user(userId.toString())))
+            .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser
+    void getHistory_whenPokNotFound_shouldReturn404() throws Exception {
+        // Given
+        when(pokService.getHistory(eq(pokId), any(UUID.class)))
+            .thenThrow(new PokNotFoundException("POK not found"));
+
+        // When/Then
+        mockMvc.perform(get("/api/v1/poks/{id}/history", pokId)
+                .with(user(userId.toString())))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getHistory_withoutAuthentication_shouldReturn401() throws Exception {
+        // When/Then
+        mockMvc.perform(get("/api/v1/poks/{id}/history", pokId))
             .andExpect(status().isUnauthorized());
     }
 }
