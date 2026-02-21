@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { vi } from 'vitest';
 import ViewPokPage from '@/app/[locale]/poks/[id]/page';
@@ -16,12 +17,22 @@ vi.mock('@/lib/pokApi', () => ({
   pokApi: {
     getById: vi.fn(),
     delete: vi.fn(),
+    update: vi.fn(),
   },
   ApiRequestError: class ApiRequestError extends Error {},
 }));
 
 vi.mock('@/lib/api', () => ({
   ApiRequestError: class ApiRequestError extends Error {},
+}));
+
+vi.mock('@/components/ui/Toast', () => ({
+  Toast: ({ message, onDismiss }: { message: string; onDismiss: () => void }) => (
+    <div role="status">
+      {message}
+      <button data-testid="toast-dismiss" onClick={onDismiss}>Dismiss</button>
+    </div>
+  ),
 }));
 
 vi.mock('@/components/poks/DeletePokButton', () => ({
@@ -33,6 +44,7 @@ vi.mock('@/components/poks/DeletePokButton', () => ({
 }));
 
 const mockGetById = vi.mocked(pokApi.getById);
+const mockDelete = vi.mocked(pokApi.delete);
 
 const mockPok: Pok = {
   id: 'pok-123',
@@ -102,6 +114,34 @@ describe('ViewPokPage', () => {
       await waitFor(() =>
         expect(screen.getByTestId('delete-btn')).toBeInTheDocument()
       );
+    });
+
+    describe('on delete', () => {
+      beforeEach(() => {
+        mockDelete.mockResolvedValue(undefined);
+      });
+
+      it('shows a success toast after delete', async () => {
+        const user = userEvent.setup();
+        renderViewPage();
+        await waitFor(() => screen.getByTestId('delete-btn'));
+        await user.click(screen.getByTestId('delete-btn'));
+        await waitFor(() =>
+          expect(screen.getByRole('status')).toHaveTextContent('Learning deleted successfully')
+        );
+      });
+
+      it('redirects to the poks list when the toast is dismissed', async () => {
+        const user = userEvent.setup();
+        renderViewPage();
+        await waitFor(() => screen.getByTestId('delete-btn'));
+        await user.click(screen.getByTestId('delete-btn'));
+        await waitFor(() => expect(screen.getByRole('status')).toBeInTheDocument());
+        await user.click(screen.getByTestId('toast-dismiss'));
+        await waitFor(() =>
+          expect(mockRouter.push).toHaveBeenCalledWith('/en/poks')
+        );
+      });
     });
   });
 

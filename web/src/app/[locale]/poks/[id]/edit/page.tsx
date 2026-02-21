@@ -9,6 +9,7 @@ import { pokApi, type Pok } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
+import { Toast } from '@/components/ui/Toast';
 import type { PokFormData } from '@/lib/validations/pokSchema';
 
 /**
@@ -30,6 +31,7 @@ export default function EditPokPage() {
   const [pok, setPok] = useState<Pok | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
 
   useEffect(() => {
     loadPok();
@@ -60,9 +62,7 @@ export default function EditPokPage() {
         title: data.title || null,
         content: data.content,
       });
-
-      // Success - redirect to POK detail
-      router.push(`/${params.locale}/poks/${pokId}` as never);
+      setShowSuccessToast(true);
     } catch (err) {
       if (err instanceof ApiRequestError) {
         setError(err.message);
@@ -70,6 +70,10 @@ export default function EditPokPage() {
         setError(t('errors.unexpected'));
       }
     }
+  };
+
+  const handleSuccessToastDismiss = () => {
+    router.push(`/${params.locale}/poks/${pokId}` as never);
   };
 
   if (loading) {
@@ -124,6 +128,10 @@ export default function EditPokPage() {
           content: pok.content,
         }}
       />
+
+      {showSuccessToast && (
+        <Toast message={t('success.updated')} onDismiss={handleSuccessToastDismiss} />
+      )}
     </div>
   );
 }

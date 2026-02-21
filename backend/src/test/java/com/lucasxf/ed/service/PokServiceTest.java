@@ -17,17 +17,21 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import com.lucasxf.ed.domain.Pok;
+import com.lucasxf.ed.domain.PokAuditLog;
 import com.lucasxf.ed.dto.CreatePokRequest;
 import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
 import com.lucasxf.ed.exception.PokAccessDeniedException;
 import com.lucasxf.ed.exception.PokNotFoundException;
+import com.lucasxf.ed.repository.PokAuditLogRepository;
 import com.lucasxf.ed.repository.PokRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +48,9 @@ class PokServiceTest {
 
     @Mock
     private PokRepository pokRepository;
+
+    @Mock
+    private PokAuditLogRepository pokAuditLogRepository;
 
     @InjectMocks
     private PokService pokService;
@@ -553,5 +560,95 @@ class PokServiceTest {
         assertThat(result.getContent()).hasSize(2);
         assertThat(result.getContent().get(0).title()).isEqualTo("Title 1");
         assertThat(result.getContent().get(1).title()).isNull();
+    }
+
+    // ===== AUDIT LOG TESTS =====
+
+    @Test
+    void create_shouldSaveAuditLogWithCreateAction() {
+        // Given
+        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content");
+        Pok savedPok = new Pok(userId, "Test Title", "Test content");
+
+        when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
+        when(pokAuditLogRepository.save(any(PokAuditLog.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // When
+        pokService.create(request, userId);
+
+        // Then: audit log entry saved with CREATE action and correct content
+        verify(pokAuditLogRepository).save(argThat(log ->
+            log.getAction() == PokAuditLog.Action.CREATE
+            && log.getUserId().equals(userId)
+            && log.getOldTitle() == null
+            && log.getOldContent() == null
+            && "Test Title".equals(log.getNewTitle())
+            && "Test content".equals(log.getNewContent())
+        ));
+    }
+
+    @Test
+    void update_shouldSaveAuditLogWithUpdateAction() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok existingPok = new Pok(userId, "Old Title", "Old content");
+        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content");
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(existingPok));
+        when(pokRepository.save(any(Pok.class))).thenReturn(existingPok);
+        when(pokAuditLogRepository.save(any(PokAuditLog.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // When
+        pokService.update(pokId, request, userId);
+
+        // Then: audit log records old and new values
+        verify(pokAuditLogRepository).save(argThat(log ->
+            log.getAction() == PokAuditLog.Action.UPDATE
+            && log.getUserId().equals(userId)
+            && "Old Title".equals(log.getOldTitle())
+            && "Old content".equals(log.getOldContent())
+            && "New Title".equals(log.getNewTitle())
+            && "New content".equals(log.getNewContent())
+        ));
+    }
+
+    @Test
+    void softDelete_shouldSaveAuditLogWithDeleteAction() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(userId, "Title", "Content");
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+        when(pokAuditLogRepository.save(any(PokAuditLog.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        // When
+        pokService.softDelete(pokId, userId);
+
+        // Then: audit log records old content and nulls for new content
+        verify(pokAuditLogRepository).save(argThat(log ->
+            log.getAction() == PokAuditLog.Action.DELETE
+            && log.getUserId().equals(userId)
+            && "Title".equals(log.getOldTitle())
+            && "Content".equals(log.getOldContent())
+            && log.getNewTitle() == null
+            && log.getNewContent() == null
+        ));
+    }
+
+    @Test
+    void update_whenAccessDenied_shouldNotSaveAuditLog() {
+        // Given: POK belongs to a different user
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(otherUserId, "Title", "Content");
+        UpdatePokRequest request = new UpdatePokRequest("New", "New content");
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+
+        // When/Then: access denied
+        assertThatThrownBy(() -> pokService.update(pokId, request, userId))
+            .isInstanceOf(PokAccessDeniedException.class);
+
+        // Then: no audit log entry written (transaction would roll back)
+        verify(pokAuditLogRepository, never()).save(any(PokAuditLog.class));
     }
 }

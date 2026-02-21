@@ -11,12 +11,18 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import com.lucasxf.ed.domain.Pok;
+import com.lucasxf.ed.domain.PokAuditLog;
+import com.lucasxf.ed.domain.PokAuditLog.Action;
 import com.lucasxf.ed.dto.CreatePokRequest;
+import com.lucasxf.ed.dto.PokAuditLogResponse;
 import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
 import com.lucasxf.ed.exception.PokAccessDeniedException;
 import com.lucasxf.ed.exception.PokNotFoundException;
+import com.lucasxf.ed.repository.PokAuditLogRepository;
 import com.lucasxf.ed.repository.PokRepository;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,9 +46,11 @@ import static java.util.Objects.requireNonNull;
 public class PokService {
 
     private final PokRepository pokRepository;
+    private final PokAuditLogRepository pokAuditLogRepository;
 
-    public PokService(PokRepository pokRepository) {
+    public PokService(PokRepository pokRepository, PokAuditLogRepository pokAuditLogRepository) {
         this.pokRepository = requireNonNull(pokRepository);
+        this.pokAuditLogRepository = requireNonNull(pokAuditLogRepository);
     }
 
     /**
@@ -61,6 +69,8 @@ public class PokService {
 
         log.info("POK created: id={}, userId={}, hasTitle={}",
             savedPok.getId(), userId, request.title() != null && !request.title().isEmpty());
+
+        logCreate(savedPok, userId);
 
         return PokResponse.from(savedPok);
     }
@@ -234,12 +244,17 @@ public class PokService {
 
         verifyOwnership(pok, userId);
 
+        String oldTitle = pok.getTitle();
+        String oldContent = pok.getContent();
+
         pok.updateTitle(request.title());
         pok.updateContent(request.content());
 
         Pok updatedPok = pokRepository.save(pok);
 
         log.info("POK updated: id={}, userId={}", id, userId);
+
+        logUpdate(updatedPok, userId, oldTitle, oldContent);
 
         return PokResponse.from(updatedPok);
     }
@@ -264,10 +279,15 @@ public class PokService {
 
         verifyOwnership(pok, userId);
 
+        String oldTitle = pok.getTitle();
+        String oldContent = pok.getContent();
+
         pok.softDelete();
         pokRepository.save(pok);
 
         log.info("POK soft deleted: id={}, userId={}", id, userId);
+
+        logDelete(pok, userId, oldTitle, oldContent);
     }
 
     /**
@@ -283,5 +303,61 @@ public class PokService {
                 userId, pok.getId(), pok.getUserId());
             throw new PokAccessDeniedException("You do not have permission to access this POK");
         }
+    }
+
+    /**
+     * Retrieves the audit history for a POK, most recent first.
+     *
+     * @param id     the POK ID
+     * @param userId the requesting user's ID
+     * @return list of audit log entries, newest first
+     * @throws PokNotFoundException     if the POK is not found
+     * @throws PokAccessDeniedException if the POK belongs to another user
+     */
+    @Transactional(readOnly = true)
+    public List<PokAuditLogResponse> getHistory(UUID id, UUID userId) {
+        log.debug("Getting history for POK {} for user {}", id, userId);
+
+        // Verify the POK exists and the user owns it — we check including deleted POKs
+        // because history should still be accessible for deleted POKs.
+        Pok pok = pokRepository.findById(id)
+            .orElseThrow(() -> new PokNotFoundException("POK not found"));
+
+        verifyOwnership(pok, userId);
+
+        return pokAuditLogRepository.findByPokIdOrderByOccurredAtDesc(id)
+            .stream()
+            .map(PokAuditLogResponse::from)
+            .toList();
+    }
+
+    private void logCreate(Pok pok, UUID userId) {
+        PokAuditLog entry = new PokAuditLog(
+            pok.getId(), userId, Action.CREATE,
+            null, pok.getTitle(),
+            null, pok.getContent(),
+            pok.getCreatedAt()
+        );
+        pokAuditLogRepository.save(entry);
+    }
+
+    private void logUpdate(Pok pok, UUID userId, String oldTitle, String oldContent) {
+        PokAuditLog entry = new PokAuditLog(
+            pok.getId(), userId, Action.UPDATE,
+            oldTitle, pok.getTitle(),
+            oldContent, pok.getContent(),
+            Instant.now()
+        );
+        pokAuditLogRepository.save(entry);
+    }
+
+    private void logDelete(Pok pok, UUID userId, String oldTitle, String oldContent) {
+        PokAuditLog entry = new PokAuditLog(
+            pok.getId(), userId, Action.DELETE,
+            oldTitle, null,
+            oldContent, null,
+            pok.getDeletedAt()
+        );
+        pokAuditLogRepository.save(entry);
     }
 }

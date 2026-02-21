@@ -24,7 +24,17 @@ For each layer, check whether files in that directory were modified this session
 
 **Backend** — only if `backend/` files changed:
 ```bash
-cd backend && ./mvnw verify -q        # compiles, tests, and checks in one pass
+cd backend && mvn verify -q        # compiles, tests, and checks in one pass
+```
+
+Then run the unused import check (Java compiler does not catch these — Checkstyle does):
+```bash
+# Uses google_checks.xml bundled in the plugin — no pom.xml change needed
+(cd backend && mvn org.apache.maven.plugins:maven-checkstyle-plugin:3.3.1:checkstyle \
+  -Dcheckstyle.config.location=google_checks.xml -q 2>&1 \
+  | grep "UnusedImports")
+# If any UnusedImports lines appear → STOP and fix before committing.
+# If the grep returns nothing → no unused imports detected, proceed.
 ```
 
 **Web** — only if `web/` files changed:
@@ -37,10 +47,13 @@ cd backend && ./mvnw verify -q        # compiles, tests, and checks in one pass
 
 ```bash
 # Preferred: run tools directly so output is never swallowed by npm wrapper
-(cd web && npx eslint src)            # lint
+(cd web && npx eslint src)            # lint — also catches unused imports via @typescript-eslint/no-unused-vars
 (cd web && npx next build)            # type-check + production build
 (cd web && npx vitest run)            # unit tests
 ```
+
+> **Unused imports (TypeScript):** Caught automatically by `npx eslint src` via the
+> `@typescript-eslint/no-unused-vars` rule (included in `next/typescript`). No separate step needed.
 
 **Mobile** — only if `mobile/` files changed:
 ```bash
