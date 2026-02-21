@@ -5,8 +5,6 @@ spring:
       ddl-auto: create-drop
   flyway:
     enabled: false
-
-spring:
   mail:
     host: localhost
     port: 1025

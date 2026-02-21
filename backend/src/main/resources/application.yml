@@ -23,14 +23,6 @@ spring:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
-
-server:
-  port: ${SERVER_PORT:8080}
-
-cors:
-  allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000}
-
-spring:
   mail:
     host: ${MAIL_HOST:smtp.resend.com}
     port: ${MAIL_PORT:465}
@@ -42,6 +34,12 @@ spring:
           auth: true
           ssl:
             enable: true
+
+server:
+  port: ${SERVER_PORT:8080}
+
+cors:
+  allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000}
 
 auth:
   jwt:
