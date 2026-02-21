@@ -150,15 +150,24 @@ The project follows an iterative development approach, prioritizing a functional
 
 **Goal:** Enhance the core experience with editing, tagging, and better visualization.
 
-### Milestone 2.1: POK Editing & Deletion
+### Implemented
 
-| # | Feature | Priority |
-|---|---------|----------|
-| 2.1.1 | Edit POK content | Must Have |
-| 2.1.2 | Edit POK title | Must Have |
-| 2.1.3 | Soft delete POK | Should Have |
-| 2.1.4 | Audit trail logging | Must Have |
-| 2.1.5 | View POK history | Could Have |
+#### Milestone 2.1: POK Editing & Deletion
+
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 2.1.1 | Edit POK content | Must Have | ✅ Backend + Web (feat/pok-audit-trail) |
+| 2.1.2 | Edit POK title | Must Have | ✅ Backend + Web (feat/pok-audit-trail) |
+| 2.1.3 | Soft delete POK | Should Have | ✅ Backend + Web (feat/pok-audit-trail) |
+| 2.1.4 | Audit trail logging | Must Have | ✅ Backend (feat/pok-audit-trail) — V6 Flyway migration, `PokAuditLog` entity + repository, audit logging in `PokService` (create/update/delete) |
+| 2.1.5 | View POK history (FR18-FR20) | Could Have | ⏳ Backend endpoint ships (`GET /api/v1/poks/{id}/history`); frontend history UI deferred |
+
+**Notes:**
+- `Toast` component added (accessible, `role="status"`, `aria-live="polite"`); success toast on edit/delete in `EditPokPage` and `ViewPokPage`
+- All tests pass: PokServiceTest 26/26, PokControllerTest 33/33, web 164/164
+- Frontend history view (FR18-FR20) deferred — backend endpoint available for future UI implementation
+
+### Planned
 
 ### Milestone 2.2: Tagging System
 
@@ -190,8 +199,8 @@ The project follows an iterative development approach, prioritizing a functional
 | 2.4.2 | Homepage personalization after first learning: replace the "Get Started" CTA with a persistent layout of (1) a textbox to input new learnings and (2) a search bar — the learner's primary daily workflow | Must Have |
 
 ### Evolution Exit Criteria
-- [ ] Learner can edit and delete POKs
-- [ ] All changes are logged in audit trail
+- [x] Learner can edit and delete POKs
+- [x] All changes are logged in audit trail
 - [ ] Tagging system works (manual creation + AI suggestions for explicit tags)
 - [ ] Timeline and tag views are functional
 - [ ] Author actively uses tags to organize POKs
@@ -538,3 +547,4 @@ This is a living document. Update it as the project evolves.
 | 2.3 | 2026-02-20 | Lucas Xavier Ferreira | HomeCta auth-aware fix (authenticated users silently looped back to home; now routed to /poks); added Phase A page-level behavior tests (Vitest) — 8 new test files covering all pages, test count 101 → 161 |
 | 2.4 | 2026-02-20 | Lucas Xavier Ferreira | Added Phase 5 (Privacy), Phase 6 (Social Capabilities), Phase 7 (Gamification) to roadmap; updated timeline chart; added "Learner", "Friendship", and "Echo" to GLOSSARY |
 | 2.5 | 2026-02-20 | Lucas Xavier Ferreira | Revised Phases 5–7: resolved Echo→Share naming, colleagues/class terminology, bio rules, anti-vanity owned counts, community principles, AI moderation; added Phase 2 Milestone 2.4 (UX Delight: random prompts + homepage personalization); simplified timeline chart (removed week estimates); updated GLOSSARY (Colleague, Class/Study Group, Share) |
+| 2.6 | 2026-02-20 | Lucas Xavier Ferreira | Milestone 2.1 complete — POK editing, deletion, and audit trail implemented (feat/pok-audit-trail); frontend history view (FR18-FR20) deferred; Toast component added; `/finish-session` command updated with unused import checks |

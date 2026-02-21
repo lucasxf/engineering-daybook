@@ -197,6 +197,7 @@ Key endpoints:
 - `GET /api/v1/poks/{id}` - Get POK by ID
 - `PUT /api/v1/poks/{id}` - Update POK
 - `DELETE /api/v1/poks/{id}` - Delete POK
+- `GET /api/v1/poks/{id}/history` - Get POK change history (audit log)
 
 ---
 
