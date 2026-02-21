@@ -67,9 +67,9 @@ describe('RegisterPage', () => {
       });
     });
 
-    it('redirects to home — prevents the "Começar" loop', () => {
+    it('redirects to feed', () => {
       renderRegisterPage();
-      expect(mockRouter.replace).toHaveBeenCalledWith('/en');
+      expect(mockRouter.replace).toHaveBeenCalledWith('/en/poks');
     });
   });
 
