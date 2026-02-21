@@ -88,9 +88,9 @@ describe('ChooseHandlePage', () => {
       mockSearchParams = new URLSearchParams({ t: 'some-temp-token' });
     });
 
-    it('redirects to home', () => {
+    it('redirects to feed', () => {
       renderChooseHandlePage();
-      expect(mockRouter.replace).toHaveBeenCalledWith('/en');
+      expect(mockRouter.replace).toHaveBeenCalledWith('/en/poks');
     });
 
     it('renders nothing visible', () => {

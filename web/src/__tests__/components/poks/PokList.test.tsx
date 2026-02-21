@@ -73,10 +73,10 @@ describe('PokList', () => {
     expect(createLink).toHaveAttribute('href', expect.stringContaining('/poks/new'));
   });
 
-  it('applies grid layout classes', () => {
+  it('renders POK cards in a single-column vertical layout', () => {
     const { container } = renderList(mockPoks);
 
-    const grid = container.querySelector('[class*="grid"]');
-    expect(grid).toBeInTheDocument();
+    const list = container.querySelector('[class*="flex-col"]');
+    expect(list).toBeInTheDocument();
   });
 });

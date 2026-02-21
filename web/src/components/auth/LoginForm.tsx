@@ -49,7 +49,7 @@ export function LoginForm({ locale, redirectTo }: LoginFormProps) {
     if (target && target.startsWith('/') && !target.startsWith('//')) {
       return target;
     }
-    return `/${locale}`;
+    return `/${locale}/poks`;
   };
 
   const onSubmit = async (data: LoginFormData) => {

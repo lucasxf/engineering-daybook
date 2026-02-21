@@ -145,6 +145,11 @@
       "updateButton": "Save Changes",
       "submitting": "Saving..."
     },
+    "quickEntry": {
+      "placeholder": "What did you learn?",
+      "hint": "Ctrl+Enter to save",
+      "saving": "Saving..."
+    },
     "emptyState": {
       "message": "No learnings yet. Start capturing what you learn!",
       "cta": "Create your first learning"

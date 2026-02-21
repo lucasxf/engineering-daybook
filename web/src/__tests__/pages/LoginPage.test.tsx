@@ -73,9 +73,9 @@ describe('LoginPage', () => {
       });
     });
 
-    it('redirects to home', () => {
+    it('redirects to feed', () => {
       renderLoginPage();
-      expect(mockRouter.replace).toHaveBeenCalledWith('/en');
+      expect(mockRouter.replace).toHaveBeenCalledWith('/en/poks');
     });
   });
 

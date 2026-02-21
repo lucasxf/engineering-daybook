@@ -147,18 +147,18 @@ The project follows an iterative development approach, prioritizing a functional
 | # | Issue | Req | Status |
 |---|-------|-----|--------|
 | 1.7.1 | Session lost on F5/refresh — JWT in `useRef` (in-memory only) | AUTH-04 | ⏳ Needs spec (ADR-007) |
-| 1.7.2 | Home page is an empty "Get Started" screen — guests should see login form directly | USE-10 | ⏳ Planned |
-| 1.7.3 | Post-login lands on home, not feed — extra click to reach learnings | USE-06 | ⏳ Planned |
-| 1.7.4 | "learnimo" title in header not clickable — should link to feed (auth) or home (guest) | USE-07 | ⏳ Planned |
-| 1.7.5 | Feed uses multi-column grid — should be single-column vertical, LIFO | USE-08 | ⏳ Planned |
+| 1.7.2 | Home page is an empty "Get Started" screen — guests should see login form directly | USE-10 | ✅ Done (chore/mvp-ux-review) |
+| 1.7.3 | Post-login lands on home, not feed — extra click to reach learnings | USE-06 | ✅ Done (chore/mvp-ux-review) |
+| 1.7.4 | "learnimo" title in header not clickable — should link to feed (auth) or home (guest) | USE-07 | ✅ Done (chore/mvp-ux-review) |
+| 1.7.5 | Feed uses multi-column grid — should be single-column vertical, LIFO | USE-08 | ✅ Done (chore/mvp-ux-review) |
 
 **Moderate (improves experience, can ship iteratively):**
 
 | # | Issue | Req | Status |
 |---|-------|-----|--------|
 | 1.7.6 | General visual quality — UI looks like a raw form | — | ⏳ Needs design pass |
-| 1.7.7 | No inline quick-entry — "New Learning" navigates to separate page | USE-09 | ⏳ Planned |
-| 1.7.8 | Google login button styling — white borders/margins clash with blue background | — | ⏳ Planned |
+| 1.7.7 | No inline quick-entry — "New Learning" navigates to separate page | USE-09 | ✅ Done — Phase A (chore/mvp-ux-review) |
+| 1.7.8 | Google login button styling — white borders/margins clash with blue background | — | ✅ Done (chore/mvp-ux-review) |
 
 **Notes:**
 - 1.7.1–1.7.5 must be resolved before Phase 1 exit criterion can be satisfied

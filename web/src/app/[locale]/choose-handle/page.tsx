@@ -17,7 +17,7 @@ function ChooseHandleContent() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.replace(`/${params.locale}`);
+      router.replace(`/${params.locale}/poks`);
     } else if (!tempToken) {
       router.replace(`/${params.locale}/login`);
     }

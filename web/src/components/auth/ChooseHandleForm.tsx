@@ -61,7 +61,7 @@ export function ChooseHandleForm({
         handle: data.handle,
         displayName: data.displayName,
       });
-      router.push(`/${params.locale}` as never);
+      router.push(`/${params.locale}/poks` as never);
     } catch (error) {
       if (error instanceof ApiRequestError) {
         if (error.status === 401) {
