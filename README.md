@@ -36,13 +36,11 @@ learnimo (ED) is a personal knowledge management tool. Inspired by the concept f
 
 The name carries three semantic layers:
 
-- **learn** — the core action the app enables
-- **ânimo** — Portuguese for energy, impulse, and momentum; say *learnimo* out loud and you can hear it
-- A modern SaaS cadence that works across languages and cultures
+- **learn** — the core action the app enables (to learn / aprender)
+- **imo** — Yoruba for knowledge and learning (*imọ̀*, the root behind *aprendizado*)
+- Say *learnimo* out loud and you can hear **ânimo** — Portuguese for energy, spirit, drive
 
-> *Learning with momentum.*
-
-The runner-up names in that exploration were **daftari** (Swahili for "notebook", strong cultural identity) and **devimo** (developer-focused startup vibe). **learnimo** was chosen for its global reach and because it best captures the idea that learning is not passive — it builds on itself.
+The runner-up names in that exploration were **daftari** (Swahili for "notebook", strong cultural identity) and **devimo** (developer-focused startup vibe). **learnimo** was chosen for its global reach and because it carries meaning in multiple languages without belonging to just one.
 
 ---
 
