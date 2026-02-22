@@ -5,6 +5,17 @@ spring:
       ddl-auto: create-drop
   flyway:
     enabled: false
+  mail:
+    host: localhost
+    port: 1025
+    username: test
+    password: test
+    properties:
+      mail:
+        smtp:
+          auth: false
+          ssl:
+            enable: false
 
 auth:
   jwt:
@@ -13,6 +24,8 @@ auth:
     refresh-token-expiry: 7d
   google:
     client-id: test-google-client-id.apps.googleusercontent.com
+  password-reset:
+    token-expiry: 1h
 
 logging:
   level:

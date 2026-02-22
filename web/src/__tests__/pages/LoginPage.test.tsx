@@ -89,4 +89,18 @@ describe('LoginPage', () => {
       expect(mockRouter.replace).not.toHaveBeenCalled();
     });
   });
+
+  describe('password reset success', () => {
+    it('shows success banner when ?reset=success is present', () => {
+      mockSearchParams = new URLSearchParams({ reset: 'success' });
+      renderLoginPage();
+      expect(screen.getByRole('status')).toBeInTheDocument();
+      expect(screen.getByText(/password reset successfully/i)).toBeInTheDocument();
+    });
+
+    it('does not show success banner without ?reset=success', () => {
+      renderLoginPage();
+      expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    });
+  });
 });

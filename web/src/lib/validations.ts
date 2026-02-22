@@ -74,6 +74,34 @@ export const chooseHandleSchema = z.object({
 
 export type ChooseHandleFormData = z.infer<typeof chooseHandleSchema>;
 
+export const forgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .min(1, 'auth.errors.emailRequired')
+    .email('auth.errors.emailInvalid')
+    .max(255),
+});
+
+export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+
+export const resetPasswordSchema = z
+  .object({
+    newPassword: z
+      .string()
+      .min(8, 'auth.errors.passwordMinLength')
+      .max(128, 'auth.errors.passwordMaxLength')
+      .refine((val) => PASSWORD_UPPERCASE.test(val), 'auth.errors.passwordUppercase')
+      .refine((val) => PASSWORD_LOWERCASE.test(val), 'auth.errors.passwordLowercase')
+      .refine((val) => PASSWORD_NUMBER.test(val), 'auth.errors.passwordNumber'),
+    confirmPassword: z.string().min(1, 'auth.errors.confirmPasswordRequired'),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: 'auth.errors.passwordsMismatch',
+    path: ['confirmPassword'],
+  });
+
+export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
+
 /**
  * Computes a simple password strength score.
  * Returns 'weak' | 'medium' | 'strong'.

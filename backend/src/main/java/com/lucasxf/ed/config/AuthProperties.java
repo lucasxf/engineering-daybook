@@ -13,7 +13,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "auth")
 public record AuthProperties(
     JwtProperties jwt,
-    GoogleProperties google
+    GoogleProperties google,
+    PasswordResetProperties passwordReset
 ) {
 
     /**
@@ -31,6 +32,14 @@ public record AuthProperties(
      */
     public record GoogleProperties(
         String clientId
+    ) {
+    }
+
+    /**
+     * Password reset flow configuration.
+     */
+    public record PasswordResetProperties(
+        Duration tokenExpiry
     ) {
     }
 }
