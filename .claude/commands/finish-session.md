@@ -27,15 +27,33 @@ For each layer, check whether files in that directory were modified this session
 cd backend && mvn verify -q        # compiles, tests, and checks in one pass
 ```
 
-Then run the unused import check (Java compiler does not catch these — Checkstyle does):
+Then check JaCoCo coverage before proceeding:
 ```bash
-# Uses google_checks.xml bundled in the plugin — no pom.xml change needed
-(cd backend && mvn org.apache.maven.plugins:maven-checkstyle-plugin:3.3.1:checkstyle \
-  -Dcheckstyle.config.location=google_checks.xml -q 2>&1 \
-  | grep "UnusedImports")
-# If any UnusedImports lines appear → STOP and fix before committing.
-# If the grep returns nothing → no unused imports detected, proceed.
+python3 -c "
+import xml.etree.ElementTree as ET
+tree = ET.parse('backend/target/site/jacoco/jacoco.xml')
+root = tree.getroot()
+for c in root.findall('counter[@type=\"LINE\"]'):
+    missed = int(c.get('missed', 0))
+    covered = int(c.get('covered', 0))
+    total = missed + covered
+    pct = (covered / total * 100) if total else 0
+    print(f'LINE coverage: {covered}/{total} ({pct:.1f}%)')
+    print('BELOW_THRESHOLD' if pct < 90 else 'OK')
+"
 ```
+
+**If output contains `BELOW_THRESHOLD`:**
+- Do NOT proceed to docs or commit
+- Delegate to the `coverage-fixer` agent with full context:
+  - Current coverage percentage
+  - Path to `backend/target/site/jacoco/jacoco.xml`
+  - The failing threshold (90%)
+- Wait for the agent to complete and confirm coverage is now above 90%
+- Then re-run `mvn verify -q` one more time to confirm BUILD SUCCESS before continuing
+
+**If output contains `OK`:** proceed normally.
+
 > **Timeout:** Always use `timeout: 300000` (5 minutes) for this Bash call. The default 2-minute
 > timeout causes false failures when Testcontainers integration tests are present. The Bash tool
 > exits with code 1 even though Maven succeeds — a known Windows + Testcontainers issue.
