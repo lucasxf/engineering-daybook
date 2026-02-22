@@ -8,7 +8,7 @@
 
 ## Agent Overview
 
-This project includes **9 custom agents** and **16 custom slash commands** designed for full-stack development:
+This project includes **10 custom agents** and **16 custom slash commands** designed for full-stack development:
 
 | Agent | Purpose | Model | When to Use |
 |-------|---------|-------|-------------|
@@ -20,6 +20,7 @@ This project includes **9 custom agents** and **16 custom slash commands** desig
 | **product-manager** | Product sense, requirements, user stories | Sonnet | Defining features, prioritizing backlog, writing user stories |
 | **pulse** | Metrics collection agent (agent/command usage, LOCs) | Haiku | On-demand metrics collection |
 | **session-optimizer** | Token efficiency, session planning, workflow | Haiku | Starting sessions, optimizing token usage |
+| **steward** | Backend quality assurance — identifies coverage gaps, writes targeted tests to meet thresholds | Sonnet | When backend test coverage falls below the project threshold |
 | **tech-writer** | Documentation (external + in-code), ADRs, Javadoc, OpenAPI | Sonnet | Creating ADRs, adding Javadoc, updating docs |
 
 ---
@@ -181,7 +182,22 @@ Slash Commands (would create cycle)
 
 ---
 
-### 9. Tech Writer
+### 9. Steward (Backend Quality)
+
+**Use when:**
+- Backend test coverage falls below the project threshold (90% line coverage)
+- `/finish-session` blocks the commit due to coverage failure
+- Adding targeted tests to close specific coverage gaps
+
+**Note:** This agent is triggered automatically by `/finish-session` when coverage is below threshold. It can also be invoked on demand.
+
+**Example prompts:**
+- "Coverage dropped — run steward"
+- "Close the coverage gap in PokService"
+
+---
+
+### 10. Tech Writer
 
 **Use when:**
 - Creating/updating documentation
@@ -219,6 +235,8 @@ What's your task?
 │
 ├─ Creating docs / ADRs / Javadoc / OpenAPI → tech-writer
 │
+├─ Backend coverage below threshold → steward
+│
 └─ Extracting patterns / new projects → cross-project-architect
 ```
 
@@ -227,7 +245,7 @@ What's your task?
 ## Status & Maintenance
 
 ### Current Status
-- All 9 agents created (2026-01-29)
+- 9 agents created (2026-01-29); `steward` added (2026-02-22) — 10 total
 - Tailored to Engineering Daybook (Java/Spring Boot + Next.js/Expo)
 - Integrated with project conventions (CLAUDE.md, CODING_STYLE files)
 - Anti-cyclic dependency rule documented and enforced

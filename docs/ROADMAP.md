@@ -88,8 +88,6 @@ The project follows an iterative development approach, prioritizing a functional
 | 1.3.4 | Sort by date created/updated | Must Have | ✅ Backend + Web (feat/pok-listing-search) |
 | 1.3.5 | Empty states and loading UI | Must Have | ✅ Web (feat/pok-listing-search) |
 
-**Note:** feat/pok-listing-search (pending PR)
-
 #### Milestone 1.4: UI/UX Polish
 
 | # | Feature | Priority | Status |
@@ -347,13 +345,13 @@ The inline quick-entry uses a **phased approach**:
 
 ### Milestone 4.4: Launch Preparation
 
-| # | Task | Priority |
-|---|------|----------|
+| # | Task | Priority | Status |
+|---|------|----------|--------|
 | 4.4.1 | Product naming finalization | Should Have | ✅ Done (learnimo) |
-| 4.4.2 | Landing page | Should Have |
-| 4.4.3 | Product Hunt / LinkedIn launch post | Could Have |
-| 4.4.4 | Feedback collection mechanism | Should Have |
-| 4.4.5 | Analytics setup (privacy-respecting) | Should Have |
+| 4.4.2 | Landing page | Should Have | |
+| 4.4.3 | Product Hunt / LinkedIn launch post | Could Have | |
+| 4.4.4 | Feedback collection mechanism | Should Have | |
+| 4.4.5 | Analytics setup (privacy-respecting) | Should Have | |
 
 ### Phase 4 Exit Criteria
 - [ ] External users can sign up and use the app
