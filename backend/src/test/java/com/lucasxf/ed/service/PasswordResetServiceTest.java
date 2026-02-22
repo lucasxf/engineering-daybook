@@ -75,7 +75,8 @@ class PasswordResetServiceTest {
         AuthProperties authProperties = new AuthProperties(
             new AuthProperties.JwtProperties("test-secret", Duration.ofMinutes(15), Duration.ofDays(7)),
             new AuthProperties.GoogleProperties("test-client-id"),
-            new AuthProperties.PasswordResetProperties(TOKEN_EXPIRY)
+            new AuthProperties.PasswordResetProperties(TOKEN_EXPIRY),
+            new AuthProperties.CookieProperties(false)
         );
 
         service = new PasswordResetService(
