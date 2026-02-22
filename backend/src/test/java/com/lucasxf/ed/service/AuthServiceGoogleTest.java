@@ -14,8 +14,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.lucasxf.ed.domain.User;
-import com.lucasxf.ed.dto.GoogleLoginResponse;
-import com.lucasxf.ed.dto.AuthResponse;
 import com.lucasxf.ed.exception.ResourceConflictException;
 import com.lucasxf.ed.exception.InvalidTokenException;
 import com.lucasxf.ed.repository.RefreshTokenRepository;
@@ -88,13 +86,13 @@ class AuthServiceGoogleTest {
             when(jwtService.hashRefreshToken("refresh-token")).thenReturn("hashed");
             when(jwtService.getRefreshTokenExpiry()).thenReturn(Duration.ofDays(7));
 
-            GoogleLoginResponse response = authService.googleLogin("valid-id-token");
+            GoogleLoginResult result = authService.googleLogin("valid-id-token");
 
-            assertThat(response.requiresHandle()).isFalse();
-            assertThat(response.accessToken()).isEqualTo("access-token");
-            assertThat(response.refreshToken()).isEqualTo("refresh-token");
-            assertThat(response.handle()).isEqualTo("alice");
-            assertThat(response.tempToken()).isNull();
+            assertThat(result).isInstanceOf(GoogleLoginResult.ExistingUser.class);
+            GoogleLoginResult.ExistingUser existing = (GoogleLoginResult.ExistingUser) result;
+            assertThat(existing.authResult().accessToken()).isEqualTo("access-token");
+            assertThat(existing.authResult().refreshToken()).isEqualTo("refresh-token");
+            assertThat(existing.authResult().handle()).isEqualTo("alice");
         }
 
         @Test
@@ -106,11 +104,11 @@ class AuthServiceGoogleTest {
             when(jwtService.generateTempToken("google-sub", "bob@gmail.com", "Bob Smith"))
                 .thenReturn("temp-token");
 
-            GoogleLoginResponse response = authService.googleLogin("valid-id-token");
+            GoogleLoginResult result = authService.googleLogin("valid-id-token");
 
-            assertThat(response.requiresHandle()).isTrue();
-            assertThat(response.tempToken()).isEqualTo("temp-token");
-            assertThat(response.accessToken()).isNull();
+            assertThat(result).isInstanceOf(GoogleLoginResult.NewUser.class);
+            GoogleLoginResult.NewUser newUser = (GoogleLoginResult.NewUser) result;
+            assertThat(newUser.tempToken()).isEqualTo("temp-token");
             verify(userRepository, never()).save(any());
         }
 
@@ -153,12 +151,12 @@ class AuthServiceGoogleTest {
             when(jwtService.hashRefreshToken("refresh-token")).thenReturn("hashed");
             when(jwtService.getRefreshTokenExpiry()).thenReturn(Duration.ofDays(7));
 
-            AuthResponse response = authService.completeGoogleSignup(
+            AuthResult result = authService.completeGoogleSignup(
                 "temp-token", "bobsmith", "Bobby S"
             );
 
-            assertThat(response.accessToken()).isEqualTo("access-token");
-            assertThat(response.handle()).isEqualTo("bobsmith");
+            assertThat(result.accessToken()).isEqualTo("access-token");
+            assertThat(result.handle()).isEqualTo("bobsmith");
 
             ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
             verify(userRepository).save(userCaptor.capture());

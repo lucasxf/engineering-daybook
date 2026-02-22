@@ -17,7 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.lucasxf.ed.domain.RefreshToken;
 import com.lucasxf.ed.domain.User;
-import com.lucasxf.ed.dto.AuthResponse;
+
 import com.lucasxf.ed.dto.LoginRequest;
 import com.lucasxf.ed.dto.RegisterRequest;
 import com.lucasxf.ed.exception.ResourceConflictException;
@@ -87,7 +87,7 @@ class AuthServiceTest {
             when(jwtService.hashRefreshToken("refresh-token")).thenReturn("hashed-refresh");
             when(jwtService.getRefreshTokenExpiry()).thenReturn(Duration.ofDays(7));
 
-            AuthResponse response = authService.register(request);
+            AuthResult response = authService.register(request);
 
             assertThat(response.accessToken()).isEqualTo("access-token");
             assertThat(response.refreshToken()).isEqualTo("refresh-token");
@@ -163,7 +163,7 @@ class AuthServiceTest {
             when(jwtService.hashRefreshToken("refresh-token")).thenReturn("hashed-refresh");
             when(jwtService.getRefreshTokenExpiry()).thenReturn(Duration.ofDays(7));
 
-            AuthResponse response = authService.login(request);
+            AuthResult response = authService.login(request);
 
             assertThat(response.accessToken()).isEqualTo("access-token");
             assertThat(response.refreshToken()).isEqualTo("refresh-token");
@@ -213,7 +213,7 @@ class AuthServiceTest {
             when(jwtService.hashRefreshToken("new-refresh")).thenReturn("new-hash");
             when(jwtService.getRefreshTokenExpiry()).thenReturn(Duration.ofDays(7));
 
-            AuthResponse response = authService.refreshToken("old-refresh");
+            AuthResult response = authService.refreshToken("old-refresh");
 
             assertThat(response.accessToken()).isEqualTo("new-access");
             assertThat(response.refreshToken()).isEqualTo("new-refresh");

@@ -111,7 +111,7 @@ The project follows an iterative development approach, prioritizing a functional
 
 ⏳ Pending: Author using app for 1+ week (Phase 1 exit criterion)
 
-> **Next priority: Milestone 1.7 UX Review** — Password reset (1.1.5) is complete. The remaining blocker for Phase 1 exit is resolving the critical friction issues in Milestone 1.7 (session persistence, post-login redirect, home page for guests, clickable logo, single-column feed). These must be addressed before the 1-week usage clock can meaningfully restart.
+> **Next priority: Milestone 1.7 UX Review** — Password reset (1.1.5) is complete. All critical friction issues in Milestone 1.7 are now resolved (session persistence ✅, post-login redirect ✅, home page for guests ✅, clickable logo ✅, single-column feed ✅). The 1-week usage clock can now meaningfully restart.
 
 #### Production Bug Fix (2026-02-20)
 
@@ -144,7 +144,7 @@ The project follows an iterative development approach, prioritizing a functional
 
 | # | Issue | Req | Status |
 |---|-------|-----|--------|
-| 1.7.1 | Session lost on F5/refresh — JWT in `useRef` (in-memory only) | AUTH-04 | ⏳ Needs spec (ADR-007) |
+| 1.7.1 | Session lost on F5/refresh — JWT in `useRef` (in-memory only) | AUTH-04 | ✅ Done (feat/persistent-user-sessions) |
 | 1.7.2 | Home page is an empty "Get Started" screen — guests should see login form directly | USE-10 | ✅ Done (chore/mvp-ux-review) |
 | 1.7.3 | Post-login lands on home, not feed — extra click to reach learnings | USE-06 | ✅ Done (chore/mvp-ux-review) |
 | 1.7.4 | "learnimo" title in header not clickable — should link to feed (auth) or home (guest) | USE-07 | ✅ Done (chore/mvp-ux-review) |
@@ -616,3 +616,4 @@ This is a living document. Update it as the project evolves.
 | 2.9 | 2026-02-21 | Lucas Xavier Ferreira | Milestone 1.1.5 complete — Password reset implemented end-to-end: V7 Flyway migration, PasswordResetToken entity + repo, EmailService (SMTP/Resend), PasswordResetService (12 unit tests), PasswordResetController (3 endpoints, 12 MockMvc tests), GlobalExceptionHandler fix; web: ForgotPasswordForm + ResetPasswordForm components, 2 new pages, LoginForm "Forgot password?" link, reset=success banner, i18n keys (EN/PT-BR), 19 new Vitest tests, all 177 tests pass |
 | 3.0 | 2026-02-22 | Lucas Xavier Ferreira | Claude Code tooling improvements — `/review-pr` gained §3A.5 "Coverage Failures" with JaCoCo-first path (reads `jacoco.xml` via Python before running tests locally); new `steward` agent parses JaCoCo XML, identifies highest-missed-line classes, writes targeted JUnit 5 tests, and confirms threshold via `mvn verify`; `/finish-session` now checks LINE coverage against 90% threshold after `mvn verify` and blocks commit + delegates to `steward` if below |
 | 3.1 | 2026-02-22 | Lucas Xavier Ferreira | Documentation review and consistency fixes — corrected learnimo name etymology (learn + imọ̀ Yoruba + ânimo phonetic); fixed prompts directory path; updated Phase 1 roadmap status; clarified POL synonym scope; split auto-tagging definition by phase; fixed AUTH-04 table rendering; added USE-10 to MoSCoW; removed stale milestone notes; fixed 4.4 table header; added steward agent docs |
+| 3.2 | 2026-02-22 | Lucas Xavier Ferreira | Milestone 1.7.1 complete — Session persistence implemented: httpOnly cookie-based token delivery (backend: AuthController refactored, CookieHelper, UserPrincipal, GET /auth/me; frontend: AuthContext initializeSession, api.ts silent refresh, auth.ts simplified); PokRepositoryTest Docker guard fixed |
