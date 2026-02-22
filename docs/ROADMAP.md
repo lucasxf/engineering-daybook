@@ -88,8 +88,6 @@ The project follows an iterative development approach, prioritizing a functional
 | 1.3.4 | Sort by date created/updated | Must Have | ✅ Backend + Web (feat/pok-listing-search) |
 | 1.3.5 | Empty states and loading UI | Must Have | ✅ Web (feat/pok-listing-search) |
 
-**Note:** feat/pok-listing-search (pending PR)
-
 #### Milestone 1.4: UI/UX Polish
 
 | # | Feature | Priority | Status |
@@ -347,13 +345,13 @@ The inline quick-entry uses a **phased approach**:
 
 ### Milestone 4.4: Launch Preparation
 
-| # | Task | Priority |
-|---|------|----------|
+| # | Task | Priority | Status |
+|---|------|----------|--------|
 | 4.4.1 | Product naming finalization | Should Have | ✅ Done (learnimo) |
-| 4.4.2 | Landing page | Should Have |
-| 4.4.3 | Product Hunt / LinkedIn launch post | Could Have |
-| 4.4.4 | Feedback collection mechanism | Should Have |
-| 4.4.5 | Analytics setup (privacy-respecting) | Should Have |
+| 4.4.2 | Landing page | Should Have | |
+| 4.4.3 | Product Hunt / LinkedIn launch post | Could Have | |
+| 4.4.4 | Feedback collection mechanism | Should Have | |
+| 4.4.5 | Analytics setup (privacy-respecting) | Should Have | |
 
 ### Phase 4 Exit Criteria
 - [ ] External users can sign up and use the app
@@ -617,3 +615,4 @@ This is a living document. Update it as the project evolves.
 | 2.8 | 2026-02-21 | Lucas Xavier Ferreira | Added JaCoCo code coverage to backend CI pipeline (PR #57) — 90% line coverage threshold enforced; added JwtAuthenticationFilterTest and GlobalExceptionHandlerTest to close coverage gap; backend coverage 86% → 93.9% |
 | 2.9 | 2026-02-21 | Lucas Xavier Ferreira | Milestone 1.1.5 complete — Password reset implemented end-to-end: V7 Flyway migration, PasswordResetToken entity + repo, EmailService (SMTP/Resend), PasswordResetService (12 unit tests), PasswordResetController (3 endpoints, 12 MockMvc tests), GlobalExceptionHandler fix; web: ForgotPasswordForm + ResetPasswordForm components, 2 new pages, LoginForm "Forgot password?" link, reset=success banner, i18n keys (EN/PT-BR), 19 new Vitest tests, all 177 tests pass |
 | 3.0 | 2026-02-22 | Lucas Xavier Ferreira | Claude Code tooling improvements — `/review-pr` gained §3A.5 "Coverage Failures" with JaCoCo-first path (reads `jacoco.xml` via Python before running tests locally); new `steward` agent parses JaCoCo XML, identifies highest-missed-line classes, writes targeted JUnit 5 tests, and confirms threshold via `mvn verify`; `/finish-session` now checks LINE coverage against 90% threshold after `mvn verify` and blocks commit + delegates to `steward` if below |
+| 3.1 | 2026-02-22 | Lucas Xavier Ferreira | Documentation review and consistency fixes — corrected learnimo name etymology (learn + imọ̀ Yoruba + ânimo phonetic); fixed prompts directory path; updated Phase 1 roadmap status; clarified POL synonym scope; split auto-tagging definition by phase; fixed AUTH-04 table rendering; added USE-10 to MoSCoW; removed stale milestone notes; fixed 4.4 table header; added steward agent docs |
