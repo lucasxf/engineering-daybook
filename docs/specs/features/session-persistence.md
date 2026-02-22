@@ -1,8 +1,8 @@
 # Session Persistence
 
-> **Status:** In Progress
+> **Status:** Complete
 > **Created:** 2026-02-22
-> **Implemented:** _pending_
+> **Implemented:** 2026-02-22
 
 ---
 
@@ -25,51 +25,51 @@ The scope of this milestone (1.7.1) is the **web application only**. The mobile 
 
 ### Functional
 
-- [ ] **FR1 — Session survives browser refresh** `Must Have`
+- [x] **FR1 — Session survives browser refresh** `Must Have`
   After a successful login, if the user refreshes the browser (F5 / Cmd+R), they must be returned to the same page they were on, fully authenticated, without seeing a login screen. The session restoration must complete before any protected content is rendered.
 
-- [ ] **FR2 — Session present in new tabs** `Must Have`
+- [x] **FR2 — Session present in new tabs** `Must Have`
   After a successful login, if the user opens a new browser tab and navigates to learnimo.net, they must be authenticated automatically. No login prompt must appear.
 
-- [ ] **FR3 — Session survives browser close and reopen** `Must Have`
+- [x] **FR3 — Session survives browser close and reopen** `Must Have`
   If the user closes the browser (not just the tab) and reopens learnimo.net within the 7-day refresh token window, they must be authenticated automatically without re-entering credentials.
 
-- [ ] **FR4 — Transparent access token refresh** `Must Have`
+- [x] **FR4 — Transparent access token refresh** `Must Have`
   When the access token expires mid-session (15-minute window), the next API call that receives a `401 Unauthorized` response must automatically trigger a token refresh by calling the refresh endpoint (cookie is sent automatically by the browser). The original request must be retried with the new access token. The user must not see an error, a login prompt, or any interruption.
 
-- [ ] **FR5 — Session restoration on page load** `Must Have`
+- [x] **FR5 — Session restoration on page load** `Must Have`
   On every page load, the frontend must determine authentication state by calling a protected endpoint (`GET /api/v1/users/me`). A `200 OK` response means the session is valid and the user data is loaded into application state. A `401` with a failed silent refresh means the session has expired and the user is redirected to login.
 
-- [ ] **FR6 — Logout revokes session server-side and clears cookies** `Must Have`
+- [x] **FR6 — Logout revokes session server-side and clears cookies** `Must Have`
   Calling logout must: (1) send a request to the backend that revokes the refresh token in the database, (2) cause the backend to respond with `Set-Cookie` headers that expire both the access token cookie and the refresh token cookie immediately (Max-Age=0), (3) redirect the user to the login page. After logout, the refresh cookie must not allow session restoration.
 
-- [ ] **FR7 — All existing auth flows continue working** `Must Have`
+- [x] **FR7 — All existing auth flows continue working** `Must Have`
   Both email/password login and Google OAuth login must issue `httpOnly` cookies using the same mechanism. There must be no regression in any existing authentication path. The user-facing login and register flows must behave identically to today, except that tokens are delivered via cookies instead of JSON response body.
 
-- [ ] **FR8 — Refresh token cookie scoped to auth endpoints only** `Should Have`
+- [x] **FR8 — Refresh token cookie scoped to auth endpoints only** `Should Have`
   The refresh token cookie must have its `Path` attribute set to `/api/v1/auth` so it is only sent on requests to auth endpoints, not on every API call. The access token cookie has `Path=/` (sent on all requests).
 
-- [ ] **FR9 — Mobile is explicitly out of scope** _(Note)_
+- [x] **FR9 — Mobile is explicitly out of scope** _(Note)_
   This spec covers the web application only. The Expo/React Native mobile application must not be affected by these backend changes. The backend must not make assumptions that break future token-in-header flows for mobile (Phase 3).
 
 ### Non-Functional
 
-- [ ] **NFR1 — XSS protection via httpOnly** `Must Have`
+- [x] **NFR1 — XSS protection via httpOnly** `Must Have`
   Both the access token cookie and the refresh token cookie must have the `HttpOnly` flag set. Neither token must be readable by JavaScript (`document.cookie` must not expose them).
 
-- [ ] **NFR2 — CSRF mitigation via SameSite=Strict** `Must Have`
+- [x] **NFR2 — CSRF mitigation via SameSite=Strict** `Must Have`
   Both cookies must have `SameSite=Strict` set. This ensures cookies are not sent on cross-site requests, neutralising CSRF attacks without requiring a separate CSRF token for standard flows.
 
-- [ ] **NFR3 — HTTPS-only in production** `Must Have`
+- [x] **NFR3 — HTTPS-only in production** `Must Have`
   Both cookies must have the `Secure` flag in any non-local environment (production, staging). In local development (`localhost`), `Secure` may be omitted to allow HTTP. This must be driven by a configuration property (`auth.cookie.secure`), not hardcoded.
 
-- [ ] **NFR4 — Cookie expiry aligned with token TTL** `Must Have`
+- [x] **NFR4 — Cookie expiry aligned with token TTL** `Must Have`
   The `Max-Age` of the access token cookie must match the JWT expiry (15 minutes). The `Max-Age` of the refresh token cookie must match the refresh token TTL (7 days). Cookie and token expiry must never be out of sync.
 
-- [ ] **NFR5 — Session restoration latency** `Should Have`
+- [x] **NFR5 — Session restoration latency** `Should Have`
   The session restoration call on page load (`GET /api/v1/users/me`) must complete within 500ms under normal network conditions. A loading state must be shown until resolution — no blank authenticated shell must appear.
 
-- [ ] **NFR6 — Refresh token cookie path scoping** `Should Have`
+- [x] **NFR6 — Refresh token cookie path scoping** `Should Have`
   The refresh token cookie must be scoped to `/api/v1/auth` to reduce the attack surface. Sending the long-lived refresh token on every API call is a security anti-pattern.
 
 ---
@@ -281,7 +281,9 @@ Logout flow (new):
 > _This section is filled AFTER implementation._
 
 ### Commits
-- _pending_
+- `feat: add UserPrincipal and CookieHelper for cookie-based auth`
+- `feat: extract JWT from cookie with Authorization header fallback`
+- `feat: implement cookie-based session persistence (AUTH-04)`
 
 ### Architectural Decisions
 
@@ -301,7 +303,8 @@ Logout flow (new):
 - **Rationale:** Sending tokens in both body and cookies doubles the exposure surface. Since mobile (Phase 3) will use a different auth path, there is no current consumer of the token fields in the response body.
 
 ### Deviations from Spec
-- _pending_
+- Session restoration endpoint implemented as `GET /api/v1/auth/me` (on `AuthController`) rather than the `GET /api/v1/users/me` mentioned in FR5. The controller placement is more appropriate since it's an auth concern, not a user-profile concern.
 
 ### Lessons Learned
-- _pending_
+- `header().strings(name, hasItem(...))` in Spring Test has a Hamcrest generics mismatch (`Matcher<Iterable<? super String>>` vs `Matcher<? super List<String>>`). Use `andDo(result -> assertThat(result.getResponse().getHeaders("Set-Cookie"))...)` instead — works in both `@WebMvcTest` and `@SpringBootTest`.
+- `@DataJpaTest` with `@DynamicPropertySource` starting a Testcontainers container will crash context loading (not just skip) if Docker is unavailable. Must add `@Testcontainers(disabledWithoutDocker = true)` + early-return guard inside `@DynamicPropertySource`.

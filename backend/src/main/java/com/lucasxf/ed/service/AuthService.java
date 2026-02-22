@@ -9,8 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.lucasxf.ed.domain.RefreshToken;
 import com.lucasxf.ed.domain.User;
-import com.lucasxf.ed.dto.AuthResponse;
-import com.lucasxf.ed.dto.GoogleLoginResponse;
 import com.lucasxf.ed.dto.LoginRequest;
 import com.lucasxf.ed.dto.RegisterRequest;
 import com.lucasxf.ed.exception.AuthenticationException;
@@ -57,10 +55,10 @@ public class AuthService {
     /**
      * Registers a new user with email, password, display name, and handle.
      *
-     * @throws IllegalArgumentException if email or handle is already taken
+     * @throws ResourceConflictException if email or handle is already taken
      */
     @Transactional
-    public AuthResponse register(RegisterRequest request) {
+    public AuthResult register(RegisterRequest request) {
         String normalizedEmail = request.email().toLowerCase(Locale.ROOT);
 
         if (userRepository.existsByEmail(normalizedEmail)) {
@@ -84,7 +82,7 @@ public class AuthService {
      * @throws AuthenticationException if credentials are invalid
      */
     @Transactional
-    public AuthResponse login(LoginRequest request) {
+    public AuthResult login(LoginRequest request) {
         String normalizedEmail = request.email().toLowerCase(Locale.ROOT);
 
         User user = userRepository.findByEmail(normalizedEmail)
@@ -104,7 +102,7 @@ public class AuthService {
      * @throws InvalidTokenException if the refresh token is invalid, expired, or revoked
      */
     @Transactional
-    public AuthResponse refreshToken(String rawRefreshToken) {
+    public AuthResult refreshToken(String rawRefreshToken) {
         String tokenHash = jwtService.hashRefreshToken(rawRefreshToken);
 
         RefreshToken existing = refreshTokenRepository.findByTokenHash(tokenHash)
@@ -146,7 +144,7 @@ public class AuthService {
      * @throws ResourceConflictException if the email is already registered with a password
      */
     @Transactional
-    public GoogleLoginResponse googleLogin(String idToken) {
+    public GoogleLoginResult googleLogin(String idToken) {
         GoogleUserInfo userInfo = googleTokenVerifier.verify(idToken);
         String normalizedEmail = userInfo.email().toLowerCase(Locale.ROOT);
 
@@ -160,14 +158,14 @@ public class AuthService {
                             + "Please sign in with email and password.");
                 }
                 log.info("Google OAuth login: handle={}", existingUser.getHandle());
-                return GoogleLoginResponse.existingUser(issueTokens(existingUser));
+                return (GoogleLoginResult) new GoogleLoginResult.ExistingUser(issueTokens(existingUser));
             })
             .orElseGet(() -> {
                 log.info("Google OAuth new user: email={}", normalizedEmail);
                 String tempToken = jwtService.generateTempToken(
                     userInfo.sub(), normalizedEmail, userInfo.name()
                 );
-                return GoogleLoginResponse.newUser(tempToken);
+                return new GoogleLoginResult.NewUser(tempToken);
             });
     }
 
@@ -178,7 +176,7 @@ public class AuthService {
      * @throws ResourceConflictException if the handle is already taken
      */
     @Transactional
-    public AuthResponse completeGoogleSignup(String tempToken, String handle, String displayName) {
+    public AuthResult completeGoogleSignup(String tempToken, String handle, String displayName) {
         Claims claims = jwtService.parseTempToken(tempToken);
 
         if (userRepository.existsByHandle(handle)) {
@@ -201,7 +199,7 @@ public class AuthService {
         return !userRepository.existsByHandle(handle);
     }
 
-    private AuthResponse issueTokens(User user) {
+    private AuthResult issueTokens(User user) {
         String accessToken = jwtService.generateAccessToken(
             user.getId(), user.getEmail(), user.getHandle()
         );
@@ -212,12 +210,6 @@ public class AuthService {
         var refreshToken = new RefreshToken(user, refreshHash, expiresAt);
         refreshTokenRepository.save(refreshToken);
 
-        return new AuthResponse(
-            accessToken,
-            rawRefreshToken,
-            user.getHandle(),
-            user.getId(),
-            jwtService.getAccessTokenExpiry().toSeconds()
-        );
+        return new AuthResult(accessToken, rawRefreshToken, user.getHandle(), user.getId(), user.getEmail());
     }
 }

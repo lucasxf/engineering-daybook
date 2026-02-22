@@ -4,10 +4,13 @@ import java.util.UUID;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import com.lucasxf.ed.service.AuthResult;
+
 /**
  * Response DTO for Google OAuth login.
- * <p>
- * If the user exists, returns full auth tokens ({@code requiresHandle=false}).
+ *
+ * <p>If the user exists, tokens are delivered via {@code httpOnly} cookies and only the
+ * user identity is returned ({@code requiresHandle=false}).
  * If the user is new, returns a temp token for handle selection ({@code requiresHandle=true}).
  *
  * @author Lucas Xavier Ferreira
@@ -22,30 +25,24 @@ public record GoogleLoginResponse(
     @Schema(description = "Temporary token for completing registration (only when requiresHandle=true)")
     String tempToken,
 
-    @Schema(description = "JWT access token (only when requiresHandle=false)")
-    String accessToken,
-
-    @Schema(description = "Refresh token (only when requiresHandle=false)")
-    String refreshToken,
-
     @Schema(description = "User handle (only when requiresHandle=false)")
     String handle,
 
     @Schema(description = "User ID (only when requiresHandle=false)")
     UUID userId,
 
-    @Schema(description = "Access token expiry in seconds (only when requiresHandle=false)")
-    Long expiresIn
+    @Schema(description = "User email address (only when requiresHandle=false)")
+    String email
 ) {
 
     /**
      * Creates a response for an existing Google user (returning user).
+     * Tokens are delivered via cookies by the controller.
      */
-    public static GoogleLoginResponse existingUser(AuthResponse authResponse) {
+    public static GoogleLoginResponse existingUser(AuthResult authResult) {
         return new GoogleLoginResponse(
             false, null,
-            authResponse.accessToken(), authResponse.refreshToken(),
-            authResponse.handle(), authResponse.userId(), authResponse.expiresIn()
+            authResult.handle(), authResult.userId(), authResult.email()
         );
     }
 
@@ -53,9 +50,6 @@ public record GoogleLoginResponse(
      * Creates a response for a new Google user who needs to choose a handle.
      */
     public static GoogleLoginResponse newUser(String tempToken) {
-        return new GoogleLoginResponse(
-            true, tempToken,
-            null, null, null, null, null
-        );
+        return new GoogleLoginResponse(true, tempToken, null, null, null);
     }
 }

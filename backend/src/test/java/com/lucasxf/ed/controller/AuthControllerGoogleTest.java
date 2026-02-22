@@ -1,10 +1,14 @@
 package com.lucasxf.ed.controller;
 
+import java.util.UUID;
+
+import com.lucasxf.ed.config.AuthProperties;
 import com.lucasxf.ed.config.CorsProperties;
-import com.lucasxf.ed.dto.AuthResponse;
-import com.lucasxf.ed.dto.GoogleLoginResponse;
+import com.lucasxf.ed.security.CookieHelper;
 import com.lucasxf.ed.security.SecurityConfig;
+import com.lucasxf.ed.service.AuthResult;
 import com.lucasxf.ed.service.AuthService;
+import com.lucasxf.ed.service.GoogleLoginResult;
 import com.lucasxf.ed.service.JwtService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -17,8 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.UUID;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -32,8 +35,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @since 2026-02-13
  */
 @WebMvcTest(AuthController.class)
-@Import(SecurityConfig.class)
-@EnableConfigurationProperties(CorsProperties.class)
+@Import({SecurityConfig.class, CookieHelper.class})
+@EnableConfigurationProperties({CorsProperties.class, AuthProperties.class})
 @DisplayName("AuthController — Google OAuth")
 class AuthControllerGoogleTest {
 
@@ -47,19 +50,19 @@ class AuthControllerGoogleTest {
     private JwtService jwtService;
 
     private static final UUID USER_ID = UUID.randomUUID();
+    private static final AuthResult AUTH_RESULT = new AuthResult(
+        "access-token", "refresh-token", "alice", USER_ID, "alice@example.com"
+    );
 
     @Nested
     @DisplayName("POST /api/v1/auth/google")
     class GoogleLogin {
 
         @Test
-        @DisplayName("should return 200 with auth tokens for existing Google user")
+        @DisplayName("should return 200 with user info + cookies for existing Google user")
         void googleLogin_existingUser() throws Exception {
-            var authResponse = new AuthResponse(
-                "access-token", "refresh-token", "alice", USER_ID, 900
-            );
             when(authService.googleLogin("valid-id-token"))
-                .thenReturn(GoogleLoginResponse.existingUser(authResponse));
+                .thenReturn(new GoogleLoginResult.ExistingUser(AUTH_RESULT));
 
             mockMvc.perform(post("/api/v1/auth/google")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -68,15 +71,18 @@ class AuthControllerGoogleTest {
                         """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.requiresHandle").value(false))
-                .andExpect(jsonPath("$.accessToken").value("access-token"))
-                .andExpect(jsonPath("$.handle").value("alice"));
+                .andExpect(jsonPath("$.handle").value("alice"))
+                .andDo(result -> {
+                    var cookies = result.getResponse().getHeaders("Set-Cookie");
+                    assertThat(cookies).anyMatch(c -> c.contains("access_token="));
+                });
         }
 
         @Test
-        @DisplayName("should return 200 with temp token for new Google user")
+        @DisplayName("should return 200 with temp token for new Google user (no cookies)")
         void googleLogin_newUser() throws Exception {
             when(authService.googleLogin("valid-id-token"))
-                .thenReturn(GoogleLoginResponse.newUser("temp-token-123"));
+                .thenReturn(new GoogleLoginResult.NewUser("temp-token-123"));
 
             mockMvc.perform(post("/api/v1/auth/google")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -85,8 +91,7 @@ class AuthControllerGoogleTest {
                         """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.requiresHandle").value(true))
-                .andExpect(jsonPath("$.tempToken").value("temp-token-123"))
-                .andExpect(jsonPath("$.accessToken").doesNotExist());
+                .andExpect(jsonPath("$.tempToken").value("temp-token-123"));
         }
 
         @Test
@@ -133,13 +138,13 @@ class AuthControllerGoogleTest {
     class CompleteGoogleSignup {
 
         @Test
-        @DisplayName("should return 200 with auth tokens on successful signup")
+        @DisplayName("should return 200 with user info + cookies on successful signup")
         void complete_success() throws Exception {
-            var authResponse = new AuthResponse(
-                "access-token", "refresh-token", "bobsmith", USER_ID, 900
+            AuthResult result = new AuthResult(
+                "access-token", "refresh-token", "bobsmith", USER_ID, "bob@example.com"
             );
             when(authService.completeGoogleSignup("temp-token", "bobsmith", "Bob Smith"))
-                .thenReturn(authResponse);
+                .thenReturn(result);
 
             mockMvc.perform(post("/api/v1/auth/google/complete")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -151,8 +156,12 @@ class AuthControllerGoogleTest {
                         }
                         """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").value("access-token"))
-                .andExpect(jsonPath("$.handle").value("bobsmith"));
+                .andExpect(jsonPath("$.handle").value("bobsmith"))
+                .andDo(r -> {
+                    var cookies = r.getResponse().getHeaders("Set-Cookie");
+                    assertThat(cookies).anyMatch(c -> c.contains("access_token="));
+                    assertThat(cookies).anyMatch(c -> c.contains("refresh_token="));
+                });
         }
 
         @Test

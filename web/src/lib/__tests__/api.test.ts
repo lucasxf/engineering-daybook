@@ -1,15 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { apiFetch, apiPublicFetch, ApiRequestError, configureApiAuth } from '../api';
+import { apiFetch, apiPublicFetch, ApiRequestError } from '../api';
 
 const mockFetch = vi.fn();
 
 beforeEach(() => {
   mockFetch.mockReset();
   vi.stubGlobal('fetch', mockFetch);
-  configureApiAuth(
-    () => null,
-    async () => null
-  );
 });
 
 afterEach(() => {
@@ -36,6 +32,7 @@ describe('apiPublicFetch', () => {
         headers: expect.objectContaining({
           'Content-Type': 'application/json',
         }),
+        credentials: 'include',
       })
     );
     expect(result).toEqual({ data: 'test' });
@@ -71,12 +68,7 @@ describe('apiPublicFetch', () => {
 });
 
 describe('apiFetch', () => {
-  it('attaches Bearer token when available', async () => {
-    configureApiAuth(
-      () => 'test-token',
-      async () => null
-    );
-
+  it('sends request with credentials:include and no Authorization header', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       status: 200,
@@ -88,29 +80,28 @@ describe('apiFetch', () => {
     expect(mockFetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
-        headers: expect.objectContaining({
-          Authorization: 'Bearer test-token',
-        }),
+        credentials: 'include',
       })
     );
+    const headers = mockFetch.mock.calls[0][1].headers as Record<string, string>;
+    expect(headers['Authorization']).toBeUndefined();
   });
 
-  it('retries on 401 with refreshed token', async () => {
-    const newToken = 'refreshed-token';
-    configureApiAuth(
-      () => 'expired-token',
-      async () => newToken
-    );
-
-    // First call returns 401
+  it('retries on 401 after silent refresh succeeds via cookie', async () => {
+    // First call: original request → 401
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 401,
       statusText: 'Unauthorized',
       json: async () => ({ message: 'Token expired' }),
     });
-
-    // Retry after refresh returns 200
+    // Second call: POST /auth/refresh → 200 (sets new cookie)
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({}),
+    });
+    // Third call: retry original request → 200
     mockFetch.mockResolvedValueOnce({
       ok: true,
       status: 200,
@@ -119,27 +110,29 @@ describe('apiFetch', () => {
 
     const result = await apiFetch('/poks');
 
-    expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(mockFetch).toHaveBeenCalledTimes(3);
     expect(result).toEqual({ data: 'success' });
-
-    // Second call should use the refreshed token
-    const secondCallHeaders = mockFetch.mock.calls[1][1].headers;
-    expect(secondCallHeaders.Authorization).toBe(`Bearer ${newToken}`);
+    // Second call must be the refresh endpoint
+    expect(mockFetch.mock.calls[1][0]).toContain('/auth/refresh');
   });
 
-  it('throws when 401 retry also fails', async () => {
-    configureApiAuth(
-      () => 'expired-token',
-      async () => null // refresh fails
-    );
-
+  it('throws when 401 persists after silent refresh fails', async () => {
+    // Original request → 401
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 401,
       statusText: 'Unauthorized',
       json: async () => ({ message: 'Token expired' }),
     });
+    // Refresh → 401 (refresh token expired)
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 401,
+      statusText: 'Unauthorized',
+      json: async () => ({}),
+    });
 
     await expect(apiFetch('/poks')).rejects.toThrow(ApiRequestError);
+    expect(mockFetch).toHaveBeenCalledTimes(2);
   });
 });

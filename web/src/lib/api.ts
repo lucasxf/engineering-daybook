@@ -1,24 +1,6 @@
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
 
-type TokenGetter = () => string | null;
-type TokenRefresher = () => Promise<string | null>;
-
-let getAccessToken: TokenGetter = () => null;
-let refreshAccessToken: TokenRefresher = async () => null;
-
-/**
- * Configures the API client with auth token functions.
- * Called by AuthProvider on mount.
- */
-export function configureApiAuth(
-  getter: TokenGetter,
-  refresher: TokenRefresher
-): void {
-  getAccessToken = getter;
-  refreshAccessToken = refresher;
-}
-
 export class ApiRequestError extends Error {
   status: number;
 
@@ -39,38 +21,46 @@ async function parseErrorMessage(response: Response): Promise<string> {
 }
 
 /**
- * Makes an authenticated API request with automatic token refresh on 401.
+ * Attempts a silent token refresh via the refresh_token cookie.
+ * Returns true if the backend issued a new access_token cookie.
+ */
+async function silentRefresh(): Promise<boolean> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Makes an authenticated API request. Cookies are sent automatically.
+ * On 401, attempts a silent token refresh once and retries.
  */
 export async function apiFetch<T>(
   path: string,
   options: RequestInit = {}
 ): Promise<T> {
   const url = `${API_BASE_URL}${path}`;
-
-  const makeRequest = (token: string | null): Promise<Response> => {
-    const headers: Record<string, string> = {
+  const requestInit: RequestInit = {
+    ...options,
+    headers: {
       'Content-Type': 'application/json',
       ...((options.headers as Record<string, string>) || {}),
-    };
-
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    return fetch(url, {
-      ...options,
-      headers,
-      credentials: 'include',
-    });
+    },
+    credentials: 'include',
   };
 
-  let response = await makeRequest(getAccessToken());
+  let response = await fetch(url, requestInit);
 
-  // On 401, try refreshing the token once and retry
+  // On 401, try refreshing the access token once via cookie and retry
   if (response.status === 401) {
-    const newToken = await refreshAccessToken();
-    if (newToken) {
-      response = await makeRequest(newToken);
+    const refreshed = await silentRefresh();
+    if (refreshed) {
+      response = await fetch(url, requestInit);
     }
   }
 
