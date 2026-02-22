@@ -64,7 +64,7 @@ The project follows an iterative development approach, prioritizing a functional
 | 1.1.2 | User login (email/password) | Must Have | ✅ Backend (PR #15) + Web (PR #17) |
 | 1.1.3 | Google OAuth login | Must Have | ✅ Backend + Web (PR #20) |
 | 1.1.4 | JWT session management | Must Have | ✅ Backend (PR #15) + Web (PR #17) |
-| 1.1.5 | Password reset flow | Should Have | ⏳ Pending (separate spec) |
+| 1.1.5 | Password reset flow | Should Have | ✅ Implemented (2026-02-21) |
 
 #### Milestone 1.2: POK CRUD
 
@@ -113,6 +113,8 @@ The project follows an iterative development approach, prioritizing a functional
 
 ⏳ Pending: Author using app for 1+ week (Phase 1 exit criterion)
 
+> **Next priority: Milestone 1.7 UX Review** — Password reset (1.1.5) is complete. The remaining blocker for Phase 1 exit is resolving the critical friction issues in Milestone 1.7 (session persistence, post-login redirect, home page for guests, clickable logo, single-column feed). These must be addressed before the 1-week usage clock can meaningfully restart.
+
 #### Production Bug Fix (2026-02-20)
 
 | # | Task | Priority | Status |
@@ -145,18 +147,18 @@ The project follows an iterative development approach, prioritizing a functional
 | # | Issue | Req | Status |
 |---|-------|-----|--------|
 | 1.7.1 | Session lost on F5/refresh — JWT in `useRef` (in-memory only) | AUTH-04 | ⏳ Needs spec (ADR-007) |
-| 1.7.2 | Home page is an empty "Get Started" screen — guests should see login form directly | USE-10 | ⏳ Planned |
-| 1.7.3 | Post-login lands on home, not feed — extra click to reach learnings | USE-06 | ⏳ Planned |
-| 1.7.4 | "learnimo" title in header not clickable — should link to feed (auth) or home (guest) | USE-07 | ⏳ Planned |
-| 1.7.5 | Feed uses multi-column grid — should be single-column vertical, LIFO | USE-08 | ⏳ Planned |
+| 1.7.2 | Home page is an empty "Get Started" screen — guests should see login form directly | USE-10 | ✅ Done (chore/mvp-ux-review) |
+| 1.7.3 | Post-login lands on home, not feed — extra click to reach learnings | USE-06 | ✅ Done (chore/mvp-ux-review) |
+| 1.7.4 | "learnimo" title in header not clickable — should link to feed (auth) or home (guest) | USE-07 | ✅ Done (chore/mvp-ux-review) |
+| 1.7.5 | Feed uses multi-column grid — should be single-column vertical, LIFO | USE-08 | ✅ Done (chore/mvp-ux-review) |
 
 **Moderate (improves experience, can ship iteratively):**
 
 | # | Issue | Req | Status |
 |---|-------|-----|--------|
 | 1.7.6 | General visual quality — UI looks like a raw form | — | ⏳ Needs design pass |
-| 1.7.7 | No inline quick-entry — "New Learning" navigates to separate page | USE-09 | ⏳ Planned |
-| 1.7.8 | Google login button styling — white borders/margins clash with blue background | — | ⏳ Planned |
+| 1.7.7 | No inline quick-entry — "New Learning" navigates to separate page | USE-09 | ✅ Done — Phase A (chore/mvp-ux-review) |
+| 1.7.8 | Google login button styling — white borders/margins clash with blue background | — | ✅ Done (chore/mvp-ux-review) |
 
 **Notes:**
 - 1.7.1–1.7.5 must be resolved before Phase 1 exit criterion can be satisfied
@@ -613,3 +615,5 @@ This is a living document. Update it as the project evolves.
 | 2.6 | 2026-02-20 | Lucas Xavier Ferreira | Milestone 2.1 complete — POK editing, deletion, and audit trail implemented (feat/pok-audit-trail); frontend history view (FR18-FR20) deferred; Toast component added; `/finish-session` command updated with unused import checks |
 | 2.7 | 2026-02-21 | Lucas Xavier Ferreira | Added Milestone 1.7 (MVP UX Review, 8 items); quick-entry design decision; UI tooling recommendation; 6.3.7 (clickable handle + avatar); cross-referenced 2.4.2 with 1.7.7 |
 | 2.8 | 2026-02-21 | Lucas Xavier Ferreira | Added JaCoCo code coverage to backend CI pipeline (PR #57) — 90% line coverage threshold enforced; added JwtAuthenticationFilterTest and GlobalExceptionHandlerTest to close coverage gap; backend coverage 86% → 93.9% |
+| 2.9 | 2026-02-21 | Lucas Xavier Ferreira | Milestone 1.1.5 complete — Password reset implemented end-to-end: V7 Flyway migration, PasswordResetToken entity + repo, EmailService (SMTP/Resend), PasswordResetService (12 unit tests), PasswordResetController (3 endpoints, 12 MockMvc tests), GlobalExceptionHandler fix; web: ForgotPasswordForm + ResetPasswordForm components, 2 new pages, LoginForm "Forgot password?" link, reset=success banner, i18n keys (EN/PT-BR), 19 new Vitest tests, all 177 tests pass |
+| 3.0 | 2026-02-22 | Lucas Xavier Ferreira | Claude Code tooling improvements — `/review-pr` gained §3A.5 "Coverage Failures" with JaCoCo-first path (reads `jacoco.xml` via Python before running tests locally); new `steward` agent parses JaCoCo XML, identifies highest-missed-line classes, writes targeted JUnit 5 tests, and confirms threshold via `mvn verify`; `/finish-session` now checks LINE coverage against 90% threshold after `mvn verify` and blocks commit + delegates to `steward` if below |

@@ -12,7 +12,7 @@ interface PokListProps {
  * List component for displaying POKs in a responsive grid layout.
  *
  * Features:
- * - Responsive grid (1 col mobile, 2 cols tablet, 3 cols desktop)
+ * - Single-column vertical layout (LIFO chronological reading)
  * - Maps POKs to PokCard components
  * - Shows EmptyState when no POKs
  *
@@ -24,7 +24,7 @@ export function PokList({ poks }: PokListProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="flex flex-col gap-4">
       {poks.map((pok) => (
         <PokCard key={pok.id} pok={pok} />
       ))}

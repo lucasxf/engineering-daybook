@@ -1,8 +1,8 @@
 # Password Reset Flow
 
-> **Status:** Approved
+> **Status:** Implemented
 > **Created:** 2026-02-21
-> **Implemented:** _pending_
+> **Implemented:** 2026-02-21
 
 ---
 
@@ -334,7 +334,36 @@ This spec implements a secure, time-limited, self-service reset flow: the user p
 
 ## Post-Implementation Notes
 
-> _This section is filled AFTER implementation._
+### Commits
+
+| Commit | Description |
+|--------|-------------|
+| `fa83214` | feat: add V7 Flyway migration for password_reset_tokens table |
+| `5dc9609` | feat: add password reset domain, exception, and configuration |
+| `4ce0921` | feat: add EmailService and PasswordResetService (TDD, 12 tests) |
+| `5835953` | feat: add PasswordResetController with MockMvc tests (12 tests green) |
+| `6e1877c` | feat: add password reset web pages (forgot-password, reset-password) |
+| `f3e76f6` | test: add Vitest tests for password reset web pages (19 new assertions) |
+
+### Architectural Decisions
+
+- **Token reuse pattern:** Reused `JwtService.generateRefreshToken()` (32-byte SecureRandom, URL-safe Base64) and `JwtService.hashRefreshToken()` (SHA-256 hex) for reset tokens — same cryptographic pattern as refresh tokens, no new infrastructure.
+- **Rate limiting via DB count:** Chose DB-level rate limiting (`countByUserIdAndCreatedAtAfter`) over Redis/in-memory to keep the implementation simple and infrastructure-free. 3 requests per hour per email.
+- **No IP-level rate limiting (AC12):** Deferred — no existing infrastructure for IP tracking in the codebase.
+- **`MissingServletRequestParameterException` → 400:** Added to `GlobalExceptionHandler` as a general improvement triggered by the missing-token test case.
+- **Frontend token validation on page load:** `reset-password` page calls `GET /validate` on mount (non-consuming) so stale links show an immediate error rather than a failed form submission.
+- **No-enumeration on frontend:** `ForgotPasswordForm` always shows the success message even when the API call throws — prevents email enumeration via UI timing attacks.
+
+### Deviations from Spec
+
+- **IP rate limiting (NFR5/AC12):** Not implemented — no existing infrastructure. Documented as deferred.
+- **Email integration test:** Integration test with Testcontainers was planned but not implemented — the service unit tests with Mockito cover all branches. Email delivery is an infrastructure concern not suited to unit/integration tests without an SMTP mock server.
+
+### Lessons Learned
+
+- **Duplicate YAML `spring:` keys:** Adding `spring.mail.*` as a separate top-level `spring:` block causes SnakeYAML parse failure at context load time. Always merge under a single `spring:` block.
+- **Java record expansion:** Adding a field to an existing record (`AuthProperties`) breaks all constructor calls in tests — update all callers immediately after the change.
+- **`MissingServletRequestParameterException` needs explicit handler:** Spring doesn't automatically map this to 400 in `@RestControllerAdvice` setups without `ResponseEntityExceptionHandler` — add explicit handler.
 
 ### Commits
 

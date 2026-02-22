@@ -40,7 +40,7 @@ class JwtServiceTest {
     @BeforeEach
     void setUp() {
         var jwtProps = new JwtProperties(SECRET, Duration.ofMinutes(15), Duration.ofDays(7));
-        var authProps = new AuthProperties(jwtProps, null);
+        var authProps = new AuthProperties(jwtProps, null, null);
         jwtService = new JwtService(authProps);
     }
 
@@ -94,7 +94,7 @@ class JwtServiceTest {
         var otherProps = new AuthProperties(
             new JwtProperties("other-secret-that-is-also-256-bits-long-for-hs256-signing-algorithm",
                 Duration.ofMinutes(15), Duration.ofDays(7)),
-            null
+            null, null
         );
         var otherService = new JwtService(otherProps);
 
@@ -108,7 +108,7 @@ class JwtServiceTest {
     void isTokenValid_expiredToken() {
         var shortProps = new AuthProperties(
             new JwtProperties(SECRET, Duration.ofMillis(1), Duration.ofDays(7)),
-            null
+            null, null
         );
         var shortService = new JwtService(shortProps);
 
