@@ -1,11 +1,11 @@
 ---
-name: coverage-fixer
+name: steward
 description: Use this agent when backend test coverage is below the JaCoCo threshold. It reads the existing jacoco.xml report, identifies the classes with the most missed lines, writes targeted JUnit 5 unit tests to close the gap, and confirms coverage passes with mvn verify. Triggered automatically by /finish-session when line coverage is below 90%.
 model: sonnet
 color: red
 ---
 
-# Coverage Fixer Agent
+# Steward Agent
 
 **Purpose:** Analyze JaCoCo coverage gaps and write targeted tests to bring line coverage above the project threshold (90%).
 

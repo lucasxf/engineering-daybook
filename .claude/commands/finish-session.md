@@ -45,7 +45,7 @@ for c in root.findall('counter[@type=\"LINE\"]'):
 
 **If output contains `BELOW_THRESHOLD`:**
 - Do NOT proceed to docs or commit
-- Delegate to the `coverage-fixer` agent with full context:
+- Delegate to the `steward` agent with full context:
   - Current coverage percentage
   - Path to `backend/target/site/jacoco/jacoco.xml`
   - The failing threshold (90%)
