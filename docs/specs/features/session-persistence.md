@@ -1,6 +1,6 @@
 # Session Persistence
 
-> **Status:** Draft
+> **Status:** In Progress
 > **Created:** 2026-02-22
 > **Implemented:** _pending_
 
