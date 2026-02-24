@@ -17,7 +17,7 @@ This document defines the functional and non-functional requirements for the lea
 | AUTH-05 | User can sign out from all devices | Could Have | Post-MVP |
 | AUTH-06 | User can enable Multi-Factor Authentication (MFA) | Should Have | Evolution |
 
-> **Implementation gap (2026-02-21):** AUTH-04 is listed as Must Have / MVP but is NOT YET IMPLEMENTED. JWT tokens are currently stored in React `useRef` (in-memory only) and are lost on page refresh. Must be resolved in Milestone 1.7. Target: `httpOnly` cookie with `SameSite=Strict` (see ADR-007 in ARCHITECTURE.md).
+> **Status note (2026-02-24):** AUTH-04 (session persistence across restarts) is implemented using cookie-based session persistence with `httpOnly` cookies and `SameSite=Strict`, as specified in ADR-007 in ARCHITECTURE.md. This fulfills the original MVP requirement.
 
 ---
 
