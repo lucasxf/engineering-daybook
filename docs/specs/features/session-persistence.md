@@ -58,7 +58,7 @@ The scope of this milestone (1.7.1) is the **web application only**. The mobile 
   Both the access token cookie and the refresh token cookie must have the `HttpOnly` flag set. Neither token must be readable by JavaScript (`document.cookie` must not expose them).
 
 - [x] **NFR2 — CSRF mitigation via SameSite=Strict** `Must Have`
-  Both cookies must have `SameSite=Strict` set. This ensures cookies are not sent on cross-site requests, neutralising CSRF attacks without requiring a separate CSRF token for standard flows.
+  Both cookies must have `SameSite=Strict` set. This significantly reduces CSRF risk for same-site web flows by ensuring cookies are not sent on cross-site requests. If any authenticated cross-site use case is introduced (for example, relaxing `SameSite` to `Lax` or `None`, or embedding flows in third-party contexts), a separate CSRF protection mechanism (such as a CSRF token) must be added in addition to SameSite.
 
 - [x] **NFR3 — HTTPS-only in production** `Must Have`
   Both cookies must have the `Secure` flag in any non-local environment (production, staging). In local development (`localhost`), `Secure` may be omitted to allow HTTP. This must be driven by a configuration property (`auth.cookie.secure`), not hardcoded.
@@ -178,7 +178,7 @@ Login flow (new):
 
 Session restoration (on every page load):
   1. Browser auto-sends access_token cookie with GET /api/v1/users/me
-  2. JwtAuthFilter extracts token from cookie → validates
+  2. JwtAuthenticationFilter extracts token from cookie → validates
   3. If valid: 200 OK + user data → AuthContext sets user state
   4. If 401: frontend calls POST /api/v1/auth/refresh (browser sends refresh_token cookie)
      a. If refresh succeeds: new access_token cookie set, retry /users/me
@@ -218,7 +218,7 @@ Logout flow (new):
 
 8. **`application.yml`** — add `auth.cookie.secure: false` (local); production Railway env var `AUTH_COOKIE_SECURE=true`.
 
-9. **`SecurityConfig.java`** — CORS is already configured with `allowCredentials: true`. Verify `allowedOriginPatterns` is set (required when `allowCredentials=true` — `allowedOrigins: *` is not allowed). No other changes needed. CSRF remains disabled (SameSite=Strict handles CSRF for web).
+9. **`SecurityConfig.java`** — CORS is already configured with `allowCredentials: true`. Ensure `setAllowedOrigins(...)` is configured with an explicit allowlist of trusted origins (no `*` when `allowCredentials=true`). Only use `setAllowedOriginPatterns(...)` if pattern matching is actually needed, and in that case avoid wildcard patterns that effectively allow all origins. No other changes needed. CSRF remains disabled (SameSite=Strict handles CSRF for web).
 
 **Frontend — Key Changes:**
 

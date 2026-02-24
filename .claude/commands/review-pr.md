@@ -83,6 +83,57 @@ gh pr edit $PR_NUMBER --repo $REPO --title "<meaningful title>" --body "<generat
 
 **If the description is already comprehensive:** Skip this step and proceed.
 
+## 1C. Validate Description Accuracy (Staleness Check)
+
+> **Why this matters:** When multiple feature branches are merged into `develop` over time, the `develop → main` PR description may have been written early and no longer reflects what's actually in the PR. Always verify accuracy, not just completeness.
+
+**Get the current commits and description:**
+
+```bash
+# List all commits in the PR (not just the latest)
+gh api repos/$REPO/pulls/$PR_NUMBER/commits --jq '[.[].commit.message] | join("\n")'
+
+# Also get the diff summary to see what files are actually changed
+gh pr diff $PR_NUMBER --stat
+```
+
+**Evaluate description accuracy:**
+
+A PR description is considered **stale or inaccurate** if any of these are true:
+- It mentions features or changes that are NOT in the current diff (were reverted or moved to another PR)
+- It omits significant areas of change visible in the commit history or diff
+- It describes the PR as a single-feature branch but the commits show it's an aggregated merge (e.g., `develop → main` with many unrelated features)
+- The title says "feat: X" but commits include fixes, refactors, or other unrelated features
+
+**If the description is stale or inaccurate:**
+
+1. Draft a replacement that accurately reflects the FULL set of commits:
+
+```markdown
+## Summary
+
+- [One bullet per significant area, derived from commits/diff — not copy-pasted from old description]
+
+## Included changes
+- [List key commits or groups of commits]
+
+## Test plan
+- [ ] CI/CD passes
+- [ ] [Feature-specific checks]
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+```
+
+2. Update the PR:
+
+```bash
+gh pr edit $PR_NUMBER --body "<new description>"
+```
+
+3. Inform the user: "PR #XX description was stale — I've updated it to reflect the actual commits."
+
+**If the description accurately reflects the current state of the PR:** Skip and proceed.
+
 ---
 
 ## 2. Check CI/CD Pipeline Status
