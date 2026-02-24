@@ -7,7 +7,7 @@
 
 ## Project Overview
 
-**learnimo (ED)** is a personal knowledge management tool for engineers to capture, organize, and recall daily learnings.
+**learnimo (ED)** is a personal learning journal for everyone — capture, organize, and recall what you learn.
 
 - **Repository:** https://github.com/lucasxf/engineering-daybook
 - **Author:** Lucas Xavier Ferreira
