@@ -80,6 +80,10 @@ main ← develop ← feature/xxx
 
 **Quality gate:** Never commit when there are test, lint, build, or CI failures. Stop, show the error, and ask how to proceed. Only bypass if user explicitly requests it — warn clearly before proceeding.
 
+**Docker / Testcontainers gate:** Before running `mvn verify` (or any command that triggers Testcontainers integration tests), check whether Docker is running. If it is not:
+1. Attempt to start Docker Desktop: `start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"` then wait ~20 s and retry
+2. If Docker still isn't available, **stop and ask the user** — do not silently skip integration tests and proceed to commit/PR. Skipping means coverage data is incomplete and integration regressions go undetected. (Added 2026-02-25)
+
 **Main branch protection:** Never push directly to `main`. It is read-only — only pull from it. All code reaches `main` via PRs opened from `develop`. (Added 2026-02-25)
 
 **Commit format (Conventional Commits):**

@@ -123,3 +123,20 @@ cd backend
 - `@SpringBootTest` + `@ActiveProfiles("test")` → `application-test.yml` sets `flyway.enabled: false`, `ddl-auto: create-drop`
 - JaCoCo line coverage threshold: **90%** (enforced in CI via `mvn verify`)
 - Coverage report: `target/site/jacoco/jacoco.xml` (parse with Python's `xml.etree.ElementTree` for per-class line stats)
+
+### Docker / Testcontainers Rule
+
+**Never skip integration tests by proceeding when Docker is unavailable.** Always check Docker before running `mvn verify`:
+
+```bash
+docker info > /dev/null 2>&1 && echo "DOCKER_OK" || echo "DOCKER_DOWN"
+```
+
+- **DOCKER_OK** → proceed with `mvn verify`
+- **DOCKER_DOWN** → attempt to start Docker Desktop:
+  ```bash
+  start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+  sleep 20
+  docker info > /dev/null 2>&1 && echo "DOCKER_OK" || echo "DOCKER_STILL_DOWN"
+  ```
+  If still down → **stop and ask the user**. Do not commit or open a PR with integration tests silently skipped — this leaves coverage data incomplete and integration regressions undetected.
