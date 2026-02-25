@@ -8,7 +8,7 @@
 
 ## Overview
 
-learnimo is a personal learning journal for everyone. Inspired by "The Pragmatic Programmer", where engineers in traditional industries maintained physical notebooks to record daily learnings, learnimo brings that practice into the digital age — with modern search, tagging, and (eventually) AI-powered insights.
+learnimo is a personal learning journal for everyone. Inspired by "The Pragmatic Programmer", where engineers in traditional industries maintained physical notebooks called engineering daybooks to record daily learnings, learnimo brings that practice into the digital age — with modern search, tagging, and (eventually) AI-powered insights.
 
 > "A tinta mais fraca constrói pontes mais fortes que a memória mais viva."
 > — Provérbio Yorubá (Nigéria)
@@ -231,6 +231,7 @@ This is currently a personal project. Contribution guidelines will be added if/w
 - [GitHub](https://github.com/lucasxf)
 - [LinkedIn](https://www.linkedin.com/in/lucas-xavier-ferreira/)
 - [Medium](https://medium.com/@lucasxferreira)
+- [Substack](https://substack.com/@xflucas)
 
 ---
 
