@@ -621,6 +621,38 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
 git push origin $PR_BRANCH
 ```
 
+## 8.5. Extract and Save Coding Style Learnings
+
+After implementing approved fixes, review what each accepted comment taught us. For each fix that reveals a pitfall, convention, or pattern that isn't already documented, save a concise entry to the appropriate CLAUDE.md file.
+
+**Which CLAUDE.md to update:**
+
+| Fix touches | Update |
+|-------------|--------|
+| Java/Spring/Maven | `backend/CLAUDE.md` → `## Known Pitfalls` |
+| TypeScript/Next.js/React | `web/CLAUDE.md` → add a new section or extend `## Coding Conventions` |
+| Both stacks or architectural | Root `CLAUDE.md` → relevant section |
+
+**What qualifies as a learning worth saving:**
+
+- A missing annotation/config that silently breaks intended behavior (e.g., `@EnableAsync`, `@Transactional`)
+- A state-machine or data-consistency pattern the team got wrong (e.g., querying without status guard)
+- A performance anti-pattern that appears subtle but is easy to repeat (e.g., N+1 inside streams)
+- A UX/API contract gap: "field X must be populated on ALL endpoints if the UI reads it"
+- A test-mock update pattern (e.g., "when the service method signature changes, mock must change too")
+
+**What does NOT qualify:**
+
+- One-off fixes specific to a single class (not repeatable)
+- Suggestions that were Rejected or Deferred
+- Things already documented in CLAUDE.md
+
+**How to save:**
+
+Use the Edit tool to append to the `## Known Pitfalls` section (backend) or the relevant section in the target CLAUDE.md. Keep each entry to 2–4 sentences + a code example if it aids clarity.
+
+**After saving, report what was learned** in the §9 Summary under a "Coding Style Tips Saved" section.
+
 ## 9. Summary
 
 ```
@@ -648,6 +680,10 @@ Branch: $PR_BRANCH
 
 ### Requires Manual Reply (N)
 - :speech_balloon: PR comment by @reviewer — "question text..."
+
+### Coding Style Tips Saved (N)
+- :books: backend/CLAUDE.md — "@EnableAsync required for @Async to work"
+- :books: web/CLAUDE.md — "useSearchParams requires Suspense boundary for SSG"
 
 ### Commits Pushed
 - fix: resolve CI/CD pipeline failures (if applicable)

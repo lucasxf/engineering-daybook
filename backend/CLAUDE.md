@@ -102,6 +102,14 @@ cd backend
   public TagSuggestionService(@Lazy TagService tagService, ...) { ... }
   ```
 
+- **`@EnableAsync` is required for `@Async` to work:** Without `@EnableAsync` on `EdApplication` (or a `@Configuration` class), Spring silently ignores `@Async` and executes annotated methods synchronously on the calling thread. Always add `@EnableAsync` when introducing the first `@Async` method — there is no warning when it's missing.
+
+- **State-machine transitions must query by expected source state:** When implementing approve/reject (or any state transition), always query by expected status in addition to ownership (`findByIdAndUserIdAndStatus(id, userId, PENDING)`), not by identity alone. Querying only by `id + userId` allows replaying already-resolved transitions (e.g., REJECTED → approve again), creating orphaned records and contradictory history.
+
+- **Hoist repeated repository queries out of streams:** A repository call inside `stream().flatMap(...)` with fixed arguments re-executes for every element — a Java N+1 pattern. Hoist the call to a variable before the stream. For list endpoints processing N entities, pass the pre-fetched list into a private method overload rather than re-querying inside each `map`.
+
+- **List endpoints must include relationship data if the UI renders it:** Returning `List.of()` for a field like `tags` on list/search endpoints silently breaks any UI component that renders that field (e.g., `PokCard` tag badges). Verify that all fields the frontend reads are populated for every endpoint path — not just `getById`.
+
 - **Java text block (`"""`) one-liner requires content on next line:** A text block `"""..."""` where the opening `"""` and content are on the same line is a compile error. Content must start on the line *after* the opening `"""`. This also means the first character of a text block is always at the indentation of the closing `"""`.
 
   ```java
