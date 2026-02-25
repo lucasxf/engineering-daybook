@@ -193,7 +193,8 @@ public class TagController {
     public ResponseEntity<List<TagSuggestionResponse>> getSuggestions(
             @PathVariable UUID pokId,
             Authentication authentication) {
-        List<TagSuggestionResponse> suggestions = tagSuggestionService.getPendingSuggestions(pokId);
+        UUID userId = extractUserId(authentication);
+        List<TagSuggestionResponse> suggestions = tagSuggestionService.getPendingSuggestions(pokId, userId);
         return ResponseEntity.ok(suggestions);
     }
 

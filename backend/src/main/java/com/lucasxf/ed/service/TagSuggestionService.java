@@ -107,14 +107,15 @@ public class TagSuggestionService {
     // ===== getPendingSuggestions =====
 
     /**
-     * Returns all PENDING suggestions for a specific POK.
+     * Returns all PENDING suggestions for a POK owned by the authenticated user.
      *
-     * @param pokId the POK's ID
+     * @param pokId  the POK's ID
+     * @param userId the authenticated user's ID (ownership check)
      * @return list of pending suggestion responses
      */
     @Transactional(readOnly = true)
-    public List<TagSuggestionResponse> getPendingSuggestions(UUID pokId) {
-        return suggestionRepository.findByPokIdAndStatus(pokId, PokTagSuggestion.Status.PENDING)
+    public List<TagSuggestionResponse> getPendingSuggestions(UUID pokId, UUID userId) {
+        return suggestionRepository.findByPokIdAndUserIdAndStatus(pokId, userId, PokTagSuggestion.Status.PENDING)
                 .stream()
                 .map(TagSuggestionResponse::from)
                 .toList();

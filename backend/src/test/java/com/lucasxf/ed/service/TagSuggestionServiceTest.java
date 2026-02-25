@@ -148,11 +148,11 @@ class TagSuggestionServiceTest {
         // Given
         PokTagSuggestion pending = new PokTagSuggestion(pokId, userId, "kubernetes");
 
-        when(suggestionRepository.findByPokIdAndStatus(pokId, PokTagSuggestion.Status.PENDING))
+        when(suggestionRepository.findByPokIdAndUserIdAndStatus(pokId, userId, PokTagSuggestion.Status.PENDING))
                 .thenReturn(List.of(pending));
 
         // When
-        List<TagSuggestionResponse> result = tagSuggestionService.getPendingSuggestions(pokId);
+        List<TagSuggestionResponse> result = tagSuggestionService.getPendingSuggestions(pokId, userId);
 
         // Then
         assertThat(result).hasSize(1);

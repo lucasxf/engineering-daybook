@@ -226,7 +226,7 @@ class TagControllerTest {
         UUID suggestionId = UUID.randomUUID();
         TagSuggestionResponse suggestion = new TagSuggestionResponse(
                 suggestionId, pokId, "kubernetes", "PENDING");
-        when(tagSuggestionService.getPendingSuggestions(pokId)).thenReturn(List.of(suggestion));
+        when(tagSuggestionService.getPendingSuggestions(eq(pokId), any())).thenReturn(List.of(suggestion));
 
         // When/Then
         mockMvc.perform(get("/api/v1/poks/" + pokId + "/tags/suggestions")

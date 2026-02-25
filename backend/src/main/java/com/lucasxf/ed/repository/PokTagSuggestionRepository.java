@@ -27,13 +27,23 @@ public interface PokTagSuggestionRepository extends JpaRepository<PokTagSuggesti
     List<PokTagSuggestion> findByPokIdAndUserId(UUID pokId, UUID userId);
 
     /**
-     * Returns all suggestions for a POK filtered by status.
+     * Returns all suggestions for a POK filtered by status (internal use — ownership must be verified by caller).
      *
      * @param pokId  the POK's ID
      * @param status the status to filter by
      * @return list of matching suggestions
      */
     List<PokTagSuggestion> findByPokIdAndStatus(UUID pokId, Status status);
+
+    /**
+     * Returns suggestions for a POK owned by a specific user, filtered by status.
+     *
+     * @param pokId  the POK's ID
+     * @param userId the user's ID (ownership check)
+     * @param status the status to filter by
+     * @return list of matching suggestions
+     */
+    List<PokTagSuggestion> findByPokIdAndUserIdAndStatus(UUID pokId, UUID userId, Status status);
 
     /**
      * Finds a specific suggestion by ID and user.

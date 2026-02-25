@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.PokTag;
 import com.lucasxf.ed.domain.Tag;
 import com.lucasxf.ed.domain.UserTag;
@@ -281,8 +282,10 @@ class TagServiceTest {
         UUID pokId = UUID.randomUUID();
         Tag tag = new Tag("java");
         UserTag userTag = new UserTag(userId, tag, "blue");
+        Pok pok = new Pok(userId, "title", "content");
 
         when(userTagRepository.findById(any())).thenReturn(Optional.of(userTag));
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
         when(pokTagRepository.findByPokIdAndTagId(eq(pokId), any())).thenReturn(Optional.empty());
         when(pokTagRepository.save(any(PokTag.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -302,8 +305,10 @@ class TagServiceTest {
         Tag tag = new Tag("java");
         UserTag userTag = new UserTag(userId, tag, "blue");
         PokTag existing = new PokTag(pokId, tag.getId(), PokTag.Source.MANUAL);
+        Pok pok = new Pok(userId, "title", "content");
 
         when(userTagRepository.findById(any())).thenReturn(Optional.of(userTag));
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
         when(pokTagRepository.findByPokIdAndTagId(any(), any())).thenReturn(Optional.of(existing));
 
         // When — no exception, no duplicate
@@ -322,8 +327,10 @@ class TagServiceTest {
         Tag tag = new Tag("java");
         UserTag userTag = new UserTag(userId, tag, "blue");
         PokTag pokTag = new PokTag(pokId, tag.getId(), PokTag.Source.MANUAL);
+        Pok pok = new Pok(userId, "title", "content");
 
         when(userTagRepository.findById(any())).thenReturn(Optional.of(userTag));
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
         when(pokTagRepository.findByPokIdAndTagId(any(), any())).thenReturn(Optional.of(pokTag));
 
         // When
@@ -339,8 +346,10 @@ class TagServiceTest {
         UUID pokId = UUID.randomUUID();
         Tag tag = new Tag("java");
         UserTag userTag = new UserTag(userId, tag, "blue");
+        Pok pok = new Pok(userId, "title", "content");
 
         when(userTagRepository.findById(any())).thenReturn(Optional.of(userTag));
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
         when(pokTagRepository.findByPokIdAndTagId(any(), any())).thenReturn(Optional.empty());
 
         // When

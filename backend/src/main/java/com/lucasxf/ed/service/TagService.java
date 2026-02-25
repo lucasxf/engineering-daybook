@@ -13,6 +13,7 @@ import com.lucasxf.ed.domain.UserTag;
 import com.lucasxf.ed.dto.CreateTagRequest;
 import com.lucasxf.ed.dto.TagResponse;
 import com.lucasxf.ed.dto.UpdateTagRequest;
+import com.lucasxf.ed.exception.PokNotFoundException;
 import com.lucasxf.ed.exception.TagConflictException;
 import com.lucasxf.ed.exception.TagNotFoundException;
 import com.lucasxf.ed.repository.PokRepository;
@@ -175,6 +176,7 @@ public class TagService {
      */
     public void assignTag(UUID pokId, UUID userTagId, UUID userId) {
         UserTag userTag = findOwnedUserTag(userTagId, userId);
+        findOwnedPok(pokId, userId);
 
         pokTagRepository.findByPokIdAndTagId(pokId, userTag.getTag().getId())
                 .ifPresentOrElse(
@@ -196,6 +198,7 @@ public class TagService {
      */
     public void removeTag(UUID pokId, UUID userTagId, UUID userId) {
         UserTag userTag = findOwnedUserTag(userTagId, userId);
+        findOwnedPok(pokId, userId);
 
         pokTagRepository.findByPokIdAndTagId(pokId, userTag.getTag().getId())
                 .ifPresent(pokTagRepository::delete);
@@ -209,6 +212,15 @@ public class TagService {
         if (!userTag.getUserId().equals(userId)) {
             throw new TagNotFoundException("Tag not found: " + userTagId); // 403 masked as 404
         }
+        if (!userTag.isActive()) {
+            throw new TagNotFoundException("Tag not found: " + userTagId); // soft-deleted
+        }
         return userTag;
+    }
+
+    private void findOwnedPok(UUID pokId, UUID userId) {
+        pokRepository.findByIdAndDeletedAtIsNull(pokId)
+                .filter(p -> p.getUserId().equals(userId))
+                .orElseThrow(() -> new PokNotFoundException("POK not found: " + pokId));
     }
 }
