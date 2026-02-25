@@ -359,11 +359,29 @@ public class PokService {
             .toList();
     }
 
+    /**
+     * Builds the tag response list for a single POK, fetching the user's tags from the database.
+     * Use the overload that accepts a pre-fetched {@code userTags} list when processing multiple
+     * POKs in bulk to avoid N+1 queries.
+     *
+     * @param pokId  the POK's ID
+     * @param userId the owner's user ID (used to look up tags)
+     * @return list of {@link TagResponse} for the POK's assigned tags
+     */
     private List<TagResponse> buildTagResponses(UUID pokId, UUID userId) {
         List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
         return buildTagResponses(pokId, userTags);
     }
 
+    /**
+     * Builds the tag response list for a single POK from a pre-fetched list of the user's tags.
+     * Callers that process multiple POKs should fetch {@code userTags} once and pass it here
+     * to avoid issuing one query per POK (N+1 problem).
+     *
+     * @param pokId     the POK's ID
+     * @param userTags  the caller-supplied list of the user's active tags
+     * @return list of {@link TagResponse} for the POK's assigned tags
+     */
     private List<TagResponse> buildTagResponses(UUID pokId, List<UserTag> userTags) {
         return pokTagRepository.findByPokId(pokId).stream()
                 .map(PokTag::getTagId)
