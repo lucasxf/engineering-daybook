@@ -117,6 +117,9 @@ If a layer was not touched this session, skip it entirely.
 
 ## 2. Update Phase File and Archive Completed Milestones (REQUIRED - Delegate to tech-writer)
 
+> ⚠️ **ROADMAP.md is an index only.** Never write milestone details into it.
+> All milestone updates go in `docs/ROADMAP.phase-{N}.md` only.
+
 **Determine session context:**
 - If `$ARGUMENTS` contains sufficient details → Use it directly
 - If `$ARGUMENTS` is empty/vague → Ask user: "What was completed this session?"
