@@ -102,23 +102,30 @@ Then run the unused import check (Java compiler does not catch these — Checkst
 
 **E2E coverage gate — Web new flows:**
 
-After vitest, check if any new user-facing flows were added this session:
+After vitest, detect new pages/routes in the **current working tree** (staged, unstaged, and untracked):
 ```bash
-# New pages added under web/src/app/ (new directories = new routes)
-git diff --name-only HEAD~10..HEAD -- 'web/src/app/**' 2>/dev/null | grep -v '__tests__' | head -20
+# Staged new pages
+git diff --cached --name-only -- 'web/src/app/**' 2>/dev/null | grep 'page\.tsx$' | grep -v '__tests__'
+# Unstaged new pages
+git diff --name-only -- 'web/src/app/**' 2>/dev/null | grep 'page\.tsx$' | grep -v '__tests__'
+# Untracked new pages (brand-new files not yet staged)
+git ls-files --others --exclude-standard 'web/src/app/**' 2>/dev/null | grep 'page\.tsx$' | grep -v '__tests__'
 ```
 
-If new pages or routes were added, verify that corresponding E2E tests exist in `web/e2e/`:
+If any new `page.tsx` files appear, also check whether E2E spec files were **touched this session**:
 ```bash
-ls web/e2e/*.spec.ts 2>/dev/null
+# E2E specs staged or unstaged in working tree
+git diff --cached --name-only -- 'web/e2e/**' 2>/dev/null
+git diff --name-only -- 'web/e2e/**' 2>/dev/null
+git ls-files --others --exclude-standard 'web/e2e/**' 2>/dev/null
 ```
 
 **E2E coverage rules:**
-- New page/route (`web/src/app/[locale]/*/page.tsx`) → must have at least one E2E scenario in `web/e2e/`
+- New page/route (`web/src/app/[locale]/*/page.tsx`) → at least one E2E spec file must have been added or modified this session
 - New multi-step user flow (create/edit/delete/auth) → must have an E2E test covering the happy path
 - Minor UI-only changes (styling, copy, icons) → E2E not required
 
-**If E2E tests are missing for a new flow: STOP.** Do not commit. Inform the user:
+**If new pages detected but no E2E spec was touched: STOP.** Do not commit. Inform the user:
 > "New page/flow detected but no E2E test found in `web/e2e/`. Add a Playwright test before committing. See `web/CLAUDE.md` for the mock API pattern."
 
 Exceptions: user can explicitly say "skip E2E for this session" — warn and proceed.
