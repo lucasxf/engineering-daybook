@@ -53,4 +53,15 @@ public interface PokTagSuggestionRepository extends JpaRepository<PokTagSuggesti
      * @return the suggestion, if owned by the user
      */
     Optional<PokTagSuggestion> findByIdAndUserId(UUID id, UUID userId);
+
+    /**
+     * Finds a specific suggestion by ID, user, and status.
+     * Used to enforce that only PENDING suggestions can be approved or rejected.
+     *
+     * @param id     the suggestion's ID
+     * @param userId the user's ID (ownership check)
+     * @param status the expected status
+     * @return the suggestion, if it matches all criteria
+     */
+    Optional<PokTagSuggestion> findByIdAndUserIdAndStatus(UUID id, UUID userId, Status status);
 }

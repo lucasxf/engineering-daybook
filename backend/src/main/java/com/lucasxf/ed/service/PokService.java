@@ -17,6 +17,7 @@ import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.PokAuditLog;
 import com.lucasxf.ed.domain.PokAuditLog.Action;
 import com.lucasxf.ed.domain.PokTag;
+import com.lucasxf.ed.domain.UserTag;
 import com.lucasxf.ed.dto.CreatePokRequest;
 import com.lucasxf.ed.dto.PokAuditLogResponse;
 import com.lucasxf.ed.dto.PokResponse;
@@ -137,7 +138,8 @@ public class PokService {
 
         log.debug("Found {} POKs for user {}", poks.getTotalElements(), userId);
 
-        return poks.map(PokResponse::from);
+        List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
+        return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()));
     }
 
     /**
@@ -205,7 +207,8 @@ public class PokService {
 
         log.debug("Found {} POKs matching search criteria for user {}", poks.getTotalElements(), userId);
 
-        return poks.map(PokResponse::from);
+        List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
+        return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()));
     }
 
     /**
@@ -357,9 +360,14 @@ public class PokService {
     }
 
     private List<TagResponse> buildTagResponses(UUID pokId, UUID userId) {
+        List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
+        return buildTagResponses(pokId, userTags);
+    }
+
+    private List<TagResponse> buildTagResponses(UUID pokId, List<UserTag> userTags) {
         return pokTagRepository.findByPokId(pokId).stream()
                 .map(PokTag::getTagId)
-                .flatMap(tagId -> userTagRepository.findByUserIdAndDeletedAtIsNull(userId).stream()
+                .flatMap(tagId -> userTags.stream()
                         .filter(ut -> ut.getTag().getId() != null && ut.getTag().getId().equals(tagId)))
                 .map(TagResponse::from)
                 .toList();

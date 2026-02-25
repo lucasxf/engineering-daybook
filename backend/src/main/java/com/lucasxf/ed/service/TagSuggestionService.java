@@ -179,7 +179,7 @@ public class TagSuggestionService {
     // ===== helpers =====
 
     private PokTagSuggestion findOwnedSuggestion(UUID suggestionId, UUID userId) {
-        return suggestionRepository.findByIdAndUserId(suggestionId, userId)
+        return suggestionRepository.findByIdAndUserIdAndStatus(suggestionId, userId, PokTagSuggestion.Status.PENDING)
                 .orElseThrow(() -> new TagNotFoundException("Suggestion not found: " + suggestionId));
     }
 

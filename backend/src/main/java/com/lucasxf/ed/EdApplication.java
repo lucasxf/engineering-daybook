@@ -3,6 +3,7 @@ package com.lucasxf.ed;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
  * Main entry point for Engineering Daybook backend.
@@ -15,6 +16,7 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
  */
 @SpringBootApplication
 @ConfigurationPropertiesScan
+@EnableAsync
 public class EdApplication {
 
     public static void main(String[] args) {

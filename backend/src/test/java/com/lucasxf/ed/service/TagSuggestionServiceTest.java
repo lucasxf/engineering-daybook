@@ -169,7 +169,7 @@ class TagSuggestionServiceTest {
         Tag tag = new Tag("kubernetes");
         PokTagSuggestion suggestion = new PokTagSuggestion(pokId, userId, "kubernetes");
 
-        when(suggestionRepository.findByIdAndUserId(suggestionId, userId))
+        when(suggestionRepository.findByIdAndUserIdAndStatus(suggestionId, userId, PokTagSuggestion.Status.PENDING))
                 .thenReturn(Optional.of(suggestion));
         when(tagRepository.findByNameIgnoreCase("kubernetes")).thenReturn(Optional.of(tag));
         when(pokTagRepository.findByPokIdAndTagId(any(), any())).thenReturn(Optional.empty());
@@ -193,7 +193,7 @@ class TagSuggestionServiceTest {
         PokTagSuggestion suggestion = new PokTagSuggestion(pokId, userId, "kubernetes");
         PokTag existing = new PokTag(pokId, tag.getId(), PokTag.Source.MANUAL);
 
-        when(suggestionRepository.findByIdAndUserId(suggestionId, userId))
+        when(suggestionRepository.findByIdAndUserIdAndStatus(suggestionId, userId, PokTagSuggestion.Status.PENDING))
                 .thenReturn(Optional.of(suggestion));
         when(tagRepository.findByNameIgnoreCase("kubernetes")).thenReturn(Optional.of(tag));
         when(pokTagRepository.findByPokIdAndTagId(any(), any())).thenReturn(Optional.of(existing));
@@ -211,7 +211,7 @@ class TagSuggestionServiceTest {
     void approveSuggestion_withNonExistentSuggestion_shouldThrowTagNotFoundException() {
         // Given
         UUID suggestionId = UUID.randomUUID();
-        when(suggestionRepository.findByIdAndUserId(suggestionId, userId)).thenReturn(Optional.empty());
+        when(suggestionRepository.findByIdAndUserIdAndStatus(suggestionId, userId, PokTagSuggestion.Status.PENDING)).thenReturn(Optional.empty());
 
         // When/Then
         assertThatThrownBy(() -> tagSuggestionService.approveSuggestion(suggestionId, userId))
@@ -226,7 +226,7 @@ class TagSuggestionServiceTest {
         UUID suggestionId = UUID.randomUUID();
         PokTagSuggestion suggestion = new PokTagSuggestion(pokId, userId, "kubernetes");
 
-        when(suggestionRepository.findByIdAndUserId(suggestionId, userId))
+        when(suggestionRepository.findByIdAndUserIdAndStatus(suggestionId, userId, PokTagSuggestion.Status.PENDING))
                 .thenReturn(Optional.of(suggestion));
 
         // When
@@ -241,7 +241,7 @@ class TagSuggestionServiceTest {
     void rejectSuggestion_withNonExistentSuggestion_shouldThrowTagNotFoundException() {
         // Given
         UUID suggestionId = UUID.randomUUID();
-        when(suggestionRepository.findByIdAndUserId(suggestionId, userId)).thenReturn(Optional.empty());
+        when(suggestionRepository.findByIdAndUserIdAndStatus(suggestionId, userId, PokTagSuggestion.Status.PENDING)).thenReturn(Optional.empty());
 
         // When/Then
         assertThatThrownBy(() -> tagSuggestionService.rejectSuggestion(suggestionId, userId))
