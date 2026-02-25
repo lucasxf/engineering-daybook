@@ -65,9 +65,9 @@ export function ViewSwitcher() {
   const locale = params.locale;
   const basePath = `/${locale}/poks`;
 
-  const feedHref = `${basePath}${buildParams()}`;
-  const tagsHref = `${basePath}${buildParams({ view: 'tags' })}`;
-  const timelineHref = `${basePath}/timeline${buildParams()}`;
+  const feedHref = `${basePath}${buildParams()}` as never;
+  const tagsHref = `${basePath}${buildParams({ view: 'tags' })}` as never;
+  const timelineHref = `${basePath}/timeline${buildParams()}` as never;
 
   const tabClass = (view: ActiveView) =>
     [
