@@ -70,7 +70,8 @@ The runner-up names in that exploration were **daftari** (Swahili for "notebook"
 │   ├── REQUIREMENTS.md
 │   ├── ARCHITECTURE.md
 │   ├── GLOSSARY.md
-│   └── ROADMAP.md
+│   ├── ROADMAP.md              # Phase index (source of truth for active phase)
+│   └── ROADMAP.phase-{N}.md   # Per-phase details (0–7)
 ├── prompts/                  # AI assistant prompts
 │   ├── claude-ai/
 │   └── ignore/
@@ -154,32 +155,32 @@ See `backend/src/main/resources/application.yml` for configuration details.
   - Password reset via email
 
 ### In Progress
-- Mobile application (Expo/React Native)
-- Session persistence across browser restarts (AUTH-04)
+- Mobile application (Expo/React Native) — Phase 3
 
 ---
 
 ## Roadmap
 
-See [ROADMAP.md](./docs/ROADMAP.md) for the full development plan.
+See [ROADMAP.md](./docs/ROADMAP.md) for the index of all phases.
 
 ### Phase 0: Foundation — ✅ Complete
-- [x] Project documentation
-- [x] Repository structure
-- [x] CI/CD pipeline
-- [x] Development environment setup
-- [x] Backend scaffold
-- [x] Web scaffold
+See [ROADMAP.phase-0.md](./docs/ROADMAP.phase-0.md)
 
-### Phase 1: MVP — 🔄 In Progress
-- [x] User authentication (email + password)
-- [x] Google OAuth integration
+### Phase 1: MVP — 🔄 Active
+See [ROADMAP.phase-1.md](./docs/ROADMAP.phase-1.md)
+- [x] User authentication (email + password + Google OAuth + password reset)
 - [x] Learning CRUD (backend + web)
 - [x] Search (keyword, filters, sorting)
 - [x] Dark mode + i18n (EN/PT-BR)
-- [x] Password reset via email
 - [x] Deployed to production (learnimo.net)
-- [ ] UX review (session persistence, inline quick-entry)
+- [x] Session persistence (httpOnly cookies)
+- [x] Inline quick-entry
+- [ ] Visual polish (1.7.6)
+- [ ] Phase 1 exit criterion: 1+ week usage
+
+### Phase 2: Evolution — 🔄 Started
+See [ROADMAP.phase-2.md](./docs/ROADMAP.phase-2.md)
+- [x] POK editing, deletion, and audit trail
 
 ---
 
