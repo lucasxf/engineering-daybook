@@ -97,6 +97,7 @@
 | 1.7.5 | Feed used multi-column grid | ✅ Done (chore/mvp-ux-review) |
 | 1.7.7 | No inline quick-entry (Phase A content-only textarea) | ✅ Done (chore/mvp-ux-review) |
 | 1.7.8 | Google login button styling | ✅ Done (chore/mvp-ux-review) |
+| 1.7.9 | My Learnings screen bug fixes (EmptyState on errors, QuickEntry title field, label casing) | ✅ Done (fix/my-learnings-screen) |
 
 **Remaining:**
 
