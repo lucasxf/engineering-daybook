@@ -11,6 +11,7 @@ vi.mock('next/navigation', () => ({
   useParams: () => ({ locale: 'en' }),
   useRouter: () => mockRouter,
   useSearchParams: () => new URLSearchParams(),
+  usePathname: () => '/en/poks',
 }));
 
 vi.mock('@/lib/pokApi', () => ({

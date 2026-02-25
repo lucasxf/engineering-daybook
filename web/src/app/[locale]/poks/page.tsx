@@ -1,150 +1,64 @@
 'use client';
 
-import { Suspense, useEffect, useState, useCallback } from 'react';
+import { Suspense } from 'react';
 import { useTranslations } from 'next-intl';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { PokList } from '@/components/poks/PokList';
 import { QuickEntry } from '@/components/poks/QuickEntry';
 import { SearchBar } from '@/components/poks/SearchBar';
-import { SortDropdown, type SortOption } from '@/components/poks/SortDropdown';
+import { SortDropdown } from '@/components/poks/SortDropdown';
 import { NoSearchResults } from '@/components/poks/NoSearchResults';
-import { pokApi, type Pok, type PokSearchParams } from '@/lib/pokApi';
-import { ApiRequestError } from '@/lib/api';
+import { ViewSwitcher } from '@/components/poks/ViewSwitcher';
+import { TagGroupedView } from '@/components/poks/TagGroupedView';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/poks/EmptyState';
 import { Toast } from '@/components/ui/Toast';
-import { useAuth } from '@/hooks/useAuth';
+import { usePoksData } from '@/hooks/usePoksData';
+import { useState } from 'react';
 
 /**
  * Page for listing and searching POKs.
  *
- * Features:
- * - Keyword search (debounced)
- * - Sort by createdAt/updatedAt (ASC/DESC)
- * - Pagination
- * - URL state management (bookmarkable)
- * - Loading, error, empty, and no-results states
+ * Supports three view modes:
+ * - Feed (default): paginated list ordered by active sort
+ * - Tag-grouped (?view=tags): client-side grouped by tag, all learnings
+ * - Timeline (/poks/timeline): a separate route (see timeline/page.tsx)
+ *
+ * State (keyword, sort, view) is held in URL search params.
  */
 function PoksContent() {
   const t = useTranslations('poks');
-  const params = useParams<{ locale: string }>();
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const isTagsView = searchParams.get('view') === 'tags';
 
-  const [poks, setPoks] = useState<Pok[]>([]);
-  const [totalElements, setTotalElements] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Feed view fetches paginated (size=20); tag-grouped needs all (size=1000)
+  const fetchSize = isTagsView ? 1000 : 20;
+
+  const {
+    isReady,
+    poks,
+    totalElements,
+    loading,
+    error,
+    keyword,
+    sortOption,
+    handleSearch,
+    handleSortChange,
+    handleClearSearch,
+    handleQuickSave,
+  } = usePoksData({ fetchSize });
+
   const [quickSaveToast, setQuickSaveToast] = useState(false);
 
-  // Read initial state from URL
-  const [keyword, setKeyword] = useState(searchParams.get('keyword') || '');
-  const [sortOption, setSortOption] = useState<SortOption>({
-    sortBy: (searchParams.get('sortBy') as 'createdAt' | 'updatedAt') || 'updatedAt',
-    sortDirection: (searchParams.get('sortDirection') as 'ASC' | 'DESC') || 'DESC',
-  });
-
-  // Derive page from URL directly so it updates reactively when URL changes
-  const page = parseInt(searchParams.get('page') || '0', 10);
-
-  // Update URL when search/sort params change
-  const updateURL = useCallback(
-    (newKeyword: string, newSortOption: SortOption) => {
-      const newParams = new URLSearchParams();
-
-      if (newKeyword) newParams.set('keyword', newKeyword);
-      if (newSortOption.sortBy !== 'updatedAt' || newSortOption.sortDirection !== 'DESC') {
-        newParams.set('sortBy', newSortOption.sortBy);
-        newParams.set('sortDirection', newSortOption.sortDirection);
-      }
-      newParams.set('page', '0'); // Reset to first page on search/sort change
-
-      const queryString = newParams.toString();
-      router.push(`/${params.locale}/poks${queryString ? `?${queryString}` : ''}` as never, {
-        scroll: false,
-      });
-    },
-    [params.locale, router]
-  );
-
-  // Load POKs with current search/filter/sort parameters
-  const loadPoks = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const searchParamsObj: PokSearchParams = {
-        keyword: keyword || undefined,
-        sortBy: sortOption.sortBy,
-        sortDirection: sortOption.sortDirection,
-        page,
-        size: 20,
-      };
-
-      const result = await pokApi.getAll(searchParamsObj);
-      setPoks(result.content);
-      setTotalElements(result.totalElements);
-    } catch (err) {
-      if (err instanceof ApiRequestError) {
-        setError(err.message || t('errors.unexpected'));
-      } else {
-        setError(t('errors.unexpected'));
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [keyword, sortOption, page, t]);
-
-  // Redirect unauthenticated users to login
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push(`/${params.locale}/login` as never);
-    }
-  }, [authLoading, isAuthenticated, router, params.locale]);
-
-  // Load POKs when authenticated and when search params change
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadPoks();
-    }
-  }, [loadPoks, isAuthenticated]);
-
-  // Handle search
-  const handleSearch = useCallback(
-    (newKeyword: string) => {
-      setKeyword(newKeyword);
-      updateURL(newKeyword, sortOption);
-    },
-    [sortOption, updateURL]
-  );
-
-  // Handle sort change
-  const handleSortChange = useCallback(
-    (newSortOption: SortOption) => {
-      setSortOption(newSortOption);
-      updateURL(keyword, newSortOption);
-    },
-    [keyword, updateURL]
-  );
-
-  // Clear search
-  const handleClearSearch = useCallback(() => {
-    setKeyword('');
-    updateURL('', sortOption);
-  }, [sortOption, updateURL]);
-
-  // Handle quick-entry save: prepend new learning to current list
-  const handleQuickSave = useCallback((pok: Pok) => {
-    setPoks((prev) => [pok, ...prev]);
-    setTotalElements((prev) => prev + 1);
+  const handleQuickSaveWithToast = (pok: Parameters<typeof handleQuickSave>[0]) => {
+    handleQuickSave(pok);
     setQuickSaveToast(true);
-  }, []);
+  };
 
   // Show spinner while auth is initializing or redirect is pending.
   // Keeping the SearchBar unmounted prevents it from firing onSearch → updateURL
   // (which adds ?page=0) before the redirect to /login completes.
-  if (authLoading || !isAuthenticated) {
+  if (!isReady) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
         <Spinner />
@@ -156,11 +70,8 @@ function PoksContent() {
   const hasSearchOrFilter = !!keyword;
   const isEmptyResults = !loading && poks.length === 0;
   const showNoResults = isEmptyResults && hasSearchOrFilter;
-  // Only show empty state when the list is genuinely empty — not when an API error occurred.
-  // An API error (401, 500, network) leaves poks=[] which would otherwise show the empty
-  // state, making the user think their data is gone. Use strict null check so an empty-string
-  // error message (e.g. from HTTP/2 responses where statusText is always "") still blocks
-  // the empty state.
+  // Only show empty state when the list is genuinely empty — not when an API
+  // error occurred (error === null is strict-null check, handles empty strings)
   const showEmptyState = isEmptyResults && !hasSearchOrFilter && error === null;
 
   return (
@@ -173,7 +84,12 @@ function PoksContent() {
       </div>
 
       {/* Inline quick-entry */}
-      <QuickEntry onSaved={handleQuickSave} />
+      <QuickEntry onSaved={handleQuickSaveWithToast} />
+
+      {/* View switcher */}
+      <div className="mb-4">
+        <ViewSwitcher />
+      </div>
 
       {/* Search and Sort Controls */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -204,12 +120,14 @@ function PoksContent() {
         <NoSearchResults onClearSearch={handleClearSearch} />
       ) : showEmptyState ? (
         <EmptyState />
+      ) : isTagsView ? (
+        <TagGroupedView poks={poks} />
       ) : poks.length > 0 ? (
         <PokList poks={poks} />
       ) : null}
 
       {/* Results count (when not loading and has results) */}
-      {!loading && poks.length > 0 && (
+      {!loading && poks.length > 0 && !isTagsView && (
         <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
           {t('list.resultsCount', { count: totalElements })}
         </div>
