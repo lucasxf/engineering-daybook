@@ -1,6 +1,5 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { NextIntlClientProvider } from 'next-intl';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 const { mockUsePathname, mockUseSearchParams } = vi.hoisted(() => ({

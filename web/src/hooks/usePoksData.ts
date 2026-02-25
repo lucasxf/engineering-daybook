@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { pokApi, type Pok } from '@/lib/pokApi';
@@ -59,7 +59,7 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
   const sortBy = (searchParams.get('sortBy') as SortOption['sortBy']) || DEFAULT_SORT.sortBy;
   const sortDirection =
     (searchParams.get('sortDirection') as SortOption['sortDirection']) || DEFAULT_SORT.sortDirection;
-  const sortOption: SortOption = { sortBy, sortDirection };
+  const sortOption: SortOption = useMemo(() => ({ sortBy, sortDirection }), [sortBy, sortDirection]);
   const page = parseInt(searchParams.get('page') || '0', 10);
   const view = searchParams.get('view') || '';
 
