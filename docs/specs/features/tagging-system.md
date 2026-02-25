@@ -1,6 +1,6 @@
 # Tagging System
 
-> **Status:** Draft
+> **Status:** Draft (revised 2026-02-25 — review applied)
 > **Created:** 2026-02-24
 > **Implemented:** _pending_
 
@@ -39,31 +39,42 @@ it without scrolling through everything."
 #### Tag Management
 
 - [ ] **FR1** *(Must Have)* — A user can create a new tag by entering a free-text name.
-  Tag names are trimmed of whitespace and stored case-preserved (case-insensitive for
-  uniqueness within the same user's tag set).
-- [ ] **FR2** *(Must Have)* — Duplicate tag creation is rejected. If a tag with the same
-  name already exists (case-insensitive) for the same user, the system returns an error.
-- [ ] **FR3** *(Should Have)* — A user can rename an existing tag. The rename propagates
-  to all learnings currently assigned that tag. The rename is rejected if the new name
-  conflicts with an existing tag name (case-insensitive).
-- [ ] **FR4** *(Should Have)* — A user can delete a tag. Deleting a tag removes it from
-  all learnings it was assigned to — the learning content is unaffected. The user sees a
-  warning indicating how many learnings will be affected before confirming.
-- [ ] **FR5** *(Must Have)* — Tags are strictly per-user (private). A user can only see,
-  create, assign, rename, or delete tags they own.
+  Tag names are trimmed of whitespace and stored case-preserved in a global tag pool
+  (case-insensitive for uniqueness within the pool).
+- [ ] **FR2** *(Must Have)* — Duplicate tag creation is idempotent. If a tag with the same
+  name already exists (case-insensitive) in the user's active tag set, the system silently
+  reuses the existing tag and returns it — no error is shown to the user.
+- [ ] **FR3** *(Should Have)* — A user can rename an existing tag (e.g., to fix a typo).
+  Renaming soft-deletes the user's subscription to the old tag name and migrates all their
+  POK assignments to the target tag (creating a new global tag if the target name does not
+  yet exist in the pool). The rename is rejected if the target name conflicts with another
+  tag the user already actively uses. Other users' subscriptions to the old tag are never
+  affected.
+- [ ] **FR4** *(Should Have)* — A user can delete a tag. Deletion soft-deletes the user's
+  subscription to that tag (the global tag record is retained for other users). All the
+  user's POK assignments for that tag are removed atomically. The user sees a warning
+  indicating how many learnings will be affected before confirming. The learning content
+  is unaffected.
+- [ ] **FR5** *(Must Have)* — Tags reference a global deduplicated pool, but each user's
+  active tag set is their own, governed by per-user subscriptions with soft-delete support.
+  From the user's perspective, their tags are private and personal. A user can only see,
+  assign, rename, or delete tags within their own active subscription set. This isolation
+  applies only to user-created tags; AI-suggested tags interact with the global pool
+  directly (see FR13–FR19).
 
 #### Tag Assignment
 
-- [ ] **FR6** *(Should Have)* — A user can assign one or more existing tags to a learning
+- [ ] **FR6** *(Must Have)* — A user can assign one or more existing tags to a learning
   from the learning detail view or the learning editor. Manual assignments are stored with
   `source = MANUAL`.
-- [ ] **FR7** *(Should Have)* — A user can remove a tag from a learning without deleting
+- [ ] **FR7** *(Must Have)* — A user can remove a tag from a learning without deleting
   the tag itself. The tag remains in the user's tag list.
 - [ ] **FR8** *(Should Have)* — The tag input supports autocomplete: as the user types,
   matching tags from their existing set are suggested. Selecting a suggestion assigns the
   existing tag; completing an entry with no match creates and assigns a new tag in one step.
-- [ ] **FR9** *(Should Have)* — A learning may have zero or more tags. The UI handles
-  learnings with many tags gracefully (no layout breakage).
+- [ ] **FR9** *(Should Have)* — A learning may have zero or more tags. The UI collapses
+  tags beyond a threshold of 3 (showing "…" to expand) so layout never breaks regardless
+  of how many tags are assigned.
 
 #### Filtering
 
@@ -79,9 +90,9 @@ it without scrolling through everything."
 #### AI Tag Suggestions
 
 - [ ] **FR13** *(Must Have)* — After a learning is saved, the system asynchronously
-  generates explicit tag suggestions by analysing the text content via an AI API. Explicit
-  means the suggestion is directly supported by terms named in the text — semantic
-  inference is out of scope here (Phase 7).
+  generates explicit tag suggestions by analysing both the **title and text content** via
+  an AI API. Explicit means the suggestion is directly supported by terms named in the
+  title or body — semantic inference is out of scope here (Phase 7).
 - [ ] **FR14** *(Must Have)* — AI-suggested tags are surfaced as a labelled, non-blocking
   prompt (e.g., "Suggested tags"). They are **never** applied silently or automatically.
 - [ ] **FR15** *(Must Have)* — A user can approve suggested tags individually or all at
@@ -89,12 +100,24 @@ it without scrolling through everything."
 - [ ] **FR16** *(Must Have)* — A user can reject suggested tags individually or all at
   once. Rejected suggestions are discarded and not re-suggested for the same learning.
 - [ ] **FR17** *(Must Have)* — A user can edit a suggested tag name before approving.
-  Edited-then-approved suggestions are stored with `source = MANUAL`.
+  Edited-then-approved suggestions are stored with `source = AI_EDITED`, distinguishing
+  them from purely manual tags (`source = MANUAL`) and unmodified AI approvals
+  (`source = AI`). This preserves a signal that the AI generated the original suggestion
+  but the user corrected it.
 - [ ] **FR18** *(Should Have)* — If a suggestion name matches an existing user tag
   (case-insensitive), approval resolves to the existing tag rather than creating a
   duplicate.
 - [ ] **FR19** *(Could Have)* — The suggestion prompt is non-modal, deferrable, and does
   not interrupt the user's primary workflow.
+
+#### Tag Appearance
+
+- [ ] **FR20** *(Must Have)* — Each tag is assigned a color at creation time, randomly
+  selected from a fixed palette of 6–8 distinct colors (e.g., inspired by post-its,
+  text-marker pens, or binder stickers — reinforcing the learning/study metaphor). The
+  color is stored per user-tag subscription, so the same global tag can appear in
+  different colors for different users. Colors are assigned once and do not change on
+  subsequent views.
 
 #### Explicitly Out of Scope (This Milestone)
 
@@ -113,28 +136,34 @@ it without scrolling through everything."
 3. **Performance — AI suggestion latency:** Suggestions are generated asynchronously. The
    save confirmation must appear immediately; suggestions should surface within 5 seconds
    for content up to 2,000 words.
-4. **Security — Tag isolation:** All tag endpoints must enforce ownership. Any request
-   referencing a tag or learning ID not owned by the requesting user returns
-   `403 Forbidden` (not `404`, to avoid confirming resource existence).
+4. **Security — Tag isolation:** All tag endpoints must enforce subscription ownership.
+   Any request referencing a tag not in the requesting user's active subscription set
+   returns `403 Forbidden` (not `404`, to avoid confirming resource existence). The global
+   tag pool is never directly exposed — users always interact through their own subscription
+   layer.
 5. **Security — AI pipeline:** The AI suggestion service receives only content belonging
    to the authenticated user. Suggestions are scoped to that user and never readable by
    another.
-6. **Accessibility — Tag input:** Operable by keyboard alone (arrow keys to navigate
+6. **Data integrity — Soft-delete:** Tag subscription deletions and renames are
+   soft-deleted (`deleted_at` timestamp). Physical deletion of `Tag` rows in the global
+   pool is never performed — they are append-only.
+7. **Accessibility — Tag input:** Operable by keyboard alone (arrow keys to navigate
    suggestions, Enter to select, Backspace/Delete to remove assigned tags). Uses
    `role="combobox"` / `role="listbox"` / `role="option"` so screen readers announce
    options.
-7. **Accessibility — Tag filter:** Reachable via keyboard tab order. Active filters
+8. **Accessibility — Tag filter:** Reachable via keyboard tab order. Active filters
    announced to assistive technology (e.g., "Filtered by: springboot, transactions — 3
    results").
-8. **i18n — UI labels:** All UI chrome (buttons, prompts, error messages, empty states,
+9. **i18n — UI labels:** All UI chrome (buttons, prompts, error messages, empty states,
    suggestion banners) is available in EN and PT-BR via `next-intl`. Tag names themselves
    are user-entered free text and are not translated. Examples: "Add tag" / "Adicionar
    etiqueta", "Suggested tags" / "Etiquetas sugeridas", "Approve" / "Aprovar",
    "Reject" / "Rejeitar", "Delete tag?" / "Excluir etiqueta?".
-9. **i18n — Pluralisation:** Strings referencing counts (e.g., "This tag is used in 3
-   learnings") use ICU plural syntax for correct EN and PT-BR plural forms.
-10. **Data integrity — Tag deletion:** Deleting a tag is transactional. The `tags` row and
-    all associated `pok_tags` rows are removed atomically.
+10. **i18n — Pluralisation:** Strings referencing counts (e.g., "This tag is used in 3
+    learnings") use ICU plural syntax for correct EN and PT-BR plural forms.
+11. **Data integrity — Tag subscription deletion:** Removing a tag subscription is
+    transactional. The `user_tags` row is soft-deleted and all associated `pok_tags` rows
+    for that user are removed atomically. The global `tags` row is never touched.
 
 ---
 
@@ -328,17 +357,37 @@ it without scrolling through everything."
 
 ### Architecture
 
-Three new layers added in parallel to the existing POK pattern:
+Three new layers added in parallel to the existing POK pattern.
+
+**Domain model — global tag pool + per-user subscriptions:**
+
+```
+tags            (id, name, createdAt)                    ← global, append-only
+user_tags       (id, userId, tagId, color, deletedAt)    ← per-user subscription + soft-delete
+pok_tags        (pokId, tagId, source)                   ← source: MANUAL | AI | AI_EDITED
+pok_tag_suggestions (id, pokId, userId, suggestedName,
+                     status: PENDING | APPROVED | REJECTED)
+```
+
+**Key invariants:**
+- `tags` rows are never physically deleted.
+- A user's "active" tags = `user_tags WHERE userId = ? AND deletedAt IS NULL`.
+- Renaming a tag soft-deletes the old `user_tags` row and inserts/reuses the target in
+  `tags` + `user_tags`. `pok_tags` rows are updated to point to the new `tagId`.
+- Tag color is stored on `user_tags` (per-user), assigned randomly at subscription
+  creation time from a palette of 6–8 colors defined as constants in the frontend.
+- `source = AI_EDITED` when the user modifies an AI-suggested name before approving.
 
 **Backend:**
-- `Tag` entity (id, userId, name, createdAt) — per-user, no global tags
-- `PokTag` join entity (pokId, tagId, source enum: MANUAL | AI) — replaces a simple
-  join table to carry the `source` metadata
+- `Tag` entity (id, name, createdAt) — global tag pool, no userId
+- `UserTag` entity (id, userId, tagId, color, deletedAt) — per-user subscription
+- `PokTag` join entity (pokId, tagId, source enum: MANUAL | AI | AI_EDITED)
 - `PokTagSuggestion` entity (id, pokId, userId, suggestedName, status: PENDING |
   APPROVED | REJECTED) — stores AI suggestions pending user decision
-- `TagService` — CRUD + ownership validation + duplicate detection (case-insensitive)
-- `TagSuggestionService` — async pipeline: receive content → call AI API → persist
-  PENDING suggestions
+- `TagService` — manages global pool + user subscriptions; ownership validation;
+  idempotent create; soft-delete on rename/delete
+- `TagSuggestionService` — async pipeline: receive title + content → call AI API →
+  persist PENDING suggestions
 - `TagController` — REST endpoints at `/api/v1/tags` and nested
   `/api/v1/poks/{id}/tags`
 - `PokResponse` extended: `List<TagResponse> tags`, `List<TagSuggestionResponse>
@@ -369,9 +418,11 @@ Three new layers added in parallel to the existing POK pattern:
 
 **New — Backend:**
 - `backend/src/main/java/com/lucasxf/ed/domain/Tag.java`
+- `backend/src/main/java/com/lucasxf/ed/domain/UserTag.java`
 - `backend/src/main/java/com/lucasxf/ed/domain/PokTag.java`
 - `backend/src/main/java/com/lucasxf/ed/domain/PokTagSuggestion.java`
 - `backend/src/main/java/com/lucasxf/ed/repository/TagRepository.java`
+- `backend/src/main/java/com/lucasxf/ed/repository/UserTagRepository.java`
 - `backend/src/main/java/com/lucasxf/ed/repository/PokTagRepository.java`
 - `backend/src/main/java/com/lucasxf/ed/repository/PokTagSuggestionRepository.java`
 - `backend/src/main/java/com/lucasxf/ed/service/TagService.java`
@@ -386,8 +437,9 @@ Three new layers added in parallel to the existing POK pattern:
 
 **New — Migrations:**
 - `backend/src/main/resources/db/migration/V8__create_tags_table.sql`
-- `backend/src/main/resources/db/migration/V9__create_pok_tags_table.sql`
-- `backend/src/main/resources/db/migration/V10__create_pok_tag_suggestions_table.sql`
+- `backend/src/main/resources/db/migration/V9__create_user_tags_table.sql`
+- `backend/src/main/resources/db/migration/V10__create_pok_tags_table.sql`
+- `backend/src/main/resources/db/migration/V11__create_pok_tag_suggestions_table.sql`
 
 **New — Web:**
 - `web/src/components/poks/TagInput.tsx`
@@ -440,6 +492,18 @@ _pending_
 - **Options:** A — Anthropic Claude API, B — keyword regex/NLP (no external API)
 - **Chosen:** _TBD during implementation_
 - **Rationale:** _TBD_
+
+**Decision: Tag color ownership**
+- **Options:** A — color on global `tags` (one color per tag globally), B — color on
+  `user_tags` (per-user, personal palette)
+- **Chosen:** B — color on `user_tags`
+- **Rationale:** Avoids cross-user color conflicts; a user renaming "spring-boot" should
+  not change the color another user sees for it.
+
+**`source` enum values:** `MANUAL` | `AI` | `AI_EDITED`
+- `MANUAL` — created or assigned by the user directly
+- `AI` — AI-suggested, approved without modification
+- `AI_EDITED` — AI-suggested, user edited the name before approving
 
 ### Deviations from Spec
 _none yet_
