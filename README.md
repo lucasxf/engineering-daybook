@@ -153,6 +153,7 @@ See `backend/src/main/resources/application.yml` for configuration details.
   - Protected routes and authentication flows
   - Modern React patterns with TypeScript
   - Password reset via email
+  - E2E tested with Playwright (auth redirect, login, create/edit/delete learnings)
 
 ### In Progress
 - Mobile application (Expo/React Native)

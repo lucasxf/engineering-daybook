@@ -80,9 +80,9 @@
 | # | Task | Priority | Status |
 |---|------|----------|--------|
 | 1.6.1 | Page-level behavior tests (Vitest) — all pages, both auth states | Should Have | ✅ Done (2026-02-20) |
-| 1.6.2 | E2E tests with Playwright — 4 critical user journeys | Should Have | ⏳ Planned (Phase B, after Phase 1 exit) |
+| 1.6.2 | E2E tests with Playwright — 4 critical user journeys | Should Have | ✅ Done (2026-02-25, chore/web-e2e-integration-tests) |
 
-> **Phase B (Playwright E2E):** After Phase 1 exit. Uses `page.route()` to mock API responses. Covers auth redirect loops, multi-page flows.
+> **Phase B (Playwright E2E):** Completed. `@playwright/test` installed; `web/e2e/` has 5 passing tests covering all 4 journeys. Uses `page.route()` to mock all backend API calls — no live backend needed. Also added auth redirect to poks list page (unauthenticated users redirected to /login).
 
 ### Milestone 1.7: MVP UX Review (partial)
 
