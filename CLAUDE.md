@@ -114,7 +114,7 @@ test: add PokService unit tests
 **Phase 1: MVP** — 🔄 In Progress (exit criterion: 1+ week usage)
 
 Active work:
-- [ ] Milestone 1.6.2: E2E tests with Playwright (Phase B, after Phase 1 exit)
+- [x] Milestone 1.6.2: E2E tests with Playwright (5 tests; auth redirect, login, create/edit/delete)
 - [ ] Milestone 1.7.6: General visual quality — UI needs design pass
 - [ ] Phase 1 exit criterion: author uses app for 1+ week with satisfaction
 

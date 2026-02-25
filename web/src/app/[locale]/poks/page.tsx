@@ -13,6 +13,7 @@ import { ApiRequestError } from '@/lib/api';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/poks/EmptyState';
 import { Toast } from '@/components/ui/Toast';
+import { useAuth } from '@/hooks/useAuth';
 
 /**
  * Page for listing and searching POKs.
@@ -29,6 +30,7 @@ function PoksContent() {
   const params = useParams<{ locale: string }>();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   const [poks, setPoks] = useState<Pok[]>([]);
   const [totalElements, setTotalElements] = useState(0);
@@ -94,10 +96,19 @@ function PoksContent() {
     }
   }, [keyword, sortOption, page, t]);
 
-  // Load POKs on mount and when search params change
+  // Redirect unauthenticated users to login
   useEffect(() => {
-    loadPoks();
-  }, [loadPoks]);
+    if (!authLoading && !isAuthenticated) {
+      router.push(`/${params.locale}/login` as never);
+    }
+  }, [authLoading, isAuthenticated, router, params.locale]);
+
+  // Load POKs when authenticated and when search params change
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadPoks();
+    }
+  }, [loadPoks, isAuthenticated]);
 
   // Handle search
   const handleSearch = useCallback(
@@ -129,6 +140,17 @@ function PoksContent() {
     setTotalElements((prev) => prev + 1);
     setQuickSaveToast(true);
   }, []);
+
+  // Show spinner while auth is initializing or redirect is pending.
+  // Keeping the SearchBar unmounted prevents it from firing onSearch → updateURL
+  // (which adds ?page=0) before the redirect to /login completes.
+  if (authLoading || !isAuthenticated) {
+    return (
+      <div className="flex min-h-[400px] items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
 
   // Determine which content to display
   const hasSearchOrFilter = !!keyword;
