@@ -560,17 +560,48 @@ Display one entry per comment. Group by recommendation, clearest first:
 For each approved item:
 1. Read the target file
 2. Apply the change following project conventions (CLAUDE.md)
-3. After all changes are applied, run relevant tests:
+3. After all changes are applied, determine whether any **code** files were modified:
+   - **Docs-only changes** (`.md`, comments, Javadoc, i18n `.json`) → skip test re-run
+   - **Code changes** (`.java`, `.ts`, `.tsx`, `.js`) → run targeted tests for the affected classes
+
+**Compile first — always, before any test run:**
 
 ```bash
-# If backend files were changed (run in subshell to avoid directory leaking)
-(cd backend && ./mvnw test -q)
+# Backend — full compilation (catches any breakage introduced by the changes)
+(cd backend && mvn compile test-compile -q)
 
-# If web files were changed (run in subshell to avoid directory leaking)
-(cd web && npm test --silent)
+# Web — TypeScript type check (equivalent compile gate)
+(cd web && npx tsc --noEmit)
 ```
 
-**If tests fail** → STOP. Show the failure. Ask user whether to revert or debug.
+**If compilation fails** → STOP immediately. Show the error. Ask user whether to revert or debug.
+Only proceed to test execution once the project compiles cleanly.
+
+**Targeted test run — backend (Java):**
+
+Collect the simple class names that were changed (e.g. `AuthService`, `PokController`).
+For each changed class `Foo`, look for a corresponding test class `FooTest` or `FooIntegrationTest`.
+Run only those test classes:
+
+```bash
+# Build the comma-separated list of test classes, then run them
+# Example: AFFECTED_TESTS="AuthServiceTest,PokControllerTest"
+(cd backend && mvn test -Dtest="$AFFECTED_TESTS" -q)
+```
+
+If a changed class has no corresponding test class, note it but do not block the commit (the project's
+coverage gate in CI will catch regressions).
+
+**Targeted test run — web (TypeScript):**
+
+Pass the changed file paths to the test runner so only related specs execute:
+
+```bash
+# Example: changed files are src/hooks/useAuth.ts and src/lib/api.ts
+(cd web && npm test -- --testPathPattern="useAuth|api" --silent)
+```
+
+**If any targeted tests fail** → STOP. Show the failure. Ask user whether to revert or debug.
 
 ## 8. Commit and Push Review Comment Fixes
 
