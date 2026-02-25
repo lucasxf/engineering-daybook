@@ -78,4 +78,15 @@ public class PokTag {
     public Source getSource() {
         return source;
     }
+
+    /**
+     * Updates the assignment source.
+     * Used when an AI suggestion is approved for an already-assigned tag,
+     * upgrading the source to {@link Source#AI_EDITED}.
+     *
+     * @param source the new source
+     */
+    public void setSource(Source source) {
+        this.source = source;
+    }
 }
