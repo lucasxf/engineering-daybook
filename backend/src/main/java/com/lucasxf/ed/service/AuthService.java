@@ -158,7 +158,7 @@ public class AuthService {
                             + "Please sign in with email and password.");
                 }
                 log.info("Google OAuth login: handle={}", existingUser.getHandle());
-                return new GoogleLoginResult.ExistingUser(issueTokens(existingUser));
+                return (GoogleLoginResult) new GoogleLoginResult.ExistingUser(issueTokens(existingUser));
             })
             .orElseGet(() -> {
                 log.info("Google OAuth new user: email={}", normalizedEmail);

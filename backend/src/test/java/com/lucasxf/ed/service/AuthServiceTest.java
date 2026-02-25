@@ -1,10 +1,14 @@
 package com.lucasxf.ed.service;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
-
+import com.lucasxf.ed.domain.RefreshToken;
+import com.lucasxf.ed.domain.User;
+import com.lucasxf.ed.dto.LoginRequest;
+import com.lucasxf.ed.dto.RegisterRequest;
+import com.lucasxf.ed.exception.AuthenticationException;
+import com.lucasxf.ed.exception.InvalidTokenException;
+import com.lucasxf.ed.exception.ResourceConflictException;
+import com.lucasxf.ed.repository.RefreshTokenRepository;
+import com.lucasxf.ed.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -15,24 +19,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.lucasxf.ed.domain.RefreshToken;
-import com.lucasxf.ed.domain.User;
-
-import com.lucasxf.ed.dto.LoginRequest;
-import com.lucasxf.ed.dto.RegisterRequest;
-import com.lucasxf.ed.exception.ResourceConflictException;
-import com.lucasxf.ed.exception.AuthenticationException;
-import com.lucasxf.ed.exception.InvalidTokenException;
-import com.lucasxf.ed.repository.RefreshTokenRepository;
-import com.lucasxf.ed.repository.UserRepository;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for {@link AuthService}.
