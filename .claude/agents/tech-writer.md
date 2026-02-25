@@ -166,7 +166,29 @@ export function usePoks() {
 2. **Include Date** - Always add date when updating CLAUDE.md or creating ADRs
 3. **Javadoc Standards** - Use `@author` and `@since` on public classes
 4. **Follow Existing Style** - Match tone and formatting of existing docs
-5. **Update ROADMAP.md** - Always update at end of sessions
+5. **Update phase file** - Always update `docs/ROADMAP.phase-{N}.md` (not the root ROADMAP.md) at end of sessions; the root ROADMAP.md is an index — only update it when the active phase changes
+
+## Cross-File Consistency Check (REQUIRED after any docs update)
+
+After updating any of CLAUDE.md, README.md, or any ROADMAP file, verify these three values are in sync:
+
+```bash
+# 1. Source of truth — current phase in ROADMAP index
+grep "CURRENT_PHASE:" docs/ROADMAP.md
+# Expected: <!-- CURRENT_PHASE: N -->
+
+# 2. CLAUDE.md current focus
+grep -A3 "## Current Focus" CLAUDE.md
+
+# 3. README.md roadmap section
+grep "Phase.*In Progress\|Phase.*🔄" README.md
+```
+
+**If any of these diverge:**
+1. Treat `docs/ROADMAP.md` (`CURRENT_PHASE` comment) as the **single source of truth**
+2. Update CLAUDE.md "Current Focus" to match
+3. Update README.md roadmap section to match
+4. Report what was out of sync and what was corrected
 
 ---
 

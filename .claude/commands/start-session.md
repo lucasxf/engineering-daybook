@@ -8,83 +8,91 @@ argument-hint: <optional: --stack=backend|web|mobile|docs|full or context descri
 ## Step 1: Determine Stack Focus
 
 **If user provided `--stack` parameter:**
-- `--stack=backend` → Load backend-specific files (Java/Spring Boot)
-- `--stack=web` → Load web-specific files (Next.js/TypeScript)
-- `--stack=mobile` → Load mobile-specific files (Expo/React Native)
-- `--stack=docs` → Load minimal documentation files
-- `--stack=full` → Load all files (legacy behavior)
+- `--stack=backend` → Load backend context
+- `--stack=web` → Load web context
+- `--stack=mobile` → Load mobile context
+- `--stack=docs` → Load docs context
+- `--stack=full` → Load all contexts (use sparingly)
 
 **If NO `--stack` parameter provided:**
 - Analyze `$ARGUMENTS` for context clues:
-  - Keywords: "Java", "Spring", "API", "backend", "POK service" → **backend**
-  - Keywords: "Next.js", "React", "TypeScript", "web", "pages" → **web**
-  - Keywords: "Expo", "mobile", "React Native", "app" → **mobile**
-  - Keywords: "documentation", "README", "CLAUDE.md", "docs" → **docs**
+  - Keywords: "Java", "Spring", "API", "backend", "service" → **backend**
+  - Keywords: "Next.js", "React", "TypeScript", "web", "page", "component" → **web**
+  - Keywords: "Expo", "mobile", "React Native" → **mobile**
+  - Keywords: "documentation", "ROADMAP", "CLAUDE.md", "docs", "spec", "ADR" → **docs**
 - If ambiguous, use **AskUserQuestion** to prompt:
   - Question: "Which stack are you working on for this session?"
   - Options:
-    1. Backend (Java/Spring Boot) - API, services, database
-    2. Web (Next.js/TypeScript) - Web application
-    3. Mobile (Expo/React Native) - Mobile application
-    4. Documentation - CLAUDE.md, README.md, ROADMAP.md
-    5. Full Context - Load everything (use sparingly)
+    1. Backend (Java/Spring Boot) — API, services, database
+    2. Web (Next.js/TypeScript) — Web application
+    3. Mobile (Expo/React Native) — Mobile application
+    4. Documentation — ROADMAP, CLAUDE.md, specs, ADRs
+    5. Full Context — Load everything (use sparingly)
 
-## Step 2: Load Files Based on Stack
+## Step 2: Detect Current Phase
+
+Read `docs/ROADMAP.md` and extract the current phase:
+```bash
+grep "CURRENT_PHASE:" docs/ROADMAP.md
+# Returns: <!-- CURRENT_PHASE: N -->
+```
+
+Unless `--phase=N` was explicitly provided in `$ARGUMENTS`, use the detected phase.
+
+## Step 3: Load Files Based on Stack
 
 ### Backend Session
 @CLAUDE.md
-@ROADMAP.md
-@README.md
-@.claude/agents-readme.md
+@backend/CLAUDE.md
+@docs/ROADMAP.phase-{N}.md
 
 ### Web Session
 @CLAUDE.md
-@ROADMAP.md
-@README.md
-@.claude/agents-readme.md
+@web/CLAUDE.md
+@docs/ROADMAP.phase-{N}.md
 
 ### Mobile Session
 @CLAUDE.md
-@ROADMAP.md
-@README.md
-@.claude/agents-readme.md
+@mobile/CLAUDE.md
+@docs/ROADMAP.phase-{N}.md
 
 ### Documentation Session
 @CLAUDE.md
-@ROADMAP.md
-@README.md
-@.claude/agents-readme.md
+@docs/CLAUDE.md
+@docs/ROADMAP.md
+@docs/ROADMAP.phase-{N}.md
 
-### Full Context Session (Legacy)
+### Full Context Session (use sparingly)
 @CLAUDE.md
-@ROADMAP.md
-@README.md
-@.claude/agents-readme.md
+@backend/CLAUDE.md
+@web/CLAUDE.md
+@mobile/CLAUDE.md
+@docs/CLAUDE.md
+@docs/ROADMAP.md
+@docs/ROADMAP.phase-{N}.md
+
+> Replace `{N}` with the current phase number detected in Step 2.
 
 **Session Context:** $ARGUMENTS
 
-## Step 3: Standard Session Initialization
+## Step 4: Standard Session Initialization
 
-1. Review ROADMAP.md to understand:
-   - Current implementation status
-   - What's in progress
-   - Next priority tasks
-2. Review .claude/agents-readme.md to understand:
-   - Available specialized agents
-   - When to trigger each agent proactively
-3. Review recent commits with `git log --oneline -5` to understand latest changes
-4. Check current git status to see uncommitted changes
-5. Provide a brief summary of:
-   - **Stack focus for this session** (backend/web/mobile/docs/full)
-   - Current project state (from ROADMAP.md)
+1. Run `git log --oneline -5` to understand latest changes
+2. Run `git status` to see uncommitted changes
+3. Provide a brief summary of:
+   - **Stack focus** for this session
+   - **Current phase** (from ROADMAP.md index)
+   - **Active milestone(s)** (from the phase file)
    - Next priority tasks
    - Any uncommitted changes that need attention
-   - Available agents for this session's work
 
 **Ready to start development following all project guidelines.**
 
 ## Token Savings Report
 
-After loading, report approximate token savings:
-- Stack-specific session: ~30-45% reduction vs full load
-- Documentation session: ~50% reduction vs full load
+After loading, report approximate token savings vs full load:
+- Backend session: ~45% reduction
+- Web session: ~50% reduction
+- Mobile session: ~55% reduction
+- Documentation session: ~15% reduction (intentionally loads more)
+- Full context: baseline

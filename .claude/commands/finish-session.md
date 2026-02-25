@@ -4,8 +4,7 @@ argument-hint: <optional-commit-message-context>
 ---
 
 @CLAUDE.md
-@ROADMAP.md
-@README.md
+@docs/ROADMAP.md
 
 **Session Finalization Workflow**
 
@@ -101,28 +100,54 @@ If a layer was not touched this session, skip it entirely.
 - Ask the user how to proceed
 - The ONLY exception is if the user explicitly says "commit anyway" or "bypass" — in that case, warn clearly and proceed only with their confirmation
 
-## 2. Update ROADMAP.md (REQUIRED - Delegate to tech-writer)
+## 2. Update Phase File and Archive Completed Milestones (REQUIRED - Delegate to tech-writer)
 
 **Determine session context:**
 - If `$ARGUMENTS` contains sufficient details → Use it directly
 - If `$ARGUMENTS` is empty/vague → Ask user: "What was completed this session?"
 
-**Delegate to `tech-writer` agent** to update ROADMAP.md:
-- Move completed tasks from "In Progress" → "Implemented" section
-- Update "In Progress" with current work
-- Reprioritize "Next Steps"
-- Update "Last updated" timestamp to today's date
+**Detect current phase:**
+```bash
+grep "CURRENT_PHASE:" docs/ROADMAP.md
+# e.g. <!-- CURRENT_PHASE: 1 --> → load docs/ROADMAP.phase-1.md
+```
 
-## 3. Update Other Documentation (if needed - Delegate to tech-writer)
+**Delegate to `tech-writer` agent** to update the current phase file (`docs/ROADMAP.phase-{N}.md`):
+- Mark newly completed tasks as ✅
+- Move completed items into the appropriate "Completed" section within the phase file
+- Update "Active / Pending" section with remaining work
 
-**Review what was implemented** and determine which documentation needs updates:
-- **CLAUDE.md** - Only for new architecture patterns or critical directives
-- **README.md** - If new features/endpoints were added
-- **OpenAPI annotations** - If new REST endpoints were added (CRITICAL)
-- **Javadoc** - If new backend classes/methods were added
-- **JSDoc/TSDoc** - If new frontend components/hooks were added
+**Check for milestone completion:**
+After updating the phase file, check: are ALL items in any milestone now ✅?
+- **If yes:** The milestone is complete — tech-writer confirms it is already in the "Completed" section of the phase file. No separate archive needed; the phase file is the record.
+- **If the entire phase is now complete** (all milestones ✅):
+  1. Update `<!-- CURRENT_PHASE: N -->` in `docs/ROADMAP.md` to `N+1`
+  2. Update `<!-- CURRENT_PHASE_FILE: ... -->` accordingly
+  3. Update `CLAUDE.md` "Current Focus" section to reflect the new active phase
+  4. Update `README.md` roadmap section to reflect phase completion
 
-**If updates needed** → Delegate to `tech-writer` agent.
+## 3. Documentation Staleness Check (ALWAYS - Delegate to tech-writer)
+
+**Always delegate to `tech-writer` agent.** The check is scoped to what changed this session — not a full-repo audit. tech-writer must verify each applicable item below and explicitly confirm it is current or fix it.
+
+### If `backend/` files changed:
+- [ ] **OpenAPI annotations** — every new/modified endpoint has `@Tag`, `@Operation`, `@ApiResponses`, `@Parameter`. Missing = CRITICAL, block commit.
+- [ ] **Javadoc** — every new/modified public class has `@author` and `@since`. Missing = fix before commit.
+- [ ] **`backend/CLAUDE.md`** — Java conventions still accurate? Any new pattern introduced this session that contradicts or extends the documented rules?
+
+### If `web/` files changed:
+- [ ] **`web/CLAUDE.md`** — TypeScript/Next.js conventions still accurate?
+- [ ] **README.md features section** — does it reflect what's now implemented?
+
+### If `mobile/` files changed:
+- [ ] **`mobile/CLAUDE.md`** — conventions still accurate?
+- [ ] **README.md features section** — updated?
+
+### Always (regardless of stack):
+- [ ] **3-way phase consistency** — `CURRENT_PHASE` in `docs/ROADMAP.md` matches `CLAUDE.md` "Current Focus" matches README.md. If diverged, ROADMAP.md is the source of truth; fix the others.
+- [ ] **README.md "In Progress" section** — does it reflect reality? Remove anything that shipped this session.
+
+**If any item is stale:** fix it in the same commit. Do not leave docs debt.
 
 ## 4. Review Changes
 
