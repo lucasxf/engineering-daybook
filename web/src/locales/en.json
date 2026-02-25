@@ -175,5 +175,20 @@
       "contentTooLong": "Content must be 50,000 characters or less",
       "unexpected": "Something went wrong. Please try again."
     }
+  },
+  "tags": {
+    "suggestions": {
+      "label": "Suggested tags",
+      "approve": "Add tag",
+      "reject": "Dismiss tag"
+    },
+    "badge": {
+      "remove": "Remove tag"
+    },
+    "errors": {
+      "loadFailed": "Failed to load tags",
+      "createFailed": "Failed to create tag",
+      "deleteFailed": "Failed to delete tag"
+    }
   }
 }

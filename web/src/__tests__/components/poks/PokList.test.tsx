@@ -26,6 +26,8 @@ describe('PokList', () => {
       deletedAt: null,
       createdAt: '2026-02-14T10:00:00Z',
       updatedAt: '2026-02-14T10:00:00Z',
+      tags: [],
+      pendingSuggestions: [],
     },
     {
       id: '2',
@@ -35,6 +37,8 @@ describe('PokList', () => {
       deletedAt: null,
       createdAt: '2026-02-14T09:00:00Z',
       updatedAt: '2026-02-14T09:00:00Z',
+      tags: [],
+      pendingSuggestions: [],
     },
   ];
 

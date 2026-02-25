@@ -1,4 +1,5 @@
 import { apiFetch } from './api';
+import type { Tag, TagSuggestion } from './tagApi';
 
 /**
  * POK (Piece of Knowledge) data types.
@@ -11,6 +12,8 @@ export interface Pok {
   deletedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  tags: Tag[];
+  pendingSuggestions: TagSuggestion[];
 }
 
 export interface CreatePokDto {
