@@ -1,0 +1,39 @@
+'use client';
+
+import { useParams } from 'next/navigation';
+import type { Pok } from '@/lib/pokApi';
+import { PokCard } from './PokCard';
+
+interface MonthGroupProps {
+  /** ISO date string for any day within the target month (used to format the header). */
+  monthDate: string;
+  poks: Pok[];
+}
+
+/**
+ * A single month section within the timeline view.
+ *
+ * Renders a locale-aware "Month Year" <h2> heading (NFR4, NFR10) followed by
+ * a list of PokCard components for every learning captured that month.
+ */
+export function MonthGroup({ monthDate, poks }: MonthGroupProps) {
+  const params = useParams<{ locale: string }>();
+
+  const label = new Intl.DateTimeFormat(params.locale, {
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(monthDate));
+
+  return (
+    <section className="mb-8">
+      <h2 className="mb-3 text-xl font-semibold capitalize text-gray-900 dark:text-gray-100">
+        {label}
+      </h2>
+      <div className="flex flex-col gap-3">
+        {poks.map((pok) => (
+          <PokCard key={pok.id} pok={pok} />
+        ))}
+      </div>
+    </section>
+  );
+}
