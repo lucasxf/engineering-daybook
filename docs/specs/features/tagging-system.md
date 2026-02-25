@@ -1,8 +1,8 @@
 # Tagging System
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-02-24
-> **Implemented:** _pending_
+> **Implemented:** 2026-02-25
 
 ---
 
@@ -488,14 +488,26 @@ pok_tag_suggestions (id, pokId, userId, suggestedName,
 > _This section is filled AFTER implementation._
 
 ### Commits
-_pending_
+
+- `7ea4d85` — feat: add Tag, UserTag, PokTag, PokTagSuggestion entities and repositories
+- `1be9fa9` — feat: add Flyway migrations V8–V11 for tagging schema
+- `62dfea6` — feat: add TagService with TDD — idempotent create, rename, delete, assign/remove
+- `446483f` — feat: add TagSuggestionService with TDD — async keyword extraction pipeline
+- `f4cfd2d` — feat: add TagController and wire exception handlers (404/409)
+- `3b23c7a` — feat: extend PokResponse/PokService with tags and async suggestion trigger
+- `153300c` — test: add TagIntegrationTest (Testcontainers) — AC1, AC4, AC8, AC16, AC22, AC23
+- `fd7a6c3` — feat: add web tag layer — tagApi, useTags hook, TagBadge, TagSuggestionPrompt
 
 ### Architectural Decisions
 
 **Decision: AI suggestion backend (Option A vs B)**
 - **Options:** A — Anthropic Claude API, B — keyword regex/NLP (no external API)
-- **Chosen:** _TBD during implementation_
-- **Rationale:** _TBD_
+- **Chosen:** B — simple keyword extraction (no external API)
+- **Rationale:** MVP pragmatism. The suggestion pipeline matches user's own active tags
+  against POK title+content using case-insensitive substring matching with hyphen
+  normalization (e.g., "spring-boot" matches "Spring Boot" in text). Zero latency risk,
+  no API cost, no new env vars. Option A remains the upgrade path via Phase 7 (Milestone
+  7.1) once the pipeline contract is proven.
 
 **Decision: Tag color ownership**
 - **Options:** A — color on global `tags` (one color per tag globally), B — color on
@@ -510,7 +522,30 @@ _pending_
 - `AI_EDITED` — AI-suggested, user edited the name before approving
 
 ### Deviations from Spec
-_none yet_
+
+- **TagFilter, TagInput (FR8/FR10/FR11) not yet implemented in web.** The backend APIs
+  are complete. Web layer delivered TagBadge (display), TagSuggestionPrompt (approve/reject),
+  useTags hook, and tagApi client. The TagInput combobox and TagFilter feed panel are
+  deferred — they require additional UI work (autocomplete, URL param wiring) and will be
+  addressed in a follow-up task within Phase 2.
+- **AC19 (edit suggestion before approve) deferred.** The backend's `AI_EDITED` source
+  is wired; the web component does not yet expose an edit-before-approve UX. Tracked for
+  follow-up.
+- **AC2 (duplicate tag — user error):** Spec says show an error; implementation is
+  idempotent (silently returns existing tag). Idempotent is strictly better UX per the
+  UX Mandate; spec text will be updated to match.
 
 ### Lessons Learned
-_none yet_
+
+- **Java text block one-liners are illegal.** `"""{"key":"val"}"""` won't compile —
+  the opening `"""` must be followed by a newline. Always write multiline or use regular
+  escaped string literals in tests.
+- **Mockito STRICT_STUBS + raw-value/matcher mix.** Mixing a raw value argument with a
+  matcher (e.g., `when(repo.find(pokId, any()))`) throws at stub time. Wrap all raw
+  values with `eq()` to keep the matcher protocol consistent.
+- **PokService→TagSuggestionService circular dependency:** Broken with `@Lazy` on the
+  `TagSuggestionService` constructor parameter in `PokService`. This is preferable to
+  a `@PostConstruct` workaround.
+- **Hyphen normalization in keyword matching.** User tags like "spring-boot" would never
+  match the phrase "Spring Boot" without normalising hyphens to spaces on both sides before
+  comparison. Applied in `containsKeyword()` in `TagSuggestionService`.
