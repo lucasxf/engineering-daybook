@@ -24,6 +24,19 @@ vi.mock('@/lib/api', () => ({
   ApiRequestError: class ApiRequestError extends Error {},
 }));
 
+vi.mock('@/hooks/useAuth', () => ({
+  useAuth: () => ({
+    user: { userId: 'user-1', email: 'test@example.com', handle: 'testuser' },
+    isAuthenticated: true,
+    isLoading: false,
+    login: vi.fn(),
+    register: vi.fn(),
+    logout: vi.fn(),
+    googleLogin: vi.fn(),
+    completeGoogleSignup: vi.fn(),
+  }),
+}));
+
 const mockGetAll = vi.mocked(pokApi.getAll);
 
 const makePok = (id: string, overrides?: Partial<Pok>): Pok => ({
