@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Pok } from '@/lib/pokApi';
+import { TagBadge } from './TagBadge';
 
 interface PokCardProps {
   pok: Pok;
@@ -48,6 +49,18 @@ export function PokCard({ pok }: PokCardProps) {
         <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
           {contentPreview}
         </p>
+        {pok.tags && pok.tags.length > 0 && (
+          <div className="mb-2 flex flex-wrap gap-1">
+            {pok.tags.slice(0, 3).map((tag) => (
+              <TagBadge key={tag.id} tag={tag} />
+            ))}
+            {pok.tags.length > 3 && (
+              <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-gray-500 dark:text-gray-400">
+                +{pok.tags.length - 3}
+              </span>
+            )}
+          </div>
+        )}
         <time
           dateTime={pok.updatedAt}
           className="text-xs text-gray-500 dark:text-gray-500"

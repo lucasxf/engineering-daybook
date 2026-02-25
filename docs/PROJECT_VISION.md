@@ -7,15 +7,15 @@
 
 ## 1. Origin
 
-The learnimo concept comes from "The Pragmatic Programmer" by David Thomas and Andrew Hunt. In the book, they describe how engineers in traditional industries would maintain physical notebooks to record daily learnings — and those with the fullest notebooks would take pride in their accumulated knowledge.
+The learnimo concept was inspired by "The Pragmatic Programmer" by David Thomas and Andrew Hunt. In the book, they describe how engineers in traditional industries would maintain physical notebooks to record daily learnings — and those with the fullest notebooks would take pride in their accumulated knowledge.
 
-This project brings that practice into the digital age, purpose-built for software engineers.
+This project brings that practice into the digital age — for everyone who learns and wants to hold onto what they know.
 
 ---
 
 ## 2. Vision Statement
 
-**learnimo is a personal knowledge management tool that helps engineers capture, organize, and recall their daily learnings — without the noise of general-purpose tools or the unpredictability of AI-generated content.**
+**learnimo is a personal learning journal that helps anyone capture, organize, and recall what they learn — without the noise of general-purpose tools or the unpredictability of AI-generated content.**
 
 The core promise: **Your knowledge, exactly as you recorded it, findable when you need it.**
 
@@ -25,7 +25,7 @@ The core promise: **Your knowledge, exactly as you recorded it, findable when yo
 
 ### The Pain Points
 
-1. **Knowledge Scattering:** Engineers learn something new, apply it, and forget where they documented it (if at all). Learnings end up spread across Slack messages, random `.txt` files, browser bookmarks, and memory.
+1. **Knowledge Scattering:** You learn something new, apply it, and forget where you documented it — if at all. Learnings end up spread across chat messages, random `.txt` files, browser bookmarks, and memory.
 
 2. **Tool Overload:** General-purpose tools (OneNote, Notion, Obsidian) are powerful but noisy. They try to do everything — project management, task tracking, note-taking — creating clutter that buries learnings.
 
@@ -37,16 +37,16 @@ The core promise: **Your knowledge, exactly as you recorded it, findable when yo
 
 ## 4. Target Audience
 
-**Primary:** Software engineers (junior to senior) who:
-- Value continuous learning
-- Want to build a personal knowledge base
-- Are frustrated with existing tools' noise-to-signal ratio
-- Need reliable, searchable access to past learnings
+**Primary:** Anyone who learns continuously and wants to hold onto what they know:
+- Curious people who pick up new things across many domains
+- Professionals building a personal knowledge base in their field
+- Students who want to retain and retrieve what they study
+- Anyone frustrated with existing tools' noise-to-signal ratio
 
 **Secondary:**
-- Tech leads documenting patterns and decisions
-- Engineers preparing for interviews (brag docs, experience recall)
-- Anyone maintaining a professional learning journal
+- People documenting patterns, decisions, and lessons learned at work
+- Anyone preparing a record of their experience and accomplishments
+- Readers who want to remember and connect ideas from books and articles
 
 ---
 
@@ -60,7 +60,7 @@ Each piece of knowledge (POK) is:
 - **Timestamped:** Creation and modification dates tracked
 - **Tagged:** Categorized for discoverability
 
-### 5.2 Engineer-First Design
+### 5.2 Learner-First Design
 
 - Clean, distraction-free interface
 - Fast capture (mobile + web)
@@ -155,10 +155,10 @@ Each piece of knowledge (POK) is:
 
 In 2+ years, learnimo could become:
 
-1. **The engineer's second brain** — seamlessly integrated into daily workflow
-2. **Interview prep companion** — auto-generating brag docs from your learning history
-3. **Team knowledge layer** — optional sharing of curated learnings (without losing personal focus)
-4. **Cross-platform presence** — IDE plugins, browser extensions, CLI tools
+1. **Your second brain** — seamlessly integrated into your daily learning workflow
+2. **Record of accomplishment** — your learning history as a personal portfolio
+3. **Community knowledge layer** — optional sharing of curated learnings (without losing personal focus)
+4. **Cross-platform presence** — browser extensions, mobile, CLI tools
 
 But first: **nail the MVP for one user (the author).**
 
@@ -170,3 +170,4 @@ But first: **nail the MVP for one user (the author).**
 |:-------:|:----:|:------:|:--------|
 | 1.0 | 2026-01-29 | Lucas Xavier Ferreira | Initial version |
 | 1.1 | 2026-02-21 | Lucas Xavier Ferreira | Added § 5.3 Minimum Friction as core principle; renumbered Trust & Integrity to § 5.4 |
+| 1.2 | 2026-02-24 | Lucas Xavier Ferreira | Broadened scope — learnimo is a learning journal for everyone, not engineers only; updated Vision Statement, Problem Statement, Target Audience, § 5.2, and North Star |

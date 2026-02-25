@@ -5,6 +5,7 @@ import com.lucasxf.ed.dto.CreatePokRequest;
 import com.lucasxf.ed.dto.PokAuditLogResponse;
 import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
+import java.util.Collections;
 import com.lucasxf.ed.exception.PokAccessDeniedException;
 import com.lucasxf.ed.exception.PokNotFoundException;
 import com.lucasxf.ed.config.CorsProperties;
@@ -69,7 +70,7 @@ class PokControllerTest {
         // Given
         CreatePokRequest request = new CreatePokRequest("Test Title", "Test content");
         PokResponse response = new PokResponse(
-            pokId, userId, "Test Title", "Test content", null, Instant.now(), Instant.now()
+            pokId, userId, "Test Title", "Test content", null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
 
         when(pokService.create(any(CreatePokRequest.class), any(UUID.class)))
@@ -94,7 +95,7 @@ class PokControllerTest {
         // Given: Title is optional (frictionless capture)
         CreatePokRequest request = new CreatePokRequest(null, "Content without title");
         PokResponse response = new PokResponse(
-            pokId, userId, null, "Content without title", null, Instant.now(), Instant.now()
+            pokId, userId, null, "Content without title", null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
 
         when(pokService.create(any(CreatePokRequest.class), any(UUID.class)))
@@ -158,7 +159,7 @@ class PokControllerTest {
     void getPokById_whenExists_shouldReturn200() throws Exception {
         // Given
         PokResponse response = new PokResponse(
-            pokId, userId, "Title", "Content", null, Instant.now(), Instant.now()
+            pokId, userId, "Title", "Content", null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
 
         when(pokService.getById(eq(pokId), any(UUID.class))).thenReturn(response);
@@ -218,10 +219,10 @@ class PokControllerTest {
     void listPoks_shouldReturn200WithPagedResults() throws Exception {
         // Given
         PokResponse pok1 = new PokResponse(
-            UUID.randomUUID(), userId, "Title 1", "Content 1", null, Instant.now(), Instant.now()
+            UUID.randomUUID(), userId, "Title 1", "Content 1", null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
         PokResponse pok2 = new PokResponse(
-            UUID.randomUUID(), userId, null, "Content 2", null, Instant.now(), Instant.now()
+            UUID.randomUUID(), userId, null, "Content 2", null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
 
         Page<PokResponse> page = new PageImpl<>(
@@ -282,7 +283,7 @@ class PokControllerTest {
         // Given
         UpdatePokRequest request = new UpdatePokRequest("Updated Title", "Updated content");
         PokResponse response = new PokResponse(
-            pokId, userId, "Updated Title", "Updated content", null, Instant.now(), Instant.now()
+            pokId, userId, "Updated Title", "Updated content", null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
 
         when(pokService.update(eq(pokId), any(UpdatePokRequest.class), any(UUID.class)))
@@ -306,7 +307,7 @@ class PokControllerTest {
         // Given: User removes title (sets to null)
         UpdatePokRequest request = new UpdatePokRequest(null, "Content only");
         PokResponse response = new PokResponse(
-            pokId, userId, null, "Content only", null, Instant.now(), Instant.now()
+            pokId, userId, null, "Content only", null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
 
         when(pokService.update(eq(pokId), any(UpdatePokRequest.class), any(UUID.class)))
@@ -439,7 +440,7 @@ class PokControllerTest {
     void searchPoks_withKeyword_shouldReturn200() throws Exception {
         // Given
         PokResponse pok = new PokResponse(
-            pokId, userId, "Spring Boot", "Content about Spring", null, Instant.now(), Instant.now()
+            pokId, userId, "Spring Boot", "Content about Spring", null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
         Page<PokResponse> page = new PageImpl<>(List.of(pok), PageRequest.of(0, 20), 1);
 

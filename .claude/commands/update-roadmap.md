@@ -1,33 +1,36 @@
 ---
-description: Update ROADMAP.md with current progress
+description: Update the current phase file with session progress
 argument-hint: <what-was-completed>
 ---
 
-@ROADMAP.md
+**Update the active phase file with session progress.**
 
-**Update ROADMAP.md with session progress.**
+> ⚠️ This command edits `docs/ROADMAP.phase-{N}.md` — NOT `docs/ROADMAP.md`.
+> `ROADMAP.md` is the index only; never add milestone details to it.
 
 Context: $ARGUMENTS
 
 **Workflow:**
 
-1. **Analyze current ROADMAP.md state**
-   - Identify "In Progress" items
-   - Review "Next Steps" priorities
+1. **Detect current phase**
+   ```bash
+   grep "CURRENT_PHASE:" docs/ROADMAP.md
+   # e.g. <!-- CURRENT_PHASE: 1 --> → edit docs/ROADMAP.phase-1.md
+   ```
 
-2. **Determine updates needed**
-   - If `$ARGUMENTS` provided → Use as context for what was completed
-   - If no arguments → Ask user: "What was completed this session?"
+2. **Read the phase file**
+   - Load `docs/ROADMAP.phase-{N}.md`
+   - Identify items to update based on `$ARGUMENTS` (or ask: "What was completed this session?")
 
-3. **Apply updates**
-   - Move completed items from "In Progress" → "Implemented"
-   - Update "In Progress" with current work
-   - Reprioritize "Next Steps" if needed
-   - Update "Last updated" timestamp
+3. **Apply updates to the phase file**
+   - Mark completed items as ✅
+   - Move newly completed milestones into the "Completed" section
+   - Update "Active / Pending" with remaining work
 
-4. **Show diff**
-   - Display changes for review
+4. **If a full phase is now complete**
+   - Update `<!-- CURRENT_PHASE: N -->` in `docs/ROADMAP.md` to `N+1`
+   - Update the status table row in `docs/ROADMAP.md`
+   - Update `CLAUDE.md` "Current Focus" section
 
-5. **Commit prompt**
-   - Ask: "Commit ROADMAP.md update? (y/n)"
-   - If yes, commit with: "docs: Update ROADMAP.md - [brief summary]"
+5. **Show diff and confirm**
+   - Display changes for review before committing

@@ -40,9 +40,9 @@ This document defines the functional and non-functional requirements for the lea
 
 **Use Case: Recording Something New**
 
-> An engineer faces a bug while working on a feature. They search the web and find a solution in documentation or an article. After applying and testing the solution, they open ED and write: "Whenever doing X, use library Y to address Z issue."
+> A learner encounters a problem, searches for a solution, and after applying it, opens learnimo and writes: "Whenever doing X, use approach Y to address Z."
 >
-> ED classifies and records the learning with:
+> learnimo records the learning with:
 > - Creation timestamp
 > - Auto-suggested tags (e.g., `#backend`, `#java`, `#caching`)
 > - User-approved or modified tags
@@ -64,9 +64,9 @@ This document defines the functional and non-functional requirements for the lea
 
 **Use Case: Searching**
 
-> An engineer is working on a feature that uses a concept they previously recorded. They open ED and type "REST API" or "loose coupling" in the search bar.
+> A learner wants to revisit something they previously recorded. They open learnimo and type a keyword or concept in the search bar.
 >
-> The app returns a list of POKs matching those concepts, sorted by relevance. The engineer selects one to refresh their memory on the subject.
+> The app returns a list of learnings matching those concepts, sorted by relevance. The learner selects one to refresh their memory.
 
 ---
 
@@ -329,3 +329,4 @@ main                          # Production-ready releases only
 | 1.0 | 2026-01-29 | Lucas Xavier Ferreira | Initial version |
 | 1.1 | 2026-02-21 | Lucas Xavier Ferreira | Added AUTH-04 implementation gap note; added USE-06 through USE-09 (MVP UX Review findings); updated MoSCoW summary |
 | 1.2 | 2026-02-22 | Lucas Xavier Ferreira | Moved AUTH-04 gap note outside table (rendering fix); added USE-10 to MoSCoW Must Have |
+| 1.3 | 2026-02-24 | Lucas Xavier Ferreira | Broadened scope — updated use-case examples from "engineer" to generic learner framing |

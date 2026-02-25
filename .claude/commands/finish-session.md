@@ -22,6 +22,21 @@ Execute the following steps in order:
 For each layer, check whether files in that directory were modified this session before running:
 
 **Backend** — only if `backend/` files changed:
+
+First, verify Docker is running (required for Testcontainers integration tests):
+```bash
+docker info > /dev/null 2>&1 && echo "DOCKER_OK" || echo "DOCKER_DOWN"
+```
+
+**If DOCKER_DOWN:**
+1. Attempt to start Docker Desktop:
+   ```bash
+   start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe" && sleep 20
+   docker info > /dev/null 2>&1 && echo "DOCKER_OK" || echo "DOCKER_STILL_DOWN"
+   ```
+2. If still down → **STOP. Ask the user** whether to wait for Docker or abort. Do NOT proceed without Docker — integration tests will be silently skipped, leaving coverage data incomplete and integration regressions undetected.
+
+**If DOCKER_OK:** proceed:
 ```bash
 cd backend && mvn verify -q        # compiles, tests, and checks in one pass
 ```
@@ -101,6 +116,9 @@ If a layer was not touched this session, skip it entirely.
 - The ONLY exception is if the user explicitly says "commit anyway" or "bypass" — in that case, warn clearly and proceed only with their confirmation
 
 ## 2. Update Phase File and Archive Completed Milestones (REQUIRED - Delegate to tech-writer)
+
+> ⚠️ **ROADMAP.md is an index only.** Never write milestone details into it.
+> All milestone updates go in `docs/ROADMAP.phase-{N}.md` only.
 
 **Determine session context:**
 - If `$ARGUMENTS` contains sufficient details → Use it directly

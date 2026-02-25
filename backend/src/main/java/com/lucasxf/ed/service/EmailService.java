@@ -15,6 +15,10 @@ import static java.util.Objects.requireNonNull;
 /**
  * Service for sending transactional emails via JavaMailSender (SMTP).
  *
+ * <p>The base URL used in reset links is configurable via the {@code APP_BASE_URL}
+ * environment variable, defaulting to {@code https://learnimo.net}. This allows
+ * the service to work correctly across all active domains (e.g. learnimo.com.br).
+ *
  * @author Lucas Xavier Ferreira
  * @since 2026-02-21
  */
@@ -22,15 +26,16 @@ import static java.util.Objects.requireNonNull;
 @Service
 public class EmailService {
 
-    private static final String RESET_LINK_BASE = "https://learnimo.net";
-
     private final JavaMailSender mailSender;
     private final String fromAddress;
+    private final String appBaseUrl;
 
     public EmailService(JavaMailSender mailSender,
-                        @Value("${MAIL_FROM:noreply@learnimo.net}") String fromAddress) {
+                        @Value("${MAIL_FROM:noreply@learnimo.net}") String fromAddress,
+                        @Value("${APP_BASE_URL:https://learnimo.net}") String appBaseUrl) {
         this.mailSender = requireNonNull(mailSender);
         this.fromAddress = requireNonNull(fromAddress);
+        this.appBaseUrl = requireNonNull(appBaseUrl);
     }
 
     /**
@@ -42,7 +47,7 @@ public class EmailService {
      */
     public void sendPasswordResetEmail(User user, String rawToken) {
         String locale = normalizeLocale(user.getLocale());
-        String resetLink = RESET_LINK_BASE + "/" + locale + "/reset-password?token=" + rawToken;
+        String resetLink = appBaseUrl + "/" + locale + "/reset-password?token=" + rawToken;
 
         boolean isPtBr = "pt-BR".equals(locale);
 

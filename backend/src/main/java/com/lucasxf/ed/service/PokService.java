@@ -2,8 +2,10 @@ package com.lucasxf.ed.service;
 
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.UUID;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -11,19 +13,24 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.PokAuditLog;
 import com.lucasxf.ed.domain.PokAuditLog.Action;
+import com.lucasxf.ed.domain.PokTag;
+import com.lucasxf.ed.domain.UserTag;
 import com.lucasxf.ed.dto.CreatePokRequest;
 import com.lucasxf.ed.dto.PokAuditLogResponse;
 import com.lucasxf.ed.dto.PokResponse;
+import com.lucasxf.ed.dto.TagResponse;
+import com.lucasxf.ed.dto.TagSuggestionResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
 import com.lucasxf.ed.exception.PokAccessDeniedException;
 import com.lucasxf.ed.exception.PokNotFoundException;
 import com.lucasxf.ed.repository.PokAuditLogRepository;
 import com.lucasxf.ed.repository.PokRepository;
+import com.lucasxf.ed.repository.PokTagRepository;
+import com.lucasxf.ed.repository.PokTagSuggestionRepository;
+import com.lucasxf.ed.repository.UserTagRepository;
 import lombok.extern.slf4j.Slf4j;
 
 import static java.util.Objects.requireNonNull;
@@ -47,10 +54,23 @@ public class PokService {
 
     private final PokRepository pokRepository;
     private final PokAuditLogRepository pokAuditLogRepository;
+    private final PokTagRepository pokTagRepository;
+    private final UserTagRepository userTagRepository;
+    private final PokTagSuggestionRepository pokTagSuggestionRepository;
+    private final TagSuggestionService tagSuggestionService;
 
-    public PokService(PokRepository pokRepository, PokAuditLogRepository pokAuditLogRepository) {
+    public PokService(PokRepository pokRepository,
+                      PokAuditLogRepository pokAuditLogRepository,
+                      PokTagRepository pokTagRepository,
+                      UserTagRepository userTagRepository,
+                      PokTagSuggestionRepository pokTagSuggestionRepository,
+                      @Lazy TagSuggestionService tagSuggestionService) {
         this.pokRepository = requireNonNull(pokRepository);
         this.pokAuditLogRepository = requireNonNull(pokAuditLogRepository);
+        this.pokTagRepository = requireNonNull(pokTagRepository);
+        this.userTagRepository = requireNonNull(userTagRepository);
+        this.pokTagSuggestionRepository = requireNonNull(pokTagSuggestionRepository);
+        this.tagSuggestionService = requireNonNull(tagSuggestionService);
     }
 
     /**
@@ -71,6 +91,9 @@ public class PokService {
             savedPok.getId(), userId, request.title() != null && !request.title().isEmpty());
 
         logCreate(savedPok, userId);
+
+        // Trigger async AI tag suggestions (non-blocking)
+        tagSuggestionService.suggestTagsForPok(savedPok.getId(), userId);
 
         return PokResponse.from(savedPok);
     }
@@ -93,7 +116,10 @@ public class PokService {
 
         verifyOwnership(pok, userId);
 
-        return PokResponse.from(pok);
+        List<TagResponse> tags = buildTagResponses(pok.getId(), userId);
+        List<TagSuggestionResponse> suggestions = buildSuggestionResponses(pok.getId());
+
+        return PokResponse.from(pok, tags, suggestions);
     }
 
     /**
@@ -112,7 +138,8 @@ public class PokService {
 
         log.debug("Found {} POKs for user {}", poks.getTotalElements(), userId);
 
-        return poks.map(PokResponse::from);
+        List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
+        return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()));
     }
 
     /**
@@ -180,7 +207,8 @@ public class PokService {
 
         log.debug("Found {} POKs matching search criteria for user {}", poks.getTotalElements(), userId);
 
-        return poks.map(PokResponse::from);
+        List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
+        return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()));
     }
 
     /**
@@ -329,6 +357,46 @@ public class PokService {
             .stream()
             .map(PokAuditLogResponse::from)
             .toList();
+    }
+
+    /**
+     * Builds the tag response list for a single POK, fetching the user's tags from the database.
+     * Use the overload that accepts a pre-fetched {@code userTags} list when processing multiple
+     * POKs in bulk to avoid N+1 queries.
+     *
+     * @param pokId  the POK's ID
+     * @param userId the owner's user ID (used to look up tags)
+     * @return list of {@link TagResponse} for the POK's assigned tags
+     */
+    private List<TagResponse> buildTagResponses(UUID pokId, UUID userId) {
+        List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
+        return buildTagResponses(pokId, userTags);
+    }
+
+    /**
+     * Builds the tag response list for a single POK from a pre-fetched list of the user's tags.
+     * Callers that process multiple POKs should fetch {@code userTags} once and pass it here
+     * to avoid issuing one query per POK (N+1 problem).
+     *
+     * @param pokId     the POK's ID
+     * @param userTags  the caller-supplied list of the user's active tags
+     * @return list of {@link TagResponse} for the POK's assigned tags
+     */
+    private List<TagResponse> buildTagResponses(UUID pokId, List<UserTag> userTags) {
+        return pokTagRepository.findByPokId(pokId).stream()
+                .map(PokTag::getTagId)
+                .flatMap(tagId -> userTags.stream()
+                        .filter(ut -> ut.getTag().getId() != null && ut.getTag().getId().equals(tagId)))
+                .map(TagResponse::from)
+                .toList();
+    }
+
+    private List<TagSuggestionResponse> buildSuggestionResponses(UUID pokId) {
+        return pokTagSuggestionRepository
+                .findByPokIdAndStatus(pokId, com.lucasxf.ed.domain.PokTagSuggestion.Status.PENDING)
+                .stream()
+                .map(TagSuggestionResponse::from)
+                .toList();
     }
 
     private void logCreate(Pok pok, UUID userId) {

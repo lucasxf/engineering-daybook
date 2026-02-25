@@ -16,15 +16,65 @@ This command delegates to `product-manager` agent (and optionally `frontend-ux-s
 
 ## Phase 0: Branch Verification
 
-Before making any file changes or commits:
+Before making any file changes or commits, perform a full branch intelligence check.
 
-1. Run `git branch --show-current` to get the current branch
-2. Run `git status --short` to check for uncommitted changes
-3. Display to the user: **"Current branch: `<branch>`"**
-4. Evaluate whether the branch is appropriate for writing a spec (typically `docs/*` or `main`)
-5. **If the branch looks unrelated to the work** (e.g., a feature branch for a different task): STOP. Warn the user: "You're on branch `<branch>`. This doesn't look like the right branch for writing a spec. Please switch to the correct branch before continuing."
-6. **If there are uncommitted changes:** Warn the user and ask whether to proceed or stash first.
-7. **If the branch looks appropriate:** Proceed.
+### 0.1 Gather Current State
+
+Run in parallel:
+- `git branch --show-current` — current branch
+- `git status --short` — uncommitted changes
+
+Display: **"Current branch: `<branch>`"**
+
+### 0.2 Derive Feature Slug
+
+From `$ARGUMENTS` (spec path or feature description), extract the feature slug:
+- Path: `docs/specs/features/tagging-system.md` → slug = `tagging-system`
+- Description: `"POK CRUD"` → slug = `pok-crud`
+
+### 0.3 Search for Existing Branches
+
+Run in parallel:
+```bash
+git branch | grep <slug>       # local branches matching the slug
+git branch -r | grep <slug>    # remote branches matching the slug
+```
+
+**If matching branches exist (local or remote):**
+- List them to the user with their full names
+- If the current branch is NOT one of them, use AskUserQuestion to offer:
+  1. Switch to the best-matching local branch
+  2. Checkout the remote branch locally (if only on remote: `git checkout -b feat/<slug> origin/feat/<slug>`)
+  3. Create a new `feat/<slug>` from `develop`
+  4. Stay on current branch (not recommended — warn why)
+
+**If no matching branches exist AND the current branch looks wrong:**
+(wrong = `main`, `develop`, a merged branch, or a branch for a clearly different topic)
+- Warn: "No `<slug>` branch found. Current branch `<current>` doesn't look right for this spec."
+- Use AskUserQuestion to offer:
+  1. Create `feat/<slug>` from `develop` (Recommended)
+  2. Stay on current branch
+
+**If the current branch already matches the slug:** Proceed to 0.4.
+
+### 0.4 Check Branch Freshness
+
+If on a feature branch (not `develop` or `main`), check whether it is behind `develop`:
+```bash
+git fetch origin develop --quiet
+git log HEAD..origin/develop --oneline
+```
+
+**If behind develop (output is non-empty):**
+- Warn: "Branch `<branch>` is N commits behind `origin/develop`. Writing a spec on a stale branch may cause merge conflicts later."
+- Use AskUserQuestion to offer:
+  1. Rebase on develop now — `git rebase origin/develop`
+  2. Continue without rebasing
+
+### 0.5 Uncommitted Changes
+
+**If `git status --short` shows tracked modified/staged files:** Warn and use AskUserQuestion to ask whether to stash or proceed.
+**If only untracked files (`??`):** Safe to ignore — proceed automatically.
 
 ---
 

@@ -25,7 +25,7 @@
 |-------|------|--------|
 | 0 — Foundation | `ROADMAP.phase-0.md` | ✅ Complete |
 | 1 — MVP | `ROADMAP.phase-1.md` | 🔄 Active |
-| 2 — Evolution | `ROADMAP.phase-2.md` | 🔄 Started (2.1 done) |
+| 2 — Evolution | `ROADMAP.phase-2.md` | 🔄 Started (2.1 done; 2.2 partially implemented) |
 | 3 — AI & Mobile | `ROADMAP.phase-3.md` | ⏳ Planned |
 | 4 — Growth | `ROADMAP.phase-4.md` | ⏳ Planned |
 | 5 — Privacy | `ROADMAP.phase-5.md` | ⏳ Planned |
@@ -63,10 +63,10 @@
 
 ## Maintenance
 
-When all items in a milestone are ✅:
-1. Move the milestone section to the appropriate `ROADMAP.phase-N.md` (if not already there)
-2. Update the phase status in this file
-3. Update `CLAUDE.md` "Current Focus" to reflect the active phase
-4. Update `README.md` if the phase or active milestone changed
+Updates go in phase files (`ROADMAP.phase-{N}.md`), not here.
 
-> `/finish-session` automates steps 1–4 when a milestone is completed.
+Only update this index when:
+1. A full phase completes → bump `CURRENT_PHASE` and update the status table
+2. A phase's summary status changes → update the status column
+
+> `/finish-session` and `/update-roadmap` update phase files; they touch this file only on phase completion.
