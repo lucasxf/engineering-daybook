@@ -23,8 +23,8 @@
 | `/docs/REQUIREMENTS.md` | Features and priorities |
 | `/docs/ARCHITECTURE.md` | Tech decisions, ADRs |
 | `/docs/GLOSSARY.md` | Terminology |
-| `/docs/ROADMAP.md` | Active milestones and upcoming work |
-| `/docs/ROADMAP.archive.md` | Completed milestones (Phase 0, Phase 1 1.1–1.5) |
+| `/docs/ROADMAP.md` | Phase index — active phase marker, phase list |
+| `/docs/ROADMAP.phase-N.md` | Full detail for phase N (e.g. `ROADMAP.phase-1.md`) |
 
 ---
 

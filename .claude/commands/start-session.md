@@ -44,23 +44,23 @@ Unless `--phase=N` was explicitly provided in `$ARGUMENTS`, use the detected pha
 ### Backend Session
 @CLAUDE.md
 @backend/CLAUDE.md
-@docs/ROADMAP.phase-{N}.md
+Then use the Read tool to load: `docs/ROADMAP.phase-{N}.md` (replace `{N}` with the phase from Step 2)
 
 ### Web Session
 @CLAUDE.md
 @web/CLAUDE.md
-@docs/ROADMAP.phase-{N}.md
+Then use the Read tool to load: `docs/ROADMAP.phase-{N}.md` (replace `{N}` with the phase from Step 2)
 
 ### Mobile Session
 @CLAUDE.md
 @mobile/CLAUDE.md
-@docs/ROADMAP.phase-{N}.md
+Then use the Read tool to load: `docs/ROADMAP.phase-{N}.md` (replace `{N}` with the phase from Step 2)
 
 ### Documentation Session
 @CLAUDE.md
 @docs/CLAUDE.md
 @docs/ROADMAP.md
-@docs/ROADMAP.phase-{N}.md
+Then use the Read tool to load: `docs/ROADMAP.phase-{N}.md` (replace `{N}` with the phase from Step 2)
 
 ### Full Context Session (use sparingly)
 @CLAUDE.md
@@ -69,9 +69,7 @@ Unless `--phase=N` was explicitly provided in `$ARGUMENTS`, use the detected pha
 @mobile/CLAUDE.md
 @docs/CLAUDE.md
 @docs/ROADMAP.md
-@docs/ROADMAP.phase-{N}.md
-
-> Replace `{N}` with the current phase number detected in Step 2.
+Then use the Read tool to load: `docs/ROADMAP.phase-{N}.md` (replace `{N}` with the phase from Step 2)
 
 **Session Context:** $ARGUMENTS
 
