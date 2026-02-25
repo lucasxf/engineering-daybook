@@ -2,7 +2,7 @@
 
 > A personal learning journal for everyone — capture, organize, and recall what you learn.
 
-🚀 **Status:** Phase 1 — MVP **Live at [learnimo.net](https://learnimo.net)**
+🚀 **Status:** Phase 1 — MVP **Live at [learnimo.net](https://learnimo.net) · [learnimo.com.br](https://learnimo.com.br)**
 
 ---
 
@@ -172,7 +172,7 @@ See [ROADMAP.phase-1.md](./docs/ROADMAP.phase-1.md)
 - [x] Learning CRUD (backend + web)
 - [x] Search (keyword, filters, sorting)
 - [x] Dark mode + i18n (EN/PT-BR)
-- [x] Deployed to production (learnimo.net)
+- [x] Deployed to production (learnimo.net · learnimo.com.br)
 - [x] Session persistence (httpOnly cookies)
 - [x] Inline quick-entry
 - [ ] Visual polish (1.7.6)

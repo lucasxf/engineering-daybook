@@ -23,6 +23,7 @@ import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
 import com.lucasxf.ed.exception.PokAccessDeniedException;
 import com.lucasxf.ed.exception.PokNotFoundException;
+import com.lucasxf.ed.dto.PokAuditLogResponse;
 import com.lucasxf.ed.repository.PokAuditLogRepository;
 import com.lucasxf.ed.repository.PokRepository;
 import com.lucasxf.ed.repository.PokTagRepository;
@@ -667,5 +668,146 @@ class PokServiceTest {
 
         // Then: no audit log entry written (transaction would roll back)
         verify(pokAuditLogRepository, never()).save(any(PokAuditLog.class));
+    }
+
+    // ===== GET HISTORY TESTS =====
+
+    @Test
+    void getHistory_whenPokExistsAndUserOwnsIt_shouldReturnAuditLogs() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(userId, "Title", "Content");
+        PokAuditLog log1 = new PokAuditLog(
+            pokId, userId, PokAuditLog.Action.CREATE,
+            null, "Title", null, "Content", Instant.now().minusSeconds(60)
+        );
+        PokAuditLog log2 = new PokAuditLog(
+            pokId, userId, PokAuditLog.Action.UPDATE,
+            "Title", "New Title", "Content", "New content", Instant.now()
+        );
+
+        when(pokRepository.findById(pokId)).thenReturn(Optional.of(pok));
+        when(pokAuditLogRepository.findByPokIdOrderByOccurredAtDesc(pokId))
+            .thenReturn(List.of(log2, log1));
+
+        // When
+        List<PokAuditLogResponse> history = pokService.getHistory(pokId, userId);
+
+        // Then: newest first, both entries returned
+        assertThat(history).hasSize(2);
+        assertThat(history.get(0).action()).isEqualTo("UPDATE");
+        assertThat(history.get(1).action()).isEqualTo("CREATE");
+
+        verify(pokRepository).findById(pokId);
+        verify(pokAuditLogRepository).findByPokIdOrderByOccurredAtDesc(pokId);
+    }
+
+    @Test
+    void getHistory_whenPokNotFound_shouldThrowPokNotFoundException() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+
+        when(pokRepository.findById(pokId)).thenReturn(Optional.empty());
+
+        // When/Then
+        assertThatThrownBy(() -> pokService.getHistory(pokId, userId))
+            .isInstanceOf(PokNotFoundException.class)
+            .hasMessage("POK not found");
+    }
+
+    @Test
+    void getHistory_whenPokBelongsToOtherUser_shouldThrowPokAccessDeniedException() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(otherUserId, "Title", "Content");
+
+        when(pokRepository.findById(pokId)).thenReturn(Optional.of(pok));
+
+        // When/Then
+        assertThatThrownBy(() -> pokService.getHistory(pokId, userId))
+            .isInstanceOf(PokAccessDeniedException.class);
+    }
+
+    // ===== SEARCH — UPDATED DATE FILTERS TESTS =====
+
+    @Test
+    void search_withUpdatedDateFilters_shouldParseAndPassDates() {
+        // Given
+        String updatedFrom = "2026-02-01T00:00:00Z";
+        String updatedTo = "2026-02-28T23:59:59Z";
+        int page = 0;
+        int size = 20;
+        Page<Pok> pokPage = new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
+
+        when(pokRepository.searchPoks(
+            eq(userId),
+            eq(null),
+            eq(null),
+            eq(null),
+            any(Instant.class),
+            any(Instant.class),
+            any(Pageable.class)
+        )).thenReturn(pokPage);
+
+        // When
+        Page<PokResponse> result = pokService.search(
+            userId, null, null, null, null, null, updatedFrom, updatedTo, page, size);
+
+        // Then: dates are parsed and passed through to repository
+        assertThat(result.getTotalElements()).isZero();
+        verify(pokRepository).searchPoks(
+            eq(userId), eq(null), eq(null), eq(null),
+            any(Instant.class), any(Instant.class), any(Pageable.class));
+    }
+
+    // ===== PARSE INSTANT ERROR PATH =====
+
+    @Test
+    void search_withInvalidDateFormat_shouldThrowIllegalArgumentException() {
+        // Given: a date string that is not ISO 8601
+        String invalidDate = "25-02-2026";
+
+        // When/Then
+        assertThatThrownBy(() ->
+            pokService.search(userId, null, null, null, invalidDate, null, null, null, 0, 20))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Invalid date format")
+            .hasMessageContaining(invalidDate);
+    }
+
+    // ===== BUILD SORT — INVALID FIELD =====
+
+    @Test
+    void search_withInvalidSortField_shouldThrowIllegalArgumentException() {
+        // Given: a sort field that is not in the whitelist
+        String invalidSortField = "id";
+
+        // When/Then
+        assertThatThrownBy(() ->
+            pokService.search(userId, null, invalidSortField, null, null, null, null, null, 0, 20))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Invalid sort field")
+            .hasMessageContaining(invalidSortField);
+    }
+
+    @Test
+    void search_withSortByUpdatedAtDesc_shouldBuildCorrectSort() {
+        // Given: updatedAt DESC is the default, but explicitly providing it should also work
+        String sortBy = "updatedAt";
+        String sortDirection = "DESC";
+        int page = 0;
+        int size = 20;
+        Page<Pok> pokPage = new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
+
+        when(pokRepository.searchPoks(
+            eq(userId), eq(null), eq(null), eq(null), eq(null), eq(null), any(Pageable.class)
+        )).thenReturn(pokPage);
+
+        // When
+        pokService.search(userId, null, sortBy, sortDirection, null, null, null, null, page, size);
+
+        // Then: verify call was made (DESC is the else-branch in buildSort)
+        verify(pokRepository).searchPoks(
+            eq(userId), eq(null), eq(null), eq(null), eq(null), eq(null), any(Pageable.class));
     }
 }
