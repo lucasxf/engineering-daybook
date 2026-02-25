@@ -3,7 +3,6 @@
 import { Suspense, useEffect, useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import { PokList } from '@/components/poks/PokList';
 import { QuickEntry } from '@/components/poks/QuickEntry';
 import { SearchBar } from '@/components/poks/SearchBar';
@@ -11,7 +10,6 @@ import { SortDropdown, type SortOption } from '@/components/poks/SortDropdown';
 import { NoSearchResults } from '@/components/poks/NoSearchResults';
 import { pokApi, type Pok, type PokSearchParams } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
-import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/poks/EmptyState';
 import { Toast } from '@/components/ui/Toast';
@@ -136,18 +134,18 @@ function PoksContent() {
   const hasSearchOrFilter = !!keyword;
   const isEmptyResults = !loading && poks.length === 0;
   const showNoResults = isEmptyResults && hasSearchOrFilter;
-  const showEmptyState = isEmptyResults && !hasSearchOrFilter;
+  // Only show empty state when the list is genuinely empty — not when an API error occurred.
+  // An API error (401, 500, network) leaves poks=[] which would otherwise show the empty
+  // state, making the user think their data is gone.
+  const showEmptyState = isEmptyResults && !hasSearchOrFilter && !error;
 
   return (
     <div className="mx-auto max-w-7xl py-8">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
           {t('list.title')}
         </h1>
-        <Link href={`/${params.locale}/poks/new` as never}>
-          <Button>{t('list.createButton')}</Button>
-        </Link>
       </div>
 
       {/* Inline quick-entry */}
@@ -182,9 +180,9 @@ function PoksContent() {
         <NoSearchResults onClearSearch={handleClearSearch} />
       ) : showEmptyState ? (
         <EmptyState />
-      ) : (
+      ) : poks.length > 0 ? (
         <PokList poks={poks} />
-      )}
+      ) : null}
 
       {/* Results count (when not loading and has results) */}
       {!loading && poks.length > 0 && (

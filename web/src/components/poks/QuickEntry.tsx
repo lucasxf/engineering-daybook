@@ -21,19 +21,22 @@ interface QuickEntryProps {
  */
 export function QuickEntry({ onSaved }: QuickEntryProps) {
   const t = useTranslations('poks');
+  const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSave = useCallback(async () => {
-    const trimmed = content.trim();
-    if (!trimmed || saving) return;
+    const trimmedContent = content.trim();
+    if (!trimmedContent || saving) return;
 
     setSaving(true);
     setError(null);
     try {
-      const pok = await pokApi.create({ content: trimmed });
+      const trimmedTitle = title.trim() || null;
+      const pok = await pokApi.create({ title: trimmedTitle, content: trimmedContent });
+      setTitle('');
       setContent('');
       onSaved(pok);
     } catch (err) {
@@ -46,7 +49,7 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
       setSaving(false);
       textareaRef.current?.focus();
     }
-  }, [content, saving, onSaved, t]);
+  }, [title, content, saving, onSaved, t]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -60,6 +63,15 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
 
   return (
     <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+      <input
+        type="text"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder={t('form.titlePlaceholder')}
+        disabled={saving}
+        className="mb-2 w-full rounded-md border border-gray-200 bg-transparent px-2 py-1.5 text-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:opacity-50 dark:border-gray-700 dark:placeholder-gray-500"
+        aria-label={t('form.titleLabel')}
+      />
       <textarea
         ref={textareaRef}
         value={content}
