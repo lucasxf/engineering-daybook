@@ -1,6 +1,6 @@
 # Tagging System
 
-> **Status:** Draft (revised 2026-02-25 — review applied)
+> **Status:** In Progress
 > **Created:** 2026-02-24
 > **Implemented:** _pending_
 
