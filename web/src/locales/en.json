@@ -110,12 +110,24 @@
       "clearButton": "Clear search",
       "error": "Failed to search learnings. Please try again."
     },
+    "views": {
+      "feed": "Feed",
+      "tags": "Tags",
+      "timeline": "Timeline"
+    },
     "sort": {
       "label": "Sort by",
       "newestFirst": "Newest first",
       "oldestFirst": "Oldest first",
-      "recentlyCreated": "Recently created",
-      "firstCreated": "First created"
+      "recentlyUpdated": "Recently updated",
+      "relevance": "Relevance"
+    },
+    "tagGroups": {
+      "untagged": "Untagged",
+      "nudge": "Add tags to your learnings to group them here."
+    },
+    "timeline": {
+      "title": "Timeline"
     },
     "filter": {
       "label": "Filter",

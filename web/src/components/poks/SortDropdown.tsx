@@ -16,35 +16,33 @@ interface SortDropdownProps {
 /**
  * Sort dropdown component for POK list.
  *
- * Options:
- * - Newest first (updatedAt DESC)
- * - Oldest first (updatedAt ASC)
- * - Recently created (createdAt DESC)
- * - First created (createdAt ASC)
+ * Three-option model (spec FR18):
+ * - Newest first     (createdAt DESC) — default, omitted from URL
+ * - Oldest first     (createdAt ASC)
+ * - Recently updated (updatedAt DESC)
+ *
+ * Legacy URL params (`sortBy=updatedAt&sortDirection=DESC`) that matched the
+ * old default are gracefully mapped to "Recently updated" rather than
+ * discarded, avoiding broken bookmarks.
  */
 export function SortDropdown({ value, onChange }: SortDropdownProps) {
   const t = useTranslations('poks.sort');
 
   const options: Array<{ key: string; label: string; value: SortOption }> = [
     {
-      key: 'updatedAt-DESC',
-      label: t('newestFirst'),
-      value: { sortBy: 'updatedAt', sortDirection: 'DESC' },
-    },
-    {
-      key: 'updatedAt-ASC',
-      label: t('oldestFirst'),
-      value: { sortBy: 'updatedAt', sortDirection: 'ASC' },
-    },
-    {
       key: 'createdAt-DESC',
-      label: t('recentlyCreated'),
+      label: t('newestFirst'),
       value: { sortBy: 'createdAt', sortDirection: 'DESC' },
     },
     {
       key: 'createdAt-ASC',
-      label: t('firstCreated'),
+      label: t('oldestFirst'),
       value: { sortBy: 'createdAt', sortDirection: 'ASC' },
+    },
+    {
+      key: 'updatedAt-DESC',
+      label: t('recentlyUpdated'),
+      value: { sortBy: 'updatedAt', sortDirection: 'DESC' },
     },
   ];
 
