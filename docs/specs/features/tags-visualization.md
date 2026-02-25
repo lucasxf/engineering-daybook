@@ -1,8 +1,8 @@
 # Tags Visualization
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-02-25
-> **Implemented:** _pending_
+> **Implemented:** 2026-02-25
 
 ---
 
@@ -243,7 +243,13 @@ Visualization views fetch `size=1000` for client-side grouping; feed stays at `s
 > _This section is filled AFTER implementation._
 
 ### Commits
-- `hash`: message
+- `6fb9799` refactor: extract usePoksData hook from poks feed page
+- `5b11b94` feat: add ViewSwitcher component
+- `4ab4ead` feat: add TagGroupedView and TagGroup components
+- `2812f4f` feat: add TimelineView and MonthGroup components
+- `f56de4a` feat: add dateField prop to PokCard, update SortDropdown, add i18n keys
+- `012394e` feat: wire poks feed page + add timeline route
+- `32cf5b5` test: add E2E scenarios for visualization views
 
 ### Architectural Decisions
 
@@ -258,7 +264,14 @@ Visualization views fetch `size=1000` for client-side grouping; feed stays at `s
 - **Rationale:** Personal journal scale. Complexity of B/C not justified. D defeats the purpose of grouped views. Revisit if user approaches 1,000+ learnings.
 
 ### Deviations from Spec
-- _pending_
+- FR23 (Relevance sort shown only when keyword active) — deferred. The `SortDropdown` was simplified to 3 static options; Relevance was removed from the UI entirely as a `Could Have` item pending backend ranking support.
+- FR24–FR27 (Search result highlighting) — deferred per spec (`Could Have`). Not implemented.
+- AC-11 (Relevance sort in dropdown) — not implemented (FR23 deferred).
+- AC-12 (Title highlighting) — not implemented (FR24–FR27 deferred).
+- `playwright.config.ts` port changed from 3000 → 3001 in worktree to avoid conflict with main repo dev server. Should be reverted to 3000 before merging to develop unless the worktree port convention is adopted project-wide.
 
 ### Lessons Learned
-- _pending_
+- Worktrees don't share `node_modules` — symlink from main repo or `npm ci` in worktree.
+- `reuseExistingServer: true` in Playwright config causes worktree E2E tests to hit the main repo's running dev server (stale code). Use a dedicated port for worktree testing.
+- `vi.hoisted()` is required when mock variables need to be accessible inside `vi.mock()` factory closures — Vitest hoists `vi.mock()` before module initialization.
+- `container.firstChild` is `null` when a React component returns `null`; use `expect(container).toBeEmptyDOMElement()` instead.
