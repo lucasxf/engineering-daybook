@@ -239,20 +239,19 @@ The inline quick-entry uses a **phased approach**:
 
 ### Planned
 
-### Milestone 2.2: Tagging System
+### Milestone 2.2: Tagging System 🔄
 
-> **Spec:** `docs/specs/features/tagging-system.md` — Status: Draft, ready for `/implement-spec`
+> **Spec:** `docs/specs/features/tagging-system.md` — Status: Implemented
+> **Note:** Intent-based related-concept tag suggestions (e.g., singleton POK → #designpatterns) ship in Phase 7 (AI-Assisted Tag Suggestions).
 
 | # | Feature | Priority | Status |
 |---|---------|----------|--------|
-| 2.2.1 | Manual tag creation (learner creates new tags freely) | Must Have | ⏳ Planned |
-| 2.2.2 | Assign tags to POKs | Should Have | ⏳ Planned |
-| 2.2.3 | Filter POKs by tag | Must Have | ⏳ Planned |
-| 2.2.4 | Tag management (rename, delete) | Should Have | ⏳ Planned |
-| 2.2.5 | Basic AI auto-tag suggestions (explicit tags from content) | Must Have | ⏳ Planned |
-| 2.2.6 | Approve/reject/modify suggested tags | Must Have | ⏳ Planned |
-
-> **Note:** Intent-based related-concept tag suggestions (e.g., singleton POK → #designpatterns) ship in Phase 7 (AI-Assisted Tag Suggestions).
+| 2.2.1 | Manual tag creation (learner creates new tags freely) | Must Have | ✅ Backend + Web (feat/tagging-system, 2026-02-25) |
+| 2.2.2 | Assign tags to POKs | Should Have | ✅ Backend + TagBadge/TagSuggestionPrompt web layer (feat/tagging-system, 2026-02-25) |
+| 2.2.3 | Filter POKs by tag | Must Have | ⏳ Backend ✅; web TagFilter deferred |
+| 2.2.4 | Tag management (rename, delete) | Should Have | ⏳ Backend ✅; web UI deferred |
+| 2.2.5 | Basic AI auto-tag suggestions (explicit tags from content) | Must Have | ✅ Backend — `TagSuggestionService` keyword extraction (feat/tagging-system, 2026-02-25) |
+| 2.2.6 | Approve/reject/modify suggested tags | Must Have | ✅ Backend + `TagSuggestionPrompt` web component (feat/tagging-system, 2026-02-25) |
 
 ### Milestone 2.3: Visualization
 
@@ -273,7 +272,7 @@ The inline quick-entry uses a **phased approach**:
 ### Evolution Exit Criteria
 - [x] Learner can edit and delete POKs
 - [x] All changes are logged in audit trail
-- [ ] Tagging system works (manual creation + AI suggestions for explicit tags)
+- [~] Tagging system works (manual creation + AI suggestions for explicit tags) — backend + basic web done; TagFilter + TagInput combobox deferred
 - [ ] Timeline and tag views are functional
 - [ ] Author actively uses tags to organize POKs
 - [ ] Inspirational prompts appear on add-learning page

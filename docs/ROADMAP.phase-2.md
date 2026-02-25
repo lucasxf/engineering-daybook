@@ -1,6 +1,6 @@
 # Phase 2: Evolution
 
-> Status: **🔄 Started** — Milestone 2.1 complete; 2.2–2.4 planned
+> Status: **🔄 Started** — Milestone 2.1 complete; 2.2 partially implemented; 2.3–2.4 planned
 
 ---
 
@@ -29,18 +29,25 @@
 
 ## Planned
 
-### Milestone 2.2: Tagging System
+### Milestone 2.2: Tagging System 🔄
 
-| # | Feature | Priority |
-|---|---------|----------|
-| 2.2.1 | Manual tag creation (learner creates new tags freely) | Must Have |
-| 2.2.2 | Assign tags to POKs | Should Have |
-| 2.2.3 | Filter POKs by tag | Must Have |
-| 2.2.4 | Tag management (rename, delete) | Should Have |
-| 2.2.5 | Basic AI auto-tag suggestions (explicit tags from content) | Must Have |
-| 2.2.6 | Approve/reject/modify suggested tags | Must Have |
-
+> **Spec:** `docs/specs/features/tagging-system.md` — Status: Implemented
 > **Note:** Intent-based related-concept tag suggestions (e.g., singleton → #designpatterns) ship in Phase 7.
+
+| # | Feature | Status |
+|---|---------|--------|
+| 2.2.1 | Manual tag creation (learner creates new tags freely) | ✅ Backend + Web (feat/tagging-system, 2026-02-25) |
+| 2.2.2 | Assign tags to POKs | ✅ Backend + TagBadge/TagSuggestionPrompt web layer (feat/tagging-system, 2026-02-25) |
+| 2.2.3 | Filter POKs by tag | ⏳ Backend ✅ (`GET /api/v1/poks?tagId=`); web TagFilter component deferred |
+| 2.2.4 | Tag management (rename, delete) | ⏳ Backend ✅ (PATCH/DELETE `/api/v1/tags/{id}`); web UI deferred |
+| 2.2.5 | Basic AI auto-tag suggestions (keyword extraction from content) | ✅ Backend — `TagSuggestionService` keyword extraction (feat/tagging-system, 2026-02-25) |
+| 2.2.6 | Approve/reject/modify suggested tags | ✅ Backend + `TagSuggestionPrompt` web component (feat/tagging-system, 2026-02-25) |
+
+**Notes (2026-02-25):**
+- Backend: `Tag`, `UserTag`, `PokTag`, `PokTagSuggestion` entities; `TagService`, `TagSuggestionService`, `TagController`; `PokResponse`/`PokService` extended to include tags
+- Web: `tagApi.ts`, `useTags` hook, `TagBadge`, `TagSuggestionPrompt`; `PokCard` updated; i18n keys added (EN/PT-BR)
+- **Deferred:** TagInput combobox (FR8/AC19 edit-before-approve) and TagFilter (FR10/FR11) — web components deferred to a follow-up
+- AC19 (edit suggestion before approve) deferred; approve/reject works, editing not yet exposed in UI
 
 ### Milestone 2.3: Visualization
 
@@ -64,7 +71,7 @@
 
 - [x] Learner can edit and delete POKs
 - [x] All changes are logged in audit trail
-- [ ] Tagging system works (manual creation + AI suggestions for explicit tags)
+- [~] Tagging system works (manual creation + AI suggestions for explicit tags) — backend + basic web done; TagFilter + TagInput combobox deferred
 - [ ] Timeline and tag views are functional
 - [ ] Author actively uses tags to organize POKs
 - [ ] Inspirational prompts appear on add-learning page

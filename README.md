@@ -181,6 +181,7 @@ See [ROADMAP.phase-1.md](./docs/ROADMAP.phase-1.md)
 ### Phase 2: Evolution — 🔄 Started
 See [ROADMAP.phase-2.md](./docs/ROADMAP.phase-2.md)
 - [x] POK editing, deletion, and audit trail
+- [~] Tagging system — backend + basic web (TagBadge, TagSuggestionPrompt) done; TagFilter + TagInput combobox deferred
 
 ---
 

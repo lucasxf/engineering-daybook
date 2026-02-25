@@ -94,6 +94,28 @@ cd backend
 
 ---
 
+## Known Pitfalls
+
+- **`@Lazy` to break circular constructor injection:** When two services depend on each other via constructor injection, Spring throws `BeanCurrentlyInCreationException`. Fix: annotate one of the injected parameters with `@Lazy` — Spring injects a proxy instead of the real bean, breaking the cycle. Keep `@Lazy` on the less-frequently-used dependency. Never use field injection (`@Autowired`) just to avoid this; `@Lazy` preserves constructor injection semantics.
+
+  ```java
+  public TagSuggestionService(@Lazy TagService tagService, ...) { ... }
+  ```
+
+- **Java text block (`"""`) one-liner requires content on next line:** A text block `"""..."""` where the opening `"""` and content are on the same line is a compile error. Content must start on the line *after* the opening `"""`. This also means the first character of a text block is always at the indentation of the closing `"""`.
+
+  ```java
+  // WRONG — compile error
+  String sql = """SELECT * FROM tags""";
+
+  // CORRECT
+  String sql = """
+          SELECT * FROM tags
+          """;
+  ```
+
+---
+
 ## Testing
 
 - Unit tests: `src/test/java/.../service/` and `src/test/java/.../controller/`
