@@ -1,6 +1,6 @@
 # Tags Visualization
 
-> **Status:** Draft
+> **Status:** In Progress
 > **Created:** 2026-02-25
 > **Implemented:** _pending_
 
