@@ -122,6 +122,10 @@ cd backend
           """;
   ```
 
+- **`SameSite=None` is required for cross-origin cookies (different domains):** When the frontend and backend are on different domains (e.g., learnimo.net on Vercel and railway.app on Railway), `SameSite=Strict` or `SameSite=Lax` will cause the browser to silently block the auth cookie on cross-origin requests — the backend receives no cookie and returns 401 with no body. Fix: use `SameSite=None`. `SameSite=None` **requires** `Secure=true` (HTTPS-only); without it, browsers reject the cookie. In production, set `AUTH_COOKIE_SECURE=true` (or the equivalent env var) in Railway. In local dev (HTTP), `SameSite=Lax` is fine and avoids the `Secure` requirement.
+
+- **`/error` must be in Spring Security `permitAll()`:** Spring dispatches internally to `/error` when an unhandled exception occurs. If `/error` is not in the `permitAll()` list, the security filter chain intercepts the error dispatch and returns a 401 with an empty response body — the actual error information is swallowed. Always include `"/error"` in `requestMatchers(...).permitAll()` in `SecurityConfig`.
+
 ---
 
 ## Testing

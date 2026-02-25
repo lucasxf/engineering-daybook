@@ -88,3 +88,9 @@ npm run test     # Run tests (Vitest)
 
 **E2E coverage rule (mandatory):**
 > Every new page, route, or multi-step user flow added to the web app MUST have at least one E2E scenario covering the happy path. This is enforced by `/finish-session` and `/implement-spec`. Exceptions (styling-only, copy changes) must be explicitly stated.
+
+---
+
+## Known Pitfalls
+
+- **Use `=== null` (not `!error`) to check for absence of an error string:** HTTP/2 always delivers an empty `statusText` (`""`), so a fetch error derived from `statusText` will be an empty string. A falsy check (`!error`) treats `""` as "no error", causing the UI to skip the error branch entirely and show empty state instead. Always use strict null checks: `error === null` to mean "no error has occurred", and initialize the state to `null` (not `""`).

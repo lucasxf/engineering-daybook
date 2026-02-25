@@ -75,6 +75,16 @@
 | Disabled Flyway in test profile (`application-test.yml`) | ✅ Done |
 | Fixed HomeCta auth-aware navigation | ✅ Done |
 
+### Production Bug Fix — Learnings Feed Invisible (2026-02-25) ✅
+
+Root cause: three combined bugs prevented logged-in users from seeing their learnings (empty state shown instead of POKs).
+
+| Task | Status |
+|------|--------|
+| `SameSite=Strict` cookie blocked cross-origin requests (learnimo.net → railway.app) — changed to `SameSite=None` in `CookieHelper.java` | ✅ Done |
+| `/error` path not in Spring Security `permitAll()` — caused 401 response with empty body on Spring error dispatch — added to `SecurityConfig.java` | ✅ Done |
+| `!error` falsy check in `page.tsx` treated empty-string error (HTTP/2 always has `statusText=""`) as "no error" — fixed to `error === null` | ✅ Done |
+
 ### Milestone 1.6: Web Testing Quality (partial)
 
 | # | Task | Priority | Status |
