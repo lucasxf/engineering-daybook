@@ -145,7 +145,10 @@ path/to/migration.sql — schema changes
 TDD Mode: Full | Partial | Infrastructure
 Unit Tests: [count] test cases for [classes]
 Integration Tests: [count] scenarios using [tools]
+E2E Tests (Web only): [list of user flows covered] | None (justify why)
 ```
+
+> **Web E2E rule:** If the spec adds a new page, route, or multi-step user flow, the plan MUST include E2E tests in `web/e2e/`. Omitting E2E is only acceptable for pure back-end changes, styling tweaks, or copy changes — and must be explicitly justified in the Test Strategy.
 
 **Commit Plan:**
 ```
@@ -212,7 +215,36 @@ Only if the spec requires infrastructure work:
 2. Use Testcontainers for backend database tests
 3. Verify all acceptance criteria pass
 
-### 3.4 Code Quality Check
+### 3.4 E2E Tests (Web features only)
+
+**Required when the spec adds a new page, route, or user-facing flow.**
+
+For each new user flow listed in the Test Strategy:
+
+1. Add/extend a `web/e2e/*.spec.ts` file — group by domain (e.g., `auth.spec.ts`, `poks.spec.ts`)
+2. Use `setupApiMocks(page, config)` from `web/e2e/helpers/mock-api.ts` — call it BEFORE `page.goto()`
+3. Cover at minimum: **happy path** for each flow (auth state pre-configured via the mock helper)
+4. For new API shapes: extend `MockConfig` and the route handler in `mock-api.ts`
+
+Pattern:
+```typescript
+test('user can <action>', async ({ page }) => {
+  await setupApiMocks(page, { authenticated: true, poks: [MOCK_POK] });
+  await page.goto('/en/<route>');
+  // interact
+  await expect(page).toHaveURL(/expected-url/);
+  await expect(page.getByRole(...)).toBeVisible();
+});
+```
+
+Run E2E suite to confirm:
+```bash
+(cd web && npx playwright test --reporter=line)
+```
+
+**If E2E are not applicable** (pure backend, styling only, etc.) — document the reason explicitly in Phase 2.2 Test Strategy and proceed.
+
+### 3.5 Code Quality Check
 
 **If backend code was written:** Delegate to `backend-code-reviewer` agent for review.
 

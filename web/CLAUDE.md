@@ -85,3 +85,6 @@ npm run test     # Run tests (Vitest)
 - Shared helpers in `e2e/helpers/mock-api.ts` — `setupApiMocks(page, config)` handles all routes
 - Call `setupApiMocks(page, config)` BEFORE `page.goto()` so routes are registered first
 - Commands: `npm run test:e2e` (headless) | `npm run test:e2e:ui` (interactive)
+
+**E2E coverage rule (mandatory):**
+> Every new page, route, or multi-step user flow added to the web app MUST have at least one E2E scenario covering the happy path. This is enforced by `/finish-session` and `/implement-spec`. Exceptions (styling-only, copy changes) must be explicitly stated.

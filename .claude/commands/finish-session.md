@@ -100,6 +100,29 @@ Then run the unused import check (Java compiler does not catch these — Checkst
 > **Unused imports (TypeScript):** Caught automatically by `npx eslint src` via the
 > `@typescript-eslint/no-unused-vars` rule (included in `next/typescript`). No separate step needed.
 
+**E2E coverage gate — Web new flows:**
+
+After vitest, check if any new user-facing flows were added this session:
+```bash
+# New pages added under web/src/app/ (new directories = new routes)
+git diff --name-only HEAD~10..HEAD -- 'web/src/app/**' 2>/dev/null | grep -v '__tests__' | head -20
+```
+
+If new pages or routes were added, verify that corresponding E2E tests exist in `web/e2e/`:
+```bash
+ls web/e2e/*.spec.ts 2>/dev/null
+```
+
+**E2E coverage rules:**
+- New page/route (`web/src/app/[locale]/*/page.tsx`) → must have at least one E2E scenario in `web/e2e/`
+- New multi-step user flow (create/edit/delete/auth) → must have an E2E test covering the happy path
+- Minor UI-only changes (styling, copy, icons) → E2E not required
+
+**If E2E tests are missing for a new flow: STOP.** Do not commit. Inform the user:
+> "New page/flow detected but no E2E test found in `web/e2e/`. Add a Playwright test before committing. See `web/CLAUDE.md` for the mock API pattern."
+
+Exceptions: user can explicitly say "skip E2E for this session" — warn and proceed.
+
 **Mobile** — only if `mobile/` files changed:
 ```bash
 (cd mobile && npm run lint)
