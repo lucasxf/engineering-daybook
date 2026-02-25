@@ -36,6 +36,7 @@ import static org.mockito.Mockito.when;
 class EmailServiceTest {
 
     private static final String FROM_ADDRESS = "noreply@learnimo.net";
+    private static final String APP_BASE_URL = "https://learnimo.net";
     private static final String RAW_TOKEN = "raw-token-abc123";
 
     @Mock
@@ -45,7 +46,7 @@ class EmailServiceTest {
 
     @BeforeEach
     void setUp() {
-        emailService = new EmailService(mailSender, FROM_ADDRESS);
+        emailService = new EmailService(mailSender, FROM_ADDRESS, APP_BASE_URL);
     }
 
     // ─────────────────────────────────────────────────────────────────────────

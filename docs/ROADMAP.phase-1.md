@@ -59,7 +59,7 @@
 |---|------|--------|
 | 1.5.1 | Supabase DB setup | ✅ Done |
 | 1.5.2 | Railway backend deployment | ✅ Done (engineering-daybook-production.up.railway.app) |
-| 1.5.3 | Vercel web deployment + learnimo.net domain | ✅ Done (learnimo.net) |
+| 1.5.3 | Vercel web deployment + learnimo.net domain (learnimo.com.br alias added 2026-02-25) | ✅ Done (learnimo.net · learnimo.com.br) |
 | 1.5.4 | Google OAuth production redirect URIs | ✅ Done |
 
 ### Production Bug Fix (2026-02-20) ✅

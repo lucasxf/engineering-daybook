@@ -8,7 +8,7 @@
 
 - **Web Hosting:** Vercel
 - **Backend Hosting:** Railway (`engineering-daybook-production.up.railway.app`)
-- **Domain:** learnimo.net (Vercel + Locaweb DNS)
+- **Domain:** learnimo.net · learnimo.com.br (Vercel + Locaweb DNS)
 - **Database:** Supabase (managed PostgreSQL)
 - **CI/CD:** GitHub Actions
 - **Versioning:** Release Please + Conventional Commits
