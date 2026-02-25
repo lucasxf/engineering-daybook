@@ -85,7 +85,7 @@ function PoksContent() {
       setTotalElements(result.totalElements);
     } catch (err) {
       if (err instanceof ApiRequestError) {
-        setError(err.message);
+        setError(err.message || t('errors.unexpected'));
       } else {
         setError(t('errors.unexpected'));
       }
@@ -136,8 +136,10 @@ function PoksContent() {
   const showNoResults = isEmptyResults && hasSearchOrFilter;
   // Only show empty state when the list is genuinely empty — not when an API error occurred.
   // An API error (401, 500, network) leaves poks=[] which would otherwise show the empty
-  // state, making the user think their data is gone.
-  const showEmptyState = isEmptyResults && !hasSearchOrFilter && !error;
+  // state, making the user think their data is gone. Use strict null check so an empty-string
+  // error message (e.g. from HTTP/2 responses where statusText is always "") still blocks
+  // the empty state.
+  const showEmptyState = isEmptyResults && !hasSearchOrFilter && error === null;
 
   return (
     <div className="mx-auto max-w-7xl py-8">

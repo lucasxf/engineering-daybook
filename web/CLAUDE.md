@@ -69,3 +69,9 @@ npm run test     # Run tests (Vitest)
 - Mock `next/navigation` hooks (`useParams`, `useRouter`, `useSearchParams`) in tests
 - `useSearchParams` requires `<Suspense>` boundary for SSG pages
 - After changing `package.json`, run `npm install` locally to update lock file before committing
+
+---
+
+## Known Pitfalls
+
+- **Use `=== null` (not `!error`) to check for absence of an error string:** HTTP/2 always delivers an empty `statusText` (`""`), so a fetch error derived from `statusText` will be an empty string. A falsy check (`!error`) treats `""` as "no error", causing the UI to skip the error branch entirely and show empty state instead. Always use strict null checks: `error === null` to mean "no error has occurred", and initialize the state to `null` (not `""`).
