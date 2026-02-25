@@ -80,6 +80,8 @@ main ← develop ← feature/xxx
 
 **Quality gate:** Never commit when there are test, lint, build, or CI failures. Stop, show the error, and ask how to proceed. Only bypass if user explicitly requests it — warn clearly before proceeding.
 
+**Main branch protection:** Never push directly to `main`. It is read-only — only pull from it. All code reaches `main` via PRs opened from `develop`. (Added 2026-02-25)
+
 **Commit format (Conventional Commits):**
 ```
 feat: add POK creation endpoint
