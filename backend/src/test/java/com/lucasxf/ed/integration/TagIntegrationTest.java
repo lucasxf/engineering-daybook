@@ -1,6 +1,7 @@
 package com.lucasxf.ed.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -84,10 +85,10 @@ class TagIntegrationTest {
     void createTag_shouldReturn201WithTagData() throws Exception {
         assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not available");
 
-        String cookie = registerAndLogin();
+        Cookie token = registerAndLogin();
 
         MvcResult result = mockMvc.perform(post("/api/v1/tags")
-                        .header("Cookie", cookie)
+                        .cookie(token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                             {"name": "spring-boot"}
@@ -109,11 +110,11 @@ class TagIntegrationTest {
     void createTag_withDuplicateName_shouldBeIdempotent() throws Exception {
         assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not available");
 
-        String cookie = registerAndLogin();
+        Cookie token = registerAndLogin();
 
         // First create
         MvcResult first = mockMvc.perform(post("/api/v1/tags")
-                        .header("Cookie", cookie)
+                        .cookie(token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"kubernetes\"}"))
                 .andExpect(status().isCreated())
@@ -121,7 +122,7 @@ class TagIntegrationTest {
 
         // Second create (duplicate)
         MvcResult second = mockMvc.perform(post("/api/v1/tags")
-                        .header("Cookie", cookie)
+                        .cookie(token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"kubernetes\"}"))
                 .andExpect(status().isCreated())
@@ -139,23 +140,23 @@ class TagIntegrationTest {
     void listTags_shouldReturnActiveTags() throws Exception {
         assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not available");
 
-        String cookie = registerAndLogin();
+        Cookie token = registerAndLogin();
 
         // Create two tags
         mockMvc.perform(post("/api/v1/tags")
-                        .header("Cookie", cookie)
+                        .cookie(token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"java\"}"))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(post("/api/v1/tags")
-                        .header("Cookie", cookie)
+                        .cookie(token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"docker\"}"))
                 .andExpect(status().isCreated());
 
         // List
-        mockMvc.perform(get("/api/v1/tags").header("Cookie", cookie))
+        mockMvc.perform(get("/api/v1/tags").cookie(token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(2));
@@ -168,11 +169,11 @@ class TagIntegrationTest {
     void deleteTag_shouldReturn204AndTagRemovedFromList() throws Exception {
         assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not available");
 
-        String cookie = registerAndLogin();
+        Cookie token = registerAndLogin();
 
         // Create
         MvcResult createResult = mockMvc.perform(post("/api/v1/tags")
-                        .header("Cookie", cookie)
+                        .cookie(token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"legacy-tag\"}"))
                 .andExpect(status().isCreated())
@@ -182,11 +183,11 @@ class TagIntegrationTest {
                 .get("id").asText();
 
         // Delete
-        mockMvc.perform(delete("/api/v1/tags/" + tagId).header("Cookie", cookie))
+        mockMvc.perform(delete("/api/v1/tags/" + tagId).cookie(token))
                 .andExpect(status().isNoContent());
 
         // No longer listed
-        mockMvc.perform(get("/api/v1/tags").header("Cookie", cookie))
+        mockMvc.perform(get("/api/v1/tags").cookie(token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
     }
@@ -198,11 +199,11 @@ class TagIntegrationTest {
     void assignTag_shouldAppearInPokResponse() throws Exception {
         assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not available");
 
-        String cookie = registerAndLogin();
+        Cookie token = registerAndLogin();
 
         // Create tag
         MvcResult tagResult = mockMvc.perform(post("/api/v1/tags")
-                        .header("Cookie", cookie)
+                        .cookie(token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"integration\"}"))
                 .andExpect(status().isCreated())
@@ -212,7 +213,7 @@ class TagIntegrationTest {
 
         // Create POK
         MvcResult pokResult = mockMvc.perform(post("/api/v1/poks")
-                        .header("Cookie", cookie)
+                        .cookie(token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                             {"title": "Test POK", "content": "Some content"}
@@ -224,11 +225,11 @@ class TagIntegrationTest {
 
         // Assign tag
         mockMvc.perform(post("/api/v1/poks/" + pokId + "/tags/" + tagId)
-                        .header("Cookie", cookie))
+                        .cookie(token))
                 .andExpect(status().isNoContent());
 
         // Verify via getById
-        mockMvc.perform(get("/api/v1/poks/" + pokId).header("Cookie", cookie))
+        mockMvc.perform(get("/api/v1/poks/" + pokId).cookie(token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.tags").isArray())
                 .andExpect(jsonPath("$.tags.length()").value(1))
@@ -242,11 +243,11 @@ class TagIntegrationTest {
     void removeTag_shouldClearTagFromPok() throws Exception {
         assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not available");
 
-        String cookie = registerAndLogin();
+        Cookie token = registerAndLogin();
 
         // Create and assign
         MvcResult tagResult = mockMvc.perform(post("/api/v1/tags")
-                        .header("Cookie", cookie)
+                        .cookie(token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"to-remove\"}"))
                 .andExpect(status().isCreated())
@@ -255,7 +256,7 @@ class TagIntegrationTest {
                 .get("id").asText();
 
         MvcResult pokResult = mockMvc.perform(post("/api/v1/poks")
-                        .header("Cookie", cookie)
+                        .cookie(token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\": \"POK to untag\", \"content\": \"Content\"}"))
                 .andExpect(status().isCreated())
@@ -264,16 +265,16 @@ class TagIntegrationTest {
                 .get("id").asText();
 
         mockMvc.perform(post("/api/v1/poks/" + pokId + "/tags/" + tagId)
-                        .header("Cookie", cookie))
+                        .cookie(token))
                 .andExpect(status().isNoContent());
 
         // Remove
         mockMvc.perform(delete("/api/v1/poks/" + pokId + "/tags/" + tagId)
-                        .header("Cookie", cookie))
+                        .cookie(token))
                 .andExpect(status().isNoContent());
 
         // No tags on POK
-        mockMvc.perform(get("/api/v1/poks/" + pokId).header("Cookie", cookie))
+        mockMvc.perform(get("/api/v1/poks/" + pokId).cookie(token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.tags.length()").value(0));
     }
@@ -285,10 +286,10 @@ class TagIntegrationTest {
     void renameTag_shouldUpdateName() throws Exception {
         assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not available");
 
-        String cookie = registerAndLogin();
+        Cookie token = registerAndLogin();
 
         MvcResult createResult = mockMvc.perform(post("/api/v1/tags")
-                        .header("Cookie", cookie)
+                        .cookie(token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"k8s\"}"))
                 .andExpect(status().isCreated())
@@ -297,16 +298,15 @@ class TagIntegrationTest {
                 .get("id").asText();
 
         // Rename
-        MvcResult renameResult = mockMvc.perform(put("/api/v1/tags/" + tagId)
-                        .header("Cookie", cookie)
+        mockMvc.perform(put("/api/v1/tags/" + tagId)
+                        .cookie(token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\": \"kubernetes\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("kubernetes"))
-                .andReturn();
+                .andExpect(jsonPath("$.name").value("kubernetes"));
 
         // Old tag gone from list, new tag present
-        mockMvc.perform(get("/api/v1/tags").header("Cookie", cookie))
+        mockMvc.perform(get("/api/v1/tags").cookie(token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("kubernetes"));
     }
@@ -314,9 +314,15 @@ class TagIntegrationTest {
     // ===== helpers =====
 
     /**
-     * Registers a new user and returns the access_token cookie.
+     * Registers a new user and returns the access_token as a Cookie object
+     * suitable for use with MockMvc's {@code .cookie()} method.
+     *
+     * <p>Uses {@code .cookie()} rather than {@code .header("Cookie", ...)} because
+     * {@code JwtAuthenticationFilter} reads cookies via {@code request.getCookies()},
+     * which MockMvc only populates when cookies are added via the cookie API —
+     * not when the {@code Cookie} header is set manually.
      */
-    private String registerAndLogin() throws Exception {
+    private Cookie registerAndLogin() throws Exception {
         String suffix = UUID.randomUUID().toString().substring(0, 8);
         String email = "tag-test-" + suffix + "@example.com";
         String handle = "tagtest" + suffix;
@@ -335,9 +341,12 @@ class TagIntegrationTest {
                 .andReturn()
                 .getResponse();
 
-        return response.getHeaders("Set-Cookie").stream()
+        String tokenValue = response.getHeaders("Set-Cookie").stream()
                 .filter(c -> c.startsWith("access_token="))
                 .findFirst()
-                .orElseThrow(() -> new AssertionError("No access_token cookie in response"));
+                .map(c -> c.split(";")[0].substring("access_token=".length()))
+                .orElseThrow(() -> new AssertionError("No access_token cookie in register response"));
+
+        return new Cookie("access_token", tokenValue);
     }
 }
