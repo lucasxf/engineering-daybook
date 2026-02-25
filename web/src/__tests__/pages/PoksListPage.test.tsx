@@ -67,14 +67,10 @@ describe('PoksListPage', () => {
     expect(document.querySelector('svg.animate-spin')).toBeInTheDocument();
   });
 
-  it('renders the page heading and create button', async () => {
+  it('renders the page heading', async () => {
     mockGetAll.mockResolvedValue(makePage([]));
     renderPoksPage();
     await waitFor(() => expect(screen.getByRole('heading', { name: /my learnings/i })).toBeInTheDocument());
-    expect(screen.getByRole('link', { name: /new learning/i })).toHaveAttribute(
-      'href',
-      '/en/poks/new'
-    );
   });
 
   it('shows empty state when no learnings exist', async () => {
@@ -120,5 +116,15 @@ describe('PoksListPage', () => {
     await waitFor(() => {
       expect(screen.getByRole('alert')).toBeInTheDocument();
     });
+  });
+
+  it('does not show empty state when the API fails', async () => {
+    mockGetAll.mockRejectedValue(new Error('Network error'));
+    renderPoksPage();
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+    });
+    expect(screen.queryByText(/no learnings yet/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /create your first learning/i })).not.toBeInTheDocument();
   });
 });

@@ -122,13 +122,18 @@ export const poksMessages = {
       recentlyCreated: 'Recently created',
       firstCreated: 'First created',
     },
+    quickEntry: {
+      placeholder: 'What did you learn?',
+      hint: 'Ctrl+Enter to save',
+      saving: 'Saving...',
+    },
     form: {
       titleLabel: 'Title',
-      titlePlaceholder: 'Optional',
+      titlePlaceholder: 'Optional - give your learning a title',
       contentLabel: 'Content',
       contentPlaceholder: 'What did you learn today?',
-      createButton: 'Save Learning',
-      updateButton: 'Save Changes',
+      createButton: 'Save learning',
+      updateButton: 'Save changes',
       submitting: 'Saving...',
     },
     delete: {
