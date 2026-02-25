@@ -175,5 +175,20 @@
       "contentTooLong": "O conteúdo deve ter no máximo 50.000 caracteres",
       "unexpected": "Algo deu errado. Tente novamente."
     }
+  },
+  "tags": {
+    "suggestions": {
+      "label": "Tags sugeridas",
+      "approve": "Adicionar tag",
+      "reject": "Dispensar tag"
+    },
+    "badge": {
+      "remove": "Remover tag"
+    },
+    "errors": {
+      "loadFailed": "Falha ao carregar tags",
+      "createFailed": "Falha ao criar tag",
+      "deleteFailed": "Falha ao excluir tag"
+    }
   }
 }

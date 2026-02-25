@@ -25,6 +25,9 @@ import com.lucasxf.ed.exception.PokAccessDeniedException;
 import com.lucasxf.ed.exception.PokNotFoundException;
 import com.lucasxf.ed.repository.PokAuditLogRepository;
 import com.lucasxf.ed.repository.PokRepository;
+import com.lucasxf.ed.repository.PokTagRepository;
+import com.lucasxf.ed.repository.PokTagSuggestionRepository;
+import com.lucasxf.ed.repository.UserTagRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -51,6 +54,18 @@ class PokServiceTest {
 
     @Mock
     private PokAuditLogRepository pokAuditLogRepository;
+
+    @Mock
+    private PokTagRepository pokTagRepository;
+
+    @Mock
+    private UserTagRepository userTagRepository;
+
+    @Mock
+    private PokTagSuggestionRepository pokTagSuggestionRepository;
+
+    @Mock
+    private TagSuggestionService tagSuggestionService;
 
     @InjectMocks
     private PokService pokService;
@@ -132,6 +147,8 @@ class PokServiceTest {
         Pok pok = new Pok(userId, "Title", "Content");
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+        when(pokTagRepository.findByPokId(any())).thenReturn(List.of());
+        when(pokTagSuggestionRepository.findByPokIdAndStatus(any(), any())).thenReturn(List.of());
 
         // When
         PokResponse response = pokService.getById(pokId, userId);

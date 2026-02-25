@@ -1,6 +1,7 @@
 package com.lucasxf.ed.repository;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,6 +39,17 @@ public interface PokRepository extends JpaRepository<Pok, UUID> {
      * @return an {@link Optional} containing the POK if found and active, empty otherwise
      */
     Optional<Pok> findByIdAndDeletedAtIsNull(UUID id);
+
+    /**
+     * Returns the IDs of all active (non-deleted) POKs belonging to a user.
+     *
+     * <p>Used for bulk tag operations (e.g., removing a tag from all user POKs).
+     *
+     * @param userId the user ID
+     * @return list of active POK IDs
+     */
+    @Query("SELECT p.id FROM Pok p WHERE p.userId = :userId AND p.deletedAt IS NULL")
+    List<UUID> findIdsByUserId(@Param("userId") UUID userId);
 
     /**
      * Searches active POKs for a user with optional keyword, date filters, and dynamic sorting.

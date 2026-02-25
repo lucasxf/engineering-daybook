@@ -15,6 +15,8 @@ describe('PokCard', () => {
     deletedAt: null,
     createdAt: '2026-02-14T10:00:00Z',
     updatedAt: '2026-02-14T10:00:00Z',
+    tags: [],
+    pendingSuggestions: [],
   };
 
   it('displays title as header when title is present', () => {

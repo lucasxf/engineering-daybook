@@ -1,6 +1,6 @@
 # learnimo
 
-> A digital learning journal built for engineers who want to capture, organize, and recall their daily learnings.
+> A personal learning journal for everyone — capture, organize, and recall what you learn.
 
 🚀 **Status:** Phase 1 — MVP **Live at [learnimo.net](https://learnimo.net)**
 
@@ -8,7 +8,7 @@
 
 ## Overview
 
-learnimo (ED) is a personal knowledge management tool. Inspired by the concept from "The Pragmatic Programmer" book, where engineers in traditional industries would maintain physical notebooks to record daily learnings, ED brings this practice into the digital age with modern search, categorization, and (eventually) AI-powered insights.
+learnimo is a personal learning journal for everyone. Inspired by "The Pragmatic Programmer", where engineers in traditional industries maintained physical notebooks to record daily learnings, learnimo brings that practice into the digital age — with modern search, tagging, and (eventually) AI-powered insights.
 
 > "A tinta mais fraca constrói pontes mais fortes que a memória mais viva."
 > — Provérbio Yorubá (Nigéria)
@@ -155,7 +155,7 @@ See `backend/src/main/resources/application.yml` for configuration details.
   - Password reset via email
 
 ### In Progress
-- Mobile application (Expo/React Native) — Phase 3
+- Mobile application (Expo/React Native)
 
 ---
 
@@ -181,6 +181,7 @@ See [ROADMAP.phase-1.md](./docs/ROADMAP.phase-1.md)
 ### Phase 2: Evolution — 🔄 Started
 See [ROADMAP.phase-2.md](./docs/ROADMAP.phase-2.md)
 - [x] POK editing, deletion, and audit trail
+- [~] Tagging system — backend + basic web (TagBadge, TagSuggestionPrompt) done; TagFilter + TagInput combobox deferred
 
 ---
 

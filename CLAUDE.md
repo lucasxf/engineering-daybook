@@ -7,7 +7,7 @@
 
 ## Project Overview
 
-**learnimo (ED)** is a personal knowledge management tool for engineers to capture, organize, and recall daily learnings.
+**learnimo (ED)** is a personal learning journal for everyone — capture, organize, and recall what you learn.
 
 - **Repository:** https://github.com/lucasxf/engineering-daybook
 - **Author:** Lucas Xavier Ferreira
@@ -80,6 +80,12 @@ main ← develop ← feature/xxx
 
 **Quality gate:** Never commit when there are test, lint, build, or CI failures. Stop, show the error, and ask how to proceed. Only bypass if user explicitly requests it — warn clearly before proceeding.
 
+**Docker / Testcontainers gate:** Before running `mvn verify` (or any command that triggers Testcontainers integration tests), check whether Docker is running. If it is not:
+1. Attempt to start Docker Desktop: `start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"` then wait ~20 s and retry
+2. If Docker still isn't available, **stop and ask the user** — do not silently skip integration tests and proceed to commit/PR. Skipping means coverage data is incomplete and integration regressions go undetected. (Added 2026-02-25)
+
+**Main branch protection:** Never push directly to `main`. It is read-only — only pull from it. All code reaches `main` via PRs opened from `develop`. (Added 2026-02-25)
+
 **Commit format (Conventional Commits):**
 ```
 feat: add POK creation endpoint
@@ -112,7 +118,12 @@ Active work:
 - [ ] Milestone 1.7.6: General visual quality — UI needs design pass
 - [ ] Phase 1 exit criterion: author uses app for 1+ week with satisfaction
 
-Phase 2 next up: Tagging System (2.2), Visualization (2.3), UX Delight (2.4)
+**Phase 2: Evolution** — 🔄 Started (2.1 done; 2.2 partially implemented)
+
+- [x] Milestone 2.1: POK editing, deletion, audit trail
+- [~] Milestone 2.2: Tagging System — backend + TagBadge/TagSuggestionPrompt web done (2026-02-25); TagFilter + TagInput combobox deferred
+- [ ] Milestone 2.3: Visualization (timeline, tag-grouped view, sort)
+- [ ] Milestone 2.4: UX Delight (inspirational prompts, homepage personalization)
 
 See `docs/ROADMAP.md` for full active milestone details.
 
@@ -125,4 +136,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-02-25*
+*Last updated: 2026-02-25 (session: feat/tagging-system)*
