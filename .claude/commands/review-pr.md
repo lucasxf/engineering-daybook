@@ -83,6 +83,57 @@ gh pr edit $PR_NUMBER --repo $REPO --title "<meaningful title>" --body "<generat
 
 **If the description is already comprehensive:** Skip this step and proceed.
 
+## 1C. Validate Description Accuracy (Staleness Check)
+
+> **Why this matters:** When multiple feature branches are merged into `develop` over time, the `develop → main` PR description may have been written early and no longer reflects what's actually in the PR. Always verify accuracy, not just completeness.
+
+**Get the current commits and description:**
+
+```bash
+# List all commits in the PR (not just the latest)
+gh api repos/$REPO/pulls/$PR_NUMBER/commits --jq '[.[].commit.message] | join("\n")'
+
+# Also get the diff summary to see what files are actually changed
+gh pr diff $PR_NUMBER --stat
+```
+
+**Evaluate description accuracy:**
+
+A PR description is considered **stale or inaccurate** if any of these are true:
+- It mentions features or changes that are NOT in the current diff (were reverted or moved to another PR)
+- It omits significant areas of change visible in the commit history or diff
+- It describes the PR as a single-feature branch but the commits show it's an aggregated merge (e.g., `develop → main` with many unrelated features)
+- The title says "feat: X" but commits include fixes, refactors, or other unrelated features
+
+**If the description is stale or inaccurate:**
+
+1. Draft a replacement that accurately reflects the FULL set of commits:
+
+```markdown
+## Summary
+
+- [One bullet per significant area, derived from commits/diff — not copy-pasted from old description]
+
+## Included changes
+- [List key commits or groups of commits]
+
+## Test plan
+- [ ] CI/CD passes
+- [ ] [Feature-specific checks]
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+```
+
+2. Update the PR:
+
+```bash
+gh pr edit $PR_NUMBER --body "<new description>"
+```
+
+3. Inform the user: "PR #XX description was stale — I've updated it to reflect the actual commits."
+
+**If the description accurately reflects the current state of the PR:** Skip and proceed.
+
 ---
 
 ## 2. Check CI/CD Pipeline Status
@@ -392,73 +443,165 @@ gh api repos/$REPO/pulls/$PR_NUMBER/reviews --paginate
 - Keep: GitHub Copilot, human reviewers, Claude
 - Exclude empty review bodies (e.g., approval without comment)
 
-## 5. Analyze and Categorize Comments
+## 5. Critically Evaluate Each Comment
 
-For each comment, read the referenced file and surrounding code context (for inline comments), then classify:
+> **Mindset:** You are not a passive applier of review feedback. You are a second reviewer whose job is to decide whether each comment is *correct*, *worth the cost*, and *consistent with this project's goals*. Treat every comment — including those from GitHub Copilot — as a proposal that may or may not be right.
+
+For each comment:
+
+**Step A — Read the context first.**
+Before evaluating any comment, read:
+- The exact file and surrounding lines referenced (inline comments: ±20 lines)
+- The spec file in `docs/specs/` if the comment touches a recently implemented feature
+- The relevant section of `CLAUDE.md` if the comment is about style or conventions
+
+**Step B — Evaluate the comment on four axes:**
+
+1. **Correctness** — Is the reviewer's factual claim accurate? Does the suggested change actually fix the stated problem, or does it introduce a new one? Would the "fix" break something downstream?
+
+2. **Consistency** — Does the suggestion align with CLAUDE.md conventions, existing codebase patterns, and ADRs? Does it conflict with a deliberate architectural decision already made?
+
+3. **Proportionality** — Is the scope of the suggested change proportional to the benefit? A one-line improvement to a critical security property is different from a multi-class refactor for marginal readability gain.
+
+4. **Timing** — Is this the right moment for this change? Some suggestions are valid in isolation but wrong for this PR's scope (e.g., refactoring a class that isn't the focus of this PR, or adding abstraction for a single-usage pattern per CLAUDE.md's over-engineering rules).
+
+**Step C — Classify the comment and form a recommendation:**
 
 | Category | Description | Icon |
 |----------|-------------|------|
-| **Actionable fix** | Code change needed (bug, style, convention, security) | :wrench: |
-| **Suggestion** | Optional improvement, worth considering | :bulb: |
-| **Question** | Needs a reply, not a code change | :question: |
-| **Informational** | No action needed (praise, acknowledgment, FYI) | :information_source: |
+| **Bug / Correctness fix** | The current code is wrong; the suggestion fixes a real defect | :bug: |
+| **Convention / Style** | Aligns with CLAUDE.md or project patterns; low-risk change | :wrench: |
+| **Suggestion** | Valid improvement but optional; trade-offs exist | :bulb: |
+| **Question** | Requires a reply, not a code change | :question: |
+| **Informational** | Praise, acknowledgment, FYI — no action needed | :information_source: |
 
-**Claude's recommendation per comment:**
+**Recommendation options:**
 
-Cross-reference each comment against:
-- **CLAUDE.md** coding conventions and directives
-- **Project patterns** in the existing codebase
-- **Spec files** in `docs/specs/` if relevant
+- **Accept** — The comment is correct, proportional, consistent with the project, and beneficial. Implement it.
+- **Accept with modification** — The comment identifies a real issue but the suggested fix is wrong or incomplete. Implement a corrected version and explain the deviation.
+- **Reject** — The comment is factually wrong, conflicts with a project directive (cite CLAUDE.md section or ADR), introduces more complexity than it solves, or is premature for this PR's scope. State the reason clearly.
+- **Defer** — The comment is valid but belongs in a separate PR or future milestone. Create a follow-up task or note.
 
-Then recommend one of:
-- **Accept** — Comment aligns with project conventions; implement it
-- **Ignore** — Comment contradicts a project directive or convention (explain why, e.g., "This suggestion conflicts with our constructor injection convention per CLAUDE.md")
-- **Defer** — Valid but low-priority; can be addressed in a follow-up
+**When the decision isn't obvious — show trade-offs explicitly:**
 
-## 6. Present Plan to User
-
-Display the categorized list grouped by priority:
+If a comment falls into a grey area (e.g., a reasonable suggestion that comes with a real cost), present a structured trade-off before recommending:
 
 ```
-## PR #XX Review Feedback — Action Plan
+Trade-off analysis:
+  FOR applying: [concrete benefit — what problem it solves, who benefits, how much]
+  AGAINST applying: [concrete cost — complexity, consistency violation, risk, scope creep]
+  Verdict: [Accept / Reject / Defer] — [one-sentence rationale]
+```
 
-### Actionable Fixes (N items)
-- [ ] [Accept] :wrench: **file.java:42** — "Use constructor injection instead of @Autowired" (by copilot)
-      → Recommendation: Accept — aligns with CLAUDE.md convention
+Examples of grey-area comments that require trade-off analysis:
+- Suggestions that improve readability but increase indirection
+- Security hardening that goes beyond the threat model in scope for this PR
+- Refactors that are valid but widen the PR's blast radius
+- Suggestions that conflict with a project guideline but have merit in this specific case
+- Copilot suggestions that are technically correct but miss the intent of the code
 
-### Suggestions (N items)
-- [ ] [Defer] :bulb: **file.java:15** — "Consider extracting this to a utility method" (by copilot)
-      → Recommendation: Defer — single usage, premature abstraction per project guidelines
+## 6. Present Evaluation to User
 
-### Questions (N items)
-- [ ] :question: **PR comment** — "Why did you choose bcrypt over argon2?" (by reviewer)
-      → Note: Requires a manual reply on the PR
+Display one entry per comment. Group by recommendation, clearest first:
 
-### Informational (N items)
+```
+## PR #XX — Review Feedback Evaluation
+
+### Accept (N)
+- :wrench: **AuthController.java:42** (by copilot) — "Use constructor injection instead of @Autowired"
+  Evaluation: Correct. Matches CLAUDE.md §Coding Conventions — constructor injection only.
+  Recommendation: Accept
+
+- :bug: **PokService.java:88** (by reviewer) — "This will NPE when tags is null"
+  Evaluation: Confirmed — `pok.getTags()` is nullable per the domain model; calling `.stream()` without
+  a null check will throw at runtime when a POK has no tags.
+  Recommendation: Accept
+
+### Accept with modification (N)
+- :bulb: **api.ts:31** (by copilot) — "Extract silentRefresh to a shared utility"
+  Evaluation: The comment correctly identifies that silentRefresh is duplicated. However, the suggested
+  location (a new utils/auth.ts file) would create a circular import with api.ts. The correct fix is
+  to keep it in api.ts as a private function (current structure) and inline the one duplicate.
+  Recommendation: Accept with modification — inline the duplicate rather than extracting to a new file
+
+### Reject (N)
+- :bulb: **AuthService.java:60** (by copilot) — "Consider adding @Transactional to this method"
+  Evaluation:
+    FOR applying: @Transactional would protect against partial writes if a second DB call were added.
+    AGAINST applying: This method makes exactly one DB call (no partial-write risk). Adding @Transactional
+    here adds overhead with zero benefit in the current implementation. CLAUDE.md discourages adding
+    error handling or guards for scenarios that can't happen.
+  Recommendation: Reject — premature @Transactional with no current benefit; revisit if the method
+  gains a second DB call
+
+### Defer (N)
+- :bulb: **PokRepository.java:15** (by copilot) — "Extract this query to a named @Query constant"
+  Evaluation: Valid style improvement, but this repo has no established pattern for named queries yet.
+  Introducing it for one method creates inconsistency. Better addressed when more queries exist.
+  Recommendation: Defer — add to backlog when query count justifies a consistent pattern
+
+### Questions (N — requires manual reply)
+- :question: **PR comment** (by @reviewer) — "Why did you choose bcrypt over argon2?"
+  Evaluation: Requires your reply. Suggested answer: bcrypt is Spring Security's default and well-tested
+  in production; argon2 is theoretically stronger but has no practical advantage at current user scale.
+
+### Informational (N — no action needed)
 - :information_source: "Great use of records for DTOs!" (by copilot)
-      → No action needed
 ```
 
-**Ask user:** "Which items would you like to implement? You can override any recommendation."
-
-Use AskUserQuestion with multiSelect to let the user pick which actionable items and suggestions to implement.
+**Ask user to confirm the plan before implementing anything.** Use AskUserQuestion with multiSelect to let the user override any recommendation:
+- Present the "Accept" items as pre-selected (default yes)
+- Present "Accept with modification" items individually with the proposed modification described
+- Present "Reject" items with the reason, allow user to override if they disagree
+- Present "Defer" items, allow user to escalate to this PR if they prefer
 
 ## 7. Implement Approved Items
 
 For each approved item:
 1. Read the target file
 2. Apply the change following project conventions (CLAUDE.md)
-3. After all changes are applied, run relevant tests:
+3. After all changes are applied, determine whether any **code** files were modified:
+   - **Docs-only changes** (`.md`, comments, Javadoc, i18n `.json`) → skip test re-run
+   - **Code changes** (`.java`, `.ts`, `.tsx`, `.js`) → run targeted tests for the affected classes
+
+**Compile first — always, before any test run:**
 
 ```bash
-# If backend files were changed (run in subshell to avoid directory leaking)
-(cd backend && ./mvnw test -q)
+# Backend — full compilation (catches any breakage introduced by the changes)
+(cd backend && mvn compile test-compile -q)
 
-# If web files were changed (run in subshell to avoid directory leaking)
-(cd web && npm test --silent)
+# Web — TypeScript type check (equivalent compile gate)
+(cd web && npx tsc --noEmit)
 ```
 
-**If tests fail** → STOP. Show the failure. Ask user whether to revert or debug.
+**If compilation fails** → STOP immediately. Show the error. Ask user whether to revert or debug.
+Only proceed to test execution once the project compiles cleanly.
+
+**Targeted test run — backend (Java):**
+
+Collect the simple class names that were changed (e.g. `AuthService`, `PokController`).
+For each changed class `Foo`, look for a corresponding test class `FooTest` or `FooIntegrationTest`.
+Run only those test classes:
+
+```bash
+# Build the comma-separated list of test classes, then run them
+# Example: AFFECTED_TESTS="AuthServiceTest,PokControllerTest"
+(cd backend && mvn test -Dtest="$AFFECTED_TESTS" -q)
+```
+
+If a changed class has no corresponding test class, note it but do not block the commit (the project's
+coverage gate in CI will catch regressions).
+
+**Targeted test run — web (TypeScript):**
+
+Pass the changed file paths to the test runner so only related specs execute:
+
+```bash
+# Example: changed files are src/hooks/useAuth.ts and src/lib/api.ts
+(cd web && npm test -- --testPathPattern="useAuth|api" --silent)
+```
+
+**If any targeted tests fail** → STOP. Show the failure. Ask user whether to revert or debug.
 
 ## 8. Commit and Push Review Comment Fixes
 

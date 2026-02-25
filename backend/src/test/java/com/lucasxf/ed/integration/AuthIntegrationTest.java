@@ -117,8 +117,12 @@ class AuthIntegrationTest {
                         }
                         """.formatted(email, handle)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.handle").value(handle));
+                .andExpect(jsonPath("$.handle").value(handle))
+                .andDo(result -> {
+                    var cookies = result.getResponse().getHeaders("Set-Cookie");
+                    assertThat(cookies).anyMatch(c -> c.contains("access_token="));
+                    assertThat(cookies).anyMatch(c -> c.contains("refresh_token="));
+                });
 
             assertThat(userRepository.findByEmail(email))
                 .isPresent()
@@ -162,8 +166,11 @@ class AuthIntegrationTest {
                         }
                         """.formatted(email)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.handle").value(handle));
+                .andExpect(jsonPath("$.handle").value(handle))
+                .andDo(result -> {
+                    var cookies = result.getResponse().getHeaders("Set-Cookie");
+                    assertThat(cookies).anyMatch(c -> c.contains("access_token="));
+                });
         }
     }
 
@@ -214,8 +221,12 @@ class AuthIntegrationTest {
                         }
                         """.formatted(tempToken, handle)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.handle").value(handle));
+                .andExpect(jsonPath("$.handle").value(handle))
+                .andDo(result -> {
+                    var cookies = result.getResponse().getHeaders("Set-Cookie");
+                    assertThat(cookies).anyMatch(c -> c.contains("access_token="));
+                    assertThat(cookies).anyMatch(c -> c.contains("refresh_token="));
+                });
 
             assertThat(userRepository.findByEmail(email))
                 .isPresent()
@@ -275,8 +286,11 @@ class AuthIntegrationTest {
                         """.formatted(loginToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.requiresHandle").value(false))
-                .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.handle").value(handle));
+                .andExpect(jsonPath("$.handle").value(handle))
+                .andDo(result -> {
+                    var cookies = result.getResponse().getHeaders("Set-Cookie");
+                    assertThat(cookies).anyMatch(c -> c.contains("access_token="));
+                });
         }
     }
 

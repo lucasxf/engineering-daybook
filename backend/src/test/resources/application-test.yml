@@ -26,6 +26,8 @@ auth:
     client-id: test-google-client-id.apps.googleusercontent.com
   password-reset:
     token-expiry: 1h
+  cookie:
+    secure: false
 
 logging:
   level:

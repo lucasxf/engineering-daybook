@@ -14,7 +14,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record AuthProperties(
     JwtProperties jwt,
     GoogleProperties google,
-    PasswordResetProperties passwordReset
+    PasswordResetProperties passwordReset,
+    CookieProperties cookie
 ) {
 
     /**
@@ -40,6 +41,17 @@ public record AuthProperties(
      */
     public record PasswordResetProperties(
         Duration tokenExpiry
+    ) {
+    }
+
+    /**
+     * Cookie settings for token delivery.
+     *
+     * <p>Set {@code AUTH_COOKIE_SECURE=true} in production (Railway) to enforce
+     * the {@code Secure} attribute. Defaults to {@code false} for local HTTP development.
+     */
+    public record CookieProperties(
+        boolean secure
     ) {
     }
 }

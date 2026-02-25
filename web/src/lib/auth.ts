@@ -1,11 +1,9 @@
 import { apiPublicFetch, apiFetch } from './api';
 
 export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
   handle: string;
   userId: string;
-  expiresIn: number;
+  email: string;
 }
 
 export interface HandleAvailabilityResponse {
@@ -28,11 +26,9 @@ export interface LoginPayload {
 export interface GoogleLoginResponse {
   requiresHandle: boolean;
   tempToken: string | null;
-  accessToken: string | null;
-  refreshToken: string | null;
   handle: string | null;
   userId: string | null;
-  expiresIn: number | null;
+  email: string | null;
 }
 
 export interface CompleteGoogleSignupPayload {
@@ -55,18 +51,12 @@ export function registerApi(payload: RegisterPayload): Promise<AuthResponse> {
   });
 }
 
-export function refreshApi(refreshToken: string): Promise<AuthResponse> {
-  return apiPublicFetch<AuthResponse>('/auth/refresh', {
-    method: 'POST',
-    body: JSON.stringify({ refreshToken }),
-  });
+export function refreshApi(): Promise<AuthResponse> {
+  return apiPublicFetch<AuthResponse>('/auth/refresh', { method: 'POST' });
 }
 
-export function logoutApi(refreshToken: string): Promise<void> {
-  return apiFetch<void>('/auth/logout', {
-    method: 'POST',
-    body: JSON.stringify({ refreshToken }),
-  });
+export function logoutApi(): Promise<void> {
+  return apiFetch<void>('/auth/logout', { method: 'POST' });
 }
 
 export function checkHandleApi(

@@ -14,10 +14,10 @@ This document defines the functional and non-functional requirements for the lea
 | AUTH-02 | User can sign in with Google OAuth | Must Have | MVP |
 | AUTH-03 | User can reset password via email | Should Have | MVP |
 | AUTH-04 | User session persists across browser/app restarts | Must Have | MVP |
-
-> **Implementation gap (2026-02-21):** AUTH-04 is listed as Must Have / MVP but is NOT YET IMPLEMENTED. JWT tokens are currently stored in React `useRef` (in-memory only) and are lost on page refresh. Must be resolved in Milestone 1.7. Target: `httpOnly` cookie with `SameSite=Strict` (see ADR-007 in ARCHITECTURE.md).
 | AUTH-05 | User can sign out from all devices | Could Have | Post-MVP |
 | AUTH-06 | User can enable Multi-Factor Authentication (MFA) | Should Have | Evolution |
+
+> **Status note (2026-02-24):** AUTH-04 (session persistence across restarts) is implemented using cookie-based session persistence with `httpOnly` cookies and `SameSite=Strict`, as specified in ADR-007 in ARCHITECTURE.md. This fulfills the original MVP requirement.
 
 ---
 
@@ -292,6 +292,7 @@ main                          # Production-ready releases only
 - Clickable logo navigation (USE-07)
 - Single-column feed layout (USE-08)
 - Inline quick-entry on feed (USE-09)
+- Guest home page shows login form directly (USE-10)
 
 ### Must Have (Evolution)
 - Manual tagging with user control over suggested tags
@@ -327,3 +328,4 @@ main                          # Production-ready releases only
 |:-------:|:----:|:------:|:--------|
 | 1.0 | 2026-01-29 | Lucas Xavier Ferreira | Initial version |
 | 1.1 | 2026-02-21 | Lucas Xavier Ferreira | Added AUTH-04 implementation gap note; added USE-06 through USE-09 (MVP UX Review findings); updated MoSCoW summary |
+| 1.2 | 2026-02-22 | Lucas Xavier Ferreira | Moved AUTH-04 gap note outside table (rendering fix); added USE-10 to MoSCoW Must Have |

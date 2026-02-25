@@ -7,17 +7,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 /**
  * Response DTO for successful authentication.
  *
+ * <p>JWT tokens are delivered via {@code httpOnly} cookies and are intentionally absent from
+ * this response body. Only the user identity required by the client to initialise application
+ * state is returned here.
+ *
  * @author Lucas Xavier Ferreira
  * @since 2026-02-11
  */
-@Schema(description = "Authentication response with tokens")
+@Schema(description = "Authentication response with user identity")
 public record AuthResponse(
-
-    @Schema(description = "JWT access token")
-    String accessToken,
-
-    @Schema(description = "Refresh token for session renewal")
-    String refreshToken,
 
     @Schema(description = "User handle", example = "lucasxf")
     String handle,
@@ -25,7 +23,7 @@ public record AuthResponse(
     @Schema(description = "User ID")
     UUID userId,
 
-    @Schema(description = "Access token expiry in seconds", example = "900")
-    long expiresIn
+    @Schema(description = "User email address", example = "user@example.com")
+    String email
 ) {
 }

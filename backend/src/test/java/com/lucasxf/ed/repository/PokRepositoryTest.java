@@ -15,7 +15,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -32,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Testcontainers(disabledWithoutDocker = true)
 class PokRepositoryTest {
 
     static PostgreSQLContainer<?> postgres;
@@ -44,6 +47,9 @@ class PokRepositoryTest {
             registry.add("spring.datasource.username", () -> "test");
             registry.add("spring.datasource.password", () -> "test");
         } else {
+            if (!DockerClientFactory.instance().isDockerAvailable()) {
+                return; // Class disabled by @Testcontainers(disabledWithoutDocker = true)
+            }
             // Start Testcontainers here — @DynamicPropertySource runs during context loading,
             // before @BeforeAll, so the container must be started here to be available for
             // property registration.

@@ -17,7 +17,7 @@ learnimo (ED) is a personal knowledge management tool. Inspired by the concept f
 
 ## What It Is
 
-- A place to record and search through your own pieces of knowledge (POKs)
+- A place to record and search through your own learnings
 - A learning journal with automatic and manual tagging
 - A tool that keeps your learnings atomic, searchable, and immutable (protected from AI hallucination)
 
@@ -36,13 +36,11 @@ learnimo (ED) is a personal knowledge management tool. Inspired by the concept f
 
 The name carries three semantic layers:
 
-- **learn** — the core action the app enables
-- **ânimo** — Portuguese for energy, impulse, and momentum; say *learnimo* out loud and you can hear it
-- A modern SaaS cadence that works across languages and cultures
+- **learn** — the core action the app enables (to learn / aprender)
+- **imo** — Yoruba for knowledge and learning (*imọ̀*, the root behind *aprendizado*)
+- Say *learnimo* out loud and you can hear **ânimo** — Portuguese for energy, spirit, drive
 
-> *Learning with momentum.*
-
-The runner-up names in that exploration were **daftari** (Swahili for "notebook", strong cultural identity) and **devimo** (developer-focused startup vibe). **learnimo** was chosen for its global reach and because it best captures the idea that learning is not passive — it builds on itself.
+The runner-up names in that exploration were **daftari** (Swahili for "notebook", strong cultural identity) and **devimo** (developer-focused startup vibe). **learnimo** was chosen for its global reach and because it carries meaning in multiple languages without belonging to just one.
 
 ---
 
@@ -75,7 +73,7 @@ The runner-up names in that exploration were **daftari** (Swahili for "notebook"
 │   └── ROADMAP.md
 ├── prompts/                  # AI assistant prompts
 │   ├── claude-ai/
-│   └── claude-code/
+│   └── ignore/
 ├── .claude/                  # Claude Code automation
 │   ├── commands/
 │   └── agents/
@@ -141,8 +139,8 @@ See `backend/src/main/resources/application.yml` for configuration details.
   - JWT-based session management
   - Secure password hashing with BCrypt
 
-- **POK Management**
-  - Create, read, update, and delete POKs
+- **Learning Management**
+  - Create, read, update, and delete learnings
   - Rich text content with Markdown support
   - Automatic and manual tagging
   - Audit trail for all changes
@@ -153,10 +151,11 @@ See `backend/src/main/resources/application.yml` for configuration details.
   - Dark mode / light mode / system theme toggle
   - Protected routes and authentication flows
   - Modern React patterns with TypeScript
+  - Password reset via email
 
 ### In Progress
-- Semantic search with vector embeddings
 - Mobile application (Expo/React Native)
+- Session persistence across browser restarts (AUTH-04)
 
 ---
 
@@ -175,9 +174,12 @@ See [ROADMAP.md](./docs/ROADMAP.md) for the full development plan.
 ### Phase 1: MVP — 🔄 In Progress
 - [x] User authentication (email + password)
 - [x] Google OAuth integration
-- [x] POK CRUD (backend + web)
+- [x] Learning CRUD (backend + web)
+- [x] Search (keyword, filters, sorting)
 - [x] Dark mode + i18n (EN/PT-BR)
-- [ ] Semantic search
+- [x] Password reset via email
+- [x] Deployed to production (learnimo.net)
+- [ ] UX review (session persistence, inline quick-entry)
 
 ---
 
@@ -208,7 +210,7 @@ Key endpoints:
 | [PROJECT_VISION.md](./docs/PROJECT_VISION.md) | Product vision, goals, and differentiation |
 | [REQUIREMENTS.md](./docs/REQUIREMENTS.md) | Functional and non-functional requirements |
 | [ARCHITECTURE.md](./docs/ARCHITECTURE.md) | Technical stack, data model, and ADRs |
-| [GLOSSARY.md](./docs/GLOSSARY.md) | Terms and definitions (POK, POL, etc.) |
+| [GLOSSARY.md](./docs/GLOSSARY.md) | Terms and definitions (POK, Learner, etc.) |
 | [ROADMAP.md](./docs/ROADMAP.md) | Development phases, milestones, and timeline |
 
 ---

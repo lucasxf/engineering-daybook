@@ -5,6 +5,7 @@ import java.util.List;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -20,8 +21,19 @@ import lombok.extern.slf4j.Slf4j;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Filter that validates JWT Bearer tokens on incoming requests
- * and sets the Spring Security authentication context.
+ * Filter that validates JWT tokens on incoming requests and sets the Spring Security
+ * authentication context.
+ *
+ * <p>Token extraction order:
+ * <ol>
+ *   <li><b>Primary:</b> {@code access_token} httpOnly cookie — used by the web client.</li>
+ *   <li><b>Fallback:</b> {@code Authorization: Bearer} header — reserved for future mobile
+ *       clients (Phase 3, Expo SecureStore).</li>
+ * </ol>
+ *
+ * <p>On a valid token, a {@link UserPrincipal} carrying {@code userId}, {@code email},
+ * and {@code handle} is stored in the {@link SecurityContextHolder}. Controllers access the
+ * user ID via {@code authentication.getName()} (which returns {@code userId.toString()}).
  *
  * @author Lucas Xavier Ferreira
  * @since 2026-02-11
@@ -44,21 +56,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
         throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
+        String token = extractToken(request);
 
-        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        String token = authHeader.substring(BEARER_PREFIX.length());
-
-        if (jwtService.isTokenValid(token)) {
+        if (token != null && jwtService.isTokenValid(token)) {
             var userId = jwtService.extractUserId(token);
             var email = jwtService.extractEmail(token);
+            var handle = jwtService.extractHandle(token);
 
+            var principal = new UserPrincipal(userId, email, handle);
             var authentication = new UsernamePasswordAuthenticationToken(
-                userId, null, List.of()
+                principal, null, List.of()
             );
             authentication.setDetails(
                 new WebAuthenticationDetailsSource().buildDetails(request)
@@ -68,5 +75,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * Extracts the JWT from the request, checking the {@code access_token} cookie first,
+     * then falling back to the {@code Authorization: Bearer} header.
+     */
+    private String extractToken(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (CookieHelper.ACCESS_TOKEN_COOKIE.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith(BEARER_PREFIX)) {
+            return authHeader.substring(BEARER_PREFIX.length());
+        }
+
+        return null;
     }
 }

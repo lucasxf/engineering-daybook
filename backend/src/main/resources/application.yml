@@ -50,6 +50,8 @@ auth:
     client-id: ${GOOGLE_CLIENT_ID:placeholder-configure-in-env}
   password-reset:
     token-expiry: 1h
+  cookie:
+    secure: ${AUTH_COOKIE_SECURE:false}
 
 springdoc:
   api-docs:
