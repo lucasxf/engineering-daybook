@@ -59,8 +59,9 @@ it without scrolling through everything."
   active tag set is their own, governed by per-user subscriptions with soft-delete support.
   From the user's perspective, their tags are private and personal. A user can only see,
   assign, rename, or delete tags within their own active subscription set. This isolation
-  applies only to user-created tags; AI-suggested tags interact with the global pool
-  directly (see FR13–FR19).
+  applies only to user-created tags; AI-suggested tags always reference the global tag
+  pool directly — approval of an AI suggestion creates or reuses a global `tags` row and
+  creates a `user_tags` subscription if one does not already exist (see FR13–FR19).
 
 #### Tag Assignment
 
@@ -377,6 +378,9 @@ pok_tag_suggestions (id, pokId, userId, suggestedName,
 - Tag color is stored on `user_tags` (per-user), assigned randomly at subscription
   creation time from a palette of 6–8 colors defined as constants in the frontend.
 - `source = AI_EDITED` when the user modifies an AI-suggested name before approving.
+- AI suggestions always resolve against the global `tags` pool. Approval creates or
+  reuses a global `tags` row, then creates a `user_tags` subscription if the user does
+  not already have one for that tag.
 
 **Backend:**
 - `Tag` entity (id, name, createdAt) — global tag pool, no userId
