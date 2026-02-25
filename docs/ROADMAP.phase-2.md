@@ -1,6 +1,6 @@
 # Phase 2: Evolution
 
-> Status: **🔄 Started** — Milestone 2.1 complete; 2.2 partially implemented; 2.3–2.4 planned
+> Status: **🔄 Started** — Milestones 2.1 and 2.3 complete; 2.2 partially implemented; 2.4 planned
 
 ---
 
@@ -49,14 +49,26 @@
 - **Deferred:** TagInput combobox (FR8/AC19 edit-before-approve) and TagFilter (FR10/FR11) — web components deferred to a follow-up
 - AC19 (edit suggestion before approve) deferred; approve/reject works, editing not yet exposed in UI
 
-### Milestone 2.3: Visualization
+### Milestone 2.3: Visualization ✅
 
-| # | Feature | Priority |
-|---|---------|----------|
-| 2.3.1 | Timeline view (chronological) | Must Have |
-| 2.3.2 | Tag-grouped view | Must Have |
-| 2.3.3 | Sort options (date, relevance) | Must Have |
-| 2.3.4 | Search result highlighting | Could Have |
+> **Spec:** `docs/specs/features/tags-visualization.md` — Status: Implemented (feat/tags-visualization, 2026-02-25)
+
+| # | Feature | Status |
+|---|---------|--------|
+| 2.3.1 | Timeline view (chronological) | ✅ `TimelineView` + `MonthGroup` — month/year grouped, newest-first, locale-aware headers; `/poks/timeline` route |
+| 2.3.2 | Tag-grouped view | ✅ `TagGroupedView` + `TagGroup` — alphabetical sections, untagged at bottom; integrated into `/poks` feed |
+| 2.3.3 | Sort options (Newest/Oldest/Recently updated) | ✅ `SortDropdown` updated to 3-option model |
+| 2.3.4 | Search result highlighting | ⏳ Deferred (Could Have) |
+
+**Notes (2026-02-25):**
+- `usePoksData` hook centralises auth guard, data fetching, and URL state — shared across Feed/Tags/Timeline views
+- `ViewSwitcher` component provides Feed | Tags | Timeline tabs (`role="tablist"`) on the poks page
+- `PokCard` extended with `dateField` prop to render "Updated" label for the recently-updated sort
+- i18n keys added in `en.json` and `pt-BR.json` for all new UI strings
+- `poks/page.tsx` refactored to use `usePoksData` hook; `poks/timeline/page.tsx` added as a dedicated route
+- 6 E2E scenarios added to `web/e2e/poks.spec.ts` covering view switching, tag-grouped rendering, and timeline rendering
+- `playwright.config.ts` port changed to 3001 to avoid conflict with the main worktree running on 3000
+- All 239 unit tests pass; build clean; 6 E2E tests pass
 
 ### Milestone 2.4: UX Delight
 
@@ -72,7 +84,7 @@
 - [x] Learner can edit and delete POKs
 - [x] All changes are logged in audit trail
 - [~] Tagging system works (manual creation + AI suggestions for explicit tags) — backend + basic web done; TagFilter + TagInput combobox deferred
-- [ ] Timeline and tag views are functional
+- [x] Timeline and tag views are functional
 - [ ] Author actively uses tags to organize POKs
 - [ ] Inspirational prompts appear on add-learning page
 - [ ] Homepage adapts after first learning is recorded

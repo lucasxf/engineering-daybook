@@ -145,6 +145,9 @@ See `backend/src/main/resources/application.yml` for configuration details.
   - Rich text content with Markdown support
   - Automatic and manual tagging
   - Audit trail for all changes
+  - Tag-grouped view (alphabetical sections, untagged at bottom)
+  - Timeline view (month/year grouped, newest-first, locale-aware)
+  - Sort options: Newest, Oldest, Recently updated
 
 - **Web Application**
   - Responsive design with Tailwind CSS
@@ -183,6 +186,7 @@ See [ROADMAP.phase-1.md](./docs/ROADMAP.phase-1.md)
 See [ROADMAP.phase-2.md](./docs/ROADMAP.phase-2.md)
 - [x] POK editing, deletion, and audit trail
 - [~] Tagging system — backend + basic web (TagBadge, TagSuggestionPrompt) done; TagFilter + TagInput combobox deferred
+- [x] Visualization — tag-grouped view, timeline view (month/year), sort options (Newest/Oldest/Recently updated)
 
 ---
 
