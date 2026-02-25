@@ -95,11 +95,11 @@
   },
   "poks": {
     "create": {
-      "title": "Novo Aprendizado"
+      "title": "Novo aprendizado"
     },
     "list": {
       "title": "Meus Aprendizados",
-      "createButton": "Novo Aprendizado",
+      "createButton": "Novo aprendizado",
       "resultsCount": "{count, plural, =1 {1 aprendizado encontrado} other {# aprendizados encontrados}}"
     },
     "search": {
@@ -133,7 +133,7 @@
       "updated": "Atualizado"
     },
     "edit": {
-      "title": "Editar Aprendizado",
+      "title": "Editar aprendizado",
       "cancelButton": "Cancelar"
     },
     "form": {
@@ -141,8 +141,8 @@
       "titlePlaceholder": "Opcional - dê um título ao seu aprendizado",
       "contentLabel": "Conteúdo",
       "contentPlaceholder": "O que você aprendeu hoje?",
-      "createButton": "Salvar Aprendizado",
-      "updateButton": "Salvar Alterações",
+      "createButton": "Salvar aprendizado",
+      "updateButton": "Salvar alterações",
       "submitting": "Salvando..."
     },
     "quickEntry": {

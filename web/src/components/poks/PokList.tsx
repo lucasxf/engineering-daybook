@@ -2,27 +2,20 @@
 
 import { Pok } from '@/lib/pokApi';
 import { PokCard } from './PokCard';
-import { EmptyState } from './EmptyState';
 
 interface PokListProps {
   poks: Pok[];
 }
 
 /**
- * List component for displaying POKs in a responsive grid layout.
+ * List component for displaying POKs in a single-column vertical layout.
  *
- * Features:
- * - Single-column vertical layout (LIFO chronological reading)
- * - Maps POKs to PokCard components
- * - Shows EmptyState when no POKs
+ * Renders POKs as PokCard components in LIFO chronological order.
+ * Empty state handling is the responsibility of the parent page.
  *
  * @param poks array of POKs to display
  */
 export function PokList({ poks }: PokListProps) {
-  if (poks.length === 0) {
-    return <EmptyState />;
-  }
-
   return (
     <div className="flex flex-col gap-4">
       {poks.map((pok) => (

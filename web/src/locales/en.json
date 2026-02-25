@@ -95,11 +95,11 @@
   },
   "poks": {
     "create": {
-      "title": "New Learning"
+      "title": "New learning"
     },
     "list": {
       "title": "My Learnings",
-      "createButton": "New Learning",
+      "createButton": "New learning",
       "resultsCount": "{count, plural, =1 {1 learning found} other {# learnings found}}"
     },
     "search": {
@@ -133,7 +133,7 @@
       "updated": "Updated"
     },
     "edit": {
-      "title": "Edit Learning",
+      "title": "Edit learning",
       "cancelButton": "Cancel"
     },
     "form": {
@@ -141,8 +141,8 @@
       "titlePlaceholder": "Optional - give your learning a title",
       "contentLabel": "Content",
       "contentPlaceholder": "What did you learn today?",
-      "createButton": "Save Learning",
-      "updateButton": "Save Changes",
+      "createButton": "Save learning",
+      "updateButton": "Save changes",
       "submitting": "Saving..."
     },
     "quickEntry": {
