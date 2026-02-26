@@ -148,6 +148,8 @@ See `backend/src/main/resources/application.yml` for configuration details.
   - Tag-grouped view (alphabetical sections, untagged at bottom)
   - Timeline view (month/year grouped, newest-first, locale-aware)
   - Sort options: Newest, Oldest, Recently updated
+  - Hybrid search (keyword + semantic via pgvector cosine similarity)
+  - AI-powered embeddings via HuggingFace Inference API (async, non-blocking)
 
 - **Web Application**
   - Responsive design with Tailwind CSS
@@ -187,6 +189,12 @@ See [ROADMAP.phase-2.md](./docs/ROADMAP.phase-2.md)
 - [x] POK editing, deletion, and audit trail
 - [~] Tagging system — backend + basic web (TagBadge, TagSuggestionPrompt) done; TagFilter + TagInput combobox deferred
 - [x] Visualization — tag-grouped view, timeline view (month/year), sort options (Newest/Oldest/Recently updated)
+
+### Phase 3: AI & Mobile — 🔄 Started
+See [ROADMAP.phase-3.md](./docs/ROADMAP.phase-3.md)
+- [x] Semantic search — hybrid keyword + vector search via pgvector; embeddings from HuggingFace Inference API
+- [ ] AI Connections (related learnings)
+- [ ] Mobile app (Expo/React Native)
 
 ---
 

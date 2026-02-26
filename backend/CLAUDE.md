@@ -104,6 +104,19 @@ cd backend
 
 - **`@EnableAsync` is required for `@Async` to work:** Without `@EnableAsync` on `EdApplication` (or a `@Configuration` class), Spring silently ignores `@Async` and executes annotated methods synchronously on the calling thread. Always add `@EnableAsync` when introducing the first `@Async` method — there is no warning when it's missing.
 
+- **pgvector: map `float[]` to `vector` column with `@ColumnTransformer`, not a custom dialect:** Hibernate has no built-in type for PostgreSQL's `vector` column type. The correct approach is (1) a `@Converter(autoApply = false)` that serializes `float[]` to/from the `[x,y,z,...]` string format that pgvector accepts, and (2) `@ColumnTransformer(write = "?::vector")` on the field so Hibernate emits the correct cast in INSERT/UPDATE. Without the `::vector` cast, Postgres rejects the raw text value with `ERROR: column is of type vector but expression is of type text`. Do NOT use the pgvector Hibernate dialect shim — it pulls in the full pgvector-spring-ai stack and conflicts with the existing RestClient auto-configuration.
+
+  ```java
+  @Convert(converter = VectorAttributeConverter.class)
+  @ColumnTransformer(write = "?::vector")
+  @Column(name = "embedding", columnDefinition = "vector(1536)")
+  private float[] embedding;
+  ```
+
+- **`@ConditionalOnMissingBean` on `RestClient.Builder` for embedding service testability:** The `HuggingFaceEmbeddingService` is injected with a `RestClient.Builder`. Declaring the builder bean with `@Bean @ConditionalOnMissingBean` in a `@Configuration` class allows integration tests to `@MockitoBean` or `@TestConfiguration`-override the builder without fighting Spring Boot's auto-configured default. Without this guard, the test context fails with a duplicate bean definition if both auto-configuration and the explicit bean are present.
+
+- **Async embedding generation: `@Async` methods must be on Spring-managed beans, not called from within the same class:** Calling an `@Async` method on `this` (self-invocation) bypasses the proxy and executes synchronously. Always inject the service into itself (via `@Lazy` constructor injection) or extract the `@Async` method into a separate Spring component if you need to call it from within the same class. For embedding: `PokService` calls `embeddingService.generateAndSave(pokId)` — keep them in separate beans.
+
 - **State-machine transitions must query by expected source state:** When implementing approve/reject (or any state transition), always query by expected status in addition to ownership (`findByIdAndUserIdAndStatus(id, userId, PENDING)`), not by identity alone. Querying only by `id + userId` allows replaying already-resolved transitions (e.g., REJECTED → approve again), creating orphaned records and contradictory history.
 
 - **Hoist repeated repository queries out of streams:** A repository call inside `stream().flatMap(...)` with fixed arguments re-executes for every element — a Java N+1 pattern. Hoist the call to a variable before the stream. For list endpoints processing N entities, pass the pre-fetched list into a private method overload rather than re-querying inside each `map`.
