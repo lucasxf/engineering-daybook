@@ -24,7 +24,9 @@ exact opposite of the app's purpose.
 **Why now:** Milestones 2.1–2.3 completed the organizational layer (tagging, timeline, grouped
 views, sort). Users now have enough learnings stored that retrieval quality is the dominant
 friction point. pgvector is available on Supabase at no additional infrastructure cost.
-`text-embedding-3-small` costs ≈ $0.02/1M tokens — negligible at personal scale.
+`paraphrase-multilingual-MiniLM-L12-v2` is free via HuggingFace's Inference API, produces
+384-dimensional embeddings, and natively supports 50+ languages — including EN and PT-BR —
+with no additional multilingual tuning.
 
 **Phase/Milestone:** Phase 3 — AI & Mobile / Milestone 3.1
 
@@ -47,7 +49,7 @@ spot-check on author's own data set of 30+ learnings across diverse topics).
 
 - [ ] **FR1 — Embedding generation on create** `[Must Have]`
   When a POK is created with non-empty content, the system generates a vector embedding of the
-  combined `title + ". " + content` text and stores it in the `embedding` column (`vector(1536)`)
+  combined `title + ". " + content` text and stores it in the `embedding` column (`vector(384)`)
   on the `poks` table. This happens **asynchronously** after the HTTP response is returned to the
   client (same `@Async` pattern as `TagSuggestionService`). The POK is immediately available for
   keyword search; semantic search picks it up once the embedding lands (typically within 2 s).
@@ -80,9 +82,9 @@ spot-check on author's own data set of 30+ learnings across diverse topics).
   layer. No POK from another user can appear in search results under any code path.
 
 - [ ] **FR6 — Graceful degradation when embedding service unavailable** `[Must Have]`
-  If the OpenAI embedding API call fails during a search request (any `searchMode`), the system
-  falls back silently to keyword-only search. The HTTP response is `200` with keyword results.
-  A WARN-level structured log is written: `{ "event": "embedding_service_unavailable",
+  If the HuggingFace embedding API call fails during a search request (any `searchMode`), the
+  system falls back silently to keyword-only search. The HTTP response is `200` with keyword
+  results. A WARN-level structured log is written: `{ "event": "embedding_service_unavailable",
   "fallback": "keyword_only" }`. The query text is NOT logged in plaintext.
 
 - [ ] **FR7 — POKs without embeddings handled correctly** `[Must Have]`
@@ -108,35 +110,37 @@ spot-check on author's own data set of 30+ learnings across diverse topics).
 
 #### Won't Have (This Milestone)
 
-- Cross-lingual semantic search validation (model handles it partially but untested)
 - User-visible relevance explanations ("matched semantically" badge) — deferred to 3.1.4
-- Custom/self-hosted embedding models — only OpenAI `text-embedding-3-small`
+- Custom/alternative embedding models — only HuggingFace `paraphrase-multilingual-MiniLM-L12-v2`
 - Embedding tags — only POK title + content is embedded
 - Mobile app search changes — web only for this milestone
-- Query embedding caching — cost negligible at current scale, deferred
+- Query embedding caching — cost is zero at current scale (free tier), deferred
 
 ### Non-Functional
 
 - [ ] **NFR1 — Latency** `[Must Have]`
   - `keyword`/`hybrid` fallback: p95 < 200 ms (no regression from current keyword search)
   - `hybrid` with available embedding service: p95 < 800 ms at the API layer
-  - OpenAI embedding call budget: 500 ms max; if exceeded, fall back to keyword (FR6)
+  - HuggingFace embedding call budget: 500 ms max; if exceeded, fall back to keyword (FR6)
 
 - [ ] **NFR2 — Embedding cost** `[Should Have]`
-  `text-embedding-3-small` (1536 dims, $0.02/1M tokens). Estimated < $0.05/month at personal
-  scale (500 POKs, 100 searches/day). No rate limiting or cost guard required for v1.
+  `paraphrase-multilingual-MiniLM-L12-v2` via HuggingFace Inference API free tier (rate-limited
+  to ~100 req/s shared; sufficient for personal-scale journaling). No per-token cost. If rate
+  limits become a bottleneck, HuggingFace Inference Endpoints (dedicated) can be provisioned.
+  No cost guard or metering required for v1.
 
 - [ ] **NFR3 — Privacy and isolation** `[Must Have]`
   - All pgvector queries enforce `WHERE user_id = :userId` at SQL layer, not application layer.
-  - Query text not logged in plaintext (FR6). POK content sent to OpenAI governed by OpenAI DPA.
-  - HNSW index is per-table (shared across users) — document as known limitation in ADR.
+  - Query text not logged in plaintext (FR6). POK content sent to HuggingFace governed by
+    HuggingFace's data processing terms (Inference API).
+  - IVFFlat index is per-table (shared across users) — document as known limitation in ADR.
 
 - [ ] **NFR4 — Scalability** `[Should Have]`
   IVFFlat index with `lists=100` supports sub-10 ms vector search up to ~100K vectors. Async
   embedding generation uses Spring `@Async` with bounded thread pool (max 5 threads, queue 100).
 
 - [ ] **NFR5 — Resilience** `[Must Have]`
-  Resilience4j circuit breaker wraps the OpenAI client: opens after 3 consecutive failures
+  Resilience4j circuit breaker wraps the HuggingFace client: opens after 3 consecutive failures
   within 30 s. In open state, all embedding requests fail immediately → fallback triggers
   instantly. Embedding failure on POK create/update does NOT prevent the POK being saved.
 
@@ -149,10 +153,13 @@ spot-check on author's own data set of 30+ learnings across diverse topics).
 **Technologies:**
 - pgvector (PostgreSQL extension — already enabled via V1 migration)
 - `com.pgvector:pgvector:0.1.6` (JDBC type mapping for vector column)
-- Spring `RestClient` for OpenAI HTTP call (no spring-ai; already in `spring-boot-starter-web`)
-- `spring-retry` or manual retry loop for OpenAI call (prefer manual to avoid new dependency)
+- Spring `RestClient` for HuggingFace HTTP call (no spring-ai; already in `spring-boot-starter-web`)
+- Manual retry loop for HuggingFace call (avoid new dependency; 3 retries, exponential backoff)
 - Resilience4j (already in Spring Boot 4 starter)
-- OpenAI `text-embedding-3-small` model, 1536 dimensions
+- HuggingFace `paraphrase-multilingual-MiniLM-L12-v2` model, **384 dimensions**
+  - Endpoint: `https://router.huggingface.co/` (formerly `api-inference.huggingface.co`)
+  - Request: `POST` with `{ "inputs": "<text>" }`, `Authorization: Bearer {HF_TOKEN}`
+  - Response: `float[][]` — one embedding array per input; take `response[0]`
 
 **Integration Points:**
 - `PokService` — add embedding trigger after `create()` and `update()`
@@ -182,12 +189,12 @@ function references", with a generated embedding
 that learning (the hit is semantic-only)
 
 ### AC2 — Embedding generated on POK create
-**GIVEN** the OpenAI embedding service is available
+**GIVEN** the HuggingFace embedding service is available
 **WHEN** a new learning is saved (POST /api/v1/poks) with title "JWT expiration handling" and
 content "Always validate exp claim server-side"
 **THEN** the HTTP response is returned immediately (not blocked on embedding)
 **AND** within 5 seconds, `SELECT embedding FROM poks WHERE id = :id` returns a non-null value
-**AND** the embedding has 1536 dimensions and belongs to the correct `user_id`
+**AND** the embedding has 384 dimensions and belongs to the correct `user_id`
 
 ### AC3 — Embedding regenerated on POK content update
 **GIVEN** user "alice" has a learning with embedding `E1` stored
@@ -216,7 +223,7 @@ and no keyword match)
 **AND** the SQL query executed includes `WHERE user_id = <bob's id>`
 
 ### AC6 — Graceful degradation when embedding service is down
-**GIVEN** the circuit breaker for the OpenAI client is in open state
+**GIVEN** the circuit breaker for the HuggingFace client is in open state
 **WHEN** user "alice" calls `GET /api/v1/poks?keyword=memory+leak&searchMode=hybrid`
 **THEN** the response is `200 OK` within 800 ms
 **AND** the response body contains keyword-match results (ILIKE on "memory leak")
@@ -275,7 +282,7 @@ fallback=keyword_only`
        │
        ▼
   PokService.hybridSearch(userId, keyword, threshold, limit)
-       ├─► EmbeddingService.embed(keyword) ──── OpenAI HTTP (RestClient)
+       ├─► EmbeddingService.embed(keyword) ──── HuggingFace HTTP (RestClient)
        │       └─[on failure] throw EmbeddingUnavailableException
        │               └─► fallback to PokService.search(keyword) ← existing
        │
@@ -293,7 +300,7 @@ fallback=keyword_only`
   PokService.create() / update()
        ├── save Pok (embedding=NULL on update)
        └── embeddingService.generateAndSaveAsync(pokId)  ← @Async
-               └── OpenAI embed → pokRepository.save(pok.updateEmbedding(vector))
+               └── HuggingFace embed → pokRepository.save(pok.updateEmbedding(vector))
 ```
 
 ### Test Strategy
@@ -323,11 +330,11 @@ fallback=keyword_only`
 
 **New — Backend:**
 - `backend/src/main/resources/db/migration/V12__add_embedding_to_poks.sql` — add
-  `embedding vector(1536)` column + IVFFlat index (`WHERE embedding IS NOT NULL`)
+  `embedding vector(384)` column + IVFFlat index (`WHERE embedding IS NOT NULL`)
 - `backend/src/main/java/com/lucasxf/ed/config/VectorAttributeConverter.java` — JPA
   `AttributeConverter<float[], String>` for pgvector text format `[f1,f2,...]`
 - `backend/src/main/java/com/lucasxf/ed/service/EmbeddingService.java` — interface:
-  `float[] embed(String text)` + `OpenAiEmbeddingService` impl (RestClient, retry, circuit breaker)
+  `float[] embed(String text)` + `HuggingFaceEmbeddingService` impl (RestClient, retry, circuit breaker)
 - `backend/src/main/java/com/lucasxf/ed/service/EmbeddingBackfillService.java` — batch
   backfill logic; called by admin endpoint
 - `backend/src/main/java/com/lucasxf/ed/dto/SemanticSearchResult.java` — `record(double score,
@@ -342,7 +349,7 @@ fallback=keyword_only`
 **Modified — Backend:**
 - `backend/pom.xml` — add `com.pgvector:pgvector:0.1.6`
 - `backend/src/main/java/com/lucasxf/ed/domain/Pok.java` — add `embedding float[]` with
-  `@Column(columnDefinition = "vector(1536)")` + `@Convert(converter =
+  `@Column(columnDefinition = "vector(384)")` + `@Convert(converter =
   VectorAttributeConverter.class)`, `getEmbedding()`, `updateEmbedding(float[])`
 - `backend/src/main/java/com/lucasxf/ed/repository/PokRepository.java` — add
   `semanticSearch()` native query; add `findByUserIdAndDeletedAtIsNullAndEmbeddingIsNull()`
@@ -351,7 +358,7 @@ fallback=keyword_only`
   methods; add fallback logic (catch `EmbeddingUnavailableException` → keyword fallback)
 - `backend/src/main/java/com/lucasxf/ed/controller/PokController.java` — add `searchMode`
   optional param to `listOrSearch()` endpoint; add admin backfill and evaluate endpoints
-- `backend/src/main/resources/application.yml` — add `OPENAI_API_KEY` ref; `search.*` props
+- `backend/src/main/resources/application.yml` — add `HUGGINGFACE_API_KEY` ref; `search.*` props
 - `backend/src/test/java/com/lucasxf/ed/service/PokServiceTest.java` — add hybrid/semantic
   test cases, mock EmbeddingService
 - `backend/src/test/java/com/lucasxf/ed/controller/PokControllerTest.java` — add searchMode
@@ -371,7 +378,7 @@ fallback=keyword_only`
 - `web/e2e/poks.spec.ts` — add semantic search E2E test cases
 
 **Migrations:**
-- `V12__add_embedding_to_poks.sql` — `ALTER TABLE poks ADD COLUMN embedding vector(1536)`;
+- `V12__add_embedding_to_poks.sql` — `ALTER TABLE poks ADD COLUMN embedding vector(384)`;
   IVFFlat index with `lists=100`, `vector_cosine_ops`, partial (`WHERE embedding IS NOT NULL`)
 
 ---
@@ -385,10 +392,11 @@ production DB (V1 migration).
 being generated (FR1/FR3 must be complete before 3.2 can use stored embeddings).
 
 **External:**
-- `OPENAI_API_KEY` environment variable must be set in Railway (backend) and `.env.local` for
-  local development. This is a new secret — add to Railway env vars before deployment.
+- `HUGGINGFACE_API_KEY` environment variable must be set in Railway (backend) and `.env.local`
+  for local development. This is a new secret — add to Railway env vars before deployment.
+  Obtain from `https://huggingface.co/settings/tokens` (free account; read-only token sufficient).
 - `com.pgvector:pgvector:0.1.6` Maven dependency — available on Maven Central.
-- Supabase production DB: pgvector extension already enabled; `vector(1536)` column can be
+- Supabase production DB: pgvector extension already enabled; `vector(384)` column can be
   added via Flyway migration without downtime.
 - Test containers: `pgvector/pgvector:pg15` Docker image (has vector extension pre-installed).
 
@@ -403,13 +411,16 @@ _pending_
 
 ### Architectural Decisions
 
-**Decision: No spring-ai dependency**
-- **Options:** spring-ai BOM, pgvector-java + raw RestClient, pgvector-java + OpenAI Java SDK
-- **Chosen:** pgvector-java + raw RestClient
-- **Rationale:** spring-ai 1.x is milestone/RC as of 2026-02; heavy transitive dependency
-  footprint; OpenAI embeddings API is a single POST endpoint that does not warrant a framework.
-  RestClient is already available via `spring-boot-starter-web`. `pgvector-java` is a single
-  small jar for JDBC type mapping only.
+**Decision: No spring-ai dependency; HuggingFace over OpenAI**
+- **Options:** spring-ai BOM (with HF or OpenAI provider), pgvector-java + raw RestClient,
+  pgvector-java + official OpenAI Java SDK
+- **Chosen:** HuggingFace `paraphrase-multilingual-MiniLM-L12-v2` via pgvector-java + raw RestClient
+- **Rationale:** (1) HuggingFace free tier eliminates per-token cost entirely at personal scale.
+  (2) `paraphrase-multilingual-MiniLM-L12-v2` has native multilingual support for EN + PT-BR,
+  removing the cross-lingual limitation of OpenAI `text-embedding-3-small`. (3) spring-ai 1.x
+  is milestone/RC as of 2026-02; heavy transitive footprint not warranted for a single API call.
+  HuggingFace's feature-extraction endpoint is a single POST — RestClient handles it with zero
+  new framework dependencies. `pgvector-java` is a single small jar for JDBC type mapping only.
 
 **Decision: Extend existing endpoint vs. new endpoint**
 - **Options:** New `GET /api/v1/poks/semantic-search`, extend `GET /api/v1/poks`
