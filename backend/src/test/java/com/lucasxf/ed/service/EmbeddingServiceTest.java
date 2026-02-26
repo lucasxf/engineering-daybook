@@ -79,15 +79,14 @@ class EmbeddingServiceTest {
     }
 
     private void stubSuccessfulEmbedding(float[] vector) {
-        // HF returns float[][] — array of embeddings, one per input
-        float[][] response = {vector};
+        // HF returns float[] — single embedding vector
         when(restClient.post()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodySpec);
         when(requestBodySpec.header(anyString(), anyString())).thenReturn(requestBodySpec);
         when(requestBodySpec.contentType(any())).thenReturn(requestBodySpec);
         when(requestBodySpec.body(any(Object.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.body(float[][].class)).thenReturn(response);
+        when(responseSpec.body(float[].class)).thenReturn(vector);
     }
 
     @Test
@@ -115,15 +114,15 @@ class EmbeddingServiceTest {
         when(requestBodySpec.contentType(any())).thenReturn(requestBodySpec);
         when(requestBodySpec.body(any(Object.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.body(float[][].class))
+        when(responseSpec.body(float[].class))
             .thenThrow(new HttpServerErrorException(INTERNAL_SERVER_ERROR))
             .thenThrow(new HttpServerErrorException(INTERNAL_SERVER_ERROR))
-            .thenReturn(new float[][]{expected});
+            .thenReturn(expected);
 
         float[] result = service.embed("text");
 
         assertThat(result[0]).isEqualTo(0.42f);
-        verify(responseSpec, times(3)).body(float[][].class);
+        verify(responseSpec, times(3)).body(float[].class);
     }
 
     @Test
@@ -135,13 +134,13 @@ class EmbeddingServiceTest {
         when(requestBodySpec.contentType(any())).thenReturn(requestBodySpec);
         when(requestBodySpec.body(any(Object.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.body(float[][].class))
+        when(responseSpec.body(float[].class))
             .thenThrow(new HttpServerErrorException(INTERNAL_SERVER_ERROR));
 
         assertThatThrownBy(() -> service.embed("text"))
             .isInstanceOf(EmbeddingUnavailableException.class);
 
-        verify(responseSpec, times(3)).body(float[][].class);
+        verify(responseSpec, times(3)).body(float[].class);
     }
 
     @Test
@@ -153,14 +152,14 @@ class EmbeddingServiceTest {
         when(requestBodySpec.contentType(any())).thenReturn(requestBodySpec);
         when(requestBodySpec.body(any(Object.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.body(float[][].class))
+        when(responseSpec.body(float[].class))
             .thenThrow(new HttpClientErrorException(BAD_REQUEST));
 
         assertThatThrownBy(() -> service.embed("text"))
             .isInstanceOf(EmbeddingUnavailableException.class);
 
         // Only called once — no retries for 4xx
-        verify(responseSpec, times(1)).body(float[][].class);
+        verify(responseSpec, times(1)).body(float[].class);
     }
 
     @Test
@@ -172,7 +171,7 @@ class EmbeddingServiceTest {
         when(requestBodySpec.contentType(any())).thenReturn(requestBodySpec);
         when(requestBodySpec.body(any(Object.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.body(float[][].class))
+        when(responseSpec.body(float[].class))
             .thenThrow(new ResourceAccessException("timeout", new SocketTimeoutException()));
 
         assertThatThrownBy(() -> service.embed("text"))
@@ -188,7 +187,7 @@ class EmbeddingServiceTest {
         when(requestBodySpec.contentType(any())).thenReturn(requestBodySpec);
         when(requestBodySpec.body(any(Object.class))).thenReturn(requestBodySpec);
         when(requestBodySpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.body(float[][].class)).thenReturn(new float[0][]);
+        when(responseSpec.body(float[].class)).thenReturn(new float[0]);
 
         assertThatThrownBy(() -> service.embed("text"))
             .isInstanceOf(EmbeddingUnavailableException.class)

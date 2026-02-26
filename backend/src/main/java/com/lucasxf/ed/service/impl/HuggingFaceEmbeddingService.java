@@ -15,8 +15,9 @@ import java.util.Map;
  * {@link EmbeddingService} backed by the HuggingFace Inference API.
  *
  * <p>Uses {@code paraphrase-multilingual-MiniLM-L12-v2} (384 dimensions) via
- * {@code https://router.huggingface.co/}. Retries on 5xx and network errors up to
- * {@code search.hugging-face.max-retries} times. Does NOT retry on 4xx (client errors).
+ * {@code https://router.huggingface.co/}. The API returns a flat {@code float[]} vector.
+ * Retries on 5xx and network errors up to {@code search.hugging-face.max-retries} times.
+ * Does NOT retry on 4xx (client errors).
  * Throws {@link EmbeddingUnavailableException} when all retries are exhausted or on
  * non-retryable errors.
  *
@@ -40,7 +41,7 @@ public class HuggingFaceEmbeddingService implements EmbeddingService {
      * {@inheritDoc}
      *
      * <p>Sends a POST to the HuggingFace Inference API. The API returns a
-     * {@code float[][]} (one embedding per input). Only the first element is used.
+     * {@code float[]} (single embedding vector of 384 dimensions).
      *
      * @throws EmbeddingUnavailableException if all retries are exhausted or a
      *         non-retryable error (4xx, empty response) occurs
@@ -52,20 +53,20 @@ public class HuggingFaceEmbeddingService implements EmbeddingService {
 
         for (int attempt = 1; attempt <= maxRetries; attempt++) {
             try {
-                float[][] response = restClient.post()
+                float[] response = restClient.post()
                     .uri(props.modelUrl())
                     .header("Authorization", "Bearer " + props.apiKey())
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(Map.of("inputs", text))
                     .retrieve()
-                    .body(float[][].class);
+                    .body(float[].class);
 
                 if (response == null || response.length == 0) {
                     throw new EmbeddingUnavailableException(
                         "HuggingFace returned an empty embedding response");
                 }
 
-                return response[0];
+                return response;
 
             } catch (HttpClientErrorException e) {
                 // 4xx: client error — do not retry, fail immediately
