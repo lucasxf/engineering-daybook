@@ -4,12 +4,15 @@ import java.time.Instant;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+
+import com.lucasxf.ed.config.VectorAttributeConverter;
 
 /**
  * POK (Piece of Knowledge) entity representing a user's learning entry.
@@ -37,6 +40,15 @@ public class Pok {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
+
+    /**
+     * Vector embedding for semantic search (384 dims, paraphrase-multilingual-MiniLM-L12-v2).
+     * Null until generated asynchronously after creation. Cleared on content update
+     * and regenerated async. POKs with null embedding are excluded from semantic search.
+     */
+    @Column(columnDefinition = "vector(384)")
+    @Convert(converter = VectorAttributeConverter.class)
+    private float[] embedding;
 
     @Column(name = "deleted_at")
     private Instant deletedAt;
@@ -123,6 +135,23 @@ public class Pok {
         this.updatedAt = updatedAt;
     }
 
+    /**
+     * Stores a new embedding vector, replacing any previous value.
+     *
+     * @param embedding the new embedding (must have 384 dimensions)
+     */
+    public void updateEmbedding(float[] embedding) {
+        this.embedding = embedding;
+    }
+
+    /**
+     * Clears the embedding, marking it as stale after a content update.
+     * The embedding will be regenerated asynchronously.
+     */
+    public void clearEmbedding() {
+        this.embedding = null;
+    }
+
     // Getters
 
     public UUID getId() {
@@ -151,5 +180,9 @@ public class Pok {
 
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public float[] getEmbedding() {
+        return embedding;
     }
 }
