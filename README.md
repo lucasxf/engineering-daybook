@@ -8,7 +8,7 @@
 
 ## Overview
 
-learnimo is a personal learning journal for everyone. Inspired by "The Pragmatic Programmer", where engineers in traditional industries maintained physical notebooks to record daily learnings, learnimo brings that practice into the digital age — with modern search, tagging, and (eventually) AI-powered insights.
+learnimo is a personal learning journal for everyone. Inspired by "The Pragmatic Programmer", where engineers in traditional industries maintained physical notebooks called engineering daybooks to record daily learnings, learnimo brings that practice into the digital age — with modern search, tagging, and (eventually) AI-powered insights.
 
 > "A tinta mais fraca constrói pontes mais fortes que a memória mais viva."
 > — Provérbio Yorubá (Nigéria)
@@ -145,6 +145,9 @@ See `backend/src/main/resources/application.yml` for configuration details.
   - Rich text content with Markdown support
   - Automatic and manual tagging
   - Audit trail for all changes
+  - Tag-grouped view (alphabetical sections, untagged at bottom)
+  - Timeline view (month/year grouped, newest-first, locale-aware)
+  - Sort options: Newest, Oldest, Recently updated
 
 - **Web Application**
   - Responsive design with Tailwind CSS
@@ -183,6 +186,7 @@ See [ROADMAP.phase-1.md](./docs/ROADMAP.phase-1.md)
 See [ROADMAP.phase-2.md](./docs/ROADMAP.phase-2.md)
 - [x] POK editing, deletion, and audit trail
 - [~] Tagging system — backend + basic web (TagBadge, TagSuggestionPrompt) done; TagFilter + TagInput combobox deferred
+- [x] Visualization — tag-grouped view, timeline view (month/year), sort options (Newest/Oldest/Recently updated)
 
 ---
 
@@ -231,6 +235,7 @@ This is currently a personal project. Contribution guidelines will be added if/w
 - [GitHub](https://github.com/lucasxf)
 - [LinkedIn](https://www.linkedin.com/in/lucas-xavier-ferreira/)
 - [Medium](https://medium.com/@lucasxferreira)
+- [Substack](https://substack.com/@xflucas)
 
 ---
 

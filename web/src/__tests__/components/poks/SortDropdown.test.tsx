@@ -8,8 +8,7 @@ const messages = {
       label: 'Sort by',
       newestFirst: 'Newest first',
       oldestFirst: 'Oldest first',
-      recentlyCreated: 'Recently created',
-      firstCreated: 'First created',
+      recentlyUpdated: 'Recently updated',
     },
   },
 };
@@ -34,14 +33,13 @@ describe('SortDropdown', () => {
 
   it('should render all sort options', () => {
     const onChange = vi.fn();
-    const value: SortOption = { sortBy: 'updatedAt', sortDirection: 'DESC' };
+    const value: SortOption = { sortBy: 'createdAt', sortDirection: 'DESC' };
 
     renderSortDropdown({ value, onChange });
 
     expect(screen.getByText('Newest first')).toBeInTheDocument();
     expect(screen.getByText('Oldest first')).toBeInTheDocument();
-    expect(screen.getByText('Recently created')).toBeInTheDocument();
-    expect(screen.getByText('First created')).toBeInTheDocument();
+    expect(screen.getByText('Recently updated')).toBeInTheDocument();
   });
 
   it('should display current selection', () => {
@@ -71,31 +69,31 @@ describe('SortDropdown', () => {
 
   it('should call onChange with correct value for each option', () => {
     const onChange = vi.fn();
-    const value: SortOption = { sortBy: 'updatedAt', sortDirection: 'DESC' };
+    const value: SortOption = { sortBy: 'createdAt', sortDirection: 'DESC' };
 
     renderSortDropdown({ value, onChange });
 
     const select = screen.getByLabelText('Sort by');
 
-    // Test updatedAt ASC
-    fireEvent.change(select, { target: { value: 'updatedAt-ASC' } });
-    expect(onChange).toHaveBeenLastCalledWith({
-      sortBy: 'updatedAt',
-      sortDirection: 'ASC',
-    });
-
-    // Test createdAt DESC
-    fireEvent.change(select, { target: { value: 'createdAt-DESC' } });
-    expect(onChange).toHaveBeenLastCalledWith({
-      sortBy: 'createdAt',
-      sortDirection: 'DESC',
-    });
-
-    // Test createdAt ASC
+    // Oldest first
     fireEvent.change(select, { target: { value: 'createdAt-ASC' } });
     expect(onChange).toHaveBeenLastCalledWith({
       sortBy: 'createdAt',
       sortDirection: 'ASC',
+    });
+
+    // Recently updated
+    fireEvent.change(select, { target: { value: 'updatedAt-DESC' } });
+    expect(onChange).toHaveBeenLastCalledWith({
+      sortBy: 'updatedAt',
+      sortDirection: 'DESC',
+    });
+
+    // Newest first (default)
+    fireEvent.change(select, { target: { value: 'createdAt-DESC' } });
+    expect(onChange).toHaveBeenLastCalledWith({
+      sortBy: 'createdAt',
+      sortDirection: 'DESC',
     });
   });
 
@@ -113,7 +111,7 @@ describe('SortDropdown', () => {
 
     // Keyboard navigation works with native select
     fireEvent.keyDown(select, { key: 'ArrowDown' });
-    fireEvent.change(select, { target: { value: 'updatedAt-ASC' } });
+    fireEvent.change(select, { target: { value: 'createdAt-ASC' } });
 
     expect(onChange).toHaveBeenCalled();
   });

@@ -41,35 +41,22 @@ Unless `--phase=N` was explicitly provided in `$ARGUMENTS`, use the detected pha
 
 ## Step 3: Load Files Based on Stack
 
+Use the Read tool to load the files listed for the chosen stack. Do NOT use `@file` references — use explicit Read tool calls so loading is conditional on the stack.
+
 ### Backend Session
-@CLAUDE.md
-@backend/CLAUDE.md
-Then use the Read tool to load: `docs/ROADMAP.phase-{N}.md` (replace `{N}` with the phase from Step 2)
+Read: `CLAUDE.md`, `backend/CLAUDE.md`, `docs/ROADMAP.phase-{N}.md`
 
 ### Web Session
-@CLAUDE.md
-@web/CLAUDE.md
-Then use the Read tool to load: `docs/ROADMAP.phase-{N}.md` (replace `{N}` with the phase from Step 2)
+Read: `CLAUDE.md`, `web/CLAUDE.md`, `docs/ROADMAP.phase-{N}.md`
 
 ### Mobile Session
-@CLAUDE.md
-@mobile/CLAUDE.md
-Then use the Read tool to load: `docs/ROADMAP.phase-{N}.md` (replace `{N}` with the phase from Step 2)
+Read: `CLAUDE.md`, `mobile/CLAUDE.md`, `docs/ROADMAP.phase-{N}.md`
 
 ### Documentation Session
-@CLAUDE.md
-@docs/CLAUDE.md
-@docs/ROADMAP.md
-Then use the Read tool to load: `docs/ROADMAP.phase-{N}.md` (replace `{N}` with the phase from Step 2)
+Read: `CLAUDE.md`, `docs/CLAUDE.md`, `docs/ROADMAP.md`, `docs/ROADMAP.phase-{N}.md`
 
 ### Full Context Session (use sparingly)
-@CLAUDE.md
-@backend/CLAUDE.md
-@web/CLAUDE.md
-@mobile/CLAUDE.md
-@docs/CLAUDE.md
-@docs/ROADMAP.md
-Then use the Read tool to load: `docs/ROADMAP.phase-{N}.md` (replace `{N}` with the phase from Step 2)
+Read: `CLAUDE.md`, `backend/CLAUDE.md`, `web/CLAUDE.md`, `mobile/CLAUDE.md`, `docs/CLAUDE.md`, `docs/ROADMAP.md`, `docs/ROADMAP.phase-{N}.md`
 
 **Session Context:** $ARGUMENTS
 
