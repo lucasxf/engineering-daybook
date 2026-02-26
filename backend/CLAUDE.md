@@ -104,6 +104,23 @@ cd backend
 
 - **`@EnableAsync` is required for `@Async` to work:** Without `@EnableAsync` on `EdApplication` (or a `@Configuration` class), Spring silently ignores `@Async` and executes annotated methods synchronously on the calling thread. Always add `@EnableAsync` when introducing the first `@Async` method — there is no warning when it's missing.
 
+- **`pgvector/pgvector:pg15` ships the extension but does NOT activate it — `CREATE EXTENSION` is always required:** The Docker image installs the pgvector binaries, but `CREATE EXTENSION IF NOT EXISTS vector` must be run against each database before any DDL that references the `vector` type. This applies to both Testcontainers (local) and CI service containers. If a `@DynamicPropertySource` method has separate branches for CI vs. local, the extension enable step must live **outside the branch** (or in a shared helper) so it cannot drift. Pattern used in `PokRepositoryTest`:
+
+  ```java
+  // In @DynamicPropertySource — after resolving url/username/password from either branch:
+  enablePgVector(url, username, password);   // always runs, regardless of CI vs. local
+
+  private static void enablePgVector(String url, String user, String pass) {
+      try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+          conn.createStatement().execute("CREATE EXTENSION IF NOT EXISTS vector;");
+      } catch (Exception e) {
+          throw new RuntimeException("Failed to enable pgvector extension", e);
+      }
+  }
+  ```
+
+  Symptom when missing: `ERROR: relation "table_name" does not exist` on INSERT — Hibernate silently fails to create the table because the `vector(N)` column type was unresolvable. Tests pass locally (Testcontainers path had the fix) but fail in CI (service container path did not).
+
 - **pgvector: map `float[]` to `vector` column with `@ColumnTransformer`, not a custom dialect:** Hibernate has no built-in type for PostgreSQL's `vector` column type. The correct approach is (1) a `@Converter(autoApply = false)` that serializes `float[]` to/from the `[x,y,z,...]` string format that pgvector accepts, and (2) `@ColumnTransformer(write = "?::vector")` on the field so Hibernate emits the correct cast in INSERT/UPDATE. Without the `::vector` cast, Postgres rejects the raw text value with `ERROR: column is of type vector but expression is of type text`. Do NOT use the pgvector Hibernate dialect shim — it pulls in the full pgvector-spring-ai stack and conflicts with the existing RestClient auto-configuration.
 
   ```java
