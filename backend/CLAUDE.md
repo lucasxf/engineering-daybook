@@ -182,6 +182,8 @@ cd backend
 
 - **Implementation classes belong in `service.impl`, interfaces in `service`:** The `service` package holds only the interface contracts; concrete implementations go under `service.impl`. Unit tests for an implementation class (`EmbeddingServiceTest`) may stay in the `service` test package but must import the implementation explicitly: `import com.lucasxf.ed.service.impl.HuggingFaceEmbeddingService;`.
 
+- **HuggingFace Inference API for `paraphrase-multilingual-MiniLM-L12-v2` returns a flat `float[]`, not `float[][]`:** The router endpoint (`https://router.huggingface.co/`) returns a single flat vector when the request body is `{"inputs": "text"}`. Use `.body(float[].class)` and return the response directly. Do NOT use `.body(float[][].class)` and index into `response[0]` — the Jackson deserializer will return `null` or throw when the shape is wrong. Symptom: `NullPointerException` or `EmbeddingUnavailableException("HuggingFace returned an empty embedding response")` even when the API returns 200. Other HuggingFace models (e.g., `sentence-transformers` via the direct inference API) may return `float[][]` — always verify the actual response shape for the specific model and endpoint being used.
+
 ---
 
 ## Testing
