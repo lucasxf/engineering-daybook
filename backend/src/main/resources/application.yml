@@ -53,6 +53,15 @@ auth:
   cookie:
     secure: ${AUTH_COOKIE_SECURE:false}
 
+search:
+  hugging-face:
+    api-key: ${HUGGINGFACE_API_KEY:hf-placeholder-configure-in-env}
+    model-url: ${HUGGINGFACE_MODEL_URL:https://router.huggingface.co/hf-inference/models/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2/pipeline/feature-extraction}
+    max-retries: 3
+
+admin:
+  internal-key: ${ADMIN_INTERNAL_KEY:admin-placeholder-configure-in-env}
+
 springdoc:
   api-docs:
     path: /api-docs

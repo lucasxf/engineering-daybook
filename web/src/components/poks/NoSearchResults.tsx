@@ -45,7 +45,7 @@ export function NoSearchResults({ onClearSearch }: NoSearchResultsProps) {
 
       {/* Hint */}
       <p className="mb-6 text-sm text-gray-600 dark:text-gray-400">
-        {t('noResultsHint')}
+        {t('noResultsSemanticHint')}
       </p>
 
       {/* Clear button */}

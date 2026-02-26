@@ -113,6 +113,7 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
     try {
       const result = await pokApi.getAll({
         keyword: keyword || undefined,
+        searchMode: 'hybrid',
         sortBy,
         sortDirection,
         page,

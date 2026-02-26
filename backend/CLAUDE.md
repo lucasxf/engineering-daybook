@@ -104,6 +104,36 @@ cd backend
 
 - **`@EnableAsync` is required for `@Async` to work:** Without `@EnableAsync` on `EdApplication` (or a `@Configuration` class), Spring silently ignores `@Async` and executes annotated methods synchronously on the calling thread. Always add `@EnableAsync` when introducing the first `@Async` method — there is no warning when it's missing.
 
+- **`pgvector/pgvector:pg15` ships the extension but does NOT activate it — `CREATE EXTENSION` is always required:** The Docker image installs the pgvector binaries, but `CREATE EXTENSION IF NOT EXISTS vector` must be run against each database before any DDL that references the `vector` type. This applies to both Testcontainers (local) and CI service containers. If a `@DynamicPropertySource` method has separate branches for CI vs. local, the extension enable step must live **outside the branch** (or in a shared helper) so it cannot drift. Pattern used in `PokRepositoryTest`:
+
+  ```java
+  // In @DynamicPropertySource — after resolving url/username/password from either branch:
+  enablePgVector(url, username, password);   // always runs, regardless of CI vs. local
+
+  private static void enablePgVector(String url, String user, String pass) {
+      try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+          conn.createStatement().execute("CREATE EXTENSION IF NOT EXISTS vector;");
+      } catch (Exception e) {
+          throw new RuntimeException("Failed to enable pgvector extension", e);
+      }
+  }
+  ```
+
+  Symptom when missing: `ERROR: relation "table_name" does not exist` on INSERT — Hibernate silently fails to create the table because the `vector(N)` column type was unresolvable. Tests pass locally (Testcontainers path had the fix) but fail in CI (service container path did not).
+
+- **pgvector: map `float[]` to `vector` column with `@ColumnTransformer`, not a custom dialect:** Hibernate has no built-in type for PostgreSQL's `vector` column type. The correct approach is (1) a `@Converter(autoApply = false)` that serializes `float[]` to/from the `[x,y,z,...]` string format that pgvector accepts, and (2) `@ColumnTransformer(write = "?::vector")` on the field so Hibernate emits the correct cast in INSERT/UPDATE. Without the `::vector` cast, Postgres rejects the raw text value with `ERROR: column is of type vector but expression is of type text`. Do NOT use the pgvector Hibernate dialect shim — it pulls in the full pgvector-spring-ai stack and conflicts with the existing RestClient auto-configuration.
+
+  ```java
+  @Convert(converter = VectorAttributeConverter.class)
+  @ColumnTransformer(write = "?::vector")
+  @Column(name = "embedding", columnDefinition = "vector(1536)")
+  private float[] embedding;
+  ```
+
+- **`@ConditionalOnMissingBean` on `RestClient.Builder` for embedding service testability:** The `HuggingFaceEmbeddingService` is injected with a `RestClient.Builder`. Declaring the builder bean with `@Bean @ConditionalOnMissingBean` in a `@Configuration` class allows integration tests to `@MockitoBean` or `@TestConfiguration`-override the builder without fighting Spring Boot's auto-configured default. Without this guard, the test context fails with a duplicate bean definition if both auto-configuration and the explicit bean are present.
+
+- **Async embedding generation: `@Async` methods must be on Spring-managed beans, not called from within the same class:** Calling an `@Async` method on `this` (self-invocation) bypasses the proxy and executes synchronously. Always inject the service into itself (via `@Lazy` constructor injection) or extract the `@Async` method into a separate Spring component if you need to call it from within the same class. For embedding: `PokService` calls `embeddingService.generateAndSave(pokId)` — keep them in separate beans.
+
 - **State-machine transitions must query by expected source state:** When implementing approve/reject (or any state transition), always query by expected status in addition to ownership (`findByIdAndUserIdAndStatus(id, userId, PENDING)`), not by identity alone. Querying only by `id + userId` allows replaying already-resolved transitions (e.g., REJECTED → approve again), creating orphaned records and contradictory history.
 
 - **Hoist repeated repository queries out of streams:** A repository call inside `stream().flatMap(...)` with fixed arguments re-executes for every element — a Java N+1 pattern. Hoist the call to a variable before the stream. For list endpoints processing N entities, pass the pre-fetched list into a private method overload rather than re-querying inside each `map`.
@@ -125,6 +155,30 @@ cd backend
 - **`SameSite=None` is required for cross-origin cookies (different domains):** When the frontend and backend are on different domains (e.g., learnimo.net on Vercel and railway.app on Railway), `SameSite=Strict` or `SameSite=Lax` will cause the browser to silently block the auth cookie on cross-origin requests — the backend receives no cookie and returns 401 with no body. Fix: use `SameSite=None`. `SameSite=None` **requires** `Secure=true` (HTTPS-only); without it, browsers reject the cookie. In production, set `AUTH_COOKIE_SECURE=true` (or the equivalent env var) in Railway. In local dev (HTTP), `SameSite=Lax` is fine and avoids the `Secure` requirement.
 
 - **`/error` must be in Spring Security `permitAll()`:** Spring dispatches internally to `/error` when an unhandled exception occurs. If `/error` is not in the `permitAll()` list, the security filter chain intercepts the error dispatch and returns a 401 with an empty response body — the actual error information is swallowed. Always include `"/error"` in `requestMatchers(...).permitAll()` in `SecurityConfig`.
+
+- **Java record declarations: inline unless the parameter list is long:** Declare record fields inline on the same line as the class name (follow `AdminProperties.java` and `SearchProperties.java` as reference). Multi-line format is only needed when the parameter list genuinely exceeds ~120 characters. Never break a short parameter list across multiple lines just for visual symmetry.
+
+  ```java
+  // WRONG — unnecessary line breaks for a short record
+  public record HuggingFace(
+      String apiKey, String modelUrl, int maxRetries
+  ) { }
+
+  // CORRECT — inline when it fits
+  public record HuggingFace(String apiKey, String modelUrl, int maxRetries) { }
+  ```
+
+- **Prefer interface types and imports over fully-qualified names in method bodies:** Always declare variables with the most abstract applicable type (`Map` not `LinkedHashMap`, `List` not `ArrayList`) and add the import at the top of the file. Never use `java.util.LinkedHashMap<K, V>` inline — it's a sign the import is missing.
+
+  ```java
+  // WRONG
+  java.util.LinkedHashMap<UUID, Pok> merged = new java.util.LinkedHashMap<>();
+
+  // CORRECT (with import java.util.LinkedHashMap; and import java.util.Map; at top)
+  Map<UUID, Pok> merged = new LinkedHashMap<>();
+  ```
+
+- **Implementation classes belong in `service.impl`, interfaces in `service`:** The `service` package holds only the interface contracts; concrete implementations go under `service.impl`. Unit tests for an implementation class (`EmbeddingServiceTest`) may stay in the `service` test package but must import the implementation explicitly: `import com.lucasxf.ed.service.impl.HuggingFaceEmbeddingService;`.
 
 ---
 

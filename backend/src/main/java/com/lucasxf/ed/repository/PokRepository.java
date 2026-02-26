@@ -52,6 +52,41 @@ public interface PokRepository extends JpaRepository<Pok, UUID> {
     List<UUID> findIdsByUserId(@Param("userId") UUID userId);
 
     /**
+     * Returns the IDs of all active (non-deleted) POKs that have no embedding yet.
+     *
+     * <p>Used by the backfill job to identify POKs that need embedding generation.
+     *
+     * @return list of POK IDs with null embedding
+     */
+    @Query("SELECT p.id FROM Pok p WHERE p.deletedAt IS NULL AND p.embedding IS NULL")
+    List<UUID> findIdsByEmbeddingIsNullAndDeletedAtIsNull();
+
+    /**
+     * Returns active POKs for a user ordered by cosine distance from the query embedding.
+     *
+     * <p>Uses pgvector {@code <=>} (cosine distance) operator. Only POKs with a non-null
+     * embedding are returned. The query embedding must be supplied in pgvector text format
+     * {@code "[f1,f2,...,fn]"}.
+     *
+     * @param userId         the user ID
+     * @param queryEmbedding the query vector in pgvector text format
+     * @param limit          maximum number of results to return
+     * @param offset         number of results to skip (for pagination)
+     * @return list of active POKs ordered by cosine similarity (closest first)
+     */
+    @Query(nativeQuery = true,
+           value = "SELECT * FROM poks " +
+                   "WHERE user_id = :userId AND deleted_at IS NULL AND embedding IS NOT NULL " +
+                   "ORDER BY embedding <=> CAST(:queryEmbedding AS vector) " +
+                   "LIMIT :limit OFFSET :offset")
+    List<Pok> findSemantically(
+        @Param("userId") UUID userId,
+        @Param("queryEmbedding") String queryEmbedding,
+        @Param("limit") int limit,
+        @Param("offset") int offset
+    );
+
+    /**
      * Searches active POKs for a user with optional keyword, date filters, and dynamic sorting.
      *
      * <p>Keyword search is case-insensitive and searches both title and content using ILIKE.

@@ -107,6 +107,8 @@
       "button": "Search",
       "noResults": "No learnings found matching your search",
       "noResultsHint": "Try adjusting your search terms or filters",
+      "noResultsSemantic": "No learnings found",
+      "noResultsSemanticHint": "Try rephrasing your search — semantic search looks for meaning, not exact words",
       "clearButton": "Clear search",
       "error": "Failed to search learnings. Please try again."
     },

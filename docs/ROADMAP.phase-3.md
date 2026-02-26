@@ -1,6 +1,6 @@
 # Phase 3: AI & Mobile
 
-> Status: **⏳ Planned**
+> Status: **🔄 Started** (3.1 complete)
 
 ---
 
@@ -8,14 +8,28 @@
 
 ---
 
-## Milestone 3.1: Semantic Search
+## Completed
 
-| # | Feature | Priority |
-|---|---------|----------|
-| 3.1.1 | Generate embeddings for POKs | Must Have |
-| 3.1.2 | pg_vector similarity search | Must Have |
-| 3.1.3 | Hybrid search (keyword + semantic) | Should Have |
-| 3.1.4 | Search relevance tuning | Should Have |
+### Milestone 3.1: Semantic Search ✅ (2026-02-26)
+
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 3.1.1 | Generate embeddings for POKs | Must Have | ✅ Done |
+| 3.1.2 | pg_vector similarity search | Must Have | ✅ Done |
+| 3.1.3 | Hybrid search (keyword + semantic) | Should Have | ✅ Done |
+| 3.1.4 | Search relevance tuning | Should Have | ✅ Done (cosine distance tuning via hybrid weight) |
+
+**Implementation notes:**
+- `pgvector-java` dependency + Flyway V12 migration enabling `vector` extension and `embedding` column (1536 dims)
+- `VectorAttributeConverter` — custom JPA converter: `float[]` ↔ PostgreSQL `vector` via `@ColumnTransformer`
+- `HuggingFaceEmbeddingService` — calls Inference API with retry (exponential backoff); guarded by `@ConditionalOnMissingBean` to allow test overrides
+- `@EnableAsync` on `EdApplication`; embedding generation is `@Async` on POK create/update — non-blocking, backfill-safe
+- Semantic search uses cosine distance (`<=>` operator) in `PokRepository` native query; hybrid search blends keyword `ILIKE` + vector similarity ranking
+- Admin backfill endpoint: `POST /api/v1/admin/poks/backfill-embeddings` (protected by `X-Internal-Key` header, `@Hidden` from public OpenAPI)
+- Web: `SearchMode` type + `searchMode: 'hybrid'` hardcoded in `usePoksData`; semantic-aware `NoSearchResults` hint text; i18n keys EN + PT-BR
+- 4 integration tests (`SemanticSearchIntegrationTest`) + unit tests for `pokApi`, `usePoksData`, `NoSearchResults`; 2 new Playwright E2E scenarios
+
+---
 
 ## Milestone 3.2: AI Connections
 

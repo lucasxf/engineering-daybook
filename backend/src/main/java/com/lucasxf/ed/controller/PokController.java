@@ -3,6 +3,7 @@ package com.lucasxf.ed.controller;
 import java.util.UUID;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -112,20 +113,22 @@ public class PokController {
      * <p>Supports:
      * <ul>
      *   <li>Keyword search (case-insensitive, searches title and content)</li>
+     *   <li>Semantic / hybrid search via pgvector cosine distance ({@code searchMode})</li>
      *   <li>Sorting by createdAt or updatedAt (ASC/DESC, default: updatedAt DESC)</li>
      *   <li>Date range filtering (creation and update dates)</li>
      *   <li>Pagination (default: page 0, size 20, max 100)</li>
      * </ul>
      *
-     * @param keyword       optional keyword to search in title and content
-     * @param sortBy        optional sort field (createdAt or updatedAt, default: updatedAt)
-     * @param sortDirection optional sort direction (ASC or DESC, default: DESC)
-     * @param createdFrom   optional minimum creation date (ISO 8601)
-     * @param createdTo     optional maximum creation date (ISO 8601)
-     * @param updatedFrom   optional minimum update date (ISO 8601)
-     * @param updatedTo     optional maximum update date (ISO 8601)
-     * @param page          page number (0-indexed, default 0)
-     * @param size          page size (default 20, max 100)
+     * @param keyword        optional keyword to search in title and content
+     * @param searchMode     optional search mode: {@code keyword} (default), {@code semantic}, or {@code hybrid}
+     * @param sortBy         optional sort field (createdAt or updatedAt, default: updatedAt)
+     * @param sortDirection  optional sort direction (ASC or DESC, default: DESC)
+     * @param createdFrom    optional minimum creation date (ISO 8601)
+     * @param createdTo      optional maximum creation date (ISO 8601)
+     * @param updatedFrom    optional minimum update date (ISO 8601)
+     * @param updatedTo      optional maximum update date (ISO 8601)
+     * @param page           page number (0-indexed, default 0)
+     * @param size           page size (default 20, max 100)
      * @param authentication the authenticated user
      * @return a page of matching POKs
      */
@@ -133,21 +136,37 @@ public class PokController {
     @Operation(
         summary = "List/search user's POKs",
         description = "Retrieves and searches active POKs for the authenticated user. " +
-                      "Supports keyword search, sorting, date filters, and pagination. " +
+                      "Supports keyword search, semantic search (pgvector cosine distance), and hybrid " +
+                      "(keyword + semantic blended) search modes via the `searchMode` parameter. " +
+                      "Also supports sorting, date range filters, and pagination. " +
                       "Default sort: most recently updated (updatedAt DESC)."
     )
     @ApiResponse(responseCode = "200", description = "POKs retrieved successfully")
     @ApiResponse(responseCode = "400", description = "Invalid query parameters (e.g., malformed dates)")
     @ApiResponse(responseCode = "401", description = "Unauthorized")
     public ResponseEntity<Page<PokResponse>> list(
+        @Parameter(description = "Keyword to search in title and content (case-insensitive). " +
+                                 "When combined with searchMode=hybrid or searchMode=semantic, " +
+                                 "also drives vector similarity ranking.")
         @RequestParam(required = false) String keyword,
+        @Parameter(description = "Search mode: 'keyword' (ILIKE only), 'semantic' (vector similarity only), " +
+                                 "or 'hybrid' (keyword + semantic blended). Defaults to 'keyword' when omitted.")
+        @RequestParam(required = false) String searchMode,
+        @Parameter(description = "Sort field: 'createdAt' or 'updatedAt'. Default: 'updatedAt'.")
         @RequestParam(required = false) String sortBy,
+        @Parameter(description = "Sort direction: 'ASC' or 'DESC'. Default: 'DESC'.")
         @RequestParam(required = false) String sortDirection,
+        @Parameter(description = "Minimum creation date filter (ISO 8601, e.g. 2026-01-01).")
         @RequestParam(required = false) String createdFrom,
+        @Parameter(description = "Maximum creation date filter (ISO 8601, e.g. 2026-12-31).")
         @RequestParam(required = false) String createdTo,
+        @Parameter(description = "Minimum last-updated date filter (ISO 8601).")
         @RequestParam(required = false) String updatedFrom,
+        @Parameter(description = "Maximum last-updated date filter (ISO 8601).")
         @RequestParam(required = false) String updatedTo,
+        @Parameter(description = "Page number (0-indexed). Default: 0.")
         @RequestParam(defaultValue = "0") int page,
+        @Parameter(description = "Page size (max 100). Default: 20.")
         @RequestParam(defaultValue = "20") int size,
         Authentication authentication
     ) {
@@ -159,6 +178,7 @@ public class PokController {
         Page<PokResponse> response = pokService.search(
             userId,
             keyword,
+            searchMode,
             sortBy,
             sortDirection,
             createdFrom,

@@ -19,6 +19,9 @@ import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,26 +44,47 @@ class PokRepositoryTest {
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
+        String url;
+        String username;
+        String password;
+
         if (isRunningInCI()) {
             // Use GitHub Actions service container
-            registry.add("spring.datasource.url", () -> "jdbc:postgresql://localhost:5432/testdb");
-            registry.add("spring.datasource.username", () -> "test");
-            registry.add("spring.datasource.password", () -> "test");
+            url      = "jdbc:postgresql://localhost:5432/testdb";
+            username = "test";
+            password = "test";
         } else {
             if (!DockerClientFactory.instance().isDockerAvailable()) {
                 return; // Class disabled by @Testcontainers(disabledWithoutDocker = true)
             }
             // Start Testcontainers here — @DynamicPropertySource runs during context loading,
-            // before @BeforeAll, so the container must be started here to be available for
-            // property registration.
+            // before @BeforeAll, so the container must be started here.
             postgres = new PostgreSQLContainer<>("pgvector/pgvector:pg15")
                 .withDatabaseName("testdb")
                 .withUsername("test")
                 .withPassword("test");
             postgres.start();
-            registry.add("spring.datasource.url", postgres::getJdbcUrl);
-            registry.add("spring.datasource.username", postgres::getUsername);
-            registry.add("spring.datasource.password", postgres::getPassword);
+            url      = postgres.getJdbcUrl();
+            username = postgres.getUsername();
+            password = postgres.getPassword();
+        }
+
+        // Must run BEFORE Hibernate create-drop generates the vector(384) column.
+        // pgvector/pgvector:pg15 ships the extension binaries but does NOT activate
+        // it automatically — CREATE EXTENSION is required for every database, regardless
+        // of how the container was started (Testcontainers or CI service container).
+        enablePgVector(url, username, password);
+
+        registry.add("spring.datasource.url", () -> url);
+        registry.add("spring.datasource.username", () -> username);
+        registry.add("spring.datasource.password", () -> password);
+    }
+
+    private static void enablePgVector(String url, String username, String password) {
+        try (Connection conn = DriverManager.getConnection(url, username, password)) {
+            conn.createStatement().execute("CREATE EXTENSION IF NOT EXISTS vector;");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to enable pgvector extension", e);
         }
     }
 
