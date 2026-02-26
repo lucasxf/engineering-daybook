@@ -1,7 +1,8 @@
-package com.lucasxf.ed.service;
+package com.lucasxf.ed.service.impl;
 
 import com.lucasxf.ed.config.SearchProperties;
 import com.lucasxf.ed.exception.EmbeddingUnavailableException;
+import com.lucasxf.ed.service.EmbeddingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;

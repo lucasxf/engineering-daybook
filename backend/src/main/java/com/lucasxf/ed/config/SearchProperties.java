@@ -9,17 +9,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @since 2026-02-26
  */
 @ConfigurationProperties(prefix = "search")
-public record SearchProperties(
-    HuggingFace huggingFace
-) {
+public record SearchProperties(HuggingFace huggingFace) {
 
     /**
      * HuggingFace Inference API configuration.
      */
-    public record HuggingFace(
-        String apiKey,
-        String modelUrl,
-        int maxRetries
-    ) {
+    public record HuggingFace(String apiKey, String modelUrl, int maxRetries) {
     }
 }

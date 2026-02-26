@@ -156,6 +156,30 @@ cd backend
 
 - **`/error` must be in Spring Security `permitAll()`:** Spring dispatches internally to `/error` when an unhandled exception occurs. If `/error` is not in the `permitAll()` list, the security filter chain intercepts the error dispatch and returns a 401 with an empty response body — the actual error information is swallowed. Always include `"/error"` in `requestMatchers(...).permitAll()` in `SecurityConfig`.
 
+- **Java record declarations: inline unless the parameter list is long:** Declare record fields inline on the same line as the class name (follow `AdminProperties.java` and `SearchProperties.java` as reference). Multi-line format is only needed when the parameter list genuinely exceeds ~120 characters. Never break a short parameter list across multiple lines just for visual symmetry.
+
+  ```java
+  // WRONG — unnecessary line breaks for a short record
+  public record HuggingFace(
+      String apiKey, String modelUrl, int maxRetries
+  ) { }
+
+  // CORRECT — inline when it fits
+  public record HuggingFace(String apiKey, String modelUrl, int maxRetries) { }
+  ```
+
+- **Prefer interface types and imports over fully-qualified names in method bodies:** Always declare variables with the most abstract applicable type (`Map` not `LinkedHashMap`, `List` not `ArrayList`) and add the import at the top of the file. Never use `java.util.LinkedHashMap<K, V>` inline — it's a sign the import is missing.
+
+  ```java
+  // WRONG
+  java.util.LinkedHashMap<UUID, Pok> merged = new java.util.LinkedHashMap<>();
+
+  // CORRECT (with import java.util.LinkedHashMap; and import java.util.Map; at top)
+  Map<UUID, Pok> merged = new LinkedHashMap<>();
+  ```
+
+- **Implementation classes belong in `service.impl`, interfaces in `service`:** The `service` package holds only the interface contracts; concrete implementations go under `service.impl`. Unit tests for an implementation class (`EmbeddingServiceTest`) may stay in the `service` test package but must import the implementation explicitly: `import com.lucasxf.ed.service.impl.HuggingFaceEmbeddingService;`.
+
 ---
 
 ## Testing

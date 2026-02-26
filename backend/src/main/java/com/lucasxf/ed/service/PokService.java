@@ -2,11 +2,14 @@ package com.lucasxf.ed.service;
 
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -234,7 +237,7 @@ public class PokService {
             Page<Pok> keywordPage = pokRepository.searchPoks(userId, keyword,
                 null, null, null, null, pageable);
             List<Pok> merged = mergeSemanticsAndKeyword(semanticPoks, keywordPage.getContent(), size);
-            return new org.springframework.data.domain.PageImpl<>(
+            return new PageImpl<>(
                 merged.stream()
                     .map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()))
                     .toList(),
@@ -245,7 +248,7 @@ public class PokService {
 
         // Pure semantic — paginate from the fetched list
         List<Pok> pagePoks = semanticPoks.stream().limit(size).toList();
-        return new org.springframework.data.domain.PageImpl<>(
+        return new PageImpl<>(
             pagePoks.stream()
                 .map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()))
                 .toList(),
@@ -259,7 +262,7 @@ public class PokService {
      * Semantic results take priority; keyword-only results are appended.
      */
     private List<Pok> mergeSemanticsAndKeyword(List<Pok> semantic, List<Pok> keyword, int size) {
-        java.util.LinkedHashMap<UUID, Pok> merged = new java.util.LinkedHashMap<>();
+        Map<UUID, Pok> merged = new LinkedHashMap<>();
         semantic.forEach(p -> merged.put(p.getId(), p));
         keyword.forEach(p -> merged.putIfAbsent(p.getId(), p));
         return merged.values().stream().limit(size).toList();

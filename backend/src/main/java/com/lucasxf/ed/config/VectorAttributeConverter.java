@@ -54,7 +54,7 @@ public class VectorAttributeConverter implements AttributeConverter<float[], Str
         if (dbData == null) {
             return null;
         }
-        // Strip surrounding brackets
+        // Strip surrounding brackets — pgvector's output function always returns "[f1,f2,...,fn]"
         String stripped = dbData.substring(1, dbData.length() - 1);
         String[] parts = stripped.split(",");
         float[] result = new float[parts.length];
