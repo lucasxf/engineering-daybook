@@ -112,7 +112,7 @@ ls docs/specs/features/
 > Produce the following sections in markdown format:
 >
 > 1. **Context** — Why this feature exists, the user problem it solves, link to any related roadmap items or specs
-> 2. **Functional Requirements** — Checkboxed list (FR1, FR2, ...) with MoSCoW priority labels (Must Have / Should Have / Could Have)
+> 2. **Functional Requirements** — Checkboxed list (FR1, FR2, ...) with MoSCoW priority labels (Must Have / Should Have / Could Have). Include a **Scope** field at the end: one of `backend`, `web`, `full-stack`.
 > 3. **Non-Functional Requirements** — Performance, security, accessibility, i18n considerations
 > 4. **Acceptance Criteria** — Testable Given/When/Then (Gherkin) scenarios covering happy paths and key edge cases
 >
@@ -123,38 +123,48 @@ ls docs/specs/features/
 > - Reference the Engineering Daybook domain model: User, POK, Tag, PokTag, PokAuditLog
 > - Mark deferred/out-of-scope items explicitly"
 
-Review the agent's output for completeness and consistency. Adjust if needed.
+Review the agent's output for completeness and consistency. Extract the **Scope** field — you will need it in Phase 3.
 
 ---
 
 ## Phase 3: Technical Sections
 
-**This runs in the main session** (full codebase context available).
-
-### 3.1 Codebase Exploration
+### 3.1 Codebase Exploration (main session)
 
 1. Search the codebase for existing patterns relevant to the feature
 2. Identify files that will be affected (controllers, services, repositories, migrations, frontend pages/components)
-3. Check for reusable code, utilities, or patterns already in place
+3. Compile a **codebase brief**: key existing files, reusable patterns, and integration points. This brief will be passed to specialists.
 
-### 3.2 Write Technical Constraints
+### 3.2 Specialist Consultation
 
-- **Stack:** Determine from the feature scope (Backend / Web / Mobile / Multiple)
-- **Technologies:** List specific versions and libraries required
-- **Integration Points:** Existing code this touches, external systems
-- **Out of Scope:** Items explicitly deferred (complement the product-manager's list)
+Delegate to specialists in parallel based on the **Scope** from Phase 2. Each specialist receives: feature name, functional requirements list, and the codebase brief from 3.1.
 
-### 3.3 Write Implementation Approach
+**Web or Full-stack:** Delegate to `nexus` agent:
+> "You are reviewing the frontend engineering approach for: **[feature name]**.
+>
+> Functional requirements: [paste FR list]
+> Existing codebase context: [paste codebase brief]
+>
+> Provide: recommended routing/URL structure, component architecture, state strategy, data fetching approach, TypeScript patterns, and a list of files to create or modify. Call out any risks or data strategy decisions that need resolving before implementation."
 
-- **Architecture:** High-level design — layers, patterns, key classes/components
-- **Test Strategy:** Recommend Full TDD / Partial TDD / Infrastructure based on feature complexity
-- **File Changes:** Concrete list of new files, modified files, and migrations with paths and purposes
+**Backend or Full-stack:** Delegate to `backend-code-reviewer` agent:
+> "You are reviewing the backend engineering approach for: **[feature name]**.
+>
+> Functional requirements: [paste FR list]
+> Existing codebase context: [paste codebase brief]
+>
+> Provide: API endpoint design (method, path, request/response shape), service layer changes, repository queries, Flyway migration needs, and a list of files to create or modify. Call out any data model decisions that affect the frontend."
 
-### 3.4 Write Dependencies
+**Web features with new screens:** Optionally delegate to `frontend-ux-specialist` for screen layout and interaction patterns.
 
-- **Blocked by:** Other specs or features that must complete first
-- **Blocks:** Specs that depend on this one
-- **External:** Library upgrades, infrastructure setup needed
+### 3.3 Assemble and Reconcile (main session)
+
+Review specialist outputs for **conflicts** — e.g., backend proposes a data shape that contradicts the frontend's data fetching assumption. Resolve conflicts before writing the spec. Document any deferred decisions explicitly.
+
+Then write:
+- **Technical Constraints** — Stack, technologies, integration points, out of scope
+- **Implementation Approach** — Architecture summary from specialist outputs, test strategy, concrete file changes list
+- **Dependencies** — Blocked by, blocks, external requirements
 
 ---
 

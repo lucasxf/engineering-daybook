@@ -110,12 +110,24 @@
       "clearButton": "Limpar pesquisa",
       "error": "Falha ao pesquisar aprendizados. Tente novamente."
     },
+    "views": {
+      "feed": "Feed",
+      "tags": "Etiquetas",
+      "timeline": "Linha do tempo"
+    },
     "sort": {
       "label": "Ordenar por",
       "newestFirst": "Mais recentes primeiro",
       "oldestFirst": "Mais antigos primeiro",
-      "recentlyCreated": "Criados recentemente",
-      "firstCreated": "Primeiros criados"
+      "recentlyUpdated": "Atualizados recentemente",
+      "relevance": "Relevância"
+    },
+    "tagGroups": {
+      "untagged": "Sem etiqueta",
+      "nudge": "Adicione etiquetas aos seus aprendizados para organizá-los aqui."
+    },
+    "timeline": {
+      "title": "Linha do tempo"
     },
     "filter": {
       "label": "Filtrar",

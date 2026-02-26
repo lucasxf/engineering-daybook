@@ -119,8 +119,20 @@ export const poksMessages = {
       label: 'Sort by',
       newestFirst: 'Newest first',
       oldestFirst: 'Oldest first',
-      recentlyCreated: 'Recently created',
-      firstCreated: 'First created',
+      recentlyUpdated: 'Recently updated',
+      relevance: 'Relevance',
+    },
+    views: {
+      feed: 'Feed',
+      tags: 'Tags',
+      timeline: 'Timeline',
+    },
+    tagGroups: {
+      untagged: 'Untagged',
+      nudge: 'Add tags to your learnings to group them here.',
+    },
+    timeline: {
+      title: 'Timeline',
     },
     quickEntry: {
       placeholder: 'What did you learn?',

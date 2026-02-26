@@ -7,6 +7,8 @@ import { TagBadge } from './TagBadge';
 
 interface PokCardProps {
   pok: Pok;
+  /** Which date to display on the card. Defaults to 'updatedAt'. */
+  dateField?: 'createdAt' | 'updatedAt';
 }
 
 /**
@@ -20,7 +22,7 @@ interface PokCardProps {
  *
  * @param pok the POK to display
  */
-export function PokCard({ pok }: PokCardProps) {
+export function PokCard({ pok, dateField = 'updatedAt' }: PokCardProps) {
   const params = useParams<{ locale: string }>();
   // Determine header: title if present, otherwise first 50 chars of content
   const header = pok.title && pok.title.trim()
@@ -31,7 +33,8 @@ export function PokCard({ pok }: PokCardProps) {
   const contentPreview = truncate(pok.content, 100);
 
   // Format date using the active locale
-  const formattedDate = new Date(pok.updatedAt).toLocaleDateString(params.locale, {
+  const dateValue = pok[dateField];
+  const formattedDate = new Date(dateValue).toLocaleDateString(params.locale, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -62,7 +65,7 @@ export function PokCard({ pok }: PokCardProps) {
           </div>
         )}
         <time
-          dateTime={pok.updatedAt}
+          dateTime={dateValue}
           className="text-xs text-gray-500 dark:text-gray-500"
         >
           {formattedDate}
