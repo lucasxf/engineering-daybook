@@ -52,6 +52,16 @@ public interface PokRepository extends JpaRepository<Pok, UUID> {
     List<UUID> findIdsByUserId(@Param("userId") UUID userId);
 
     /**
+     * Returns the IDs of all active (non-deleted) POKs that have no embedding yet.
+     *
+     * <p>Used by the backfill job to identify POKs that need embedding generation.
+     *
+     * @return list of POK IDs with null embedding
+     */
+    @Query("SELECT p.id FROM Pok p WHERE p.deletedAt IS NULL AND p.embedding IS NULL")
+    List<UUID> findIdsByEmbeddingIsNullAndDeletedAtIsNull();
+
+    /**
      * Returns active POKs for a user ordered by cosine distance from the query embedding.
      *
      * <p>Uses pgvector {@code <=>} (cosine distance) operator. Only POKs with a non-null

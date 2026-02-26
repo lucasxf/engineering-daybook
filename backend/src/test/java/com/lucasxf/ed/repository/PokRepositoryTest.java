@@ -19,6 +19,9 @@ import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -58,6 +61,13 @@ class PokRepositoryTest {
                 .withUsername("test")
                 .withPassword("test");
             postgres.start();
+            // Enable pgvector extension before Hibernate creates schema (create-drop)
+            try (Connection conn = DriverManager.getConnection(
+                    postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())) {
+                conn.createStatement().execute("CREATE EXTENSION IF NOT EXISTS vector;");
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to enable pgvector extension", e);
+            }
             registry.add("spring.datasource.url", postgres::getJdbcUrl);
             registry.add("spring.datasource.username", postgres::getUsername);
             registry.add("spring.datasource.password", postgres::getPassword);

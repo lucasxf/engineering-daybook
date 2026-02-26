@@ -7,9 +7,15 @@ import jakarta.persistence.Converter;
  * JPA {@link AttributeConverter} that maps a Java {@code float[]} to the pgvector
  * text format {@code "[f1,f2,...,fn]"} and back.
  *
- * <p>pgvector accepts vectors in this bracket-enclosed, comma-separated format when
- * cast from text: {@code CAST(:vector AS vector)}. This converter handles the
- * serialisation transparently for any {@code @Column(columnDefinition = "vector(N)")} field.
+ * <p>Write path: combined with {@code @ColumnTransformer(write = "CAST(? AS vector)")} on
+ * the entity field, which instructs PostgreSQL to explicitly cast the text parameter to
+ * {@code vector}. This avoids a JDBC type mismatch ("column is of type vector but expression
+ * is of type character varying") when Hibernate binds a {@code String} to a {@code vector}
+ * column via a prepared statement.
+ *
+ * <p>Read path: {@code ResultSet.getString()} on any PostgreSQL column type returns its
+ * text representation, so vector columns return {@code "[f1,f2,...,fn]"} directly — no
+ * explicit read transform needed.
  *
  * @author Lucas Xavier Ferreira
  * @since 2026-02-26

@@ -12,6 +12,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
+import org.hibernate.annotations.ColumnTransformer;
+
 import com.lucasxf.ed.config.VectorAttributeConverter;
 
 /**
@@ -47,6 +49,7 @@ public class Pok {
      * and regenerated async. POKs with null embedding are excluded from semantic search.
      */
     @Column(columnDefinition = "vector(384)")
+    @ColumnTransformer(write = "CAST(? AS vector)")
     @Convert(converter = VectorAttributeConverter.class)
     private float[] embedding;
 

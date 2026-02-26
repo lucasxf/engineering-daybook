@@ -107,7 +107,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
+            <!-- compile scope needed: PGobject is used in VectorAttributeConverter -->
         </dependency>
         <dependency>
             <groupId>com.pgvector</groupId>
