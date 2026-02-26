@@ -141,6 +141,7 @@ public class PokController {
     @ApiResponse(responseCode = "401", description = "Unauthorized")
     public ResponseEntity<Page<PokResponse>> list(
         @RequestParam(required = false) String keyword,
+        @RequestParam(required = false) String searchMode,
         @RequestParam(required = false) String sortBy,
         @RequestParam(required = false) String sortDirection,
         @RequestParam(required = false) String createdFrom,
@@ -159,6 +160,7 @@ public class PokController {
         Page<PokResponse> response = pokService.search(
             userId,
             keyword,
+            searchMode,
             sortBy,
             sortDirection,
             createdFrom,
