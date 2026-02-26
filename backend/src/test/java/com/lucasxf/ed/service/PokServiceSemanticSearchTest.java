@@ -140,4 +140,43 @@ class PokServiceSemanticSearchTest {
         verify(embeddingService, never()).embed(anyString());
         verify(pokRepository).searchPoks(eq(userId), eq("java"), any(), any(), any(), any(), any());
     }
+
+    @Test
+    @DisplayName("blank keyword with hybrid/semantic mode falls back to keyword-only (no embed call)")
+    void search_withBlankKeywordAndSemanticMode_fallsBackToKeyword() {
+        when(pokRepository.searchPoks(eq(userId), eq(null), any(), any(), any(), any(), any()))
+            .thenReturn(new PageImpl<>(List.of(pok1, pok2)));
+
+        Page<PokResponse> result = pokService.search(
+            userId, null, "hybrid",
+            null, null, null, null, null, null, 0, 20
+        );
+
+        assertThat(result.getContent()).hasSize(2);
+        verify(embeddingService, never()).embed(anyString());
+        verify(pokRepository, never()).findSemantically(any(), any(), anyInt(), anyInt());
+        verify(pokRepository).searchPoks(eq(userId), eq(null), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("semantic search total is an approximation based on over-fetched results")
+    void search_withSemanticMode_totalIsApproximateNotPageSize() {
+        int size = 10;
+        // Over-fetch returns 15 results (size * 3 = 30 limit, but only 15 available)
+        List<Pok> overFetch = List.of(pok1, pok2, pok1, pok2, pok1, pok2, pok1, pok2,
+            pok1, pok2, pok1, pok2, pok1, pok2, pok1); // 15 elements
+        float[] vector = new float[384];
+        when(embeddingService.embed("spring")).thenReturn(vector);
+        when(pokRepository.findSemantically(eq(userId), anyString(), eq(30), eq(0)))
+            .thenReturn(overFetch);
+
+        Page<PokResponse> result = pokService.search(
+            userId, "spring", "semantic",
+            null, null, null, null, null, null, 0, size
+        );
+
+        // Approximate total: offset(0) + fetched(15) = 15, NOT page size (10)
+        assertThat(result.getTotalElements()).isEqualTo(15L);
+        assertThat(result.getContent()).hasSize(size); // page is capped at `size`
+    }
 }

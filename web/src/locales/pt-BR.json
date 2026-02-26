@@ -107,7 +107,6 @@
       "button": "Pesquisar",
       "noResults": "Nenhum aprendizado encontrado",
       "noResultsHint": "Tente ajustar seus termos de pesquisa ou filtros",
-      "noResultsSemantic": "Nenhum aprendizado encontrado",
       "noResultsSemanticHint": "Tente reformular sua busca — a pesquisa semântica busca pelo significado, não pelas palavras exatas",
       "clearButton": "Limpar pesquisa",
       "error": "Falha ao pesquisar aprendizados. Tente novamente."

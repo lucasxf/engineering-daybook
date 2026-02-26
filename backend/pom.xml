@@ -108,7 +108,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <!-- compile scope needed: PGobject is used in VectorAttributeConverter -->
+            <!-- compile scope: driver must be visible at compile time for JPA column mapping -->
         </dependency>
         <dependency>
             <groupId>com.pgvector</groupId>

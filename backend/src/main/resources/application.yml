@@ -60,7 +60,7 @@ search:
     max-retries: 3
 
 admin:
-  internal-key: ${ADMIN_INTERNAL_KEY:admin-placeholder-configure-in-env}
+  internal-key: ${ADMIN_INTERNAL_KEY}
 
 springdoc:
   api-docs:

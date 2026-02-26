@@ -20,9 +20,9 @@
 | 3.1.4 | Search relevance tuning | Should Have | ✅ Done (cosine distance tuning via hybrid weight) |
 
 **Implementation notes:**
-- `pgvector-java` dependency + Flyway V12 migration enabling `vector` extension and `embedding` column (1536 dims)
+- `pgvector-java` dependency + Flyway V12 migration enabling `vector` extension and `embedding` column (384 dims)
 - `VectorAttributeConverter` — custom JPA converter: `float[]` ↔ PostgreSQL `vector` via `@ColumnTransformer`
-- `HuggingFaceEmbeddingService` — calls Inference API with retry (exponential backoff); guarded by `@ConditionalOnMissingBean` to allow test overrides
+- `HuggingFaceEmbeddingService` — calls Inference API with configurable retry (no backoff; retries on 5xx/network, fails fast on 4xx); guarded by `@ConditionalOnMissingBean` to allow test overrides
 - `@EnableAsync` on `EdApplication`; embedding generation is `@Async` on POK create/update — non-blocking, backfill-safe
 - Semantic search uses cosine distance (`<=>` operator) in `PokRepository` native query; hybrid search blends keyword `ILIKE` + vector similarity ranking
 - Admin backfill endpoint: `POST /api/v1/admin/poks/backfill-embeddings` (protected by `X-Internal-Key` header, `@Hidden` from public OpenAPI)

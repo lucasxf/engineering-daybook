@@ -1,8 +1,8 @@
 # Semantic Search
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-02-26
-> **Implemented:** _pending_
+> **Implemented:** 2026-02-26
 
 ---
 
