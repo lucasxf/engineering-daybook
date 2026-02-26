@@ -46,7 +46,14 @@ class PokRepositoryTest {
     static void configureProperties(DynamicPropertyRegistry registry) {
         if (isRunningInCI()) {
             // Use GitHub Actions service container
-            registry.add("spring.datasource.url", () -> "jdbc:postgresql://localhost:5432/testdb");
+            String url = "jdbc:postgresql://localhost:5432/testdb";
+            // Enable pgvector extension before Hibernate creates schema (create-drop)
+            try (Connection conn = DriverManager.getConnection(url, "test", "test")) {
+                conn.createStatement().execute("CREATE EXTENSION IF NOT EXISTS vector;");
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to enable pgvector extension in CI service container", e);
+            }
+            registry.add("spring.datasource.url", () -> url);
             registry.add("spring.datasource.username", () -> "test");
             registry.add("spring.datasource.password", () -> "test");
         } else {
