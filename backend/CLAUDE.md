@@ -126,7 +126,7 @@ cd backend
   ```java
   @Convert(converter = VectorAttributeConverter.class)
   @ColumnTransformer(write = "?::vector")
-  @Column(name = "embedding", columnDefinition = "vector(1536)")
+  @Column(name = "embedding", columnDefinition = "vector(384)")
   private float[] embedding;
   ```
 

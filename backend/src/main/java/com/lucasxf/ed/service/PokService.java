@@ -203,7 +203,8 @@ public class PokService {
 
         List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
 
-        if ("semantic".equals(searchMode) || "hybrid".equals(searchMode)) {
+        boolean hasKeyword = keyword != null && !keyword.isBlank();
+        if (hasKeyword && ("semantic".equals(searchMode) || "hybrid".equals(searchMode))) {
             try {
                 return searchWithSemantics(userId, keyword, searchMode, page, size, userTags);
             } catch (EmbeddingUnavailableException e) {
@@ -242,18 +243,21 @@ public class PokService {
                     .map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()))
                     .toList(),
                 PageRequest.of(page, size),
-                merged.size()
+                keywordPage.getTotalElements()
             );
         }
 
         // Pure semantic — paginate from the fetched list
+        // Approximate total: offset + fetched count. If semanticPoks is full (size*3), there may be
+        // more pages; if under-full, this is the actual count of all matching results.
+        long approximateTotal = (long) semanticOffset + semanticPoks.size();
         List<Pok> pagePoks = semanticPoks.stream().limit(size).toList();
         return new PageImpl<>(
             pagePoks.stream()
                 .map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()))
                 .toList(),
             PageRequest.of(page, size),
-            pagePoks.size()
+            approximateTotal
         );
     }
 
