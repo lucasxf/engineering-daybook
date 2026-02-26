@@ -156,6 +156,8 @@ cd backend
 
 - **`/error` must be in Spring Security `permitAll()`:** Spring dispatches internally to `/error` when an unhandled exception occurs. If `/error` is not in the `permitAll()` list, the security filter chain intercepts the error dispatch and returns a 401 with an empty response body — the actual error information is swallowed. Always include `"/error"` in `requestMatchers(...).permitAll()` in `SecurityConfig`.
 
+- **`PageImpl` total must reflect actual or approximate match count, not page size:** Constructing `new PageImpl<>(content, pageable, content.size())` always yields `totalElements = page_size` and `totalPages = 1`, making the client think there is exactly one page regardless of how many records exist. For queries that have a cheap count (keyword search), use the real `keywordPage.getTotalElements()`. For vector similarity (pgvector), use an approximation: `(long) offset + fetchedList.size()` — if `fetchedList.size() == limit` (over-fetched), there may be more pages; if under, this is the actual total.
+
 - **Java record declarations: inline unless the parameter list is long:** Declare record fields inline on the same line as the class name (follow `AdminProperties.java` and `SearchProperties.java` as reference). Multi-line format is only needed when the parameter list genuinely exceeds ~120 characters. Never break a short parameter list across multiple lines just for visual symmetry.
 
   ```java
