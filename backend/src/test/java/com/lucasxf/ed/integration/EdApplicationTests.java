@@ -9,6 +9,9 @@ import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
@@ -38,6 +41,15 @@ class EdApplicationTests {
             .withUsername("test")
             .withPassword("test");
         postgres.start();
+
+        // Enable pgvector extension before Flyway applies V12 (vector column migration)
+        try (Connection conn = DriverManager.getConnection(
+                postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())) {
+            conn.createStatement().execute("CREATE EXTENSION IF NOT EXISTS vector;");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to enable pgvector extension", e);
+        }
+
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);

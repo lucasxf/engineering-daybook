@@ -19,6 +19,8 @@ import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,6 +62,15 @@ class TagIntegrationTest {
                 .withUsername("test")
                 .withPassword("test");
         postgres.start();
+
+        // Enable pgvector extension before Hibernate create-drop generates the vector(384) column
+        try (Connection conn = DriverManager.getConnection(
+                postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword())) {
+            conn.createStatement().execute("CREATE EXTENSION IF NOT EXISTS vector;");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to enable pgvector extension", e);
+        }
+
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
