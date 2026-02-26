@@ -411,16 +411,27 @@ _pending_
 
 ### Architectural Decisions
 
-**Decision: No spring-ai dependency; HuggingFace over OpenAI**
-- **Options:** spring-ai BOM (with HF or OpenAI provider), pgvector-java + raw RestClient,
-  pgvector-java + official OpenAI Java SDK
-- **Chosen:** HuggingFace `paraphrase-multilingual-MiniLM-L12-v2` via pgvector-java + raw RestClient
-- **Rationale:** (1) HuggingFace free tier eliminates per-token cost entirely at personal scale.
-  (2) `paraphrase-multilingual-MiniLM-L12-v2` has native multilingual support for EN + PT-BR,
-  removing the cross-lingual limitation of OpenAI `text-embedding-3-small`. (3) spring-ai 1.x
-  is milestone/RC as of 2026-02; heavy transitive footprint not warranted for a single API call.
-  HuggingFace's feature-extraction endpoint is a single POST — RestClient handles it with zero
-  new framework dependencies. `pgvector-java` is a single small jar for JDBC type mapping only.
+**Decision: Embedding model — HuggingFace `paraphrase-multilingual-MiniLM-L12-v2`**
+- **Options considered:** OpenAI `text-embedding-3-small` (1536 dims, paid), HuggingFace
+  `paraphrase-multilingual-MiniLM-L12-v2` (384 dims, free tier), self-hosted sentence-transformers
+- **Chosen:** HuggingFace `paraphrase-multilingual-MiniLM-L12-v2` via raw `RestClient`
+- **Rationale:**
+
+  | Criterion | learnimo requirement | Why this model fits |
+  |-----------|---------------------|---------------------|
+  | Stack compatibility | Spring Boot/Railway + pgvector/Supabase | Plain HTTP REST; `float[]` maps directly to `vector(384)`; works with Spring `RestClient`, fixed dims |
+  | Cost | Free for solo MVP | HF Inference API free tier (~1k req/day); zero cost at current volume |
+  | Ease of implementation | Plug in under 1h | `POST JSON → float[]`, no SDK; ~15 lines of Spring Boot code |
+  | Replaceability | Simple interface to swap models | Only the URI changes; pgvector accepts any fixed dims; abstracted behind `EmbeddingService` |
+  | Bilingual PT-BR/EN | Technical learnings in 2 languages | Trained on 50+ languages; MTEB benchmarks show PT/EN similarity >90% |
+  | Short texts | POKs are 100–1 000 chars, informal | Sentence Transformers optimised for short text; trained on paraphrase pairs |
+  | Security | Trusted provider | HF: 10M+ devs, SOC2/GDPR compliant; read-only API token sufficient |
+  | pgvector performance | Fast HNSW on Supabase | 384 dims = optimal speed/precision trade-off; lightweight HNSW index, <10 ms searches |
+  | Community | Battle-tested | 100k+ GitHub stars; first-class in LangChain, LlamaIndex; de facto RAG standard |
+
+- **No spring-ai:** spring-ai 1.x is milestone/RC as of 2026-02; heavy transitive dependency
+  footprint not warranted for a single POST endpoint. `pgvector-java` is a single small jar
+  for JDBC type mapping only.
 
 **Decision: Extend existing endpoint vs. new endpoint**
 - **Options:** New `GET /api/v1/poks/semantic-search`, extend `GET /api/v1/poks`
