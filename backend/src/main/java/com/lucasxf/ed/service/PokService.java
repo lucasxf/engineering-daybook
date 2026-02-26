@@ -2,11 +2,14 @@ package com.lucasxf.ed.service;
 
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -24,6 +27,7 @@ import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.TagResponse;
 import com.lucasxf.ed.dto.TagSuggestionResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
+import com.lucasxf.ed.exception.EmbeddingUnavailableException;
 import com.lucasxf.ed.exception.PokAccessDeniedException;
 import com.lucasxf.ed.exception.PokNotFoundException;
 import com.lucasxf.ed.repository.PokAuditLogRepository;
@@ -58,19 +62,25 @@ public class PokService {
     private final UserTagRepository userTagRepository;
     private final PokTagSuggestionRepository pokTagSuggestionRepository;
     private final TagSuggestionService tagSuggestionService;
+    private final EmbeddingGenerationService embeddingGenerationService;
+    private final EmbeddingService embeddingService;
 
     public PokService(PokRepository pokRepository,
                       PokAuditLogRepository pokAuditLogRepository,
                       PokTagRepository pokTagRepository,
                       UserTagRepository userTagRepository,
                       PokTagSuggestionRepository pokTagSuggestionRepository,
-                      @Lazy TagSuggestionService tagSuggestionService) {
+                      @Lazy TagSuggestionService tagSuggestionService,
+                      EmbeddingGenerationService embeddingGenerationService,
+                      EmbeddingService embeddingService) {
         this.pokRepository = requireNonNull(pokRepository);
         this.pokAuditLogRepository = requireNonNull(pokAuditLogRepository);
         this.pokTagRepository = requireNonNull(pokTagRepository);
         this.userTagRepository = requireNonNull(userTagRepository);
         this.pokTagSuggestionRepository = requireNonNull(pokTagSuggestionRepository);
         this.tagSuggestionService = requireNonNull(tagSuggestionService);
+        this.embeddingGenerationService = requireNonNull(embeddingGenerationService);
+        this.embeddingService = requireNonNull(embeddingService);
     }
 
     /**
@@ -94,6 +104,9 @@ public class PokService {
 
         // Trigger async AI tag suggestions (non-blocking)
         tagSuggestionService.suggestTagsForPok(savedPok.getId(), userId);
+
+        // Trigger async vector embedding generation (non-blocking)
+        embeddingGenerationService.generateEmbeddingForPok(savedPok.getId());
 
         return PokResponse.from(savedPok);
     }
@@ -143,19 +156,24 @@ public class PokService {
     }
 
     /**
-     * Searches POKs with optional keyword, date filters, and dynamic sorting.
+     * Searches POKs with optional keyword, search mode, date filters, and dynamic sorting.
      *
      * <p>All search parameters are optional:
      * <ul>
      *   <li>keyword: case-insensitive search in title and content</li>
+     *   <li>searchMode: "semantic" (vector-only), "hybrid" (semantic + keyword union), or null (keyword-only)</li>
      *   <li>sortBy: field to sort by (createdAt or updatedAt, default: updatedAt)</li>
      *   <li>sortDirection: ASC or DESC (default: DESC)</li>
      *   <li>createdFrom/To: filter by creation date range</li>
      *   <li>updatedFrom/To: filter by update date range</li>
      * </ul>
      *
+     * <p>Semantic and hybrid modes fall back to keyword-only search if the embedding service is
+     * unavailable.
+     *
      * @param userId        the user ID
      * @param keyword       optional keyword to search (null = no keyword filter)
+     * @param searchMode    optional search mode ("semantic", "hybrid", or null for keyword-only)
      * @param sortBy        optional sort field (null = default to updatedAt)
      * @param sortDirection optional sort direction (null = default to DESC)
      * @param createdFrom   optional minimum creation date (ISO 8601 string)
@@ -170,6 +188,7 @@ public class PokService {
     public Page<PokResponse> search(
         UUID userId,
         String keyword,
+        String searchMode,
         String sortBy,
         String sortDirection,
         String createdFrom,
@@ -179,36 +198,116 @@ public class PokService {
         int page,
         int size
     ) {
-        log.debug("Searching POKs for user {} with keyword='{}', sortBy={}, sortDirection={}, page={}, size={}",
-            userId, keyword, sortBy, sortDirection, page, size);
+        log.debug("Searching POKs for user {} with keyword='{}', searchMode={}, page={}, size={}",
+            userId, keyword, searchMode, page, size);
 
-        // Parse date filters
+        List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
+
+        boolean hasKeyword = keyword != null && !keyword.isBlank();
+        if (hasKeyword && ("semantic".equals(searchMode) || "hybrid".equals(searchMode))) {
+            try {
+                return searchWithSemantics(userId, keyword, searchMode, page, size, userTags);
+            } catch (EmbeddingUnavailableException e) {
+                log.warn("Embedding unavailable for search query — falling back to keyword search: {}", e.getMessage());
+                // fall through to keyword search below
+            }
+        }
+
+        return keywordSearch(userId, keyword, sortBy, sortDirection, createdFrom, createdTo,
+            updatedFrom, updatedTo, page, size, userTags);
+    }
+
+    /**
+     * Performs semantic or hybrid search using the pgvector {@code <=>} cosine distance operator.
+     */
+    private Page<PokResponse> searchWithSemantics(
+        UUID userId, String keyword, String searchMode,
+        int page, int size, List<UserTag> userTags
+    ) {
+        String text = (keyword != null && !keyword.isBlank()) ? keyword : "";
+        float[] queryEmbedding = embeddingService.embed(text);
+        String queryVector = toVectorString(queryEmbedding);
+
+        int semanticLimit = size * 3;  // Over-fetch for hybrid recall
+        int semanticOffset = page * size;
+        List<Pok> semanticPoks = pokRepository.findSemantically(userId, queryVector, semanticLimit, semanticOffset);
+
+        if ("hybrid".equals(searchMode) && keyword != null && !keyword.isBlank()) {
+            // Merge semantic + keyword results, deduplicated (semantic first)
+            Pageable pageable = PageRequest.of(page, size, buildSort(null, null));
+            Page<Pok> keywordPage = pokRepository.searchPoks(userId, keyword,
+                null, null, null, null, pageable);
+            List<Pok> merged = mergeSemanticsAndKeyword(semanticPoks, keywordPage.getContent(), size);
+            return new PageImpl<>(
+                merged.stream()
+                    .map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()))
+                    .toList(),
+                PageRequest.of(page, size),
+                keywordPage.getTotalElements()
+            );
+        }
+
+        // Pure semantic — paginate from the fetched list
+        // Approximate total: offset + fetched count. If semanticPoks is full (size*3), there may be
+        // more pages; if under-full, this is the actual count of all matching results.
+        long approximateTotal = (long) semanticOffset + semanticPoks.size();
+        List<Pok> pagePoks = semanticPoks.stream().limit(size).toList();
+        return new PageImpl<>(
+            pagePoks.stream()
+                .map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()))
+                .toList(),
+            PageRequest.of(page, size),
+            approximateTotal
+        );
+    }
+
+    /**
+     * Merges semantic and keyword result lists, deduplicating by POK ID.
+     * Semantic results take priority; keyword-only results are appended.
+     */
+    private List<Pok> mergeSemanticsAndKeyword(List<Pok> semantic, List<Pok> keyword, int size) {
+        Map<UUID, Pok> merged = new LinkedHashMap<>();
+        semantic.forEach(p -> merged.put(p.getId(), p));
+        keyword.forEach(p -> merged.putIfAbsent(p.getId(), p));
+        return merged.values().stream().limit(size).toList();
+    }
+
+    /**
+     * Performs keyword-only search (existing behaviour, used as fallback for semantic modes).
+     */
+    private Page<PokResponse> keywordSearch(
+        UUID userId, String keyword,
+        String sortBy, String sortDirection,
+        String createdFrom, String createdTo,
+        String updatedFrom, String updatedTo,
+        int page, int size, List<UserTag> userTags
+    ) {
         Instant createdFromInstant = parseInstant(createdFrom);
         Instant createdToInstant = parseInstant(createdTo);
         Instant updatedFromInstant = parseInstant(updatedFrom);
         Instant updatedToInstant = parseInstant(updatedTo);
-
-        // Build Sort object
         Sort sort = buildSort(sortBy, sortDirection);
-
-        // Create Pageable
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        // Execute search
-        Page<Pok> poks = pokRepository.searchPoks(
-            userId,
-            keyword,
-            createdFromInstant,
-            createdToInstant,
-            updatedFromInstant,
-            updatedToInstant,
-            pageable
-        );
+        Page<Pok> poks = pokRepository.searchPoks(userId, keyword,
+            createdFromInstant, createdToInstant,
+            updatedFromInstant, updatedToInstant, pageable);
 
         log.debug("Found {} POKs matching search criteria for user {}", poks.getTotalElements(), userId);
-
-        List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
         return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()));
+    }
+
+    /**
+     * Converts a float[] embedding to pgvector text format {@code "[f1,f2,...,fn]"}.
+     */
+    static String toVectorString(float[] embedding) {
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < embedding.length; i++) {
+            if (i > 0) sb.append(',');
+            sb.append(embedding[i]);
+        }
+        sb.append(']');
+        return sb.toString();
     }
 
     /**
@@ -277,12 +376,16 @@ public class PokService {
 
         pok.updateTitle(request.title());
         pok.updateContent(request.content());
+        pok.clearEmbedding();  // Mark stale; will be regenerated async below
 
         Pok updatedPok = pokRepository.save(pok);
 
         log.info("POK updated: id={}, userId={}", id, userId);
 
         logUpdate(updatedPok, userId, oldTitle, oldContent);
+
+        // Trigger async vector embedding regeneration (non-blocking)
+        embeddingGenerationService.generateEmbeddingForPok(id);
 
         return PokResponse.from(updatedPok);
     }

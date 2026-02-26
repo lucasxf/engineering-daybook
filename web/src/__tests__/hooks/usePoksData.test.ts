@@ -174,6 +174,16 @@ describe('usePoksData', () => {
       );
     });
 
+    it('always passes searchMode=hybrid to the API', async () => {
+      renderHook(() => usePoksData({ fetchSize: 20 }));
+
+      await waitFor(() => expect(mockGetAll).toHaveBeenCalled());
+
+      expect(mockGetAll).toHaveBeenCalledWith(
+        expect.objectContaining({ searchMode: 'hybrid' })
+      );
+    });
+
     it('sets loading to true while fetching', async () => {
       let settle!: () => void;
       mockGetAll.mockReturnValue(new Promise((resolve) => { settle = () => resolve(EMPTY_PAGE); }));

@@ -7,6 +7,8 @@ const messages = {
     search: {
       noResults: 'No learnings found matching your search',
       noResultsHint: 'Try adjusting your search terms or filters',
+      noResultsSemantic: 'No learnings found',
+      noResultsSemanticHint: 'Try rephrasing your search — semantic search looks for meaning, not exact words',
       clearButton: 'Clear search',
     },
   },
@@ -27,10 +29,12 @@ describe('NoSearchResults', () => {
     expect(screen.getByText('No learnings found matching your search')).toBeInTheDocument();
   });
 
-  it('should render hint text', () => {
+  it('should render semantic hint text', () => {
     renderNoSearchResults({ onClearSearch: vi.fn() });
 
-    expect(screen.getByText('Try adjusting your search terms or filters')).toBeInTheDocument();
+    expect(
+      screen.getByText('Try rephrasing your search — semantic search looks for meaning, not exact words')
+    ).toBeInTheDocument();
   });
 
   it('should render clear search button', () => {

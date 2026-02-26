@@ -145,6 +145,41 @@ test.describe('Tag-grouped view', () => {
   });
 });
 
+test.describe('Semantic search', () => {
+  test('search always sends searchMode=hybrid in the API request', async ({ page }) => {
+    await setupApiMocks(page, { authenticated: true, poks: [MOCK_POK] });
+    await page.goto('/en/poks');
+
+    // Wait for the feed to render
+    await expect(page.getByRole('heading', { name: MOCK_POK.title! })).toBeVisible();
+
+    // Listen for the next GET /poks request that has a keyword param
+    const searchRequest = page.waitForRequest(
+      (req) =>
+        req.url().includes('/poks') &&
+        req.method() === 'GET' &&
+        new URL(req.url()).searchParams.has('keyword'),
+    );
+
+    // Type into the search bar (SearchBar role="search" wraps the textbox)
+    await page.getByRole('search').getByRole('textbox').fill('react');
+
+    // Capture the debounced request
+    const req = await searchRequest;
+    const url = new URL(req.url());
+    expect(url.searchParams.get('searchMode')).toBe('hybrid');
+  });
+
+  test('empty search state shows semantic-aware hint', async ({ page }) => {
+    await setupApiMocks(page, { authenticated: true, poks: [] });
+    await page.goto('/en/poks?keyword=nonexistent');
+
+    await expect(
+      page.getByText(/try rephrasing your search/i),
+    ).toBeVisible();
+  });
+});
+
 test.describe('Delete learning', () => {
   test('deletes a learning via the confirmation dialog and returns to the list', async ({
     page,
