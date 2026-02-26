@@ -19,9 +19,14 @@ interface MonthGroupProps {
 export function MonthGroup({ monthDate, poks }: MonthGroupProps) {
   const params = useParams<{ locale: string }>();
 
+  // timeZone: 'UTC' keeps the header consistent with the UTC-based bucket keys
+  // in TimelineView.monthKey() — without this, timestamps near month boundaries
+  // (e.g. 2026-02-01T00:30:00Z in UTC-8) would group into February but render
+  // a "January" header.
   const label = new Intl.DateTimeFormat(params.locale, {
     month: 'long',
     year: 'numeric',
+    timeZone: 'UTC',
   }).format(new Date(monthDate));
 
   return (
@@ -31,7 +36,7 @@ export function MonthGroup({ monthDate, poks }: MonthGroupProps) {
       </h2>
       <div className="flex flex-col gap-3">
         {poks.map((pok) => (
-          <PokCard key={pok.id} pok={pok} />
+          <PokCard key={pok.id} pok={pok} dateField="createdAt" />
         ))}
       </div>
     </section>
