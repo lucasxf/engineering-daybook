@@ -68,6 +68,9 @@ class PokServiceTest {
     @Mock
     private TagSuggestionService tagSuggestionService;
 
+    @Mock
+    private EmbeddingGenerationService embeddingGenerationService;
+
     @InjectMocks
     private PokService pokService;
 

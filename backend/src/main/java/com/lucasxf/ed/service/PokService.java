@@ -58,19 +58,22 @@ public class PokService {
     private final UserTagRepository userTagRepository;
     private final PokTagSuggestionRepository pokTagSuggestionRepository;
     private final TagSuggestionService tagSuggestionService;
+    private final EmbeddingGenerationService embeddingGenerationService;
 
     public PokService(PokRepository pokRepository,
                       PokAuditLogRepository pokAuditLogRepository,
                       PokTagRepository pokTagRepository,
                       UserTagRepository userTagRepository,
                       PokTagSuggestionRepository pokTagSuggestionRepository,
-                      @Lazy TagSuggestionService tagSuggestionService) {
+                      @Lazy TagSuggestionService tagSuggestionService,
+                      EmbeddingGenerationService embeddingGenerationService) {
         this.pokRepository = requireNonNull(pokRepository);
         this.pokAuditLogRepository = requireNonNull(pokAuditLogRepository);
         this.pokTagRepository = requireNonNull(pokTagRepository);
         this.userTagRepository = requireNonNull(userTagRepository);
         this.pokTagSuggestionRepository = requireNonNull(pokTagSuggestionRepository);
         this.tagSuggestionService = requireNonNull(tagSuggestionService);
+        this.embeddingGenerationService = requireNonNull(embeddingGenerationService);
     }
 
     /**
@@ -94,6 +97,9 @@ public class PokService {
 
         // Trigger async AI tag suggestions (non-blocking)
         tagSuggestionService.suggestTagsForPok(savedPok.getId(), userId);
+
+        // Trigger async vector embedding generation (non-blocking)
+        embeddingGenerationService.generateEmbeddingForPok(savedPok.getId());
 
         return PokResponse.from(savedPok);
     }
@@ -277,12 +283,16 @@ public class PokService {
 
         pok.updateTitle(request.title());
         pok.updateContent(request.content());
+        pok.clearEmbedding();  // Mark stale; will be regenerated async below
 
         Pok updatedPok = pokRepository.save(pok);
 
         log.info("POK updated: id={}, userId={}", id, userId);
 
         logUpdate(updatedPok, userId, oldTitle, oldContent);
+
+        // Trigger async vector embedding regeneration (non-blocking)
+        embeddingGenerationService.generateEmbeddingForPok(id);
 
         return PokResponse.from(updatedPok);
     }
