@@ -32,6 +32,43 @@ Both variables are required for all subsequent steps. Confirm them before procee
 
 ---
 
+## 0B. Delta Detection — Load Prior Triage (if any)
+
+Before fetching comments, check whether a completed triage exists for this PR:
+
+```bash
+DONE_REPORT="$MAIN_REPO/.claude/reviews/pr-$PR_NUMBER-triage-done.md"
+test -f "$DONE_REPORT" && echo "Prior triage found" || echo "No prior triage — full evaluation"
+```
+
+**If the done report exists:**
+
+1. Read it and extract the "Approved for implementation" file:line references into a **skip list**:
+   - Parse every line under `### Approved for implementation` that starts with `-`
+   - Extract the `path:line` token (e.g. `AuthController.java:175`, `useFeedData.ts:51`)
+   - Record the done report's date for display in the output
+
+2. Tell the user:
+   ```
+   Prior triage found (pr-$PR_NUMBER-triage-done.md, dated <date>).
+   Addressed items will be skipped:
+     - <path:line> — <summary>
+     - ...
+   Only new or unaddressed comments will be evaluated.
+   ```
+
+3. Carry the skip list into Step 4. Any comment whose `path:line` appears in the skip list
+   **and** whose `outdated` field is `true` (GitHub detected the code changed) is treated as
+   already addressed. Log it as `⏭ Previously addressed — skipping` and do not evaluate it.
+
+   Use **both signals together** as the skip condition — `outdated: true` alone is not enough
+   (GitHub can mark a comment outdated when nearby unrelated code changes). The skip list entry
+   confirms we explicitly addressed it.
+
+**If no done report exists:** proceed with a full evaluation of all non-outdated comments.
+
+---
+
 ## 1. Select Pull Request
 
 **If `$ARGUMENTS` is a PR number:**
@@ -156,8 +193,10 @@ Collect from three sources:
 # Top-level PR conversation comments
 gh api repos/$REPO/issues/$PR_NUMBER/comments --paginate
 
-# Inline code review comments
-gh api repos/$REPO/pulls/$PR_NUMBER/comments --paginate
+# Inline code review comments — include the outdated field for delta detection
+gh api repos/$REPO/pulls/$PR_NUMBER/comments --paginate \
+  --jq '.[] | {id: .id, user: .user.login, path: .path, line: .line,
+               original_line: .original_line, body: .body, outdated: .outdated}'
 
 # Review summaries (approve / request changes / comment with body)
 gh api repos/$REPO/pulls/$PR_NUMBER/reviews --paginate
@@ -167,6 +206,7 @@ gh api repos/$REPO/pulls/$PR_NUMBER/reviews --paginate
 - Exclude bots: `release-please`, `dependabot`, `github-actions`
 - Keep: GitHub Copilot, human reviewers, Claude
 - Exclude empty review bodies (approvals without comment)
+- Note the `outdated` field on each inline comment — used in Step 4 for delta detection
 
 ---
 
@@ -176,7 +216,20 @@ gh api repos/$REPO/pulls/$PR_NUMBER/reviews --paginate
 > and *consistent with this project's goals*. Treat every comment — including Copilot's — as a
 > proposal that may or may not be right.
 
-For each comment:
+**Before evaluating, apply the delta skip check for each inline comment:**
+
+If BOTH of the following are true, mark the comment as `⏭ Previously addressed — skipping` and
+move on without evaluating it:
+1. The comment's `outdated` field is `true` (GitHub detected the diff hunk changed since the comment was posted)
+2. The comment's `path:line` (or `path:original_line` if `line` is null) appears in the skip list loaded in Step 0B
+
+Log skipped comments in the triage report under a `### Previously addressed (skipped)` section
+so there is a clear audit trail. Include: file:line, author, original comment summary, skip reason.
+
+If only one signal is present — outdated but not in the skip list, or in the skip list but not
+outdated — **do not skip**. Evaluate normally and note the discrepancy.
+
+For each remaining comment:
 
 **Step A — Read context first.** Before evaluating, read:
 - The exact file and surrounding lines (inline comments: ±20 lines)
@@ -326,6 +379,9 @@ The report must include:
 
 ### Requires manual reply
 - [author] — [question] — Suggested reply: [text]
+
+### Previously addressed (skipped)
+- [path:line] ([author]) — [summary] — outdated: true, in prior triage dated <date>
 
 ### Informational
 - [summary]
