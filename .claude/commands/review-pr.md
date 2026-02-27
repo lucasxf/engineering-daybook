@@ -555,27 +555,61 @@ Display one entry per comment. Group by recommendation, clearest first:
 - Present "Reject" items with the reason, allow user to override if they disagree
 - Present "Defer" items, allow user to escalate to this PR if they prefer
 
-## 7. Implement Approved Items
+## 7. Delegate Implementation to Specialist Agents
 
-For each approved item:
-1. Read the target file
-2. Apply the change following project conventions (CLAUDE.md)
-3. After all changes are applied, determine whether any **code** files were modified:
-   - **Docs-only changes** (`.md`, comments, Javadoc, i18n `.json`) → skip test re-run
-   - **Code changes** (`.java`, `.ts`, `.tsx`, `.js`) → run targeted tests for the affected classes
+After user approval, group the approved items by the files they touch and route each group to the appropriate specialist agent.
 
-**Compile first — always, before any test run:**
+### 7A. Route Comments to Agents
+
+| File pattern | Comment type | Agent |
+|---|---|---|
+| `backend/**` (`.java`, `pom.xml`, `application*.yml`) | Any | `sous-chef` |
+| `web/**` (`.ts`, `.tsx`) | Architecture, logic, TypeScript, data fetching | `nexus` |
+| `mobile/**` (`.ts`, `.tsx`) | Architecture, logic, navigation, state, storage | `hedy` |
+| `web/**` or `mobile/**` | Visual design, layout, colors, spacing, accessibility | `pixl` |
+| `.md`, i18n `.json`, config-only | Any | Handle inline — no agent needed |
+
+**Classification tie-breakers:**
+- Comment mentions layout, color, spacing, `className`, style props, WCAG, or accessibility → `pixl`, regardless of file
+- Comment mentions component structure, TypeScript types, hooks, data fetching, or routing → `nexus` (web) or `hedy` (mobile)
+- A single comment that spans both logic and design → split into two items, one per agent
+- Cross-cutting comments touching both `backend/` and `web/` → run `sous-chef` then `nexus` sequentially
+
+### 7B. Launch Agents
+
+For each group, launch the specialist agent via the Task tool with:
+- The exact comment text and file/line reference
+- The recommendation (accept / accept with modification — include the deviation if applicable)
+- Relevant conventions from `CLAUDE.md` or the stack-specific `CLAUDE.md`
+
+**Parallelism rules:**
+- Groups touching **different files** → launch in parallel
+- Groups touching **overlapping files** → run sequentially to avoid conflicts
+
+After each agent completes:
+- Review its output for correctness and convention alignment
+- Verify it applied the recommendation as approved (not the raw reviewer suggestion verbatim if "accept with modification")
+- Note which files were changed — needed for the compile + test gate below
+
+### 7C. Compile and Test Gate
+
+After all agents have finished, run the compile gate:
 
 ```bash
-# Backend — full compilation (catches any breakage introduced by the changes)
+# Backend — catches any breakage introduced by the changes
 (cd backend && mvn compile test-compile -q)
 
-# Web — TypeScript type check (equivalent compile gate)
+# Web — TypeScript type check
 (cd web && npx tsc --noEmit)
+
+# Mobile — TypeScript type check
+(cd mobile && npx tsc --noEmit)
 ```
 
 **If compilation fails** → STOP immediately. Show the error. Ask user whether to revert or debug.
 Only proceed to test execution once the project compiles cleanly.
+
+Skip the compile gate for docs-only changes (`.md`, Javadoc, i18n `.json`).
 
 **Targeted test run — backend (Java):**
 
@@ -584,7 +618,6 @@ For each changed class `Foo`, look for a corresponding test class `FooTest` or `
 Run only those test classes:
 
 ```bash
-# Build the comma-separated list of test classes, then run them
 # Example: AFFECTED_TESTS="AuthServiceTest,PokControllerTest"
 (cd backend && mvn test -Dtest="$AFFECTED_TESTS" -q)
 ```
@@ -594,11 +627,16 @@ coverage gate in CI will catch regressions).
 
 **Targeted test run — web (TypeScript):**
 
-Pass the changed file paths to the test runner so only related specs execute:
-
 ```bash
 # Example: changed files are src/hooks/useAuth.ts and src/lib/api.ts
 (cd web && npm test -- --testPathPattern="useAuth|api" --silent)
+```
+
+**Targeted test run — mobile (Jest):**
+
+```bash
+# Example: changed files are src/screens/FeedScreen.tsx
+(cd mobile && npm test -- --testPathPattern="FeedScreen" --silent)
 ```
 
 **If any targeted tests fail** → STOP. Show the failure. Ask user whether to revert or debug.
@@ -623,15 +661,7 @@ git push origin $PR_BRANCH
 
 ## 8.5. Extract and Save Coding Style Learnings
 
-After implementing approved fixes, review what each accepted comment taught us. For each fix that reveals a pitfall, convention, or pattern that isn't already documented, save a concise entry to the appropriate CLAUDE.md file.
-
-**Which CLAUDE.md to update:**
-
-| Fix touches | Update |
-|-------------|--------|
-| Java/Spring/Maven | `backend/CLAUDE.md` → `## Known Pitfalls` |
-| TypeScript/Next.js/React | `web/CLAUDE.md` → add a new section or extend `## Coding Conventions` |
-| Both stacks or architectural | Root `CLAUDE.md` → relevant section |
+After implementing approved fixes, identify patterns worth preserving. For each accepted fix that reveals a pitfall, convention, or anti-pattern that isn't already documented, delegate the documentation to the `tech-writer` agent.
 
 **What qualifies as a learning worth saving:**
 
@@ -647,11 +677,22 @@ After implementing approved fixes, review what each accepted comment taught us. 
 - Suggestions that were Rejected or Deferred
 - Things already documented in CLAUDE.md
 
-**How to save:**
+**How to delegate:**
 
-Use the Edit tool to append to the `## Known Pitfalls` section (backend) or the relevant section in the target CLAUDE.md. Keep each entry to 2–4 sentences + a code example if it aids clarity.
+Launch the `tech-writer` agent via the Task tool with:
+- The list of qualifying learnings (one per bullet): what the pitfall is, why it matters, and the correct pattern
+- The target file for each entry:
 
-**After saving, report what was learned** in the §9 Summary under a "Coding Style Tips Saved" section.
+| Fix touches | Target |
+|-------------|--------|
+| Java/Spring/Maven | `backend/CLAUDE.md` → `## Known Pitfalls` |
+| TypeScript/Next.js/React | `web/CLAUDE.md` → extend `## Coding Conventions` |
+| Expo/React Native | `mobile/CLAUDE.md` → `## Known Pitfalls` |
+| Cross-cutting or architectural | Root `CLAUDE.md` → relevant section |
+
+The `tech-writer` agent will write each entry (2–4 sentences + code example if it aids clarity) and append it to the correct section.
+
+**After the agent completes, report what was documented** in the §9 Summary under a "Coding Style Tips Saved" section.
 
 ## 9. Summary
 
