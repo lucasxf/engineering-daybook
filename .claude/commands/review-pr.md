@@ -1,15 +1,35 @@
 ---
-description: Review and address feedback and CI/CD failures on an open pull request
+description: Triage an open PR — check CI/CD status, fetch and evaluate review comments, save structured report for /fix-pr
 argument-hint: <optional-pr-number>
 ---
 
 @CLAUDE.md
 
-**Address PR Review Feedback & CI/CD Failures**
+**PR Triage — CI/CD Status + Review Comment Evaluation**
 
 Target PR: $ARGUMENTS
 
+This command is read-only. It gathers facts, evaluates feedback, and saves a structured triage report.
+No code is changed, no branches are checked out, nothing is committed.
+Run `/fix-pr $PR_NUMBER` afterwards to implement the approved items.
+
 Execute the following steps in order:
+
+---
+
+## 0. Resolve Main Repo Path
+
+Before anything else, determine the main repo root. This is where the triage report will be saved,
+regardless of whether you are running from a worktree or the main repo.
+
+```bash
+MAIN_REPO=$(git worktree list --porcelain | grep '^worktree' | head -1 | sed 's/worktree //')
+REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
+```
+
+Both variables are required for all subsequent steps. Confirm them before proceeding.
+
+---
 
 ## 1. Select Pull Request
 
@@ -19,453 +39,157 @@ Execute the following steps in order:
 **If no argument provided:**
 
 ```bash
-# List open PRs
-gh pr list --state open --json number,title,headRefName,author --template '{{range .}}#{{.number}} {{.title}} ({{.headRefName}}) by {{.author.login}}{{"\n"}}{{end}}'
+gh pr list --state open --json number,title,headRefName,author \
+  --template '{{range .}}#{{.number}} {{.title}} ({{.headRefName}}) by {{.author.login}}{{"\n"}}{{end}}'
 ```
 
 - If **no open PRs** → STOP. Tell the user: "No open PRs found."
 - If **exactly 1 open PR** → Auto-select it and confirm to user
-- If **multiple open PRs** → Use AskUserQuestion to prompt: "Which PR would you like to address?" with the list of PRs as options
+- If **multiple open PRs** → Use AskUserQuestion: "Which PR would you like to triage?" with the list as options
 
-**After selecting the PR, assign the number to `$PR_NUMBER` before proceeding.** All subsequent steps depend on this variable being set.
+**Assign the number to `$PR_NUMBER` before proceeding.**
+
+---
 
 ## 1B. Check and Enrich PR Description
 
-**Get the current PR body:**
-
 ```bash
-gh pr view $PR_NUMBER --repo $REPO --json body,title,commits --jq '{body: .body, title: .title}'
+gh pr view $PR_NUMBER --repo $REPO --json body,title --jq '{body: .body, title: .title}'
 ```
 
-**Evaluate the body:**
+A description is **missing or inadequate** if:
+- Empty or only whitespace
+- A single generic line (e.g., "Develop", "fix", "update")
+- Shorter than ~100 characters with no structure (no bullets, no headings)
 
-A PR description is considered **missing or inadequate** if any of these are true:
-- The body is empty or only whitespace
-- The body is a single generic line (e.g., "Develop", "fix", "update")
-- The body is shorter than ~100 characters with no structure (no bullets, no headings)
+**If inadequate:**
 
-**If the description is missing or inadequate:**
-
-1. Fetch the commits and diff to understand what the PR contains:
-
+1. Fetch commits and diff:
 ```bash
-# List commits in the PR
 gh api repos/$REPO/pulls/$PR_NUMBER/commits --jq '.[].commit.message'
-
-# Get the PR diff summary (files changed)
-gh pr diff $PR_NUMBER --stat
+gh pr diff $PR_NUMBER --repo $REPO --stat
 ```
 
-2. Analyze the commits and file changes to draft a comprehensive description following this format:
-
+2. Draft a description:
 ```markdown
 ## Summary
-
-- [Bullet point per significant area of change]
-- [Each bullet is 1-2 sentences, describes the what + why]
+- [Bullet per significant area — what + why]
 
 ## Test plan
-
-- [ ] CI/CD passes (backend tests, web tests, build)
-- [ ] [Feature-specific check]
+- [ ] CI/CD passes
 - [ ] [Feature-specific check]
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
 
-3. Update the PR with the generated description AND a meaningful title (if the current title is also generic):
-
+3. Update the PR:
 ```bash
 gh pr edit $PR_NUMBER --repo $REPO --title "<meaningful title>" --body "<generated body>"
 ```
 
-4. Inform the user: "PR #XX was missing a description — I've added one based on the commits and diff."
+4. Note in the triage report: "Description was missing — generated from commits and diff."
 
-**If the description is already comprehensive:** Skip this step and proceed.
+**If already comprehensive:** proceed.
+
+---
 
 ## 1C. Validate Description Accuracy (Staleness Check)
 
-> **Why this matters:** When multiple feature branches are merged into `develop` over time, the `develop → main` PR description may have been written early and no longer reflects what's actually in the PR. Always verify accuracy, not just completeness.
-
-**Get the current commits and description:**
+> Even a long description can be stale if earlier commits were reverted or if this is an aggregated
+> merge PR (e.g., `develop → main`) written when it had fewer commits.
 
 ```bash
-# List all commits in the PR (not just the latest)
 gh api repos/$REPO/pulls/$PR_NUMBER/commits --jq '[.[].commit.message] | join("\n")'
-
-# Also get the diff summary to see what files are actually changed
-gh pr diff $PR_NUMBER --stat
+gh pr diff $PR_NUMBER --repo $REPO --stat
 ```
 
-**Evaluate description accuracy:**
+A description is **stale** if it:
+- Mentions features not present in the current diff
+- Omits significant areas visible in commits/diff
+- Describes a single-feature branch when commits show an aggregated merge
 
-A PR description is considered **stale or inaccurate** if any of these are true:
-- It mentions features or changes that are NOT in the current diff (were reverted or moved to another PR)
-- It omits significant areas of change visible in the commit history or diff
-- It describes the PR as a single-feature branch but the commits show it's an aggregated merge (e.g., `develop → main` with many unrelated features)
-- The title says "feat: X" but commits include fixes, refactors, or other unrelated features
-
-**If the description is stale or inaccurate:**
-
-1. Draft a replacement that accurately reflects the FULL set of commits:
-
-```markdown
-## Summary
-
-- [One bullet per significant area, derived from commits/diff — not copy-pasted from old description]
-
-## Included changes
-- [List key commits or groups of commits]
-
-## Test plan
-- [ ] CI/CD passes
-- [ ] [Feature-specific checks]
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
-```
-
-2. Update the PR:
-
-```bash
-gh pr edit $PR_NUMBER --body "<new description>"
-```
-
-3. Inform the user: "PR #XX description was stale — I've updated it to reflect the actual commits."
-
-**If the description accurately reflects the current state of the PR:** Skip and proceed.
+**If stale:** update with a replacement that reflects the actual commits. Note in the triage report.
+**If accurate:** proceed.
 
 ---
 
 ## 2. Check CI/CD Pipeline Status
 
-**Get PR checks status:**
+```bash
+gh pr checks $PR_NUMBER --repo $REPO --json name,state,link
+```
+
+| State | Meaning |
+|-------|---------|
+| `pass` | ✅ Passing — no action needed |
+| `fail` | ❌ Failed — classify and log |
+| `pending` | 🔄 Running — note as in-progress |
+| `skipping` | ⚠️ Skipped — note, usually no action needed |
+
+**For each failed check, classify the failure type:**
+- **Test failure** — unit, integration, or E2E tests
+- **Build/compilation** — compile error, dependency issue
+- **Linting/formatting** — ESLint, Checkstyle, Prettier
+- **Type checking** — TypeScript tsc, Java compilation
+- **Coverage** — JaCoCo threshold not met
+- **Security scan** — dependency vulnerabilities
+
+**Fetch detailed logs for each failed check:**
 
 ```bash
-# Get all check runs for the PR (use `state` and `link`; `status`/`conclusion`/`detailsUrl` are not valid JSON fields)
-gh pr checks $PR_NUMBER --json name,state,link
+HEAD_SHA=$(gh pr view $PR_NUMBER --repo $REPO --json headRefOid --jq .headRefOid)
+gh api repos/$REPO/commits/$HEAD_SHA/check-runs \
+  --jq '.check_runs[] | {name: .name, id: .id, conclusion: .conclusion, url: .html_url}'
 ```
 
-**Analyze the results:**
-
-| State | Meaning | Action |
-|-------|---------|--------|
-| `pass` | ✅ Passing | No action needed |
-| `fail` | ❌ Failed | Investigate and fix |
-| `pending` | 🔄 Running/Queued | Wait or proceed with review comments |
-| `skipping` | ⚠️ Skipped | Usually no action needed |
-
-**If any checks failed:**
-
-1. Display failed checks to user with links to logs
-2. For each failed check, determine the type:
-   - **Build failure** (compilation error, dependency issue)
-   - **Test failure** (unit tests, integration tests, e2e tests)
-   - **Linting/Formatting** (ESLint, Checkstyle, Prettier)
-   - **Type checking** (TypeScript, Java compilation)
-   - **Security scan** (dependency vulnerabilities)
-   - **Coverage** (test coverage below threshold) — see §3A.5 for the fast JaCoCo-first path
-
-3. **Fetch detailed logs** for failed checks:
-
-```bash
-# Get the latest workflow run for this PR
-WORKFLOW_RUN=$(gh api repos/{owner}/{repo}/commits/$(gh pr view $PR_NUMBER --json headRefOid --jq .headRefOid)/check-runs --jq '.check_runs[0].id')
-
-# Get workflow logs (may require parsing)
-gh api repos/{owner}/{repo}/actions/runs/$WORKFLOW_RUN/logs
-```
-
-4. **Parse logs to identify specific failures:**
-   - Extract test names that failed
-   - Extract error messages
-   - Extract file paths and line numbers
-
-**Present CI/CD status to user:**
-
-```
-## PR #XX — CI/CD Status
-
-### ❌ Failed Checks (N)
-- **Backend Tests** — 3 tests failed
-  - `PokServiceTest.testCreate` — NullPointerException at line 42
-  - `PokControllerTest.testUpdate` — Expected 200, got 404
-  - `PokRepositoryTest.testSoftDelete` — Assertion failed
-  Details: https://github.com/.../actions/runs/123
-
-- **Web Build** — TypeScript compilation error
-  - `src/components/poks/PokForm.tsx:85` — Type 'string | undefined' is not assignable
-  Details: https://github.com/.../actions/runs/124
-
-### ✅ Passing Checks (N)
-- ESLint
-- Checkstyle
-- Build (mobile)
-
-### 🔄 In Progress (N)
-- E2E Tests (running)
-```
-
-**Ask user:** "Do you want to address CI/CD failures first, or review comments first?"
-
-Use AskUserQuestion with options:
-- **Fix CI/CD failures first** — Address pipeline issues before review comments
-- **Address review comments first** — Fix code review feedback before CI/CD
-- **Address both in parallel** — Handle CI/CD and review comments together
-
-## 3. Checkout PR Branch
-
-```bash
-# Get PR branch name (requires $PR_NUMBER from Step 1)
-PR_BRANCH=$(gh pr view $PR_NUMBER --json headRefName --jq .headRefName)
-
-# Checkout the branch
-git checkout "$PR_BRANCH"
-```
-
-If there are uncommitted changes, stash them first and inform the user. **Track the original branch name so we can return to it later.**
-
-## 3A. Address CI/CD Failures (If User Selected This Option)
-
-**For each failed check:**
-
-### 3A.1. Test Failures
-
-**If tests failed:**
-
-1. **Run tests locally** to reproduce:
-```bash
-# Backend
-(cd backend && ./mvnw test)
-
-# Web
-(cd web && npm test)
-
-# Mobile
-(cd mobile && npm test)
-```
-
-2. **Analyze failures:**
-   - Read test file and implementation
-   - Identify root cause (logic error, incorrect assertion, missing mock, etc.)
-   - Check if related to recent changes in the PR
-
-3. **Fix the issue:**
-   - Update implementation code if logic is wrong
-   - Fix test assertions if expectations are incorrect
-   - Add missing mocks or test data
-   - Update test setup if configuration changed
-
-4. **Verify fix locally:**
-   - Re-run failed tests
-   - Ensure all tests pass before committing
-
-### 3A.2. Build/Compilation Failures
-
-**If build failed:**
-
-1. **Run build locally:**
-```bash
-# Backend
-(cd backend && ./mvnw compile)
-
-# Web
-(cd web && npm run build)
-```
-
-2. **Common issues:**
-   - **Missing import** → Add the import
-   - **Type error** → Fix type annotations or casts
-   - **Syntax error** → Fix the syntax
-   - **Dependency issue** → Update package.json or pom.xml
-   - **Circular dependency** → Refactor imports
-
-3. **Fix and verify:**
-   - Apply the fix
-   - Run build again
-   - Ensure clean build
-
-### 3A.3. Linting/Formatting Failures
-
-**If linting failed:**
-
-1. **Run linter locally:**
-```bash
-# Web (ESLint)
-(cd web && npm run lint)
-
-# Backend (Checkstyle)
-(cd backend && ./mvnw checkstyle:check)
-```
-
-2. **Auto-fix if possible:**
-```bash
-# ESLint auto-fix
-(cd web && npm run lint -- --fix)
-
-# Prettier auto-fix
-(cd web && npm run format)
-```
-
-3. **Manual fixes if needed:**
-   - Read the linting error
-   - Apply the required code style change
-   - Re-run linter to verify
-
-### 3A.4. Type Checking Failures
-
-**If TypeScript type check failed:**
-
-1. **Run type check locally:**
-```bash
-(cd web && npx tsc --noEmit)
-```
-
-2. **Fix type errors:**
-   - Add missing type annotations
-   - Fix incorrect types
-   - Add type guards or assertions
-   - Update TypeScript configuration if needed
-
-### 3A.5. Coverage Failures
-
-**If CI is failing due to test coverage (backend):**
-
-> **Start here before running any tests locally.** JaCoCo reports are already generated by CI and available locally after the last Maven run — reading them is faster than re-running the full suite.
-
-1. **Check the JaCoCo XML report first:**
-
-```bash
-# Parse the coverage report to find classes with the most missed lines
-python3 -c "
-import xml.etree.ElementTree as ET, sys
-tree = ET.parse('backend/target/site/jacoco/jacoco.xml')
-root = tree.getroot()
-
-# Bundle totals
-print('=== Bundle Totals ===')
-for c in root.findall('counter'):
-    missed = int(c.get('missed', 0))
-    covered = int(c.get('covered', 0))
-    total = missed + covered
-    pct = (covered / total * 100) if total else 0
-    print(f'{c.get(\"type\"):15} {covered}/{total} ({pct:.1f}%)')
-
-# Per-class breakdown (worst first)
-print()
-print('=== Classes by Missed Lines (worst first) ===')
-classes = []
-for cls in root.findall('package/class'):
-    for c in cls.findall('counter[@type=\"LINE\"]'):
-        missed = int(c.get('missed', 0))
-        covered = int(c.get('covered', 0))
-        if missed > 0:
-            classes.append((missed, cls.get('name'), covered))
-for missed, name, covered in sorted(classes, reverse=True)[:20]:
-    print(f'  missed={missed:4d}  covered={covered:4d}  {name}')
-"
-```
-
-   If the XML doesn't exist yet (first run on this branch), generate it:
-
-```bash
-(cd backend && mvn jacoco:report -q)
-```
-
-2. **Identify the gap:** Compare the bundle totals against the configured threshold (check `backend/pom.xml` for `<jacoco-minimum-coverage>` or the `<minimum>` rule in the JaCoCo plugin config).
-
-3. **Open the HTML report for visual inspection if needed:**
-
-   `backend/target/site/jacoco/index.html` — drill into packages and classes with red/yellow coverage bars.
-
-4. **Write targeted tests** for the classes with the most missed lines:
-   - Read the class under test and its existing test file (if any)
-   - Add tests covering the uncovered branches/lines
-   - Follow project test conventions: JUnit 5 + Mockito for unit tests, Testcontainers for integration tests
-
-5. **Verify coverage locally:**
-
-```bash
-(cd backend && mvn verify -q)
-```
-
-   Re-parse `jacoco.xml` to confirm the gap is closed before committing.
-
-### 3A.6. Commit and Push CI/CD Fixes
-
-```bash
-# Stage changed files
-git add [changed-files]
-
-# Commit with descriptive message
-git commit -m "fix: resolve CI/CD pipeline failures
-
-Fixed:
-- [list of specific failures addressed]
-- [test names or build errors fixed]
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
-
-# Push to PR branch
-git push origin $PR_BRANCH
-```
-
-**Wait for CI/CD to re-run and verify fixes:**
-
-```bash
-# Watch CI/CD status
-gh pr checks $PR_NUMBER --watch
-```
-
-If checks still fail, repeat the analysis and fix process.
+For each failed check run, fetch its logs to extract specific error messages, test names, and
+file/line references. This detail goes directly into the triage report.
 
 ---
 
-## 4. Fetch All Review Comments
+## 3. Fetch All Review Comments
 
-Collect comments from three GitHub API sources:
+Collect from three sources:
 
 ```bash
-# Get repository owner/repo
-REPO=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
-
 # Top-level PR conversation comments
 gh api repos/$REPO/issues/$PR_NUMBER/comments --paginate
 
-# Inline code review comments (attached to specific lines)
+# Inline code review comments
 gh api repos/$REPO/pulls/$PR_NUMBER/comments --paginate
 
-# Review summaries (approve/request changes/comment with body text)
+# Review summaries (approve / request changes / comment with body)
 gh api repos/$REPO/pulls/$PR_NUMBER/reviews --paginate
 ```
 
 **Filter out noise:**
-- Exclude bots: release-please, dependabot, github-actions
+- Exclude bots: `release-please`, `dependabot`, `github-actions`
 - Keep: GitHub Copilot, human reviewers, Claude
-- Exclude empty review bodies (e.g., approval without comment)
+- Exclude empty review bodies (approvals without comment)
 
-## 5. Critically Evaluate Each Comment
+---
 
-> **Mindset:** You are not a passive applier of review feedback. You are a second reviewer whose job is to decide whether each comment is *correct*, *worth the cost*, and *consistent with this project's goals*. Treat every comment — including those from GitHub Copilot — as a proposal that may or may not be right.
+## 4. Evaluate Each Review Comment
+
+> **Mindset:** You are a second reviewer deciding whether each comment is *correct*, *worth the cost*,
+> and *consistent with this project's goals*. Treat every comment — including Copilot's — as a
+> proposal that may or may not be right.
 
 For each comment:
 
-**Step A — Read the context first.**
-Before evaluating any comment, read:
-- The exact file and surrounding lines referenced (inline comments: ±20 lines)
-- The spec file in `docs/specs/` if the comment touches a recently implemented feature
+**Step A — Read context first.** Before evaluating, read:
+- The exact file and surrounding lines (inline comments: ±20 lines)
+- The spec in `docs/specs/` if the comment touches a recently implemented feature
 - The relevant section of `CLAUDE.md` if the comment is about style or conventions
 
-**Step B — Evaluate the comment on four axes:**
+**Step B — Evaluate on four axes:**
 
-1. **Correctness** — Is the reviewer's factual claim accurate? Does the suggested change actually fix the stated problem, or does it introduce a new one? Would the "fix" break something downstream?
+1. **Correctness** — Is the claim accurate? Does the fix actually solve the problem, or does it introduce a new one?
+2. **Consistency** — Does it align with CLAUDE.md conventions, existing patterns, and ADRs?
+3. **Proportionality** — Is the scope of change proportional to the benefit?
+4. **Timing** — Is this the right moment? Some suggestions are valid but wrong for this PR's scope.
 
-2. **Consistency** — Does the suggestion align with CLAUDE.md conventions, existing codebase patterns, and ADRs? Does it conflict with a deliberate architectural decision already made?
-
-3. **Proportionality** — Is the scope of the suggested change proportional to the benefit? A one-line improvement to a critical security property is different from a multi-class refactor for marginal readability gain.
-
-4. **Timing** — Is this the right moment for this change? Some suggestions are valid in isolation but wrong for this PR's scope (e.g., refactoring a class that isn't the focus of this PR, or adding abstraction for a single-usage pattern per CLAUDE.md's over-engineering rules).
-
-**Step C — Classify the comment and form a recommendation:**
+**Step C — Classify and recommend:**
 
 | Category | Description | Icon |
 |----------|-------------|------|
@@ -476,15 +200,12 @@ Before evaluating any comment, read:
 | **Informational** | Praise, acknowledgment, FYI — no action needed | :information_source: |
 
 **Recommendation options:**
+- **Accept** — Correct, proportional, consistent. Implement it.
+- **Accept with modification** — Real issue, but suggested fix is wrong or incomplete. Implement a corrected version.
+- **Reject** — Factually wrong, conflicts with a project directive, or introduces more complexity than it solves. Cite the reason (CLAUDE.md section, ADR, or specific counter-argument).
+- **Defer** — Valid but belongs in a separate PR or future milestone.
 
-- **Accept** — The comment is correct, proportional, consistent with the project, and beneficial. Implement it.
-- **Accept with modification** — The comment identifies a real issue but the suggested fix is wrong or incomplete. Implement a corrected version and explain the deviation.
-- **Reject** — The comment is factually wrong, conflicts with a project directive (cite CLAUDE.md section or ADR), introduces more complexity than it solves, or is premature for this PR's scope. State the reason clearly.
-- **Defer** — The comment is valid but belongs in a separate PR or future milestone. Create a follow-up task or note.
-
-**When the decision isn't obvious — show trade-offs explicitly:**
-
-If a comment falls into a grey area (e.g., a reasonable suggestion that comes with a real cost), present a structured trade-off before recommending:
+**For grey-area comments, show the trade-off explicitly:**
 
 ```
 Trade-off analysis:
@@ -493,218 +214,126 @@ Trade-off analysis:
   Verdict: [Accept / Reject / Defer] — [one-sentence rationale]
 ```
 
-Examples of grey-area comments that require trade-off analysis:
+Grey-area examples that require trade-off analysis:
 - Suggestions that improve readability but increase indirection
 - Security hardening that goes beyond the threat model in scope for this PR
 - Refactors that are valid but widen the PR's blast radius
 - Suggestions that conflict with a project guideline but have merit in this specific case
 - Copilot suggestions that are technically correct but miss the intent of the code
 
-## 6. Present Evaluation to User
+---
 
-Display one entry per comment. Group by recommendation, clearest first:
+## 5. Present Evaluation to User
+
+Display one entry per comment, grouped by recommendation:
 
 ```
-## PR #XX — Review Feedback Evaluation
+## PR #XX — Triage
 
-### Accept (N)
+### CI/CD: ❌ N failures / ✅ All passing
+[Each failure: check name — type — specific error — log link]
+
+### Review Comments
+
+#### Accept (N)
 - :wrench: **AuthController.java:42** (by copilot) — "Use constructor injection instead of @Autowired"
   Evaluation: Correct. Matches CLAUDE.md §Coding Conventions — constructor injection only.
-  Recommendation: Accept
+  Agent: sous-chef
 
 - :bug: **PokService.java:88** (by reviewer) — "This will NPE when tags is null"
-  Evaluation: Confirmed — `pok.getTags()` is nullable per the domain model; calling `.stream()` without
+  Evaluation: Confirmed — pok.getTags() is nullable per the domain model; calling .stream() without
   a null check will throw at runtime when a POK has no tags.
-  Recommendation: Accept
+  Agent: sous-chef
 
-### Accept with modification (N)
+#### Accept with modification (N)
 - :bulb: **api.ts:31** (by copilot) — "Extract silentRefresh to a shared utility"
-  Evaluation: The comment correctly identifies that silentRefresh is duplicated. However, the suggested
-  location (a new utils/auth.ts file) would create a circular import with api.ts. The correct fix is
-  to keep it in api.ts as a private function (current structure) and inline the one duplicate.
-  Recommendation: Accept with modification — inline the duplicate rather than extracting to a new file
+  Evaluation: Identifies real duplication. However, the suggested location creates a circular import.
+  Fix: inline the duplicate in api.ts instead of extracting to a new file.
+  Agent: nexus
 
-### Reject (N)
+#### Reject (N)
 - :bulb: **AuthService.java:60** (by copilot) — "Consider adding @Transactional to this method"
-  Evaluation:
-    FOR applying: @Transactional would protect against partial writes if a second DB call were added.
-    AGAINST applying: This method makes exactly one DB call (no partial-write risk). Adding @Transactional
-    here adds overhead with zero benefit in the current implementation. CLAUDE.md discourages adding
-    error handling or guards for scenarios that can't happen.
-  Recommendation: Reject — premature @Transactional with no current benefit; revisit if the method
-  gains a second DB call
+  Trade-off analysis:
+    FOR applying: Protects against partial writes if a second DB call is added later.
+    AGAINST applying: One DB call today — zero partial-write risk. CLAUDE.md: don't guard scenarios
+    that can't happen.
+  Verdict: Reject — revisit if method gains a second DB call.
 
-### Defer (N)
+#### Defer (N)
 - :bulb: **PokRepository.java:15** (by copilot) — "Extract this query to a named @Query constant"
-  Evaluation: Valid style improvement, but this repo has no established pattern for named queries yet.
-  Introducing it for one method creates inconsistency. Better addressed when more queries exist.
-  Recommendation: Defer — add to backlog when query count justifies a consistent pattern
+  Evaluation: Valid style improvement. No established pattern for named queries yet — one method
+  doesn't justify it.
+  Recommendation: Defer to when query count makes a consistent pattern worthwhile.
 
-### Questions (N — requires manual reply)
+#### Questions — requires manual reply (N)
 - :question: **PR comment** (by @reviewer) — "Why did you choose bcrypt over argon2?"
-  Evaluation: Requires your reply. Suggested answer: bcrypt is Spring Security's default and well-tested
-  in production; argon2 is theoretically stronger but has no practical advantage at current user scale.
+  Suggested reply: bcrypt is Spring Security's default and well-tested in production; argon2 has no
+  practical advantage at current user scale.
 
-### Informational (N — no action needed)
+#### Informational — no action (N)
 - :information_source: "Great use of records for DTOs!" (by copilot)
 ```
 
-**Ask user to confirm the plan before implementing anything.** Use AskUserQuestion with multiSelect to let the user override any recommendation:
-- Present the "Accept" items as pre-selected (default yes)
-- Present "Accept with modification" items individually with the proposed modification described
-- Present "Reject" items with the reason, allow user to override if they disagree
-- Present "Defer" items, allow user to escalate to this PR if they prefer
+**Ask user to confirm before saving the report.** Use AskUserQuestion with multiSelect:
+- "Accept" items pre-selected
+- "Accept with modification" items with the modification described
+- "Reject" items with reason — allow user to override
+- "Defer" items — allow user to escalate to this PR
 
-## 7. Implement Approved Items
+---
 
-For each approved item:
-1. Read the target file
-2. Apply the change following project conventions (CLAUDE.md)
-3. After all changes are applied, determine whether any **code** files were modified:
-   - **Docs-only changes** (`.md`, comments, Javadoc, i18n `.json`) → skip test re-run
-   - **Code changes** (`.java`, `.ts`, `.tsx`, `.js`) → run targeted tests for the affected classes
+## 6. Save Triage Report
 
-**Compile first — always, before any test run:**
+This step is mandatory. Do not skip it.
 
 ```bash
-# Backend — full compilation (catches any breakage introduced by the changes)
-(cd backend && mvn compile test-compile -q)
-
-# Web — TypeScript type check (equivalent compile gate)
-(cd web && npx tsc --noEmit)
+mkdir -p "$MAIN_REPO/.claude/reviews"
+TRIAGE_FILE="$MAIN_REPO/.claude/reviews/pr-$PR_NUMBER-triage.md"
 ```
 
-**If compilation fails** → STOP immediately. Show the error. Ask user whether to revert or debug.
-Only proceed to test execution once the project compiles cleanly.
+Write the triage report to `$TRIAGE_FILE` using the Write tool (not bash redirection).
 
-**Targeted test run — backend (Java):**
+The report must include:
 
-Collect the simple class names that were changed (e.g. `AuthService`, `PokController`).
-For each changed class `Foo`, look for a corresponding test class `FooTest` or `FooIntegrationTest`.
-Run only those test classes:
+```markdown
+# PR #XX Triage — <PR title>
 
-```bash
-# Build the comma-separated list of test classes, then run them
-# Example: AFFECTED_TESTS="AuthServiceTest,PokControllerTest"
-(cd backend && mvn test -Dtest="$AFFECTED_TESTS" -q)
+**Branch:** <headRefName>
+**Date:** <today>
+**Repo:** <REPO>
+
+## PR Description
+- Status: [Generated / Updated / Already accurate]
+
+## CI/CD
+- Overall: [✅ All passing | ❌ N failures]
+- Failures:
+  - [check name] — [type] — [specific error] — [log link]
+
+## Review Comments
+
+### Approved for implementation
+- [file:line] ([author]) — [summary]
+  Recommendation: [Accept | Accept with modification: <what changes>]
+  Agent: [sous-chef | nexus | hedy | pixl | inline]
+
+### Rejected
+- [file:line] ([author]) — [summary] — Reason: [rationale]
+
+### Deferred
+- [file:line] ([author]) — [summary] — Reason: [rationale]
+
+### Requires manual reply
+- [author] — [question] — Suggested reply: [text]
+
+### Informational
+- [summary]
 ```
 
-If a changed class has no corresponding test class, note it but do not block the commit (the project's
-coverage gate in CI will catch regressions).
-
-**Targeted test run — web (TypeScript):**
-
-Pass the changed file paths to the test runner so only related specs execute:
-
-```bash
-# Example: changed files are src/hooks/useAuth.ts and src/lib/api.ts
-(cd web && npm test -- --testPathPattern="useAuth|api" --silent)
-```
-
-**If any targeted tests fail** → STOP. Show the failure. Ask user whether to revert or debug.
-
-## 8. Commit and Push Review Comment Fixes
-
-```bash
-# Stage only the changed files
-git add [changed-files]
-
-# Commit with descriptive message
-git commit -m "fix: address PR review feedback
-
-Addressed review comments on PR #$PR_NUMBER:
-- [list of changes made]
-
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
-
-# Push to the PR branch
-git push origin $PR_BRANCH
-```
-
-## 8.5. Extract and Save Coding Style Learnings
-
-After implementing approved fixes, review what each accepted comment taught us. For each fix that reveals a pitfall, convention, or pattern that isn't already documented, save a concise entry to the appropriate CLAUDE.md file.
-
-**Which CLAUDE.md to update:**
-
-| Fix touches | Update |
-|-------------|--------|
-| Java/Spring/Maven | `backend/CLAUDE.md` → `## Known Pitfalls` |
-| TypeScript/Next.js/React | `web/CLAUDE.md` → add a new section or extend `## Coding Conventions` |
-| Both stacks or architectural | Root `CLAUDE.md` → relevant section |
-
-**What qualifies as a learning worth saving:**
-
-- A missing annotation/config that silently breaks intended behavior (e.g., `@EnableAsync`, `@Transactional`)
-- A state-machine or data-consistency pattern the team got wrong (e.g., querying without status guard)
-- A performance anti-pattern that appears subtle but is easy to repeat (e.g., N+1 inside streams)
-- A UX/API contract gap: "field X must be populated on ALL endpoints if the UI reads it"
-- A test-mock update pattern (e.g., "when the service method signature changes, mock must change too")
-
-**What does NOT qualify:**
-
-- One-off fixes specific to a single class (not repeatable)
-- Suggestions that were Rejected or Deferred
-- Things already documented in CLAUDE.md
-
-**How to save:**
-
-Use the Edit tool to append to the `## Known Pitfalls` section (backend) or the relevant section in the target CLAUDE.md. Keep each entry to 2–4 sentences + a code example if it aids clarity.
-
-**After saving, report what was learned** in the §9 Summary under a "Coding Style Tips Saved" section.
-
-## 9. Summary
+After saving, confirm to the user:
 
 ```
-## PR #XX Review & CI/CD — Summary
+Triage report saved → <absolute path to TRIAGE_FILE>
 
-PR: #XX (title)
-Branch: $PR_BRANCH
-
-### CI/CD Status
-- ✅ All checks passing (N/N)
-  OR
-- ⚠️ Still failing (N/N) — [list failures]
-
-### CI/CD Fixes Applied (N)
-- :wrench: Fixed PokServiceTest.testCreate — Added missing null check
-- :wrench: Fixed TypeScript error in PokForm.tsx:85 — Added type assertion
-- :wrench: Fixed ESLint errors — Ran auto-fix
-
-### Review Comment Fixes Applied (N)
-- :white_check_mark: file.java:42 — Used constructor injection
-- :white_check_mark: file.java:15 — Extracted utility method
-
-### Skipped (N)
-- :fast_forward: file.java:80 — reason (user chose to skip / contradicts convention)
-
-### Requires Manual Reply (N)
-- :speech_balloon: PR comment by @reviewer — "question text..."
-
-### Coding Style Tips Saved (N)
-- :books: backend/CLAUDE.md — "@EnableAsync required for @Async to work"
-- :books: web/CLAUDE.md — "useSearchParams requires Suspense boundary for SSG"
-
-### Commits Pushed
-- fix: resolve CI/CD pipeline failures (if applicable)
-- fix: address PR review feedback (if applicable)
-
-### Next Steps
-1. Wait for CI/CD checks to complete: `gh pr checks $PR_NUMBER --watch`
-2. Review the pushed changes on the PR
-3. Reply to any outstanding questions on the PR
-4. Re-request review if needed
+Next step: /fix-pr $PR_NUMBER
 ```
-
-## 10. Restore Original State
-
-If changes were stashed in Step 2:
-```bash
-# Return to the original branch
-git checkout $ORIGINAL_BRANCH
-
-# Restore stashed changes
-git stash pop
-```
-
-Inform the user that their stashed changes have been restored.
