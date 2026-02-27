@@ -5,7 +5,7 @@ module.exports = {
     {
       displayName: 'lib',
       testEnvironment: 'node',
-      testRegex: 'src/lib/__tests__/.*\\.test\\.ts$',
+      testRegex: 'src/(lib|hooks)/__tests__/.*\\.test\\.ts$',
       transform: {
         '^.+\\.tsx?$': ['babel-jest', { configFile: './babel.config.js' }],
       },
@@ -23,7 +23,7 @@ module.exports = {
     {
       displayName: 'rn',
       preset: 'jest-expo',
-      testRegex: 'src/(?!lib/).*__tests__/.*\\.test\\.(ts|tsx)$',
+      testRegex: 'src/(?!(lib|hooks)/).*__tests__/.*\\.test\\.(ts|tsx)$',
       setupFilesAfterEnv: ['@testing-library/jest-native/extend-expect'],
       transformIgnorePatterns: [
         'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|date-fns)',
