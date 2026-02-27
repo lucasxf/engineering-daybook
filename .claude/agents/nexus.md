@@ -142,7 +142,7 @@ Be direct and opinionated. Vague trade-off lists without a conclusion are not us
 |----------|-------------|
 | Routing architecture and URL design | Visual design, color, typography |
 | Component structure and composition | Accessibility audits (→ `pixl`) |
-| URL state and client state strategy | Backend API design (→ `backend-code-reviewer`) |
+| URL state and client state strategy | Backend API design (→ `sous-chef`) |
 | Data fetching patterns (RSC, SWR, React Query) | Database schema or migrations |
 | TypeScript patterns for React | Mobile (Expo/React Native) |
 | Performance (bundle size, code splitting) | CI/CD pipeline |

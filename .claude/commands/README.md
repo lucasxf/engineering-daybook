@@ -12,7 +12,7 @@
 | `/resume-session` | Resume previous development session | `/resume-session` |
 | `/directive` | Add coding directive to CLAUDE.md | `/directive "Always use records for DTOs"` |
 | `/update-roadmap` | Update ROADMAP.md with progress | `/update-roadmap "Completed POK CRUD"` |
-| `/review-code` | Trigger backend-code-reviewer agent | `/review-code PokService` |
+| `/review-code` | Trigger sous-chef agent | `/review-code PokService` |
 | `/review-pr` | Review and address feedback on an open PR | `/review-pr 12` |
 | `/quick-test` | Run tests in quiet mode | `/quick-test backend` |
 | `/build-quiet` | Run build in quiet mode | `/build-quiet backend` |

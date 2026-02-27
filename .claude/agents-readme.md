@@ -13,7 +13,7 @@ This project includes **10 custom agents** and **16 custom slash commands** desi
 | Agent | Purpose | Model | When to Use |
 |-------|---------|-------|-------------|
 | **automation-sentinel** | Meta-agent: automation health, metrics, optimization | Sonnet | Checking automation health, generating reports, finding redundancy |
-| **backend-code-reviewer** | Java/Spring Boot code review, best practices | Sonnet | Reviewing backend code after implementation |
+| **sous-chef** | Java/Spring Boot code review, best practices | Sonnet | Reviewing backend code after implementation |
 | **cross-project-architect** | Pattern extraction, templates, new projects | Sonnet | Starting new projects, extracting reusable patterns |
 | **frontend-ux-specialist** | Next.js/Expo UI/UX design, accessibility | Sonnet | Designing screens, improving user experience |
 | **learning-tutor** | Teaching concepts, structured learning, exercises | Sonnet | Learning new topics (Java, TypeScript, React) |
@@ -30,7 +30,7 @@ This project includes **10 custom agents** and **16 custom slash commands** desi
 ### How Agents Work
 
 1. **Automatic Invocation** - Claude Code automatically selects agents based on your message
-2. **Explicit Invocation** - You can request specific agents: "Use the backend-code-reviewer to analyze this"
+2. **Explicit Invocation** - You can request specific agents: "Use the sous-chef to analyze this"
 3. **Complementary** - Multiple agents can work together (e.g., pulse → automation-sentinel)
 
 ### Anti-Cyclic Dependency Rule (CRITICAL)
@@ -221,7 +221,7 @@ What's your task?
 │
 ├─ Checking automation health / metrics → pulse → automation-sentinel
 │
-├─ Reviewing backend/Java code → backend-code-reviewer
+├─ Reviewing backend/Java code → sous-chef
 │
 ├─ Addressing PR review feedback → /review-pr command
 │

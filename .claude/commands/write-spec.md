@@ -147,7 +147,7 @@ Delegate to specialists in parallel based on the **Scope** from Phase 2. Each sp
 >
 > Provide: recommended routing/URL structure, component architecture, state strategy, data fetching approach, TypeScript patterns, and a list of files to create or modify. Call out any risks or data strategy decisions that need resolving before implementation."
 
-**Backend or Full-stack:** Delegate to `backend-code-reviewer` agent:
+**Backend or Full-stack:** Delegate to `sous-chef` agent:
 > "You are reviewing the backend engineering approach for: **[feature name]**.
 >
 > Functional requirements: [paste FR list]

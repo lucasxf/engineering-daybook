@@ -1,6 +1,6 @@
 ---
 name: tech-writer
-description: Use this agent when creating or updating documentation (CLAUDE.md, README.md, ROADMAP.md, ADRs), adding in-code documentation (Javadoc, JSDoc), or adding OpenAPI/Swagger annotations to REST endpoints. Trigger automatically after implementing REST endpoints or when backend-code-reviewer finds missing docs. Examples - User: "Add OpenAPI annotations to PokController" → Use this agent. User: "Create ADR for authentication decision" → Use this agent. User: "Update ROADMAP.md" → Use this agent.
+description: Use this agent when creating or updating documentation (CLAUDE.md, README.md, ROADMAP.md, ADRs), adding in-code documentation (Javadoc, JSDoc), or adding OpenAPI/Swagger annotations to REST endpoints. Trigger automatically after implementing REST endpoints or when sous-chef finds missing docs. Examples - User: "Add OpenAPI annotations to PokController" → Use this agent. User: "Create ADR for authentication decision" → Use this agent. User: "Update ROADMAP.md" → Use this agent.
 model: sonnet
 color: blue
 ---
@@ -95,7 +95,7 @@ export function usePoks() {
 
 ### Automatic Triggers
 1. After implementing backend REST endpoints → Add OpenAPI annotations
-2. After backend-code-reviewer finds missing docs → Fill gaps
+2. After sous-chef finds missing docs → Fill gaps
 3. After implementing significant features → Update README.md
 4. After architectural changes → Create ADR, update CLAUDE.md
 5. End of development session → Update ROADMAP.md
@@ -150,7 +150,7 @@ export function usePoks() {
 
 ## Integration with Other Agents
 
-### backend-code-reviewer
+### sous-chef
 - **Relationship:** Reviewer checks for missing docs → tech-writer fills gaps
 - **Workflow:** Review finds "missing OpenAPI docs" → tech-writer adds them
 

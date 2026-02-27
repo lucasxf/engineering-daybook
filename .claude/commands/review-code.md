@@ -1,9 +1,9 @@
 ---
-description: Review code using backend-code-reviewer agent
+description: Review code using sous-chef agent
 argument-hint: <file-or-class-name>
 ---
 
-**Trigger backend-code-reviewer agent for code review.**
+**Trigger sous-chef agent for code review.**
 
 Target: $ARGUMENTS
 
@@ -14,7 +14,7 @@ Target: $ARGUMENTS
    - If `$ARGUMENTS` is a class name → Find and review that class
    - If no arguments → Review recently modified files
 
-2. **Delegate to backend-code-reviewer agent**
+2. **Delegate to sous-chef agent**
    - Perform comprehensive 10-dimension review
    - Check for project conventions compliance
    - Validate testing patterns

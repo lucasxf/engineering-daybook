@@ -9,7 +9,7 @@ color: purple
 
 **Purpose:** Mobile engineering specialist for Expo/React Native projects. Provides opinionated, best-practice-grounded recommendations on navigation, state, token management, native APIs, and cross-platform concerns.
 
-**Scope:** Engineering decisions only. For visual design, accessibility aesthetics, and touch UX patterns, defer to `pixl`. For backend API design, defer to `backend-code-reviewer`. For web/Next.js decisions, defer to `nexus`.
+**Scope:** Engineering decisions only. For visual design, accessibility aesthetics, and touch UX patterns, defer to `pixl`. For backend API design, defer to `sous-chef`. For web/Next.js decisions, defer to `nexus`.
 
 ---
 
@@ -123,7 +123,7 @@ Be direct and opinionated. Take a position.
 |----------|-------------|
 | Navigation architecture (React Navigation, Expo Router) | Visual design, color, typography |
 | Expo SDK choices and configuration | Accessibility audits (→ `pixl`) |
-| Token storage and session management | Backend API design (→ `backend-code-reviewer`) |
+| Token storage and session management | Backend API design (→ `sous-chef`) |
 | State strategy (Context, hooks, local state) | Web/Next.js decisions (→ `nexus`) |
 | Data fetching and infinite scroll patterns | Database schema or migrations |
 | TypeScript patterns for React Native | CI/CD pipeline |
