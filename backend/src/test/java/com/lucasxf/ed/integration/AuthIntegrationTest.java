@@ -21,6 +21,7 @@ import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import jakarta.servlet.http.Cookie;
 import java.util.Map;
 import java.util.UUID;
 
@@ -28,6 +29,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -97,7 +99,7 @@ class AuthIntegrationTest {
     class EmailPasswordFlows {
 
         @Test
-        @DisplayName("register should persist user in database and return tokens")
+        @DisplayName("register should persist user in database and set auth cookies (no tokens in body)")
         void register_shouldPersistUserInDb() throws Exception {
             assumeTrue(DockerClientFactory.instance().isDockerAvailable(),
                 "Docker not available, skipping integration test");
@@ -118,13 +120,10 @@ class AuthIntegrationTest {
                         """.formatted(email, handle)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.handle").value(handle))
-                .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.refreshToken").isNotEmpty())
-                .andDo(result -> {
-                    var cookies = result.getResponse().getHeaders("Set-Cookie");
-                    assertThat(cookies).anyMatch(c -> c.contains("access_token="));
-                    assertThat(cookies).anyMatch(c -> c.contains("refresh_token="));
-                });
+                .andExpect(jsonPath("$.accessToken").doesNotExist())
+                .andExpect(jsonPath("$.refreshToken").doesNotExist())
+                .andExpect(cookie().exists("access_token"))
+                .andExpect(cookie().exists("refresh_token"));
 
             assertThat(userRepository.findByEmail(email))
                 .isPresent()
@@ -169,17 +168,15 @@ class AuthIntegrationTest {
                         """.formatted(email)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.handle").value(handle))
-                .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.refreshToken").isNotEmpty())
-                .andDo(result -> {
-                    var cookies = result.getResponse().getHeaders("Set-Cookie");
-                    assertThat(cookies).anyMatch(c -> c.contains("access_token="));
-                });
+                .andExpect(jsonPath("$.accessToken").doesNotExist())
+                .andExpect(jsonPath("$.refreshToken").doesNotExist())
+                .andExpect(cookie().exists("access_token"))
+                .andExpect(cookie().exists("refresh_token"));
         }
 
         @Test
-        @DisplayName("refresh should accept token in request body for mobile clients")
-        void refresh_shouldAcceptTokenInRequestBody() throws Exception {
+        @DisplayName("refresh should accept refresh_token cookie and return new auth cookies")
+        void refresh_shouldAcceptCookieAndReturnNewCookies() throws Exception {
             assumeTrue(DockerClientFactory.instance().isDockerAvailable(),
                 "Docker not available, skipping integration test");
 
@@ -187,8 +184,8 @@ class AuthIntegrationTest {
             String email = "eve-" + suffix + "@example.com";
             String handle = "eve" + suffix;
 
-            // Register to get initial tokens in the JSON body
-            String registerBody = mockMvc.perform(post("/api/v1/auth/register")
+            // Register to get the refresh_token cookie
+            var registerResult = mockMvc.perform(post("/api/v1/auth/register")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
                         {
@@ -199,20 +196,18 @@ class AuthIntegrationTest {
                         }
                         """.formatted(email, handle)))
                 .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
+                .andReturn();
 
-            String refreshToken = extractField(registerBody, "refreshToken");
+            String refreshTokenValue = registerResult.getResponse().getCookie("refresh_token").getValue();
 
-            // Refresh using the token in the request body (mobile client pattern)
+            // Refresh using the cookie (web client pattern)
             mockMvc.perform(post("/api/v1/auth/refresh")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content("""
-                        { "refreshToken": "%s" }
-                        """.formatted(refreshToken)))
+                    .cookie(new Cookie("refresh_token", refreshTokenValue)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.handle").value(handle))
-                .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.refreshToken").isNotEmpty());
+                .andExpect(jsonPath("$.accessToken").doesNotExist())
+                .andExpect(cookie().exists("access_token"))
+                .andExpect(cookie().exists("refresh_token"));
         }
     }
 
@@ -252,7 +247,7 @@ class AuthIntegrationTest {
 
             String tempToken = extractField(step1Body, "tempToken");
 
-            // Step 2: complete sign-up — should create user and return auth tokens
+            // Step 2: complete sign-up — should create user and set auth cookies (no tokens in body)
             mockMvc.perform(post("/api/v1/auth/google/complete")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content("""
@@ -264,13 +259,10 @@ class AuthIntegrationTest {
                         """.formatted(tempToken, handle)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.handle").value(handle))
-                .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.refreshToken").isNotEmpty())
-                .andDo(result -> {
-                    var cookies = result.getResponse().getHeaders("Set-Cookie");
-                    assertThat(cookies).anyMatch(c -> c.contains("access_token="));
-                    assertThat(cookies).anyMatch(c -> c.contains("refresh_token="));
-                });
+                .andExpect(jsonPath("$.accessToken").doesNotExist())
+                .andExpect(jsonPath("$.refreshToken").doesNotExist())
+                .andExpect(cookie().exists("access_token"))
+                .andExpect(cookie().exists("refresh_token"));
 
             assertThat(userRepository.findByEmail(email))
                 .isPresent()
@@ -331,12 +323,10 @@ class AuthIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.requiresHandle").value(false))
                 .andExpect(jsonPath("$.handle").value(handle))
-                .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.refreshToken").isNotEmpty())
-                .andDo(result -> {
-                    var cookies = result.getResponse().getHeaders("Set-Cookie");
-                    assertThat(cookies).anyMatch(c -> c.contains("access_token="));
-                });
+                .andExpect(jsonPath("$.accessToken").doesNotExist())
+                .andExpect(jsonPath("$.refreshToken").doesNotExist())
+                .andExpect(cookie().exists("access_token"))
+                .andExpect(cookie().exists("refresh_token"));
         }
     }
 
