@@ -9,9 +9,10 @@ argument-hint: <optional-pr-number>
 
 Target PR: $ARGUMENTS
 
-This command is read-only. It gathers facts, evaluates feedback, and saves a structured triage report.
-No code is changed, no branches are checked out, nothing is committed.
-Run `/fix-pr $PR_NUMBER` afterwards to implement the approved items.
+This command is read-only with respect to repository contents — no code is changed, no branches are
+checked out, nothing is committed. PR metadata (title, body) may be updated as part of triage when
+the description is missing or stale. It gathers facts, evaluates feedback, and saves a structured
+triage report. Run `/fix-pr $PR_NUMBER` afterwards to implement the approved items.
 
 Execute the following steps in order:
 

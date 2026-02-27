@@ -46,7 +46,7 @@ PR_BRANCH=$(gh pr view $PR_NUMBER --repo $REPO --json headRefName --jq .headRefN
 
 **If there are uncommitted changes**, stash them first and inform the user:
 ```bash
-git stash push -m "fix-pr stash: pre-checkout"
+git stash push -u -m "fix-pr stash: pre-checkout"
 ```
 
 ```bash
@@ -116,7 +116,14 @@ Add missing type annotations, fix incorrect types, add type guards. Re-run to co
 > Start with the JaCoCo XML report — it tells you exactly which classes are under-covered
 > in seconds, without re-running the full suite.
 
-1. Parse the existing report:
+1. Generate the report if it doesn't exist yet:
+```bash
+test -f backend/target/site/jacoco/jacoco.xml \
+  && echo "Report exists" \
+  || (cd backend && mvn jacoco:report -q)
+```
+
+2. Parse the report:
 ```bash
 python3 -c "
 import xml.etree.ElementTree as ET
@@ -143,11 +150,6 @@ for cls in root.findall('package/class'):
 for missed, name, covered in sorted(classes, reverse=True)[:20]:
     print(f'  missed={missed:4d}  covered={covered:4d}  {name}')
 "
-```
-
-   If the XML doesn't exist yet, generate it first:
-```bash
-(cd backend && mvn jacoco:report -q)
 ```
 
 2. Check the configured threshold: `backend/pom.xml` → `<jacoco-minimum-coverage>` or `<minimum>` in the JaCoCo plugin config.

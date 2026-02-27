@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, ScrollView, View, ActivityIndicator } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { AppStackParamList } from '@/navigation/AppStack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/contexts/I18nContext';
@@ -12,12 +14,12 @@ import { Button } from '@/components/ui/Button';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { LearningForm } from '@/components/feed/LearningForm';
 
-type RouteProps = RouteProp<{ LearningDetail: { pokId: string } }, 'LearningDetail'>;
+type RouteProps = RouteProp<AppStackParamList, 'LearningDetail'>;
 
 export function LearningDetailScreen() {
   const { theme } = useTheme();
   const { t } = useI18n();
-  const nav = useNavigation<any>();
+  const nav = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
   const route = useRoute<RouteProps>();
   const { pokId } = route.params;
 

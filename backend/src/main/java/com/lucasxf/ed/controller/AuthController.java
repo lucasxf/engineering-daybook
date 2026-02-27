@@ -86,10 +86,10 @@ public class AuthController {
 
     @PostMapping("/refresh")
     @Operation(summary = "Refresh access token",
-        description = "Rotates the refresh token and issues new tokens. "
-            + "Web clients: sends the refresh_token httpOnly cookie (no body needed). "
-            + "Mobile clients: sends { refreshToken } in the JSON body (no cookie). "
-            + "Returns new tokens via cookies (web) and JSON body (mobile).")
+        description = "Rotates the refresh token and issues new tokens via httpOnly cookies. "
+            + "Accepts the refresh_token httpOnly cookie (web) or a { refreshToken } JSON body (mobile fallback). "
+            + "The JSON response body contains identity only (handle, userId, email) — no tokens. "
+            + "Mobile clients that need tokens in the JSON response must use /api/v1/auth/mobile/refresh.")
     @ApiResponse(responseCode = "200", description = "Token refreshed")
     @ApiResponse(responseCode = "401", description = "Missing, invalid, or expired refresh token")
     public ResponseEntity<AuthResponse> refresh(
@@ -171,7 +171,8 @@ public class AuthController {
     @PostMapping("/google/complete")
     @Operation(summary = "Complete Google OAuth registration",
         description = "Creates a new user account for a Google OAuth user with their chosen handle. "
-            + "Issues tokens via httpOnly cookies (web) and in the JSON body (mobile).")
+            + "Issues tokens via httpOnly cookies only. "
+            + "Mobile clients must use /api/v1/auth/mobile/google/complete, which returns tokens in the JSON body.")
     @ApiResponse(responseCode = "200", description = "Registration complete, tokens issued")
     @ApiResponse(responseCode = "400", description = "Invalid handle format")
     @ApiResponse(responseCode = "401", description = "Temp token expired")

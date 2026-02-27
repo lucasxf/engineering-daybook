@@ -46,7 +46,7 @@ export function useFeedData(initialParams?: PokSearchParams): UseFeedDataReturn 
   // ---------------------------------------------------------------------------
 
   const fetchPage = useCallback(
-    async (page: number, refreshing: boolean): Promise<PokPage | null> => {
+    async (page: number, _refreshing: boolean): Promise<PokPage | null> => {
       abortRef.current?.abort();
       const controller = new AbortController();
       abortRef.current = controller;
