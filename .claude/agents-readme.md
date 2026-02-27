@@ -14,10 +14,10 @@ This project includes **10 custom agents** and **16 custom slash commands** desi
 |-------|---------|-------|-------------|
 | **automation-sentinel** | Meta-agent: automation health, metrics, optimization | Sonnet | Checking automation health, generating reports, finding redundancy |
 | **sous-chef** | Java/Spring Boot code review, best practices | Sonnet | Reviewing backend code after implementation |
-| **cross-project-architect** | Pattern extraction, templates, new projects | Sonnet | Starting new projects, extracting reusable patterns |
+| **imhotep** | Pattern extraction, templates, new projects | Sonnet | Starting new projects, extracting reusable patterns |
 | **frontend-ux-specialist** | Next.js/Expo UI/UX design, accessibility | Sonnet | Designing screens, improving user experience |
-| **learning-tutor** | Teaching concepts, structured learning, exercises | Sonnet | Learning new topics (Java, TypeScript, React) |
-| **product-manager** | Product sense, requirements, user stories | Sonnet | Defining features, prioritizing backlog, writing user stories |
+| **professor-x** | Teaching concepts, structured learning, exercises | Sonnet | Learning new topics (Java, TypeScript, React) |
+| **virgil** | Product sense, requirements, user stories | Sonnet | Defining features, prioritizing backlog, writing user stories |
 | **pulse** | Metrics collection agent (agent/command usage, LOCs) | Haiku | On-demand metrics collection |
 | **session-optimizer** | Token efficiency, session planning, workflow | Haiku | Starting sessions, optimizing token usage |
 | **steward** | Backend quality assurance — identifies coverage gaps, writes targeted tests to meet thresholds | Sonnet | When backend test coverage falls below the project threshold |
@@ -227,9 +227,9 @@ What's your task?
 │
 ├─ Designing UI/UX screens → frontend-ux-specialist
 │
-├─ Learning concepts → learning-tutor
+├─ Learning concepts → professor-x
 │
-├─ Defining product features → product-manager
+├─ Defining product features → virgil
 │
 ├─ Starting session / optimizing tokens → session-optimizer
 │
@@ -237,7 +237,7 @@ What's your task?
 │
 ├─ Backend coverage below threshold → steward
 │
-└─ Extracting patterns / new projects → cross-project-architect
+└─ Extracting patterns / new projects → imhotep
 ```
 
 ---

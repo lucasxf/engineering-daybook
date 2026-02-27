@@ -111,7 +111,7 @@ cp docs/specs/template.md docs/specs/features/my-feature.md
 ## Spec-Driven Development Workflow
 
 ```bash
-# 1. Write the spec (delegates to product-manager agent)
+# 1. Write the spec (delegates to virgil agent)
 /write-spec "POK CRUD"
 
 # 2. Review and approve the generated spec

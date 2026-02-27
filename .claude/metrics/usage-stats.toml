@@ -17,7 +17,7 @@ last_used = ""
 invocations = 0
 last_used = ""
 
-[agent_usage.cross-project-architect]
+[agent_usage.imhotep]
 invocations = 0
 last_used = ""
 
@@ -25,11 +25,11 @@ last_used = ""
 invocations = 0
 last_used = ""
 
-[agent_usage.learning-tutor]
+[agent_usage.professor-x]
 invocations = 0
 last_used = ""
 
-[agent_usage.product-manager]
+[agent_usage.virgil]
 invocations = 0
 last_used = ""
 

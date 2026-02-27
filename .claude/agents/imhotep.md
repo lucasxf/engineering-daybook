@@ -1,5 +1,5 @@
 ---
-name: cross-project-architect
+name: imhotep
 description: Use this agent when starting new projects, extracting reusable patterns from existing projects, making architectural decisions that affect multiple projects, or creating project templates. Trigger when user says "start new project", "extract this pattern", "apply this to another project", "create template". Examples - User: "I want to start a new project with similar structure" → Use this agent. User: "Extract the authentication pattern for reuse" → Use this agent.
 model: sonnet
 color: orange

@@ -89,7 +89,7 @@ git log HEAD..origin/develop --oneline
 
 1. Read the spec's Status field
 2. **If "Implemented":** STOP. Ask: "This spec is already implemented. Re-implement? (y/n)"
-3. **If "Draft":** Ask: "Spec is in Draft. Has it been reviewed? Consider using the `product-manager` agent first."
+3. **If "Draft":** Ask: "Spec is in Draft. Has it been reviewed? Consider using the `virgil` agent first."
 4. **If "Approved" or user confirms:** Proceed
 
 ### 1.3 Update Status

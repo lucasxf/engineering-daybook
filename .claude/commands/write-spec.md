@@ -8,7 +8,7 @@ argument-hint: <feature-name-or-description>
 Feature: $ARGUMENTS
 
 **Anti-Cyclic Dependency Note:**
-This command delegates to `product-manager` agent (and optionally `frontend-ux-specialist`). These agents MUST NEVER call `/write-spec` back.
+This command delegates to `virgil` agent (and optionally `frontend-ux-specialist`). These agents MUST NEVER call `/write-spec` back.
 
 @CLAUDE.md
 
@@ -105,7 +105,7 @@ ls docs/specs/features/
 
 ## Phase 2: Product Sections
 
-**Delegate to `product-manager` agent** with this prompt:
+**Delegate to `virgil` agent** with this prompt:
 
 > "Define the product requirements for the following feature in Engineering Daybook: **[feature name/description]**.
 >
