@@ -1,6 +1,6 @@
 # Mobile App (Expo/React Native)
 
-> **Status:** Approved
+> **Status:** In Progress
 > **Created:** 2026-02-27
 > **Reviewed:** 2026-02-27
 > **Implemented:** _pending_
