@@ -1,11 +1,11 @@
 ---
-name: backend-code-reviewer
+name: sous-chef
 description: Use this agent when reviewing Java/Spring Boot code, checking best practices, validating test coverage, or ensuring code quality. Trigger automatically when user says "review [file]", "check [code]", "before committing", or "I just finished implementing [Service|Controller|Repository]". Examples - User: "Review my PokService implementation" → Use this agent. User: "Check this endpoint for best practices" → Use this agent.
 model: sonnet
 color: yellow
 ---
 
-# Backend Code Reviewer Agent
+# Sous-Chef — Backend Code Reviewer
 
 **Purpose:** Specialized code review agent for Java/Spring Boot applications following Engineering Daybook conventions and best practices.
 

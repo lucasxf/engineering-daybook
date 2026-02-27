@@ -160,8 +160,12 @@ See `backend/src/main/resources/application.yml` for configuration details.
   - Password reset via email
   - E2E tested with Playwright (auth redirect, login, create/edit/delete learnings)
 
-### In Progress
-- Mobile application (Expo/React Native)
+- **Mobile Application (Expo/React Native)**
+  - Auth: login, register, password reset, Google OAuth
+  - Learning feed with search (hybrid keyword + semantic)
+  - Create, edit, and delete learnings
+  - Dark mode / light mode / system theme
+  - Internationalization (EN/PT-BR)
 
 ---
 
@@ -190,11 +194,11 @@ See [ROADMAP.phase-2.md](./docs/ROADMAP.phase-2.md)
 - [~] Tagging system — backend + basic web (TagBadge, TagSuggestionPrompt) done; TagFilter + TagInput combobox deferred
 - [x] Visualization — tag-grouped view, timeline view (month/year), sort options (Newest/Oldest/Recently updated)
 
-### Phase 3: AI & Mobile — 🔄 Started
+### Phase 3: AI & Mobile — 🔄 In Progress
 See [ROADMAP.phase-3.md](./docs/ROADMAP.phase-3.md)
 - [x] Semantic search — hybrid keyword + vector search via pgvector; embeddings from HuggingFace Inference API
 - [ ] AI Connections (related learnings)
-- [ ] Mobile app (Expo/React Native)
+- [x] Mobile app (Expo/React Native) — auth, feed, create/edit/delete, dark mode, i18n EN/PT-BR
 
 ---
 

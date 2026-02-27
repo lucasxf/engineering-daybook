@@ -1,5 +1,5 @@
 ---
-name: frontend-ux-specialist
+name: pixl
 description: Use this agent when designing web or mobile app UI/UX, creating Next.js pages or Expo screens, improving user experience, or making design decisions. Trigger when user mentions UI, screens, components, design, layout, colors, typography, accessibility, or user experience. Examples - User: "I need to design the POK creation screen" → Use this agent. User: "How should I layout the knowledge feed?" → Use this agent. User: "This screen feels cluttered" → Use this agent.
 model: sonnet
 color: purple

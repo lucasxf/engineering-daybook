@@ -1,0 +1,29 @@
+{
+  "cli": {
+    "version": ">= 12.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://localhost:8080/api/v1"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://engineering-daybook-production.up.railway.app/api/v1"
+      }
+    },
+    "production": {
+      "distribution": "store",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://engineering-daybook-production.up.railway.app/api/v1"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

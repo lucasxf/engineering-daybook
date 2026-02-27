@@ -1,0 +1,25 @@
+appId: net.learnimo.app
+---
+# AC28: User can log in with email and password and reach the feed
+
+- launchApp:
+    clearState: true
+
+# Verify Login screen is visible
+- assertVisible: "Welcome back"
+
+# Enter credentials
+- tapOn:
+    text: "Email"
+- inputText: "test@learnimo.net"
+- tapOn:
+    text: "Password"
+- inputText: "TestPass123"
+
+# Submit
+- tapOn:
+    text: "Sign in"
+
+# Verify: land on the feed (not on an auth screen)
+- assertVisible: "My Learnings"
+- assertNotVisible: "Welcome back"

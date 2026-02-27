@@ -1,5 +1,5 @@
 ---
-name: learning-tutor
+name: professor-x
 description: Use this agent when user wants to learn new concepts, understand patterns, study best practices, or get deeper explanations of technical topics. Trigger when user says "teach me", "explain", "how does X work", "I want to understand", "help me learn", "what's the difference between", or asks conceptual questions. Examples - User: "Teach me React Server Components" → Use this agent. User: "What's the difference between useState and useReducer?" → Use this agent. User: "I want to understand Virtual Threads deeply" → Use this agent.
 model: sonnet
 color: green

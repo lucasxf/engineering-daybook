@@ -125,11 +125,12 @@ Active work:
 - [x] Milestone 2.3: Visualization (timeline, tag-grouped view, sort) — done (2026-02-25)
 - [ ] Milestone 2.4: UX Delight (inspirational prompts, homepage personalization)
 
-**Phase 3: AI & Mobile** — 🔄 Started (3.1 done)
+**Phase 3: AI & Mobile** — 🔄 In Progress (3.1, 3.3 done)
 
 - [x] Milestone 3.1: Semantic Search — hybrid keyword + vector search, HuggingFace embeddings, pgvector (2026-02-26)
 - [ ] Milestone 3.2: AI Connections (related learnings)
-- [ ] Milestone 3.3: Mobile App (Expo/React Native)
+- [x] Milestone 3.3: Mobile App (Expo/React Native) — done (2026-02-27)
+- [ ] Milestone 3.4: App Store Publishing
 
 See `docs/ROADMAP.md` for full active milestone details.
 
@@ -142,4 +143,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-02-26 (session: feat/semantic-search)*
+*Last updated: 2026-02-27 (session: feat/mobile-app)*
