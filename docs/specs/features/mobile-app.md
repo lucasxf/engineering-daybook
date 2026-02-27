@@ -51,16 +51,7 @@ This milestone is scoped to a functional MVP: authentication, creating and brows
 - [ ] **FR9** `[Must Have]` Logout clears all tokens from SecureStore and returns the user to the login screen. Back navigation must not return to the feed.
 - [ ] **FR10** `[Should Have]` "Forgot password?" on the login screen opens the web-based password reset flow via `expo-web-browser`. No native password reset form in this milestone.
 
-#### Create Learning (3.3.3)
-
-- [ ] **FR11** `[Must Have]` A FAB is persistently visible on the feed. A single tap opens the Create Learning screen — no intermediate screen or dialog.
-- [ ] **FR12** `[Must Have]` The Create Learning screen has a multi-line content field (mandatory, auto-focused on open) and an optional title field. The keyboard appears without a second tap.
-- [ ] **FR13** `[Must Have]` The Save button is disabled when content is empty or whitespace-only.
-- [ ] **FR14** `[Must Have]` On successful save, the user is returned to the feed and the new learning appears at the top — no full reload.
-- [ ] **FR15** `[Must Have]` If save fails (network error or server error), an inline error message is shown and the typed content is preserved. User can retry without re-typing.
-- [ ] **FR16** `[Should Have]` Swipe-down dismissal is supported. If content has been typed, a discard confirmation is shown. If content is empty, dismissal is immediate.
-
-#### Learning Feed — List and Search (3.3.4)
+#### Learning Feed — List and Search (3.3.3)
 
 - [ ] **FR17** `[Must Have]` Authenticated users land on the Learning Feed as the first screen after login or app open (if tokens are valid).
 - [ ] **FR18** `[Must Have]` The feed displays learnings in reverse-chronological order. Each card shows: content preview (~120 chars, truncated), title if present, relative timestamp ("2 hours ago"), tag badges. Cards use a neutral background — colour lives on tag badges only (see NFR15).
@@ -70,6 +61,15 @@ This milestone is scoped to a functional MVP: authentication, creating and brows
 - [ ] **FR22** `[Must Have]` If the feed is empty, show an empty state with a CTA to create the first learning.
 - [ ] **FR23** `[Should Have]` Sort by "Newest first" / "Oldest first". Preference does not need to persist across sessions in this milestone.
 - [ ] **FR24** `[Must Have]` When the device has no network connectivity, show an inline banner ("No internet connection") and keep the currently loaded feed visible. Do not crash or show an unhandled error.
+
+#### Create Learning (3.3.4)
+
+- [ ] **FR11** `[Must Have]` A FAB is persistently visible on the feed. A single tap opens the Create Learning screen — no intermediate screen or dialog.
+- [ ] **FR12** `[Must Have]` The Create Learning screen has a multi-line content field (mandatory, auto-focused on open) and an optional title field. The keyboard appears without a second tap.
+- [ ] **FR13** `[Must Have]` The Save button is disabled when content is empty or whitespace-only.
+- [ ] **FR14** `[Must Have]` On successful save, the user is returned to the feed and the new learning appears at the top — no full reload.
+- [ ] **FR15** `[Must Have]` If save fails (network error or server error), an inline error message is shown and the typed content is preserved. User can retry without re-typing.
+- [ ] **FR16** `[Should Have]` Swipe-down dismissal is supported. If content has been typed, a discard confirmation is shown. If content is empty, dismissal is immediate.
 
 #### View Learning Detail
 

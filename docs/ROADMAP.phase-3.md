@@ -45,15 +45,34 @@
 |---|---------|----------|
 | 3.3.1 | Expo project setup | Must Have |
 | 3.3.2 | Authentication (reuse web logic) | Must Have |
-| 3.3.3 | Create POK (mobile-optimized) | Must Have |
-| 3.3.4 | List and search POKs | Must Have |
+| 3.3.3 | List and search learnings (feed) | Must Have |
+| 3.3.4 | Create learning (mobile-optimized) | Must Have |
 | 3.3.5 | Dark mode | Must Have |
 | 3.3.6 | i18n (EN/PT-BR) | Must Have |
 | 3.3.7 | Push notifications | Could Have |
+
+## Milestone 3.4: App Store Publishing
+
+| # | Feature | Priority |
+|---|---------|----------|
+| 3.4.1 | Apple Developer Program enrollment + provisioning profiles | Must Have |
+| 3.4.2 | Google Play Console setup + signing keystore | Must Have |
+| 3.4.3 | App store metadata: screenshots, descriptions, privacy policy (EN + PT-BR) | Must Have |
+| 3.4.4 | EAS Build production profile — iOS `.ipa` + Android `.aab` | Must Have |
+| 3.4.5 | TestFlight internal distribution (iOS) | Must Have |
+| 3.4.6 | Play Store internal track distribution (Android) | Must Have |
+| 3.4.7 | Apple App Store Review submission + approval | Should Have |
+| 3.4.8 | Google Play Store public release | Should Have |
+
+**Notes:**
+- 3.4.5 and 3.4.6 (internal distribution) are the immediate goal — real devices, real testing, no public commitment yet
+- 3.4.7 and 3.4.8 (public publishing) require stable UX, store review compliance, and Apple/Google policy adherence
+- Android-first is reasonable (Lucas is an Android user, Play Store review is faster than App Store review)
+- Spec: `docs/specs/features/app-store-publishing.md` (to be written)
 
 ## Exit Criteria
 
 - [ ] Semantic search returns relevant results
 - [ ] Related POKs are surfaced automatically
-- [ ] Mobile app is published (TestFlight/Play Store internal)
-- [ ] Author uses mobile app to capture POKs on-the-go
+- [ ] Mobile app is on TestFlight (iOS) and Play Store internal track (Android)
+- [ ] Author uses mobile app to capture learnings on-the-go
