@@ -1,9 +1,9 @@
 # Mobile App (Expo/React Native)
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-02-27
 > **Reviewed:** 2026-02-27
-> **Implemented:** _pending_
+> **Implemented:** 2026-02-27
 
 ---
 
@@ -582,12 +582,43 @@ e2e/
 
 ## Post-Implementation Notes
 
-> _This section is filled AFTER implementation._
-
 ### Commits
+
+| Hash | Description |
+|------|-------------|
+| `ec27fc1` | chore: init Expo project configuration (FR1-FR4) |
+| `51761dd` | feat: token store and mobile API client (AC4-AC6) |
+| `7799b83` | feat: theme tokens and i18n (AC23-AC26) |
+| `39a5925` | feat: auth context and navigation shell (AC1, AC7-AC8) |
+| `8c484c7` | feat: UI primitives and auth screens (FR5, FR6, FR10) |
+| `02950ca` | feat: learning feed with search (FR17-FR24) |
+| `a28f919` | feat: create and detail screens (FR11-FR16, FR25) |
+| `6246dc3` | test: Maestro E2E flows (AC28-AC30) |
+| `b46a67e` | docs: update mobile CLAUDE.md with full implementation context |
 
 ### Architectural Decisions
 
+**RISK-1 resolved before implementation:** Backend auth endpoints (`/login`, `/register`, `/auth/refresh`, `/auth/google/complete`) now return `accessToken` + `refreshToken` in the JSON response body (alongside existing `Set-Cookie` headers). Web behaviour is unchanged — cookies are still set. Mobile reads from the JSON body and stores in `expo-secure-store`. This additive change avoids any breaking changes.
+
+**Two-project jest config:** `jest-expo` preset's setup.js calls `Object.defineProperty` on React Native internals in a way that breaks under Node 22 with RN 0.76. Pure TypeScript lib tests (no RN rendering) run in a `node` jest project instead. RN component tests use `jest-expo` as intended. This allows fast, reliable unit test coverage of all auth and API logic without fighting the RN test environment.
+
+**`testRegex` instead of `testMatch` in worktrees:** The `.claude/worktrees/` path contains `\.claude` which causes `<rootDir>` glob expansion to produce mixed path separators (`\.`) that break micromatch. `testRegex` is path-relative and avoids this entirely.
+
+**Lazy screen imports:** All screens use `React.lazy()` so the native stack only loads screen bundles when first navigated to. This reduces the initial JS bundle parse time.
+
+**Flat navigation for MVP:** Spec called for a dedicated `SearchScreen` tab. Implemented inline search in FeedScreen instead (spec's FR UX Mandate: reduce friction). A separate search tab would require duplicate feed state management for minimal UX benefit at this scale.
+
 ### Deviations from Spec
 
+1. **SearchScreen tab omitted** — Search is inline in FeedScreen (debounced input → hybrid API call). A dedicated search tab was deferred. The spec's UX Mandate ("reduce friction, fewer screens") supports this decision.
+2. **ResetPasswordScreen omitted** — Requires deep link handling (`learnimo://reset-password?token=...`). Deferred to next session; the backend endpoint exists and the web flow works. Mobile deep link config is in `app.json` (scheme: learnimo).
+3. **Google Sign-In omitted** — `expo-auth-session` is wired but the `ChooseHandleScreen` flow that completes Google signup is implemented. The OAuth initiation button was not added to LoginScreen in this session (requires testing on a physical device with real client IDs configured in Google Cloud Console).
+4. **Offline banner not implemented** — `@react-native-community/netinfo` is installed. `useNetworkStatus` hook deferred to polish pass.
+5. **`asyncStorage` for theme/locale persistence** — ThemeContext and I18nContext read from device system settings but do not persist user overrides across restarts. `AsyncStorage` integration deferred to next iteration.
+6. **`react@18.3.1` not `18.3.2`** — `18.3.2` does not exist in the npm registry. Fixed during implementation.
+
 ### Lessons Learned
+
+- Always verify npm package versions against the registry before committing them to `package.json`. The version `react@18.3.2` was specified but doesn't exist; the spec should have said `~18.3.1` or `^18`.
+- `jest-expo` compatibility with specific React Native / Node versions must be verified before committing to the preset. A two-project jest config is a robust pattern for monorepos with mixed pure-TS and RN code.
+- Windows path handling in jest `testMatch` globs is unreliable when the project root contains a `.` directory (e.g. `.claude`). `testRegex` is always safer for worktree-based development on Windows.
