@@ -2,6 +2,7 @@
 
 > **Status:** Approved
 > **Created:** 2026-02-27
+> **Reviewed:** 2026-02-27
 > **Implemented:** _pending_
 
 ---
@@ -34,41 +35,41 @@ This milestone is scoped to a functional MVP: authentication, creating and brows
 
 ### Functional
 
-#### Authentication (3.3.2)
-
-- [ ] **FR1** `[Must Have]` The app must support email/password login. On successful login, the authenticated user is taken directly to the Learning Feed without any intermediate welcome screen.
-- [ ] **FR2** `[Must Have]` The app must support Google OAuth sign-in using `expo-auth-session` (PKCE flow). On success, the user lands on the Learning Feed.
-- [ ] **FR3** `[Must Have]` JWT access and refresh tokens must be stored in `expo-secure-store` only — not in AsyncStorage or memory alone.
-- [ ] **FR4** `[Must Have]` The app must silently refresh the access token when a 401 is received. If refresh fails, the user is redirected to the login screen and all tokens are cleared.
-- [ ] **FR5** `[Must Have]` Logout clears all tokens from SecureStore and returns the user to the login screen. Back navigation must not return to the feed.
-- [ ] **FR6** `[Should Have]` "Forgot password?" on the login screen opens the web-based password reset flow via `expo-web-browser`. No native password reset form in this milestone.
-
 #### Project Setup (3.3.1)
 
-- [ ] **FR7** `[Must Have]` The Expo project is initialised inside `mobile/` using Expo SDK 53 (managed workflow). The workflow choice (managed vs bare) is documented in an ADR.
-- [ ] **FR8** `[Must Have]` The API base URL is sourced from environment variables via `expo-constants` / `app.config.ts` — no hardcoded URLs.
-- [ ] **FR9** `[Must Have]` The app is runnable locally on Android emulator and iOS simulator with `npx expo start`.
-- [ ] **FR10** `[Must Have]` EAS Build is configured (`eas.json`) as the CI/CD target for internal distribution (TestFlight / Play Store internal track).
+- [ ] **FR1** `[Must Have]` The Expo project is initialised inside `mobile/` using Expo SDK 53 (managed workflow). The workflow choice (managed vs bare) is documented in an ADR.
+- [ ] **FR2** `[Must Have]` The API base URL is sourced from environment variables via `expo-constants` / `app.config.ts` — no hardcoded URLs.
+- [ ] **FR3** `[Must Have]` The app is runnable locally on Android emulator and iOS simulator with `npx expo start`.
+- [ ] **FR4** `[Must Have]` EAS Build is configured (`eas.json`) as the CI/CD target for internal distribution (TestFlight / Play Store internal track). Public App Store and Play Store publishing are a separate milestone — see Dependencies.
 
-#### Learning Feed — List and Search (3.3.4)
+#### Authentication (3.3.2)
 
-- [ ] **FR11** `[Must Have]` Authenticated users land on the Learning Feed as the first screen after login or app open (if tokens are valid).
-- [ ] **FR12** `[Must Have]` The feed displays learnings in reverse-chronological order. Each card shows: content preview (~120 chars, truncated), title if present, relative timestamp ("2 hours ago"), tag badges.
-- [ ] **FR13** `[Must Have]` Infinite scroll: next page is fetched automatically when the user scrolls within 3 items of the bottom of the list. Does not fire until the first page is fully displayed.
-- [ ] **FR14** `[Must Have]` A search bar is accessible from the feed (visible or expandable via icon). Calls the hybrid search API. Minimum query length: 2 characters. Clearing search restores the full feed.
-- [ ] **FR15** `[Must Have]` A loading indicator (skeleton or spinner) is shown during initial fetch and search. No empty state during loading.
-- [ ] **FR16** `[Must Have]` If the feed is empty, show an empty state with a CTA to create the first learning.
-- [ ] **FR17** `[Should Have]` Sort by "Newest first" / "Oldest first". Preference does not need to persist across sessions in this milestone.
-- [ ] **FR18** `[Must Have]` When the device has no network connectivity, show an inline banner ("No internet connection") and keep the currently loaded feed visible. Do not crash or show an unhandled error.
+- [ ] **FR5** `[Must Have]` The app must support email/password login. On successful login, the authenticated user is taken directly to the Learning Feed without any intermediate welcome screen.
+- [ ] **FR6** `[Must Have]` The app must support Google OAuth sign-in using `expo-auth-session` (PKCE flow). On success, the user lands on the Learning Feed.
+- [ ] **FR7** `[Must Have]` JWT access and refresh tokens must be stored in `expo-secure-store` only — not in AsyncStorage or memory alone.
+- [ ] **FR8** `[Must Have]` The app must silently refresh the access token when a 401 is received. If refresh fails, the user is redirected to the login screen and all tokens are cleared.
+- [ ] **FR9** `[Must Have]` Logout clears all tokens from SecureStore and returns the user to the login screen. Back navigation must not return to the feed.
+- [ ] **FR10** `[Should Have]` "Forgot password?" on the login screen opens the web-based password reset flow via `expo-web-browser`. No native password reset form in this milestone.
 
 #### Create Learning (3.3.3)
 
-- [ ] **FR19** `[Must Have]` A FAB or bottom-bar "New" button is persistently visible on the feed. Single tap opens the Create Learning screen — no intermediate screen or dialog.
-- [ ] **FR20** `[Must Have]` The Create Learning screen has a multi-line content field (mandatory, auto-focused on open) and an optional title field. The keyboard appears without a second tap.
-- [ ] **FR21** `[Must Have]` The Save button is disabled when content is empty or whitespace-only.
-- [ ] **FR22** `[Must Have]` On successful save, the user is returned to the feed and the new learning appears at the top — no full reload.
-- [ ] **FR23** `[Must Have]` If save fails (network error or server error), an inline error message is shown and the typed content is preserved. User can retry without re-typing.
-- [ ] **FR24** `[Should Have]` Swipe-down dismissal is supported. If content has been typed, a discard confirmation is shown. If content is empty, dismissal is immediate.
+- [ ] **FR11** `[Must Have]` A FAB is persistently visible on the feed. A single tap opens the Create Learning screen — no intermediate screen or dialog.
+- [ ] **FR12** `[Must Have]` The Create Learning screen has a multi-line content field (mandatory, auto-focused on open) and an optional title field. The keyboard appears without a second tap.
+- [ ] **FR13** `[Must Have]` The Save button is disabled when content is empty or whitespace-only.
+- [ ] **FR14** `[Must Have]` On successful save, the user is returned to the feed and the new learning appears at the top — no full reload.
+- [ ] **FR15** `[Must Have]` If save fails (network error or server error), an inline error message is shown and the typed content is preserved. User can retry without re-typing.
+- [ ] **FR16** `[Should Have]` Swipe-down dismissal is supported. If content has been typed, a discard confirmation is shown. If content is empty, dismissal is immediate.
+
+#### Learning Feed — List and Search (3.3.4)
+
+- [ ] **FR17** `[Must Have]` Authenticated users land on the Learning Feed as the first screen after login or app open (if tokens are valid).
+- [ ] **FR18** `[Must Have]` The feed displays learnings in reverse-chronological order. Each card shows: content preview (~120 chars, truncated), title if present, relative timestamp ("2 hours ago"), tag badges. Cards use a neutral background — colour lives on tag badges only (see NFR15).
+- [ ] **FR19** `[Must Have]` Infinite scroll: next page is fetched automatically when the user scrolls within 3 items of the bottom of the list. Does not fire until the first page is fully displayed.
+- [ ] **FR20** `[Must Have]` The feed displays a visible search bar with a magnifying glass icon (Nielsen's heuristic #6 — recognition over recall). Calls the hybrid search API. Minimum query length: 2 characters. Clearing the search input restores the full feed.
+- [ ] **FR21** `[Must Have]` A loading indicator (skeleton loader or activity spinner) is shown during initial fetch and search. No empty state is shown while loading.
+- [ ] **FR22** `[Must Have]` If the feed is empty, show an empty state with a CTA to create the first learning.
+- [ ] **FR23** `[Should Have]` Sort by "Newest first" / "Oldest first". Preference does not need to persist across sessions in this milestone.
+- [ ] **FR24** `[Must Have]` When the device has no network connectivity, show an inline banner ("No internet connection") and keep the currently loaded feed visible. Do not crash or show an unhandled error.
 
 #### View Learning Detail
 
@@ -93,18 +94,34 @@ This milestone is scoped to a functional MVP: authentication, creating and brows
 
 ### Non-Functional
 
+#### Performance
 - [ ] **NFR1** Learning Feed must display the first page within 2 seconds on a 4G connection.
 - [ ] **NFR2** Create Learning screen must open with keyboard visible within 300ms of FAB tap.
+
+#### Security
 - [ ] **NFR3** JWT tokens must be stored exclusively in `expo-secure-store`. AsyncStorage is forbidden for token or credential storage.
 - [ ] **NFR4** Google OAuth must use PKCE (`expo-auth-session`). No client secret in the app bundle.
 - [ ] **NFR5** All API communication uses HTTPS. Plain HTTP is rejected.
-- [ ] **NFR6** All interactive elements have a minimum touch target of 44×44pt. All have `accessibilityLabel` / `accessibilityHint`.
-- [ ] **NFR7** Text contrast ratio ≥ 4.5:1 in both dark and light modes. `allowFontScaling` must not be `false` on any `Text` component.
-- [ ] **NFR8** No debug logging of tokens, email, or learning content in production builds (`__DEV__` guard required).
-- [ ] **NFR9** All tokens are cleared from SecureStore on logout — not on uninstall.
-- [ ] **NFR10** Offline write queue is deferred. The app must communicate that saving requires a connection.
-- [ ] **NFR11** TypeScript `strict: true`. No `any` in production code paths.
-- [ ] **NFR12** Unit tests for auth logic (token storage, refresh flow) and utility functions. Target: 80% line coverage on `mobile/src/auth/` and `mobile/src/lib/`.
+- [ ] **NFR6** No debug logging of tokens, email, or learning content in production builds (`__DEV__` guard required).
+- [ ] **NFR7** All tokens are cleared from SecureStore on logout — not on uninstall.
+
+#### Accessibility
+- [ ] **NFR8** All interactive elements have a minimum touch target of 44×44pt.
+- [ ] **NFR9** All interactive elements must have `accessibilityLabel` and/or `accessibilityHint` props set. VoiceOver (iOS) and TalkBack (Android) must be able to navigate the feed, open a learning, and create a new learning without sighted assistance.
+- [ ] **NFR10** Text contrast ratio ≥ 4.5:1 in both dark and light modes (WCAG AA). `allowFontScaling` must not be `false` on any `Text` component.
+
+#### Visual & UX
+- [ ] **NFR11** Offline write queue is deferred. The app must communicate clearly that saving requires a connection.
+- [ ] **NFR12** The mobile app must maintain visual and interaction parity with the web app: same dark mode default, same colour token values (`background`, `surface`, `accent`, `textPrimary`, etc.), same typographic hierarchy. Learners switching between platforms should feel no visual discontinuity.
+- [ ] **NFR13** Tag badges display the user-assigned tag colour. Learning cards use a neutral surface colour — no per-card random colours. Colour lives on tags, not cards, to avoid visual noise and maintain web/mobile consistency.
+
+#### Code Quality
+- [ ] **NFR14** TypeScript `strict: true`. No `any` in production code paths.
+- [ ] **NFR15** The app must work correctly on both Android and iOS. Platform-specific behaviour (keyboard handling, OAuth flow, safe area insets) must be explicitly handled for each platform — no iOS-only assumptions.
+
+#### Testing
+- [ ] **NFR16** Unit tests for auth logic (`tokenStore`, `useAuth`, refresh flow) and utility functions. Target: 80% line coverage on `mobile/src/auth/` and `mobile/src/lib/`.
+- [ ] **NFR17** E2E tests using Maestro covering critical user journeys: auth redirect, login (email/password), create learning, feed display, search. Tests must pass on both Android emulator and iOS simulator.
 
 ---
 
@@ -121,6 +138,7 @@ This milestone is scoped to a functional MVP: authentication, creating and brows
 - Biometric authentication (Face ID / fingerprint)
 - Offline write queue (create while offline, sync when reconnected)
 - Push notifications (FR31 — deferred)
+- Public App Store / Play Store publishing (separate milestone — see Dependencies)
 
 ---
 
@@ -138,6 +156,7 @@ This milestone is scoped to a functional MVP: authentication, creating and brows
 - `react-native-keyboard-aware-scroll-view`
 - `@react-native-community/netinfo` (offline detection)
 - `react-native-error-boundary` (crash boundary)
+- Maestro (E2E tests)
 - EAS Build (cloud CI/CD)
 
 **Integration Points:**
@@ -194,90 +213,115 @@ This milestone is scoped to a functional MVP: authentication, creating and brows
 **WHEN** the user opens the app
 **THEN** the Learning Feed is the first visible screen — no login screen shown
 
-### AC9 — Learning card content
-**GIVEN** the server returns learnings
-**WHEN** the feed renders
-**THEN** each card shows content preview (truncated at ~120 chars), title if present, relative timestamp, and tag badges
-
-### AC10 — Empty state
-**GIVEN** the server returns an empty list
-**WHEN** the feed renders
-**THEN** an empty state message with a CTA is shown — no error, no skeleton
-
-### AC11 — Infinite scroll
-**GIVEN** the feed is showing page 0 and more pages exist
-**WHEN** the user scrolls to within 3 items of the bottom
-**THEN** page 1 is fetched and appended — the list does not scroll to the top
-
-### AC12 — Infinite scroll does not fire immediately
-**GIVEN** the feed has just loaded page 0
-**WHEN** the items fit within the screen height
-**THEN** `handleLoadMore` is not triggered until the user has scrolled
-
-### AC13 — Search calls hybrid endpoint
-**GIVEN** the user types ≥2 characters in the search bar
-**WHEN** the debounce delay elapses
-**THEN** the app calls `GET /poks?keyword=<query>&searchMode=hybrid` and replaces the feed with results
-
-### AC14 — Clearing search restores feed
-**GIVEN** an active search query
-**WHEN** the user clears the search input
-**THEN** the full unfiltered feed is shown
-
-### AC15 — Offline banner
-**GIVEN** the device has no network
-**WHEN** the user is on the feed
-**THEN** an inline banner ("No internet connection") appears, the existing feed remains visible, and no crash occurs
-
-### AC16 — Single tap to create
+### AC9 — Single tap to create
 **GIVEN** the user is on the feed
 **WHEN** the FAB is tapped
 **THEN** the Create Learning screen opens with the content field focused and keyboard visible — one tap, no dialog
 
-### AC17 — Save disabled on empty content
+### AC10 — Save disabled on empty content
 **GIVEN** the Create Learning screen is open
 **WHEN** the content field is empty or whitespace-only
 **THEN** the Save button is disabled
 
-### AC18 — Successful save
+### AC11 — Successful save
 **GIVEN** non-empty content is entered
 **WHEN** the user taps Save
 **THEN** `POST /poks` is called; on 201, the user returns to the feed and the new learning appears at the top
 
-### AC19 — Save failure preserves content
+### AC12 — Save failure preserves content
 **GIVEN** the user has typed content
 **WHEN** Save is tapped and the API call fails (5xx or network timeout)
 **THEN** an inline error is shown and the typed content is still present
 
-### AC20 — Swipe dismiss with content
+### AC13 — Swipe dismiss with content
 **GIVEN** the Create Learning screen has content typed
 **WHEN** the user swipes down
 **THEN** a discard confirmation dialog appears; confirming discards and closes; cancelling keeps content
 
-### AC21 — Swipe dismiss without content
+### AC14 — Swipe dismiss without content
 **GIVEN** the content field is empty
 **WHEN** the user swipes down
 **THEN** the screen closes immediately with no confirmation dialog
 
-### AC22 — Dark mode by default
+### AC15 — Learning card content
+**GIVEN** the server returns learnings
+**WHEN** the feed renders
+**THEN** each card shows content preview (truncated at ~120 chars), title if present, relative timestamp, and tag badges with their assigned colours. Card backgrounds are neutral (not coloured).
+
+### AC16 — Search bar recognition
+**GIVEN** the user is on the Learning Feed
+**WHEN** the feed renders
+**THEN** a search bar is visible with a magnifying glass icon, without requiring the user to discover it through interaction
+
+### AC17 — Search calls hybrid endpoint
+**GIVEN** the user types ≥2 characters in the search bar
+**WHEN** the debounce delay elapses
+**THEN** the app calls `GET /poks?keyword=<query>&searchMode=hybrid` and replaces the feed with results
+
+### AC18 — Clearing search restores feed
+**GIVEN** an active search query
+**WHEN** the user clears the search input
+**THEN** the full unfiltered feed is shown
+
+### AC19 — Infinite scroll
+**GIVEN** the feed is showing page 0 and more pages exist
+**WHEN** the user scrolls to within 3 items of the bottom
+**THEN** page 1 is fetched and appended — the list does not scroll to the top
+
+### AC20 — Infinite scroll does not fire immediately
+**GIVEN** the feed has just loaded page 0
+**WHEN** the items fit within the screen height without scrolling
+**THEN** `handleLoadMore` is not triggered
+
+### AC21 — Empty state
+**GIVEN** the server returns an empty list
+**WHEN** the feed renders
+**THEN** an empty state message with a CTA is shown — no error, no skeleton
+
+### AC22 — Offline banner
+**GIVEN** the device has no network
+**WHEN** the user is on the feed
+**THEN** an inline banner ("No internet connection") appears, the existing feed remains visible, and no crash occurs
+
+### AC23 — Dark mode by default
 **GIVEN** the device system appearance is dark
 **WHEN** the app launches
-**THEN** all screens render with the dark colour scheme
+**THEN** all screens render with the dark colour scheme, matching the web app's visual appearance
 
-### AC23 — Device locale determines language
+### AC24 — Device locale determines language
 **GIVEN** the device primary locale is "pt-BR"
 **WHEN** the user opens the app
 **THEN** all user-facing strings are in Brazilian Portuguese and the string "POK" does not appear anywhere in the UI
 
-### AC24 — English fallback for unsupported locales
+### AC25 — English fallback for unsupported locales
 **GIVEN** the device locale is not EN or PT-BR (e.g. "fr-FR")
 **WHEN** the app launches
 **THEN** the app displays in English
 
-### AC25 — No hardcoded strings
+### AC26 — No hardcoded strings
 **GIVEN** the codebase is reviewed
 **WHEN** all `.tsx` files under `mobile/src/` are scanned
 **THEN** no user-facing string literals appear outside of i18n translation files
+
+### AC27 — Screen reader navigation (VoiceOver / TalkBack)
+**GIVEN** VoiceOver (iOS) or TalkBack (Android) is enabled
+**WHEN** the user navigates through the feed, opens a learning, and creates a new learning
+**THEN** all interactive elements announce a meaningful label, focus order is logical, and no action requires sighted assistance
+
+### AC28 — Maestro E2E: auth redirect
+**GIVEN** no tokens in SecureStore
+**WHEN** the app is launched
+**THEN** the Maestro flow asserts the Login screen is visible
+
+### AC29 — Maestro E2E: login and feed
+**GIVEN** valid credentials
+**WHEN** the Maestro flow submits the login form
+**THEN** the Learning Feed is visible with at least one learning card
+
+### AC30 — Maestro E2E: create learning
+**GIVEN** the user is on the feed
+**WHEN** the Maestro flow taps the FAB, enters content, and taps Save
+**THEN** the feed is visible and the new learning appears at the top
 
 ---
 
@@ -295,7 +339,7 @@ RootNavigator (Stack)
 │   └── ResetPassword      (deep link: learnimo://reset-password?token=...)
 └── AppTabs (BottomTabs)   — rendered when isAuthenticated
     ├── FeedTab (Stack)
-    │   ├── Feed           (root; FAB navigates here to LearningNew)
+    │   ├── Feed           (root; FAB navigates to LearningNew)
     │   ├── LearningDetail
     │   └── LearningNew
     ├── SearchTab (Stack)
@@ -355,6 +399,8 @@ export const tokenStore = {
 
 **Theme loading gate:** `ThemeProvider` reads AsyncStorage async on mount. `themeLoading` stays `true` until resolved. `RootNavigator` gates on both `authLoading` and `themeLoading` to prevent colour flicker on cold launch.
 
+**Theme token parity with web:** `darkTokens` and `lightTokens` in `src/theme/tokens.ts` must match the web's Tailwind colour values exactly (background, surface, accent, text, border, error, success). This is the mechanism for NFR12 — same visual language, one source of truth per platform, kept in sync manually until a shared package is introduced.
+
 **Keyboard handling — LearningNew:** `react-native-keyboard-aware-scroll-view` for auth screens. For `LearningNew`: multiline `TextInput` with `onContentSizeChange` for auto-height (min 200, max 60% screen height). `KeyboardToolbar` component pinned above keyboard contains Save button. Android: `windowSoftInputMode: "adjustResize"` in `app.json`.
 
 **Data fetching — AbortController:** All data-fetching hooks use `AbortController` for cleanup:
@@ -386,11 +432,22 @@ useEffect(() => {
 - Chosen: Expo SDK 53 (latest stable as of 2026-02)
 - Rationale: SDK 50 is outdated. Managed workflow avoids native module configuration overhead at MVP stage.
 
+**ADR: Maestro for E2E tests (not Detox)**
+- Options: Maestro, Detox
+- Chosen: Maestro
+- Rationale: Maestro requires minimal setup — YAML-based flows run directly on emulator/simulator with no native build configuration. Detox is more mature and grey-box (closer integration with the React Native runtime), but requires native builds, complex CI configuration, and significant setup overhead that is not justified at MVP stage. If the app scales to many more features, or Maestro proves insufficiently reliable for critical regressions, revisit Detox at that point.
+
+**ADR: Colours on tags, not cards**
+- Options: (1) tag badges coloured only, cards neutral; (2) cards tinted by dominant tag colour; (3) cards randomly coloured (post-it style)
+- Chosen: Option 1 — tag badges coloured, cards neutral
+- Rationale: Tag colours are already part of the data model (`UserTag.color`). Adding independent card colours creates two competing colour systems and visual noise. Keeping cards neutral maintains web/mobile consistency (NFR12) and lets tag colours stand out clearly.
+
 ### Test Strategy
 
 - [ ] Partial TDD — tests first for: auth logic (`tokenStore`, `useAuth`, refresh flow), `useFeedData`, `useSearchData`, form validation (Zod schemas)
 - [ ] Component tests with `@testing-library/react-native` for `LearningCard`, `LearningForm`, `LoginForm`
-- [ ] Manual testing required for keyboard behaviour (LearningNew) on both iOS and Android
+- [ ] Maestro E2E flows: auth redirect (AC28), login + feed (AC29), create learning (AC30)
+- [ ] Manual testing required for keyboard behaviour (LearningNew) and screen reader navigation (AC27) on both Android and iOS
 
 ### File Changes
 
@@ -422,7 +479,7 @@ src/screens/auth/
   ResetPasswordScreen.tsx
 
 src/screens/feed/
-  FeedScreen.tsx                  — Feed with FAB, SearchBar, SortSheet
+  FeedScreen.tsx                  — Feed with FAB, SearchBar (with magnifying glass icon), SortSheet
   LearningDetailScreen.tsx        — Read-only detail
   LearningNewScreen.tsx           — Compose; KeyboardToolbar; owns full API call
 
@@ -461,7 +518,7 @@ src/lib/
   i18n.ts                         — i18n-js instance, EN + PT-BR, enableFallback=true
 
 src/theme/
-  tokens.ts                       — darkTokens, lightTokens design token objects
+  tokens.ts                       — darkTokens, lightTokens — values match web Tailwind colours
 
 src/locales/
   en.json                         — Copied from web/src/locales/en.json
@@ -473,12 +530,12 @@ src/components/
   auth/PasswordInput.tsx          — SecureTextEntry toggle
   auth/HandleInput.tsx            — Input + availability indicator
   auth/GoogleSignInButton.tsx     — expo-auth-session PKCE flow
-  learnings/LearningCard.tsx      — Pressable, title/preview/tags/date
+  learnings/LearningCard.tsx      — Pressable, neutral background, title/preview/tags/date
   learnings/LearningList.tsx      — FlatList, pull-to-refresh, load-more, empty state
   learnings/LearningForm.tsx      — react-hook-form + Zod, keyboard-aware
   learnings/DeleteConfirmSheet.tsx
-  search/SearchInput.tsx          — TextInput + clear button
-  search/SearchBar.tsx            — Collapsed/expanded for feed header
+  search/SearchInput.tsx          — TextInput + magnifying glass icon + clear button
+  search/SearchBar.tsx            — Visible search bar for feed header
   ui/Button.tsx
   ui/Input.tsx                    — TextInput wrapper, label, error, theme tokens
   ui/FormField.tsx
@@ -489,6 +546,11 @@ src/components/
   ui/SortSheet.tsx
   ui/NetworkBanner.tsx            — Offline indicator banner
   ui/ErrorBoundary.tsx            — react-native-error-boundary wrapper
+
+e2e/
+  auth-redirect.yaml              — Maestro: AC28
+  login-feed.yaml                 — Maestro: AC29
+  create-learning.yaml            — Maestro: AC30
 ```
 
 **Modified — `mobile/`:**
@@ -508,11 +570,12 @@ src/components/
 **Blocks:**
 - Milestone 3.3.7 (Push Notifications) — deferred to a future milestone
 - Phase 4 polish: native Google Sign-In SDK upgrade
+- **Public App Store / Play Store publishing** — internal distribution (TestFlight / Play Store internal track) is in scope via EAS Build (FR4). Public publishing requires Apple Developer Program membership ($99/year), App Store review, Play Store release management, and app store metadata (screenshots, descriptions). This is a dedicated future milestone, not part of 3.3.
 
 **External:**
 - Expo account + EAS Build setup (free tier sufficient for internal distribution)
 - Google Cloud Console: OAuth client IDs for iOS and Android (in addition to existing web client)
-- Apple Developer account (for TestFlight distribution)
+- Apple Developer account (for TestFlight internal distribution)
 - Google Play Console (for Play Store internal track)
 
 ---
