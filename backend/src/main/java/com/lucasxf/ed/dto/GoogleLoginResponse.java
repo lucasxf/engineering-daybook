@@ -41,8 +41,7 @@ public record GoogleLoginResponse(
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Schema(description = "Opaque refresh token — mobile clients only; web clients use the refresh_token cookie")
-    String refreshToken
-) {
+    String refreshToken) {
 
     /**
      * Creates a response for an existing Google user (returning user).
@@ -52,8 +51,7 @@ public record GoogleLoginResponse(
         return new GoogleLoginResponse(
             false, null,
             authResult.handle(), authResult.userId(), authResult.email(),
-            authResult.accessToken(), authResult.refreshToken()
-        );
+            authResult.accessToken(), authResult.refreshToken());
     }
 
     /**

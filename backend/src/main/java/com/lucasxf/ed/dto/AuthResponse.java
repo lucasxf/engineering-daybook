@@ -35,8 +35,7 @@ public record AuthResponse(
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Schema(description = "Opaque refresh token — mobile clients only; web clients use the refresh_token cookie")
-    String refreshToken
-) {
+    String refreshToken) {
 
     /** Identity-only constructor — for endpoints that do not issue tokens (e.g. {@code /me}). */
     public AuthResponse(String handle, UUID userId, String email) {

@@ -124,6 +124,10 @@ export default {
       dark: 'Escuro',
     },
     languageLabel: 'Idioma',
+    languageOptions: {
+      en: 'English',
+      ptBR: 'Português (BR)',
+    },
     logoutButton: 'Sair',
     logoutConfirmTitle: 'Sair?',
     logoutConfirmOk: 'Sair',

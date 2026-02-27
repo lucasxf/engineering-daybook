@@ -8,7 +8,7 @@ argument-hint: <path-to-spec-file>
 Spec file: $ARGUMENTS
 
 **Anti-Cyclic Dependency Note:**
-This command delegates to `tech-writer` and `sous-chef` agents. These agents MUST NEVER call `/implement-spec` back.
+This command delegates to `tech-writer`, `sous-chef`, `nexus`, `hedy`, and `pixl` agents. These agents MUST NEVER call `/implement-spec` back.
 
 @CLAUDE.md
 
@@ -247,6 +247,12 @@ Run E2E suite to confirm:
 ### 3.5 Code Quality Check
 
 **If backend code was written:** Delegate to `sous-chef` agent for review.
+
+**If web (Next.js/TypeScript) code was written:** Delegate to `nexus` agent for review.
+
+**If mobile (Expo/React Native) code was written:** Delegate to `hedy` agent for review.
+
+**If UI/design changes were made (web or mobile):** Delegate to `pixl` agent for a design/accessibility review.
 
 If issues are found:
 - Fix critical and major issues

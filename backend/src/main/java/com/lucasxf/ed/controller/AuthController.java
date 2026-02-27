@@ -33,12 +33,12 @@ import com.lucasxf.ed.service.GoogleLoginResult;
 import static java.util.Objects.requireNonNull;
 
 /**
- * REST controller for authentication endpoints.
+ * REST controller for web authentication endpoints.
  *
- * <p>All successful auth operations issue tokens via {@code httpOnly} cookies (for web
- * clients) and also include {@code accessToken} / {@code refreshToken} in the JSON body
- * (for mobile clients that cannot store cookies). The {@code /me} endpoint is the only
- * exception — it validates an existing session and returns identity only.
+ * <p>All successful auth operations issue tokens via {@code httpOnly} cookies only.
+ * The JSON response body contains user identity only — no tokens. Mobile clients must
+ * use the {@code /api/v1/auth/mobile/*} endpoints (see {@link AuthMobileController}),
+ * which return tokens in the response body instead of cookies.
  *
  * @author Lucas Xavier Ferreira
  * @since 2026-02-11
@@ -59,7 +59,8 @@ public class AuthController {
     @PostMapping("/register")
     @Operation(summary = "Register a new user",
         description = "Creates a new user with email, password, display name, and handle. "
-            + "Tokens are delivered via httpOnly cookies (web) and in the JSON body (mobile).")
+            + "Tokens are delivered via httpOnly cookies only. "
+            + "Mobile clients: use /auth/mobile/register instead.")
     @ApiResponse(responseCode = "200", description = "Registration successful")
     @ApiResponse(responseCode = "400", description = "Validation error")
     @ApiResponse(responseCode = "409", description = "Email or handle already taken")
@@ -67,26 +68,20 @@ public class AuthController {
                                                  HttpServletResponse httpResponse) {
         AuthResult result = authService.register(request);
         cookieHelper.setAuthCookies(httpResponse, result.accessToken(), result.refreshToken());
-        return ResponseEntity.ok(new AuthResponse(
-            result.handle(), result.userId(), result.email(),
-            result.accessToken(), result.refreshToken()
-        ));
+        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email()));
     }
 
     @PostMapping("/login")
     @Operation(summary = "Log in with email and password",
-        description = "Authenticates a user and issues tokens via httpOnly cookies (web) "
-            + "and in the JSON body (mobile).")
+        description = "Authenticates a user and issues tokens via httpOnly cookies only. "
+            + "Mobile clients: use /auth/mobile/login instead.")
     @ApiResponse(responseCode = "200", description = "Login successful")
     @ApiResponse(responseCode = "401", description = "Invalid credentials")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request,
                                               HttpServletResponse httpResponse) {
         AuthResult result = authService.login(request);
         cookieHelper.setAuthCookies(httpResponse, result.accessToken(), result.refreshToken());
-        return ResponseEntity.ok(new AuthResponse(
-            result.handle(), result.userId(), result.email(),
-            result.accessToken(), result.refreshToken()
-        ));
+        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email()));
     }
 
     @PostMapping("/refresh")
@@ -112,10 +107,7 @@ public class AuthController {
 
         AuthResult result = authService.refreshToken(refreshToken);
         cookieHelper.setAuthCookies(httpResponse, result.accessToken(), result.refreshToken());
-        return ResponseEntity.ok(new AuthResponse(
-            result.handle(), result.userId(), result.email(),
-            result.accessToken(), result.refreshToken()
-        ));
+        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email()));
     }
 
     @PostMapping("/logout")
@@ -166,7 +158,10 @@ public class AuthController {
         return switch (result) {
             case GoogleLoginResult.ExistingUser(AuthResult authResult) -> {
                 cookieHelper.setAuthCookies(httpResponse, authResult.accessToken(), authResult.refreshToken());
-                yield ResponseEntity.ok(GoogleLoginResponse.existingUser(authResult));
+                yield ResponseEntity.ok(new GoogleLoginResponse(
+                    false, null,
+                    authResult.handle(), authResult.userId(), authResult.email(),
+                    null, null));
             }
             case GoogleLoginResult.NewUser(String tempToken) ->
                 ResponseEntity.ok(GoogleLoginResponse.newUser(tempToken));
@@ -186,13 +181,9 @@ public class AuthController {
         HttpServletResponse httpResponse) {
 
         AuthResult result = authService.completeGoogleSignup(
-            request.tempToken(), request.handle(), request.displayName()
-        );
+            request.tempToken(), request.handle(), request.displayName());
         cookieHelper.setAuthCookies(httpResponse, result.accessToken(), result.refreshToken());
-        return ResponseEntity.ok(new AuthResponse(
-            result.handle(), result.userId(), result.email(),
-            result.accessToken(), result.refreshToken()
-        ));
+        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email()));
     }
 
     @GetMapping("/handle/available")

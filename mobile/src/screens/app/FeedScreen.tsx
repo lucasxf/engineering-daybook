@@ -2,53 +2,47 @@ import React, { useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  Pressable,
   TextInput,
   View,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { useFeedData } from '@/hooks/useFeedData';
 import { useDebounce } from '@/hooks/useDebounce';
-import type { Pok, SearchMode } from '@/lib/pokApi';
-import type { AppTabsParamList } from '@/navigation/AppTabs';
+import type { Pok } from '@/lib/pokApi';
+import type { AppStackParamList } from '@/navigation/AppStack';
 import { LearningCard } from '@/components/feed/LearningCard';
 import { Text } from '@/components/ui/Text';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 
-type Nav = BottomTabNavigationProp<AppTabsParamList, 'Feed'>;
-
-// Minimal inline stack navigation for detail — will be replaced with proper
-// stack navigator in a future polish pass
-type DetailNav = NativeStackNavigationProp<any>;
+type AppNav = NativeStackNavigationProp<AppStackParamList>;
 
 export function FeedScreen() {
   const { theme } = useTheme();
   const { t } = useI18n();
-  const nav = useNavigation<Nav>();
+  const nav = useNavigation<AppNav>();
   const [searchText, setSearchText] = useState('');
   const debouncedSearch = useDebounce(searchText, 400);
 
   const { poks, loading, refreshing, loadingMore, hasMore, error, refresh, loadMore, setParams } =
     useFeedData();
 
-  // Apply debounced search query
+  // Apply debounced search query — minimum 2 chars before triggering hybrid search
   React.useEffect(() => {
+    const trimmed = debouncedSearch.trim();
+    const active = trimmed.length >= 2;
     setParams({
-      keyword: debouncedSearch || undefined,
-      searchMode: debouncedSearch ? 'hybrid' : undefined,
+      keyword: active ? trimmed : undefined,
+      searchMode: active ? 'hybrid' : undefined,
       page: 0,
     });
   }, [debouncedSearch, setParams]);
 
   function handlePokPress(pok: Pok) {
-    // Navigate to detail — AppTabs → detail screen handled by a parent stack
-    // For now cast to any; will be typed when AppStack wraps AppTabs
-    (nav as any).navigate('LearningDetail', { pokId: pok.id });
+    nav.navigate('LearningDetail', { pokId: pok.id });
   }
 
   function renderItem({ item }: { item: Pok }) {

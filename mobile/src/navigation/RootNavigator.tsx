@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { AuthStack } from './AuthStack';
-import { AppTabs } from './AppTabs';
+import { AppStack } from './AppStack';
 
 function LoadingScreen() {
   const { theme } = useTheme();
@@ -44,7 +44,7 @@ export function RootNavigator() {
   return (
     <NavigationContainer theme={navTheme}>
       <Suspense fallback={<LoadingScreen />}>
-        {status === 'authenticated' ? <AppTabs /> : <AuthStack />}
+        {status === 'authenticated' ? <AppStack /> : <AuthStack />}
       </Suspense>
     </NavigationContainer>
   );

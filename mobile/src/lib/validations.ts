@@ -53,7 +53,7 @@ export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
 export const pokSchema = z.object({
   title: z.string().max(255, 'poks.errors.titleMaxLength').optional(),
-  content: z.string().min(1, 'poks.errors.contentRequired').max(50000, 'poks.errors.contentMaxLength'),
+  content: z.string().trim().min(1, 'poks.errors.contentRequired').max(50000, 'poks.errors.contentMaxLength'),
 });
 export type PokFormData = z.infer<typeof pokSchema>;
 

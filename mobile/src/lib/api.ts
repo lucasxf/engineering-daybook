@@ -63,7 +63,7 @@ async function silentRefresh(): Promise<boolean> {
   if (!refreshToken) return false;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+    const response = await fetch(`${API_BASE_URL}/auth/mobile/refresh`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken }),
@@ -124,7 +124,7 @@ export async function apiFetch<T>(
     } else {
       await tokenStore.clear();
       _authFailureListener?.();
-      throw new ApiRequestError(401, 'Session expired. Please log in again.');
+      throw new ApiRequestError(401, 'SESSION_EXPIRED');
     }
   }
 

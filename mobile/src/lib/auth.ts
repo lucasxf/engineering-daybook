@@ -72,7 +72,7 @@ async function storeTokensAndReturn(data: BackendAuthResponse): Promise<AuthResp
 // ---------------------------------------------------------------------------
 
 export async function loginApi(payload: LoginPayload): Promise<AuthResponse> {
-  const data = await apiPublicFetch<BackendAuthResponse>('/auth/login', {
+  const data = await apiPublicFetch<BackendAuthResponse>('/auth/mobile/login', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
@@ -80,7 +80,7 @@ export async function loginApi(payload: LoginPayload): Promise<AuthResponse> {
 }
 
 export async function registerApi(payload: RegisterPayload): Promise<AuthResponse> {
-  const data = await apiPublicFetch<BackendAuthResponse>('/auth/register', {
+  const data = await apiPublicFetch<BackendAuthResponse>('/auth/mobile/register', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
@@ -106,7 +106,7 @@ export function checkHandleApi(handle: string): Promise<HandleAvailabilityRespon
 }
 
 export async function googleLoginApi(idToken: string): Promise<GoogleLoginResponse> {
-  const data = await apiPublicFetch<GoogleLoginResponse>('/auth/google', {
+  const data = await apiPublicFetch<GoogleLoginResponse>('/auth/mobile/google', {
     method: 'POST',
     body: JSON.stringify({ idToken }),
   });
@@ -123,7 +123,7 @@ export async function googleLoginApi(idToken: string): Promise<GoogleLoginRespon
 export async function completeGoogleSignupApi(
   payload: CompleteGoogleSignupPayload
 ): Promise<AuthResponse> {
-  const data = await apiPublicFetch<BackendAuthResponse>('/auth/google/complete', {
+  const data = await apiPublicFetch<BackendAuthResponse>('/auth/mobile/google/complete', {
     method: 'POST',
     body: JSON.stringify(payload),
   });

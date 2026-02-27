@@ -38,8 +38,8 @@ export function ProfileScreen() {
   ];
 
   const localeOptions: Array<{ value: Locale; label: string }> = [
-    { value: 'en', label: 'English' },
-    { value: 'pt-BR', label: 'Português (BR)' },
+    { value: 'en', label: t('profile.languageOptions.en') },
+    { value: 'pt-BR', label: t('profile.languageOptions.ptBR') },
   ];
 
   return (

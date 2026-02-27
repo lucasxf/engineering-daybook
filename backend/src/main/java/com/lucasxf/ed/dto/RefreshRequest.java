@@ -15,5 +15,4 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "Optional refresh token in request body — mobile clients only")
 public record RefreshRequest(
     @Schema(description = "Opaque refresh token obtained from a prior login or refresh response")
-    String refreshToken
-) {}
+    String refreshToken) {}

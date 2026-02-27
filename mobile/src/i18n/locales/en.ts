@@ -127,6 +127,10 @@ export default {
       dark: 'Dark',
     },
     languageLabel: 'Language',
+    languageOptions: {
+      en: 'English',
+      ptBR: 'Português (BR)',
+    },
     logoutButton: 'Sign out',
     logoutConfirmTitle: 'Sign out?',
     logoutConfirmOk: 'Sign out',

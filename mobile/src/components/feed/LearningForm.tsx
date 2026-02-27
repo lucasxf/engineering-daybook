@@ -24,11 +24,16 @@ export function LearningForm({ defaultValues, onSubmit, onCancel, submitLabel, s
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<PokFormData>({
     resolver: zodResolver(pokSchema),
+    mode: 'onChange',
     defaultValues: defaultValues ?? { title: '', content: '' },
   });
+
+  const contentValue = watch('content');
+  const isContentEmpty = !contentValue || contentValue.trim().length === 0;
 
   return (
     <ScrollView
@@ -82,6 +87,7 @@ export function LearningForm({ defaultValues, onSubmit, onCancel, submitLabel, s
           label={submitLabel}
           onPress={handleSubmit(onSubmit)}
           loading={isSubmitting}
+          disabled={isContentEmpty}
           style={{ flex: 1 }}
         />
       </View>

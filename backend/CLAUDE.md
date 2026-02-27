@@ -170,6 +170,30 @@ cd backend
   public record HuggingFace(String apiKey, String modelUrl, int maxRetries) { }
   ```
 
+- **Closing parenthesis goes on the same line as the last argument — never on its own line:** A `)`, `) {`, or `);` that appears alone on a line with nothing but indentation is unnecessary. Place it directly after the last argument. This applies to record declarations, constructor calls, and method calls.
+
+  ```java
+  // WRONG — closing paren on its own line
+  public record AuthResponse(
+      String handle,
+      String email
+  ) { }
+
+  return new GoogleLoginResponse(
+      false, null,
+      authResult.handle()
+  );
+
+  // CORRECT
+  public record AuthResponse(
+      String handle,
+      String email) { }
+
+  return new GoogleLoginResponse(
+      false, null,
+      authResult.handle());
+  ```
+
 - **Prefer interface types and imports over fully-qualified names in method bodies:** Always declare variables with the most abstract applicable type (`Map` not `LinkedHashMap`, `List` not `ArrayList`) and add the import at the top of the file. Never use `java.util.LinkedHashMap<K, V>` inline — it's a sign the import is missing.
 
   ```java

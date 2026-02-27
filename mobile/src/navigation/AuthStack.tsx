@@ -1,12 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-
-// Screen imports will be added when screens are created (task #6)
-// Placeholder type declarations kept here so the navigator compiles.
-import type { LoginScreen } from '@/screens/auth/LoginScreen';
-import type { RegisterScreen } from '@/screens/auth/RegisterScreen';
-import type { ForgotPasswordScreen } from '@/screens/auth/ForgotPasswordScreen';
-import type { ChooseHandleScreen } from '@/screens/auth/ChooseHandleScreen';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 export type AuthStackParamList = {
   Login: undefined;
@@ -35,16 +29,30 @@ const ChooseHandleScreenLazy = React.lazy(() =>
   }))
 );
 
+// Typed wrappers — satisfy Stack.Screen component prop; screens access nav via hooks
+function LoginWrapper(_props: NativeStackScreenProps<AuthStackParamList, 'Login'>) {
+  return <LoginScreenLazy />;
+}
+function RegisterWrapper(_props: NativeStackScreenProps<AuthStackParamList, 'Register'>) {
+  return <RegisterScreenLazy />;
+}
+function ForgotPasswordWrapper(_props: NativeStackScreenProps<AuthStackParamList, 'ForgotPassword'>) {
+  return <ForgotPasswordScreenLazy />;
+}
+function ChooseHandleWrapper(_props: NativeStackScreenProps<AuthStackParamList, 'ChooseHandle'>) {
+  return <ChooseHandleScreenLazy />;
+}
+
 export function AuthStack() {
   return (
     <Stack.Navigator
       initialRouteName="Login"
       screenOptions={{ headerShown: false }}
     >
-      <Stack.Screen name="Login" component={LoginScreenLazy as any} />
-      <Stack.Screen name="Register" component={RegisterScreenLazy as any} />
-      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreenLazy as any} />
-      <Stack.Screen name="ChooseHandle" component={ChooseHandleScreenLazy as any} />
+      <Stack.Screen name="Login" component={LoginWrapper} />
+      <Stack.Screen name="Register" component={RegisterWrapper} />
+      <Stack.Screen name="ForgotPassword" component={ForgotPasswordWrapper} />
+      <Stack.Screen name="ChooseHandle" component={ChooseHandleWrapper} />
     </Stack.Navigator>
   );
 }
