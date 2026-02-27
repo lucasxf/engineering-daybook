@@ -125,6 +125,20 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
 - **ESLint 9 requires `eslint.config.js`, not `.eslintrc.*`** — `eslint-config-expo@8` uses FlatCompat via `@eslint/eslintrc` to bridge legacy rules into the new flat config format. Do not create `.eslintrc.js` or `.eslintrc.json`; ESLint 9 ignores them silently. The correct file is `eslint.config.js` exporting an array of config objects.
 - **npm install requires `--legacy-peer-deps`** — some Expo SDK 53 peer deps conflict with npm's strict resolver. Always use `--legacy-peer-deps`.
 - **`app.json` main field** — must be `"node_modules/expo/AppEntry.js"` for Expo managed workflow. Do not set `"src/App.tsx"` as main.
+- **Always type `useNavigation` and `useRoute` from the stack `ParamList`:** Using `useNavigation<any>()` discards compile-time navigation safety for route names and params. Import `NativeStackNavigationProp` from `@react-navigation/native-stack` and type the hook with the navigator's `ParamList`. For route params, derive `RouteProp` from the same `ParamList` rather than repeating the shape inline — inline definitions drift silently when the stack changes.
+
+  ```ts
+  // WRONG — loses type safety
+  const nav = useNavigation<any>();
+  type RouteProps = RouteProp<{ LearningDetail: { pokId: string } }, 'LearningDetail'>;
+
+  // CORRECT — single source of truth
+  import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+  import type { AppStackParamList } from '@/navigation/AppStack';
+
+  const nav = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
+  type RouteProps = RouteProp<AppStackParamList, 'LearningDetail'>;
+  ```
 
 ---
 
