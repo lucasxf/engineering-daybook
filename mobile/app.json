@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "learnimo",
+    "slug": "learnimo",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f172a"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "net.learnimo.app",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "learnimo uses Face ID to secure your tokens."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0f172a"
+      },
+      "package": "net.learnimo.app",
+      "softwareKeyboardLayoutMode": "resize"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "scheme": "learnimo",
+    "plugins": [
+      "expo-secure-store",
+      "expo-localization"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "learnimo-mobile"
+      }
+    }
+  }
+}
