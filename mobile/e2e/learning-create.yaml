@@ -1,0 +1,33 @@
+appId: net.learnimo.app
+---
+# AC29: Authenticated user can create a learning and see it in the feed
+
+# Assume the user is already logged in (app was not cleared)
+- launchApp
+
+# Verify we start on the feed
+- assertVisible: "My Learnings"
+
+# Navigate to "Save Learning" tab
+- tapOn:
+    text: "Save Learning"
+
+# Fill in the form
+- tapOn:
+    text: "What did you learn?"
+- inputText: "Maestro makes mobile E2E testing straightforward"
+
+# Optional title
+- tapOn:
+    text: "Optional title"
+- inputText: "E2E Testing with Maestro"
+
+# Save
+- tapOn:
+    text: "Save"
+
+# Should return to feed
+- assertVisible: "My Learnings"
+
+# New learning appears in the list
+- assertVisible: "E2E Testing with Maestro"
