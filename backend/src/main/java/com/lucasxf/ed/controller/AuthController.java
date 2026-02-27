@@ -34,9 +34,10 @@ import static java.util.Objects.requireNonNull;
 /**
  * REST controller for authentication endpoints.
  *
- * <p>All successful auth operations issue tokens via {@code httpOnly} cookies
- * (set by {@link CookieHelper}). The JSON response body contains only the user
- * identity ({@link AuthResponse}).
+ * <p>All successful auth operations issue tokens via {@code httpOnly} cookies (for web
+ * clients) and also include {@code accessToken} / {@code refreshToken} in the JSON body
+ * (for mobile clients that cannot store cookies). The {@code /me} endpoint is the only
+ * exception — it validates an existing session and returns identity only.
  *
  * @author Lucas Xavier Ferreira
  * @since 2026-02-11
@@ -57,7 +58,7 @@ public class AuthController {
     @PostMapping("/register")
     @Operation(summary = "Register a new user",
         description = "Creates a new user with email, password, display name, and handle. "
-            + "Tokens are delivered via httpOnly cookies.")
+            + "Tokens are delivered via httpOnly cookies (web) and in the JSON body (mobile).")
     @ApiResponse(responseCode = "200", description = "Registration successful")
     @ApiResponse(responseCode = "400", description = "Validation error")
     @ApiResponse(responseCode = "409", description = "Email or handle already taken")
@@ -65,27 +66,35 @@ public class AuthController {
                                                  HttpServletResponse httpResponse) {
         AuthResult result = authService.register(request);
         cookieHelper.setAuthCookies(httpResponse, result.accessToken(), result.refreshToken());
-        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email()));
+        return ResponseEntity.ok(new AuthResponse(
+            result.handle(), result.userId(), result.email(),
+            result.accessToken(), result.refreshToken()
+        ));
     }
 
     @PostMapping("/login")
     @Operation(summary = "Log in with email and password",
-        description = "Authenticates a user and issues tokens via httpOnly cookies.")
+        description = "Authenticates a user and issues tokens via httpOnly cookies (web) "
+            + "and in the JSON body (mobile).")
     @ApiResponse(responseCode = "200", description = "Login successful")
     @ApiResponse(responseCode = "401", description = "Invalid credentials")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request,
                                               HttpServletResponse httpResponse) {
         AuthResult result = authService.login(request);
         cookieHelper.setAuthCookies(httpResponse, result.accessToken(), result.refreshToken());
-        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email()));
+        return ResponseEntity.ok(new AuthResponse(
+            result.handle(), result.userId(), result.email(),
+            result.accessToken(), result.refreshToken()
+        ));
     }
 
     @PostMapping("/refresh")
     @Operation(summary = "Refresh access token",
-        description = "Reads the refresh token from the refresh_token cookie, rotates it, "
-            + "and issues new tokens via httpOnly cookies.")
+        description = "Reads the refresh token from the refresh_token cookie (web) or the "
+            + "Authorization header (mobile), rotates it, and issues new tokens via cookies "
+            + "and in the JSON body.")
     @ApiResponse(responseCode = "200", description = "Token refreshed")
-    @ApiResponse(responseCode = "401", description = "Missing, invalid, or expired refresh token cookie")
+    @ApiResponse(responseCode = "401", description = "Missing, invalid, or expired refresh token")
     public ResponseEntity<AuthResponse> refresh(
         @CookieValue(name = "refresh_token", required = false) String refreshToken,
         HttpServletResponse httpResponse) {
@@ -96,7 +105,10 @@ public class AuthController {
 
         AuthResult result = authService.refreshToken(refreshToken);
         cookieHelper.setAuthCookies(httpResponse, result.accessToken(), result.refreshToken());
-        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email()));
+        return ResponseEntity.ok(new AuthResponse(
+            result.handle(), result.userId(), result.email(),
+            result.accessToken(), result.refreshToken()
+        ));
     }
 
     @PostMapping("/logout")
@@ -157,8 +169,8 @@ public class AuthController {
     @PostMapping("/google/complete")
     @Operation(summary = "Complete Google OAuth registration",
         description = "Creates a new user account for a Google OAuth user with their chosen handle. "
-            + "Issues tokens via httpOnly cookies.")
-    @ApiResponse(responseCode = "200", description = "Registration complete, tokens issued via cookies")
+            + "Issues tokens via httpOnly cookies (web) and in the JSON body (mobile).")
+    @ApiResponse(responseCode = "200", description = "Registration complete, tokens issued")
     @ApiResponse(responseCode = "400", description = "Invalid handle format")
     @ApiResponse(responseCode = "401", description = "Temp token expired")
     @ApiResponse(responseCode = "409", description = "Handle already taken")
@@ -170,7 +182,10 @@ public class AuthController {
             request.tempToken(), request.handle(), request.displayName()
         );
         cookieHelper.setAuthCookies(httpResponse, result.accessToken(), result.refreshToken());
-        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email()));
+        return ResponseEntity.ok(new AuthResponse(
+            result.handle(), result.userId(), result.email(),
+            result.accessToken(), result.refreshToken()
+        ));
     }
 
     @GetMapping("/handle/available")

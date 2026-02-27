@@ -118,6 +118,8 @@ class AuthIntegrationTest {
                         """.formatted(email, handle)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.handle").value(handle))
+                .andExpect(jsonPath("$.accessToken").isNotEmpty())
+                .andExpect(jsonPath("$.refreshToken").isNotEmpty())
                 .andDo(result -> {
                     var cookies = result.getResponse().getHeaders("Set-Cookie");
                     assertThat(cookies).anyMatch(c -> c.contains("access_token="));
@@ -167,6 +169,8 @@ class AuthIntegrationTest {
                         """.formatted(email)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.handle").value(handle))
+                .andExpect(jsonPath("$.accessToken").isNotEmpty())
+                .andExpect(jsonPath("$.refreshToken").isNotEmpty())
                 .andDo(result -> {
                     var cookies = result.getResponse().getHeaders("Set-Cookie");
                     assertThat(cookies).anyMatch(c -> c.contains("access_token="));
@@ -222,6 +226,8 @@ class AuthIntegrationTest {
                         """.formatted(tempToken, handle)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.handle").value(handle))
+                .andExpect(jsonPath("$.accessToken").isNotEmpty())
+                .andExpect(jsonPath("$.refreshToken").isNotEmpty())
                 .andDo(result -> {
                     var cookies = result.getResponse().getHeaders("Set-Cookie");
                     assertThat(cookies).anyMatch(c -> c.contains("access_token="));
@@ -287,6 +293,8 @@ class AuthIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.requiresHandle").value(false))
                 .andExpect(jsonPath("$.handle").value(handle))
+                .andExpect(jsonPath("$.accessToken").isNotEmpty())
+                .andExpect(jsonPath("$.refreshToken").isNotEmpty())
                 .andDo(result -> {
                     var cookies = result.getResponse().getHeaders("Set-Cookie");
                     assertThat(cookies).anyMatch(c -> c.contains("access_token="));
