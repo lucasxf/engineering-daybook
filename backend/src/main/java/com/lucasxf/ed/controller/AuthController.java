@@ -22,6 +22,7 @@ import com.lucasxf.ed.dto.GoogleLoginRequest;
 import com.lucasxf.ed.dto.GoogleLoginResponse;
 import com.lucasxf.ed.dto.HandleAvailabilityResponse;
 import com.lucasxf.ed.dto.LoginRequest;
+import com.lucasxf.ed.dto.RefreshRequest;
 import com.lucasxf.ed.dto.RegisterRequest;
 import com.lucasxf.ed.security.CookieHelper;
 import com.lucasxf.ed.security.UserPrincipal;
@@ -90,14 +91,20 @@ public class AuthController {
 
     @PostMapping("/refresh")
     @Operation(summary = "Refresh access token",
-        description = "Reads the refresh token from the refresh_token cookie (web) or the "
-            + "Authorization header (mobile), rotates it, and issues new tokens via cookies "
-            + "and in the JSON body.")
+        description = "Rotates the refresh token and issues new tokens. "
+            + "Web clients: sends the refresh_token httpOnly cookie (no body needed). "
+            + "Mobile clients: sends { refreshToken } in the JSON body (no cookie). "
+            + "Returns new tokens via cookies (web) and JSON body (mobile).")
     @ApiResponse(responseCode = "200", description = "Token refreshed")
     @ApiResponse(responseCode = "401", description = "Missing, invalid, or expired refresh token")
     public ResponseEntity<AuthResponse> refresh(
-        @CookieValue(name = "refresh_token", required = false) String refreshToken,
+        @CookieValue(name = "refresh_token", required = false) String cookieToken,
+        @RequestBody(required = false) RefreshRequest body,
         HttpServletResponse httpResponse) {
+
+        // Accept token from cookie (web) or request body (mobile) — cookie takes precedence
+        String refreshToken = cookieToken != null ? cookieToken
+            : (body != null ? body.refreshToken() : null);
 
         if (refreshToken == null) {
             return ResponseEntity.status(401).build();

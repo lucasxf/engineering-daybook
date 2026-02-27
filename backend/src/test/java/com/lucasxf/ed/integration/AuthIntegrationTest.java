@@ -176,6 +176,44 @@ class AuthIntegrationTest {
                     assertThat(cookies).anyMatch(c -> c.contains("access_token="));
                 });
         }
+
+        @Test
+        @DisplayName("refresh should accept token in request body for mobile clients")
+        void refresh_shouldAcceptTokenInRequestBody() throws Exception {
+            assumeTrue(DockerClientFactory.instance().isDockerAvailable(),
+                "Docker not available, skipping integration test");
+
+            String suffix = UUID.randomUUID().toString().substring(0, 8);
+            String email = "eve-" + suffix + "@example.com";
+            String handle = "eve" + suffix;
+
+            // Register to get initial tokens in the JSON body
+            String registerBody = mockMvc.perform(post("/api/v1/auth/register")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "email": "%s",
+                            "password": "Password1",
+                            "displayName": "Eve",
+                            "handle": "%s"
+                        }
+                        """.formatted(email, handle)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+            String refreshToken = extractField(registerBody, "refreshToken");
+
+            // Refresh using the token in the request body (mobile client pattern)
+            mockMvc.perform(post("/api/v1/auth/refresh")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        { "refreshToken": "%s" }
+                        """.formatted(refreshToken)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.handle").value(handle))
+                .andExpect(jsonPath("$.accessToken").isNotEmpty())
+                .andExpect(jsonPath("$.refreshToken").isNotEmpty());
+        }
     }
 
     // =====================================================================

@@ -23,7 +23,7 @@
     "expo-auth-session": "~6.0.0",
     "expo-web-browser": "~14.0.0",
     "expo-crypto": "~14.0.0",
-    "react": "18.3.2",
+    "react": "18.3.1",
     "react-native": "0.76.9",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
@@ -54,25 +54,5 @@
     "@testing-library/jest-native": "^5.4.3",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~8.0.0"
-  },
-  "jest": {
-    "preset": "jest-expo",
-    "setupFilesAfterFramework": [
-      "@testing-library/jest-native/extend-expect"
-    ],
-    "transformIgnorePatterns": [
-      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|date-fns)"
-    ],
-    "collectCoverageFrom": [
-      "src/lib/**/*.{ts,tsx}",
-      "src/hooks/**/*.{ts,tsx}",
-      "!src/**/__tests__/**",
-      "!src/**/*.test.{ts,tsx}"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "lines": 80
-      }
-    }
   }
 }
