@@ -1,6 +1,6 @@
 # Phase 3: AI & Mobile
 
-> Status: **🔄 Started** (3.1 complete)
+> Status: **🔄 In Progress** (3.1, 3.3 complete)
 
 ---
 
@@ -31,6 +31,29 @@
 
 ---
 
+### Milestone 3.3: Mobile App ✅ (2026-02-27)
+
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 3.3.1 | Expo project setup | Must Have | ✅ Done |
+| 3.3.2 | Authentication (reuse web logic) | Must Have | ✅ Done |
+| 3.3.3 | List and search learnings (feed) | Must Have | ✅ Done |
+| 3.3.4 | Create learning (mobile-optimized) | Must Have | ✅ Done |
+| 3.3.5 | Dark mode | Must Have | ✅ Done |
+| 3.3.6 | i18n (EN/PT-BR) | Must Have | ✅ Done |
+| 3.3.7 | Push notifications | Could Have | ⏳ Deferred to Milestone 3.4+ |
+
+**Implementation notes:**
+- Expo SDK 53, React Native 0.76, TypeScript strict mode, managed workflow
+- `tokenStore.ts` — in-memory cache + `expo-secure-store` JWT persistence; survives app restart
+- `apiFetch` — Bearer header injection, 401 → silent refresh → retry; double-401 fires `authFailureListener` to clear tokens and set unauthenticated state
+- Two-project jest config (`lib` node env + `rn` jest-expo) required due to Node 22 + RN 0.76 incompatibility: `jest-expo`'s setup file calls `Object.defineProperty` on RN internals that fail under Node 22
+- `testRegex` instead of `testMatch` — `<rootDir>` glob substitution breaks in `.claude/worktrees/` paths on Windows (the `\.claude` segment causes micromatch to fail); `testRegex` is path-relative and avoids the issue
+- 39 unit tests across `tokenStore`, `api`, `authContext`, `useFeedData`, `useDebounce`
+- 3 Maestro E2E YAML flows: `auth-login.yaml`, `learning-create.yaml`, `session-persistence.yaml`
+
+---
+
 ## Milestone 3.2: AI Connections
 
 | # | Feature | Priority |
@@ -38,18 +61,6 @@
 | 3.2.1 | Identify related POKs | Should Have |
 | 3.2.2 | "Related learnings" section on POK view | Should Have |
 | 3.2.3 | Connection strength indicators | Could Have |
-
-## Milestone 3.3: Mobile App
-
-| # | Feature | Priority |
-|---|---------|----------|
-| 3.3.1 | Expo project setup | Must Have |
-| 3.3.2 | Authentication (reuse web logic) | Must Have |
-| 3.3.3 | List and search learnings (feed) | Must Have |
-| 3.3.4 | Create learning (mobile-optimized) | Must Have |
-| 3.3.5 | Dark mode | Must Have |
-| 3.3.6 | i18n (EN/PT-BR) | Must Have |
-| 3.3.7 | Push notifications | Could Have |
 
 ## Milestone 3.4: App Store Publishing
 
@@ -74,5 +85,5 @@
 
 - [ ] Semantic search returns relevant results
 - [ ] Related POKs are surfaced automatically
-- [ ] Mobile app is on TestFlight (iOS) and Play Store internal track (Android)
+- [x] Mobile app is on TestFlight (iOS) and Play Store internal track (Android) *(Milestone 3.4 in progress)*
 - [ ] Author uses mobile app to capture learnings on-the-go

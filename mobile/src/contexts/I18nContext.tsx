@@ -39,7 +39,6 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   const t = useCallback(
     (key: string, options?: Record<string, unknown>) => i18n.t(key, options),
     // locale in deps so t() updates when language changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [locale]
   );
 

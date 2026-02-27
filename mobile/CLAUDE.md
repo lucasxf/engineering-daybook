@@ -122,6 +122,7 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
 - **`jest-expo` preset fails with RN 0.76 in Node 22** — root cause: `Object.defineProperty` on `NativeModules.default` fails. Fixed by using `testEnvironment: 'node'` in a separate jest project for lib tests. See `jest.config.js`.
 - **`testMatch` glob fails in `.claude/worktrees/` paths on Windows** — use `testRegex` instead. The `\.claude` directory name causes glob matching to fail with `<rootDir>` substitution. `testRegex` is path-relative and avoids the issue.
 - **`<rootDir>` glob on Windows** — `<rootDir>` resolves to the absolute path with mixed separators (`/` and `\`). The `\.` sequence in `\.claude` breaks micromatch glob. Use `testRegex` for any project inside a `.claude/` path.
+- **ESLint 9 requires `eslint.config.js`, not `.eslintrc.*`** — `eslint-config-expo@8` uses FlatCompat via `@eslint/eslintrc` to bridge legacy rules into the new flat config format. Do not create `.eslintrc.js` or `.eslintrc.json`; ESLint 9 ignores them silently. The correct file is `eslint.config.js` exporting an array of config objects.
 - **npm install requires `--legacy-peer-deps`** — some Expo SDK 53 peer deps conflict with npm's strict resolver. Always use `--legacy-peer-deps`.
 - **`app.json` main field** — must be `"node_modules/expo/AppEntry.js"` for Expo managed workflow. Do not set `"src/App.tsx"` as main.
 
