@@ -140,6 +140,10 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
   type RouteProps = RouteProp<AppStackParamList, 'LearningDetail'>;
   ```
 
+- **`refresh()` and `loadMore()` must explicitly reset loading flags on AbortError:** `fetchPage()` returns `null` (not throws) on AbortError, so the `try/catch` block does NOT reset `refreshing` or `loadingMore`. If you have `if (!data) return`, that path bypasses the success branch that clears the flag — leaving the pull-to-refresh spinner or infinite-scroll footer permanently stuck. Always add an explicit state reset in the null path: `if (!data) { setState(prev => ({...prev, refreshing: false})); return; }`.
+- **`silentRefresh()` must be guarded by a promise mutex when called from `apiFetch`:** Multiple in-flight API calls that simultaneously receive a 401 will each invoke `silentRefresh()` concurrently. The first rotation invalidates the refresh token, causing all subsequent refresh calls to fail and triggering `authFailureListener()` — a spurious logout. Use a module-scoped `let refreshPromise: Promise<boolean> | null = null` to deduplicate: `if (!refreshPromise) refreshPromise = silentRefresh(); const result = await refreshPromise; refreshPromise = null;`
+- **Screen in a tab navigator must use `BottomTabNavigationProp<TabParamList>`, not `NativeStackNavigationProp<StackParamList>`:** Even when a tab screen is nested inside a stack navigator, `useNavigation()` returns the navigation object of the closest parent navigator (the tab). Typing it as the stack's navigation prop makes TypeScript accept incorrect route names. A screen inside `AppTabs` should import `BottomTabNavigationProp` from `@react-navigation/bottom-tabs` and type the hook with `AppTabsParamList` — routes like `'Feed'` are then checked at compile time. Attempting to navigate to a tab route (`'Feed'`) through a stack nav type (`AppStackParamList`) silently succeeds at runtime but TypeScript cannot catch renames.
+
 ---
 
-*Last updated: 2026-02-27 (session: Milestone 3.3 mobile app implementation)*
+*Last updated: 2026-02-27 (session: fix/pr-94-review)*
