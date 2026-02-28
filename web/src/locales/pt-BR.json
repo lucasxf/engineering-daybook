@@ -190,6 +190,8 @@
     }
   },
   "tags": {
+    "addTag": "Adicionar etiqueta",
+    "createNew": "Nome da nova etiqueta...",
     "suggestions": {
       "label": "Tags sugeridas",
       "approve": "Adicionar tag",

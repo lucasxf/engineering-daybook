@@ -80,6 +80,27 @@ export const authMessages = {
   },
 };
 
+/** Minimal i18n messages for tags namespace tests */
+export const tagsMessages = {
+  tags: {
+    addTag: 'Add tag',
+    createNew: 'New tag name...',
+    suggestions: {
+      label: 'Suggested tags',
+      approve: 'Add tag',
+      reject: 'Dismiss tag',
+    },
+    badge: {
+      remove: 'Remove tag',
+    },
+    errors: {
+      loadFailed: 'Failed to load tags',
+      createFailed: 'Failed to create tag',
+      deleteFailed: 'Failed to delete tag',
+    },
+  },
+};
+
 /** Minimal i18n messages for poks page tests */
 export const poksMessages = {
   poks: {

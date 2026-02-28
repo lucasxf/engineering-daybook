@@ -130,6 +130,27 @@ git ls-files --others --exclude-standard 'web/e2e/**' 2>/dev/null
 
 Exceptions: user can explicitly say "skip E2E for this session" — warn and proceed.
 
+**Orphaned export check (Web) — only if new `.tsx` or `.ts` files were added:**
+
+Check whether any new components or hooks added this session have zero consumers:
+```bash
+# Get new web source files added this session
+git diff --cached --name-only -- 'web/src/**/*.tsx' 'web/src/**/*.ts' 2>/dev/null | grep -v '__tests__' | grep -v '\.test\.' | grep -v '\.spec\.'
+git diff --name-only -- 'web/src/**/*.tsx' 'web/src/**/*.ts' 2>/dev/null | grep -v '__tests__' | grep -v '\.test\.' | grep -v '\.spec\.'
+git ls-files --others --exclude-standard -- 'web/src/**/*.tsx' 'web/src/**/*.ts' 2>/dev/null | grep -v '__tests__' | grep -v '\.test\.' | grep -v '\.spec\.'
+```
+
+For each new file returned, check if its exports are imported anywhere in the rest of `web/src/`:
+```bash
+# Example: for a file named TagSuggestionPrompt.tsx, check for any import of it
+grep -r "TagSuggestionPrompt" web/src/ --include="*.tsx" --include="*.ts" -l | grep -v "TagSuggestionPrompt.tsx"
+```
+
+**If any new export has zero consumers → STOP.** Do not commit. Inform the user:
+> "Orphaned export detected: `{file}` is exported but never imported anywhere. Wire it into a page/component, or remove it before committing. (Wiring gate — see CLAUDE.md #7)"
+
+Exceptions: intentionally deferred components must have a documented note (in the spec's post-implementation notes or in a TODO comment in the file). User can override with explicit "skip wiring check for this session."
+
 **Mobile** — only if `mobile/` files changed:
 ```bash
 (cd mobile && npm run lint)

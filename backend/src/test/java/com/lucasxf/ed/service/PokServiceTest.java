@@ -586,6 +586,57 @@ class PokServiceTest {
         assertThat(result.getContent().get(1).title()).isNull();
     }
 
+    @Test
+    void update_shouldTriggerTagSuggestions() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok existingPok = new Pok(userId, "Old Title", "Old content");
+        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content");
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(existingPok));
+        when(pokRepository.save(any(Pok.class))).thenReturn(existingPok);
+
+        // When
+        pokService.update(pokId, request, userId);
+
+        // Then: tag suggestions are re-triggered so new content can match existing tags
+        verify(tagSuggestionService).suggestTagsForPok(pokId, userId);
+    }
+
+    @Test
+    void create_shouldReturnTagsAndSuggestionsInResponse() {
+        // Given
+        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content");
+        Pok savedPok = new Pok(userId, "Test Title", "Test content");
+
+        when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
+
+        // When
+        PokResponse response = pokService.create(request, userId);
+
+        // Then: response uses the 3-arg factory (tags and suggestions fields are present, not null)
+        assertThat(response.tags()).isNotNull();
+        assertThat(response.pendingSuggestions()).isNotNull();
+    }
+
+    @Test
+    void update_shouldReturnTagsAndSuggestionsInResponse() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok existingPok = new Pok(userId, "Old Title", "Old content");
+        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content");
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(existingPok));
+        when(pokRepository.save(any(Pok.class))).thenReturn(existingPok);
+
+        // When
+        PokResponse response = pokService.update(pokId, request, userId);
+
+        // Then: response uses the 3-arg factory (tags and suggestions fields are present, not null)
+        assertThat(response.tags()).isNotNull();
+        assertThat(response.pendingSuggestions()).isNotNull();
+    }
+
     // ===== AUDIT LOG TESTS =====
 
     @Test

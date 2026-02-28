@@ -106,6 +106,7 @@ test: add PokService unit tests
 4. **Test everything** — no code without tests
 5. **Document decisions** — update ADRs when making architectural choices
 6. **Learn from command errors** — when a slash command encounters an error, fix the root cause in `.claude/commands/` before continuing
+7. **Wiring gate** — before marking a feature milestone complete, verify that every new component/hook is imported and rendered in at least one page or consumed by at least one caller. Orphaned (unreferenced) exports are a defect, not a deferral. If a component was intentionally deferred, do not commit it — keep it on a branch or document the gap explicitly. `/finish-session` enforces this with an orphaned-export check. (Added 2026-02-28)
 
 ## Environment Notes
 
