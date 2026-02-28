@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useTheme } from '@/contexts/ThemeContext';
-import type { AppStackParamList } from '@/navigation/AppStack';
+import type { AppTabsParamList } from '@/navigation/AppTabs';
 import { useI18n } from '@/contexts/I18nContext';
 import { pokApi } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
@@ -14,7 +14,7 @@ import { LearningForm } from '@/components/feed/LearningForm';
 export function LearningNewScreen() {
   const { theme } = useTheme();
   const { t } = useI18n();
-  const nav = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
+  const nav = useNavigation<BottomTabNavigationProp<AppTabsParamList>>();
   const [serverError, setServerError] = useState<string | null>(null);
 
   async function handleSubmit(data: PokFormData) {

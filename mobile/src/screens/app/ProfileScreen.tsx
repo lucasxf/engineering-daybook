@@ -7,9 +7,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import type { Locale } from '@/i18n/i18n';
 
 type ColorSchemeOverride = 'light' | 'dark' | 'system';
-type Locale = 'en' | 'pt-BR';
 
 export function ProfileScreen() {
   const { theme, override, setOverride } = useTheme();

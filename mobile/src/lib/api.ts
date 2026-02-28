@@ -25,6 +25,7 @@ export class ApiRequestError extends Error {
 
 type AuthFailureListener = () => void;
 let _authFailureListener: AuthFailureListener | null = null;
+let refreshPromise: Promise<boolean> | null = null;
 
 /**
  * Register a callback to be invoked when both access and refresh tokens are
@@ -118,7 +119,9 @@ export async function apiFetch<T>(
   let response = await makeRequest(tokenStore.getAccessToken());
 
   if (response.status === 401) {
-    const refreshed = await silentRefresh();
+    if (!refreshPromise) refreshPromise = silentRefresh();
+    const refreshed = await refreshPromise;
+    refreshPromise = null;
     if (refreshed) {
       response = await makeRequest(tokenStore.getAccessToken());
     } else {

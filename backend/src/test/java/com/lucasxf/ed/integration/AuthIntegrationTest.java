@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -198,6 +199,8 @@ class AuthIntegrationTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
+            assertNotNull(registerResult.getResponse().getCookie("refresh_token"),
+                "Register response must set refresh_token cookie");
             String refreshTokenValue = registerResult.getResponse().getCookie("refresh_token").getValue();
 
             // Refresh using the cookie (web client pattern)

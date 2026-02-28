@@ -107,6 +107,15 @@ test: add PokService unit tests
 5. **Document decisions** — update ADRs when making architectural choices
 6. **Learn from command errors** — when a slash command encounters an error, fix the root cause in `.claude/commands/` before continuing
 
+## Environment Notes
+
+**`gh` CLI path on this machine:** `gh` is NOT on the PATH in Git Bash / mintty. Use the full path:
+```bash
+GH="/c/Program Files/GitHub CLI/gh.exe"
+"$GH" pr view 94 ...
+```
+Do NOT call `gh` via PowerShell (`gh` is also not on the PowerShell PATH) or `cmd /c gh` (both silently fail or produce no output). Always use the full path in Bash. (Added 2026-02-27)
+
 ---
 
 ## Current Focus

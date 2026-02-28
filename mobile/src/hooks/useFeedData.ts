@@ -108,7 +108,10 @@ export function useFeedData(initialParams?: PokSearchParams): UseFeedDataReturn 
     currentPageRef.current = 0;
     try {
       const data = await fetchPage(0, true);
-      if (!data) return;
+      if (!data) {
+        setState((prev) => ({ ...prev, refreshing: false }));
+        return;
+      }
       setState({
         poks: data.content,
         loading: false,
@@ -139,7 +142,10 @@ export function useFeedData(initialParams?: PokSearchParams): UseFeedDataReturn 
 
     try {
       const data = await fetchPage(nextPage, false);
-      if (!data) return;
+      if (!data) {
+        setState((prev) => ({ ...prev, loadingMore: false }));
+        return;
+      }
       currentPageRef.current = nextPage;
       setState((prev) => ({
         ...prev,
