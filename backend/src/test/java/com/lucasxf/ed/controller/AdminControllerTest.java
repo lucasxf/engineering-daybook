@@ -5,6 +5,7 @@ import com.lucasxf.ed.config.CorsProperties;
 import com.lucasxf.ed.security.SecurityConfig;
 import com.lucasxf.ed.service.EmbeddingBackfillService;
 import com.lucasxf.ed.service.JwtService;
+import com.lucasxf.ed.service.TagSuggestionBackfillService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,9 @@ class AdminControllerTest {
 
     @MockitoBean
     private EmbeddingBackfillService embeddingBackfillService;
+
+    @MockitoBean
+    private TagSuggestionBackfillService tagSuggestionBackfillService;
 
     @MockitoBean
     private JwtService jwtService;
@@ -89,5 +93,29 @@ class AdminControllerTest {
                 .header("X-Internal-Key", VALID_KEY))
             .andExpect(status().isAccepted())
             .andExpect(jsonPath("$.enqueued").value(0));
+    }
+
+    @Test
+    @DisplayName("POST /admin/poks/backfill-tag-suggestions with valid key returns 202 with enqueued count")
+    void backfillTagSuggestions_withValidKey_returns202() throws Exception {
+        when(adminProperties.internalKey()).thenReturn(VALID_KEY);
+        when(tagSuggestionBackfillService.backfill()).thenReturn(15);
+
+        mockMvc.perform(post("/api/v1/admin/poks/backfill-tag-suggestions")
+                .header("X-Internal-Key", VALID_KEY))
+            .andExpect(status().isAccepted())
+            .andExpect(jsonPath("$.enqueued").value(15));
+
+        verify(tagSuggestionBackfillService).backfill();
+    }
+
+    @Test
+    @DisplayName("POST /admin/poks/backfill-tag-suggestions with wrong key returns 401")
+    void backfillTagSuggestions_withWrongKey_returns401() throws Exception {
+        when(adminProperties.internalKey()).thenReturn(VALID_KEY);
+
+        mockMvc.perform(post("/api/v1/admin/poks/backfill-tag-suggestions")
+                .header("X-Internal-Key", "wrong-key"))
+            .andExpect(status().isUnauthorized());
     }
 }

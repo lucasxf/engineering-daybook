@@ -49,4 +49,15 @@ public interface UserTagRepository extends JpaRepository<UserTag, UUID> {
     boolean existsByUserIdAndTagNameIgnoreCaseAndDeletedAtIsNull(
             @Param("userId") UUID userId,
             @Param("tagName") String tagName);
+
+    /**
+     * Returns the distinct user IDs of all users who have at least one active tag subscription.
+     *
+     * <p>Used by the tag suggestion backfill to limit processing to users for whom suggestions
+     * can actually be generated (users with no tags produce no suggestions).
+     *
+     * @return list of user IDs with at least one active tag
+     */
+    @Query("SELECT DISTINCT ut.userId FROM UserTag ut WHERE ut.deletedAt IS NULL")
+    List<UUID> findDistinctUserIdsWithActiveTags();
 }
