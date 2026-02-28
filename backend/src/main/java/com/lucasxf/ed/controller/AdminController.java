@@ -54,8 +54,7 @@ public class AdminController {
      */
     @PostMapping("/poks/backfill-embeddings")
     public ResponseEntity<Map<String, Integer>> backfillEmbeddings(
-        @RequestHeader(value = "X-Internal-Key", required = false) String internalKey
-    ) {
+        @RequestHeader(value = "X-Internal-Key", required = false) String internalKey) {
         if (internalKey == null || !internalKey.equals(adminProperties.internalKey())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -76,8 +75,7 @@ public class AdminController {
      */
     @PostMapping("/poks/backfill-tag-suggestions")
     public ResponseEntity<Map<String, Integer>> backfillTagSuggestions(
-        @RequestHeader(value = "X-Internal-Key", required = false) String internalKey
-    ) {
+        @RequestHeader(value = "X-Internal-Key", required = false) String internalKey) {
         if (internalKey == null || !internalKey.equals(adminProperties.internalKey())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
