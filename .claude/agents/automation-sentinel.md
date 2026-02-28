@@ -114,7 +114,7 @@ color: cyan
 |-------|--------|-----------|--------|
 | tech-writer | Healthy | Today | None |
 | automation-sentinel | Healthy | Today | None |
-| backend-code-reviewer | Healthy | 2 days ago | None |
+| sous-chef | Healthy | 2 days ago | None |
 | ...
 
 ### Recommendations

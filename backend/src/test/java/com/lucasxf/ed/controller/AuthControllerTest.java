@@ -74,7 +74,7 @@ class AuthControllerTest {
     class Register {
 
         @Test
-        @DisplayName("should register and return 200 with user info + Set-Cookie headers")
+        @DisplayName("should register and return 200 with user info + Set-Cookie headers; no tokens in body")
         void register_success() throws Exception {
             when(authService.register(any())).thenReturn(AUTH_RESULT);
 
@@ -91,6 +91,8 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.handle").value(HANDLE))
                 .andExpect(jsonPath("$.email").value(EMAIL))
+                .andExpect(jsonPath("$.accessToken").doesNotExist())
+                .andExpect(jsonPath("$.refreshToken").doesNotExist())
                 .andDo(result -> {
                     var cookies = result.getResponse().getHeaders("Set-Cookie");
                     assertThat(cookies).anyMatch(c -> c.contains("access_token="));

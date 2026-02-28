@@ -13,7 +13,8 @@
 | `/directive` | Add coding directive to CLAUDE.md | `/directive "Always use records for DTOs"` |
 | `/update-roadmap` | Update ROADMAP.md with progress | `/update-roadmap "Completed POK CRUD"` |
 | `/review-code` | Trigger backend-code-reviewer agent | `/review-code PokService` |
-| `/review-pr` | Review and address feedback on an open PR | `/review-pr 12` |
+| `/review-pr` | Triage an open PR — check CI/CD + evaluate review comments, save report | `/review-pr 12` |
+| `/fix-pr` | Implement approved items from a `/review-pr` triage report | `/fix-pr 12` |
 | `/quick-test` | Run tests in quiet mode | `/quick-test backend` |
 | `/build-quiet` | Run build in quiet mode | `/build-quiet backend` |
 | `/verify-quiet` | Run full verification (build + tests) | `/verify-quiet all` |
@@ -59,11 +60,12 @@
 ### After PR Review
 
 ```bash
-# Address review feedback on the only open PR
-/review-pr
+# Step 1 — Triage: assess CI/CD status + evaluate review comments, save report
+/review-pr        # auto-selects the only open PR
+/review-pr 12     # target a specific PR
 
-# Address feedback on a specific PR
-/review-pr 12
+# Step 2 — Fix: implement approved items from the triage report
+/fix-pr 12
 ```
 
 ### Finishing a Session
@@ -107,23 +109,6 @@ cp docs/specs/template.md docs/specs/features/my-feature.md
 | `mobile` | Expo/React Native | CLAUDE.md, ROADMAP.md, README.md |
 | `docs` | Documentation only | CLAUDE.md, ROADMAP.md, README.md |
 | `full` | Everything | All context files |
-
-## Spec-Driven Development Workflow
-
-```bash
-# 1. Write the spec (delegates to product-manager agent)
-/write-spec "POK CRUD"
-
-# 2. Review and approve the generated spec
-# (edit docs/specs/features/pok-crud.md if needed)
-
-# 3. Implement from the spec (TDD, approval gates)
-/implement-spec docs/specs/features/pok-crud.md
-```
-
-Pipeline: `/write-spec` → spec file → `/implement-spec`
-
----
 
 ## Anti-Cyclic Dependency Rule
 

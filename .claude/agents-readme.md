@@ -1,27 +1,30 @@
-# Custom Agent Suite - Engineering Daybook
+# Agent Suite — learnimo
 
-> **Purpose:** Specialized agents to accelerate development, learning, and automation efficiency.
-> **Created:** 2026-01-29
 > **Developer:** Lucas Xavier Ferreira
+> **Last updated:** 2026-02-27
 
 ---
 
 ## Agent Overview
 
-This project includes **10 custom agents** and **16 custom slash commands** designed for full-stack development:
+This project includes **12 custom agents** designed for full-stack development across web, mobile, and backend stacks.
 
-| Agent | Purpose | Model | When to Use |
-|-------|---------|-------|-------------|
-| **automation-sentinel** | Meta-agent: automation health, metrics, optimization | Sonnet | Checking automation health, generating reports, finding redundancy |
-| **backend-code-reviewer** | Java/Spring Boot code review, best practices | Sonnet | Reviewing backend code after implementation |
-| **cross-project-architect** | Pattern extraction, templates, new projects | Sonnet | Starting new projects, extracting reusable patterns |
-| **frontend-ux-specialist** | Next.js/Expo UI/UX design, accessibility | Sonnet | Designing screens, improving user experience |
-| **learning-tutor** | Teaching concepts, structured learning, exercises | Sonnet | Learning new topics (Java, TypeScript, React) |
-| **product-manager** | Product sense, requirements, user stories | Sonnet | Defining features, prioritizing backlog, writing user stories |
-| **pulse** | Metrics collection agent (agent/command usage, LOCs) | Haiku | On-demand metrics collection |
-| **session-optimizer** | Token efficiency, session planning, workflow | Haiku | Starting sessions, optimizing token usage |
-| **steward** | Backend quality assurance — identifies coverage gaps, writes targeted tests to meet thresholds | Sonnet | When backend test coverage falls below the project threshold |
-| **tech-writer** | Documentation (external + in-code), ADRs, Javadoc, OpenAPI | Sonnet | Creating ADRs, adding Javadoc, updating docs |
+| Agent | Role | Model | Name Origin |
+|-------|------|-------|-------------|
+| `automation-sentinel` | Meta-agent: automation health, metrics, optimization | Sonnet | — |
+| `sous-chef` | Java/Spring Boot code review, best practices | Sonnet | The kitchen metaphor: the backend is the kitchen. You are the chef; sous-chef enforces quality where users never see. |
+| `imhotep` | Pattern extraction, templates, new projects | Sonnet | Imhotep (~2650 BC) — Egyptian polymath, architect of the Step Pyramid of Djoser (first large stone structure in history), physician, scribe, vizier. The only non-royal Egyptian ever deified. |
+| `pixl` | Next.js/Expo UI/UX design, accessibility | Sonnet | — |
+| `hedy` | Expo/React Native mobile engineering | Sonnet | Hedy Lamarr (1914–2000) — co-inventor of frequency-hopping spread spectrum, the foundational technology behind WiFi, Bluetooth, and GPS. |
+| `professor-x` | Teaching concepts, structured learning, exercises | Sonnet | Charles Xavier (X-Men) + Lucas **Xavier** Ferreira. |
+| `virgil` | Product sense, requirements, user stories | Sonnet | Virgil Abloh (1980–2021) — Ghanaian-American creative director of Off-White and Louis Vuitton Men's. Defined what products should be and why, across disciplines. |
+| `pulse` | Metrics collection agent (agent/command usage) | Haiku | — |
+| `session-optimizer` | Token efficiency, session planning, workflow | Haiku | — |
+| `steward` | Backend quality — identifies coverage gaps, writes targeted tests | Sonnet | — |
+| `tech-writer` | Documentation (external + in-code), ADRs, Javadoc, OpenAPI | Sonnet | — |
+| `nexus` | Next.js frontend engineering — routing, architecture, state | Sonnet | — |
+
+> **Naming principle:** Homages use Black, African, Brazilian, or women names — people whose contributions are often undertold.
 
 ---
 
@@ -30,7 +33,7 @@ This project includes **10 custom agents** and **16 custom slash commands** desi
 ### How Agents Work
 
 1. **Automatic Invocation** - Claude Code automatically selects agents based on your message
-2. **Explicit Invocation** - You can request specific agents: "Use the backend-code-reviewer to analyze this"
+2. **Explicit Invocation** - You can request specific agents: "Use sous-chef to analyze this"
 3. **Complementary** - Multiple agents can work together (e.g., pulse → automation-sentinel)
 
 ### Anti-Cyclic Dependency Rule (CRITICAL)
@@ -48,9 +51,9 @@ Slash Commands (would create cycle)
 ```
 
 **Rules:**
-- Commands CAN call agents - Example: `/finish-session` calls `tech-writer`
-- Agents CAN call other agents - Example: `automation-sentinel` reads metrics from `pulse`
-- Agents MUST NEVER call commands - Would create infinite loops
+- Commands CAN call agents — Example: `/finish-session` calls `tech-writer`
+- Agents CAN call other agents — Example: `automation-sentinel` reads metrics from `pulse`
+- Agents MUST NEVER call commands — Would create infinite loops
 
 ---
 
@@ -65,7 +68,7 @@ Slash Commands (would create cycle)
 - Detecting obsolete automations
 - Getting optimization recommendations
 
-**Note:** This agent is ON-DEMAND only. It does not auto-trigger on `/create-pr`.
+**Note:** This agent is ON-DEMAND only. It does not auto-trigger.
 
 **Example prompts:**
 - "Check automation health"
@@ -75,7 +78,7 @@ Slash Commands (would create cycle)
 
 ---
 
-### 2. Backend Code Reviewer
+### 2. Sous-Chef (Backend Code Reviewer)
 
 **Use when:**
 - After implementing backend features
@@ -92,7 +95,7 @@ Slash Commands (would create cycle)
 
 ---
 
-### 3. Cross-Project Architect
+### 3. Imhotep (Cross-Project Architect)
 
 **Use when:**
 - Starting new projects with similar structure
@@ -106,7 +109,7 @@ Slash Commands (would create cycle)
 
 ---
 
-### 4. Frontend UX Specialist
+### 4. Pixl (UX Specialist)
 
 **Use when:**
 - Designing Next.js web screens or Expo mobile screens
@@ -122,7 +125,23 @@ Slash Commands (would create cycle)
 
 ---
 
-### 5. Learning Tutor
+### 5. Hedy (Mobile Engineer)
+
+**Use when:**
+- Making Expo/React Native architecture decisions
+- Choosing between navigation approaches
+- Designing token storage and session management
+- Evaluating state strategy for mobile screens
+- Addressing cross-platform (iOS/Android) concerns
+
+**Example prompts:**
+- "Should I use Expo Router or React Navigation?"
+- "How do I adapt the web auth flow for mobile?"
+- "Review the mobile engineering approach for this feature"
+
+---
+
+### 6. Professor-X (Learning Tutor)
 
 **Use when:**
 - Learning new concepts (Java 21, Spring Boot, React, Next.js)
@@ -138,7 +157,7 @@ Slash Commands (would create cycle)
 
 ---
 
-### 6. Product Manager
+### 7. Virgil (Product Manager)
 
 **Use when:**
 - Defining new features or requirements
@@ -154,18 +173,18 @@ Slash Commands (would create cycle)
 
 ---
 
-### 7. Pulse (Metrics Collection Agent)
+### 8. Pulse (Metrics Collection Agent)
 
 **Use when:**
 - Manually collecting automation metrics
 - Before running automation-sentinel analysis
 - Updating usage data
 
-**Note:** This agent is ON-DEMAND only.
+**Note:** This agent is ON-DEMAND. Usage is tracked automatically via hooks (see `.claude/scripts/track-usage.py`).
 
 ---
 
-### 8. Session Optimizer
+### 9. Session Optimizer
 
 **Use when:**
 - Starting a new work session
@@ -182,14 +201,14 @@ Slash Commands (would create cycle)
 
 ---
 
-### 9. Steward (Backend Quality)
+### 10. Steward (Backend Quality)
 
 **Use when:**
 - Backend test coverage falls below the project threshold (90% line coverage)
 - `/finish-session` blocks the commit due to coverage failure
 - Adding targeted tests to close specific coverage gaps
 
-**Note:** This agent is triggered automatically by `/finish-session` when coverage is below threshold. It can also be invoked on demand.
+**Note:** Triggered automatically by `/finish-session` when coverage is below threshold. Can also be invoked on demand.
 
 **Example prompts:**
 - "Coverage dropped — run steward"
@@ -197,7 +216,7 @@ Slash Commands (would create cycle)
 
 ---
 
-### 10. Tech Writer
+### 11. Tech Writer
 
 **Use when:**
 - Creating/updating documentation
@@ -214,6 +233,22 @@ Slash Commands (would create cycle)
 
 ---
 
+### 12. Nexus (Web Engineer)
+
+**Use when:**
+- Making Next.js App Router architecture decisions
+- Evaluating routing vs query param approaches
+- Designing component structure and composition
+- Choosing data fetching strategy (RSC, SWR, hooks)
+- Reviewing URL and state strategy
+
+**Example prompts:**
+- "Should this be a route or a query param?"
+- "How should I structure these components?"
+- "Review the frontend architecture for this feature"
+
+---
+
 ## Agent Selection Guide
 
 ```
@@ -221,15 +256,17 @@ What's your task?
 │
 ├─ Checking automation health / metrics → pulse → automation-sentinel
 │
-├─ Reviewing backend/Java code → backend-code-reviewer
+├─ Reviewing backend/Java code → sous-chef
 │
-├─ Addressing PR review feedback → /review-pr command
+├─ Designing UI/UX screens → pixl
 │
-├─ Designing UI/UX screens → frontend-ux-specialist
+├─ Mobile engineering decisions → hedy
 │
-├─ Learning concepts → learning-tutor
+├─ Web engineering decisions → nexus
 │
-├─ Defining product features → product-manager
+├─ Learning concepts → professor-x
+│
+├─ Defining product features → virgil
 │
 ├─ Starting session / optimizing tokens → session-optimizer
 │
@@ -237,7 +274,7 @@ What's your task?
 │
 ├─ Backend coverage below threshold → steward
 │
-└─ Extracting patterns / new projects → cross-project-architect
+└─ Extracting patterns / new projects → imhotep
 ```
 
 ---
@@ -245,11 +282,11 @@ What's your task?
 ## Status & Maintenance
 
 ### Current Status
-- 9 agents created (2026-01-29); `steward` added (2026-02-22) — 10 total
-- Tailored to Engineering Daybook (Java/Spring Boot + Next.js/Expo)
+- 12 agents total (last updated 2026-02-27)
+- Tailored to learnimo (Java/Spring Boot + Next.js + Expo/React Native)
 - Integrated with project conventions (CLAUDE.md, CODING_STYLE files)
 - Anti-cyclic dependency rule documented and enforced
-- Ready to use
+- Usage tracked automatically via PostToolUse hook → `.claude/scripts/track-usage.py`
 
 ### Maintenance
 - **Update agents** when project conventions change

@@ -145,7 +145,34 @@ If a layer was not touched this session, skip it entirely.
 - Ask the user how to proceed
 - The ONLY exception is if the user explicitly says "commit anyway" or "bypass" — in that case, warn clearly and proceed only with their confirmation
 
-## 2. Update Phase File and Archive Completed Milestones (REQUIRED - Delegate to tech-writer)
+## 2. Capture Session Learnings (if applicable — Delegate to tech-writer)
+
+**Only run this step if Step 1 encountered non-trivial errors that required investigation or workarounds.**
+Skip entirely if Step 1 passed on the first run with no issues.
+
+**Non-trivial** (capture): dependency incompatibility, tool misconfiguration, unexpected build/test behavior, environment quirk, anything that required more than one fix attempt.
+**Trivial** (skip): obvious typo in code, simple missing import, straightforward syntax error.
+
+Collect every non-trivial error from Step 1 and **delegate to `tech-writer` agent** with:
+- A description of each failure (error message or summary)
+- The root cause discovered
+- The fix applied
+
+Give tech-writer this routing rule for where to write each learning:
+
+> **File hierarchy for learnings — most specific wins:**
+> - Error is scoped to one stack → `backend/CLAUDE.md`, `web/CLAUDE.md`, or `mobile/CLAUDE.md` ("Known Issues / Pitfalls" section)
+> - Error is project-wide or cross-cutting (git, CI, environment, shared tooling) → root `CLAUDE.md`
+> - Reusable debugging insight that applies beyond this project → `memory/MEMORY.md` or a topic file under `memory/`
+> - When scope is ambiguous, prefer the most specific file (stack > project > memory)
+
+tech-writer must:
+1. Check whether the learning already exists in the target file — do not duplicate
+2. Add new entries under the appropriate section heading
+3. Keep each entry concise: what failed, why, and what the fix is (1–3 sentences)
+4. Report which files were updated, or confirm no update was needed if all learnings were already documented
+
+## 3. Update Phase File and Archive Completed Milestones (REQUIRED - Delegate to tech-writer)
 
 > ⚠️ **ROADMAP.md is an index only.** Never write milestone details into it.
 > All milestone updates go in `docs/ROADMAP.phase-{N}.md` only.
@@ -174,7 +201,7 @@ After updating the phase file, check: are ALL items in any milestone now ✅?
   3. Update `CLAUDE.md` "Current Focus" section to reflect the new active phase
   4. Update `README.md` roadmap section to reflect phase completion
 
-## 3. Documentation Staleness Check (ALWAYS - Delegate to tech-writer)
+## 4. Documentation Staleness Check (ALWAYS - Delegate to tech-writer)
 
 **Always delegate to `tech-writer` agent.** The check is scoped to what changed this session — not a full-repo audit. tech-writer must verify each applicable item below and explicitly confirm it is current or fix it.
 
@@ -197,18 +224,18 @@ After updating the phase file, check: are ALL items in any milestone now ✅?
 
 **If any item is stale:** fix it in the same commit. Do not leave docs debt.
 
-## 4. Review Changes
+## 5. Review Changes
 
 Show consolidated git diff for all modified files so I can review before committing.
 
-## 5. Commit
+## 6. Commit
 
 After I approve the diff, create a commit with:
 - Proper semantic commit message (feat/fix/docs/refactor/test/chore)
 - Reference to what was implemented
 - Claude Code footer
 
-## 6. Feature Branch PR Prompt (Optional)
+## 7. Feature Branch PR Prompt (Optional)
 
 **Detect if on feature branch:**
 ```bash
@@ -231,7 +258,7 @@ fi
 - Skip PR creation
 - Continue to Session Summary
 
-## 7. Session Summary
+## 8. Session Summary
 
 Provide a brief summary:
 - What was accomplished

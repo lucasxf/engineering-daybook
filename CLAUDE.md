@@ -107,6 +107,15 @@ test: add PokService unit tests
 5. **Document decisions** — update ADRs when making architectural choices
 6. **Learn from command errors** — when a slash command encounters an error, fix the root cause in `.claude/commands/` before continuing
 
+## Environment Notes
+
+**`gh` CLI path on this machine:** `gh` is NOT on the PATH in Git Bash / mintty. Use the full path:
+```bash
+GH="/c/Program Files/GitHub CLI/gh.exe"
+"$GH" pr view 94 ...
+```
+Do NOT call `gh` via PowerShell (`gh` is also not on the PowerShell PATH) or `cmd /c gh` (both silently fail or produce no output). Always use the full path in Bash. (Added 2026-02-27)
+
 ---
 
 ## Current Focus
@@ -125,11 +134,12 @@ Active work:
 - [x] Milestone 2.3: Visualization (timeline, tag-grouped view, sort) — done (2026-02-25)
 - [ ] Milestone 2.4: UX Delight (inspirational prompts, homepage personalization)
 
-**Phase 3: AI & Mobile** — 🔄 Started (3.1 done)
+**Phase 3: AI & Mobile** — 🔄 In Progress (3.1, 3.3 done)
 
 - [x] Milestone 3.1: Semantic Search — hybrid keyword + vector search, HuggingFace embeddings, pgvector (2026-02-26)
 - [ ] Milestone 3.2: AI Connections (related learnings)
-- [ ] Milestone 3.3: Mobile App (Expo/React Native)
+- [x] Milestone 3.3: Mobile App (Expo/React Native) — done (2026-02-27)
+- [ ] Milestone 3.4: App Store Publishing
 
 See `docs/ROADMAP.md` for full active milestone details.
 
@@ -142,4 +152,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-02-26 (session: feat/semantic-search)*
+*Last updated: 2026-02-27 (session: feat/mobile-app)*

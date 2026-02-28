@@ -1,0 +1,27 @@
+appId: net.learnimo.app
+---
+# AC30: Session persists across app restarts (tokens in SecureStore)
+
+# First: log in
+- launchApp:
+    clearState: true
+
+- assertVisible: "Welcome back"
+- tapOn:
+    text: "Email"
+- inputText: "test@learnimo.net"
+- tapOn:
+    text: "Password"
+- inputText: "TestPass123"
+- tapOn:
+    text: "Sign in"
+- assertVisible: "My Learnings"
+
+# Simulate app restart (background + foreground = token reload from SecureStore)
+- pressKey: Home
+- launchApp:
+    clearState: false
+
+# Should go directly to feed — NOT to the Login screen
+- assertVisible: "My Learnings"
+- assertNotVisible: "Welcome back"

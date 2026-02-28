@@ -14,7 +14,7 @@
 ```
   Phase 0        Phase 1        Phase 2        Phase 3        Phase 4
   Foundation ──► MVP        ──► Evolution  ──► AI & Mobile ──► Growth
-  ✅ Done        🔄 Active       🔄 Started      🔄 Started      ⏳ Planned
+  ✅ Done        🔄 Active       🔄 Started      🔄 In Progress  ⏳ Planned
 
                               Phase 5        Phase 6        Phase 7
                               Privacy    ──► Social     ──► Gamification
@@ -26,7 +26,7 @@
 | 0 — Foundation | `ROADMAP.phase-0.md` | ✅ Complete |
 | 1 — MVP | `ROADMAP.phase-1.md` | 🔄 Active |
 | 2 — Evolution | `ROADMAP.phase-2.md` | 🔄 Started (2.1 done; 2.2 partially implemented) |
-| 3 — AI & Mobile | `ROADMAP.phase-3.md` | 🔄 Started (3.1 done) |
+| 3 — AI & Mobile | `ROADMAP.phase-3.md` | 🔄 In Progress (3.1, 3.3 done) |
 | 4 — Growth | `ROADMAP.phase-4.md` | ⏳ Planned |
 | 5 — Privacy | `ROADMAP.phase-5.md` | ⏳ Planned |
 | 6 — Social | `ROADMAP.phase-6.md` | ⏳ Planned |

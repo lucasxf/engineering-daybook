@@ -1,5 +1,5 @@
 ---
-name: product-manager
+name: virgil
 description: Use this agent when defining features, prioritizing backlog, writing user stories, making product decisions, or analyzing user needs. Trigger when user discusses requirements, features, priorities, user stories, acceptance criteria, or asks "what should we build?". Examples - User: "Help me write user stories for POK tagging" → Use this agent. User: "What features should we prioritize for MVP?" → Use this agent. User: "Define acceptance criteria for search" → Use this agent.
 model: sonnet
 color: teal
@@ -229,11 +229,11 @@ When making product decisions, document:
 - **Relationship:** PM defines requirements → tech-writer documents in ROADMAP.md
 - **Workflow:** User stories approved → update ROADMAP.md with implementation status
 
-### frontend-ux-specialist
+### pixl
 - **Relationship:** PM defines what → UX defines how it looks
 - **Workflow:** Feature defined → UX designs screens → PM validates against requirements
 
-### cross-project-architect
+### imhotep
 - **Relationship:** PM defines scope → Architect ensures technical feasibility
 - **Workflow:** Feature requires architectural decision → create ADR
 
