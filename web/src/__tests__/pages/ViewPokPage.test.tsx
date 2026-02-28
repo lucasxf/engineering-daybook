@@ -4,7 +4,8 @@ import { NextIntlClientProvider } from 'next-intl';
 import { vi } from 'vitest';
 import ViewPokPage from '@/app/[locale]/poks/[id]/page';
 import { pokApi, type Pok } from '@/lib/pokApi';
-import { createMockRouter, poksMessages } from '@/test/page-test-utils';
+import { tagApi } from '@/lib/tagApi';
+import { createMockRouter, poksMessages, tagsMessages } from '@/test/page-test-utils';
 
 const mockRouter = createMockRouter();
 
@@ -26,6 +27,25 @@ vi.mock('@/lib/api', () => ({
   ApiRequestError: class ApiRequestError extends Error {},
 }));
 
+vi.mock('@/lib/tagApi', () => ({
+  tagApi: {
+    remove: vi.fn(),
+    assign: vi.fn(),
+  },
+}));
+
+vi.mock('@/hooks/useTags', () => ({
+  useTags: () => ({
+    tags: [],
+    isLoading: false,
+    error: null,
+    createTag: vi.fn(),
+    deleteTag: vi.fn(),
+    assignTag: vi.fn(),
+    removeTag: vi.fn(),
+  }),
+}));
+
 vi.mock('@/components/ui/Toast', () => ({
   Toast: ({ message, onDismiss }: { message: string; onDismiss: () => void }) => (
     <div role="status">
@@ -45,6 +65,7 @@ vi.mock('@/components/poks/DeletePokButton', () => ({
 
 const mockGetById = vi.mocked(pokApi.getById);
 const mockDelete = vi.mocked(pokApi.delete);
+const mockTagRemove = vi.mocked(tagApi.remove);
 
 const mockPok: Pok = {
   id: 'pok-123',
@@ -54,11 +75,15 @@ const mockPok: Pok = {
   deletedAt: null,
   createdAt: '2026-02-14T10:00:00Z',
   updatedAt: '2026-02-15T12:00:00Z',
+  tags: [],
+  pendingSuggestions: [],
 };
+
+const allMessages = { ...poksMessages, ...tagsMessages };
 
 const renderViewPage = () =>
   render(
-    <NextIntlClientProvider locale="en" messages={poksMessages}>
+    <NextIntlClientProvider locale="en" messages={allMessages}>
       <ViewPokPage />
     </NextIntlClientProvider>
   );
@@ -116,6 +141,13 @@ describe('ViewPokPage', () => {
       );
     });
 
+    it('renders the add-tag button', async () => {
+      renderViewPage();
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: /add tag/i })).toBeInTheDocument()
+      );
+    });
+
     describe('on delete', () => {
       beforeEach(() => {
         mockDelete.mockResolvedValue(undefined);
@@ -142,6 +174,67 @@ describe('ViewPokPage', () => {
           expect(mockRouter.push).toHaveBeenCalledWith('/en/poks')
         );
       });
+    });
+  });
+
+  describe('with assigned tags', () => {
+    const mockPokWithTags: Pok = {
+      ...mockPok,
+      tags: [
+        { id: 'ut-1', tagId: 'tag-1', name: 'react', color: 'blue', createdAt: '2026-02-14T10:00:00Z' },
+        { id: 'ut-2', tagId: 'tag-2', name: 'typescript', color: 'green', createdAt: '2026-02-14T10:00:00Z' },
+      ],
+    };
+
+    it('renders tag badges for assigned tags', async () => {
+      mockGetById.mockResolvedValue(mockPokWithTags);
+      renderViewPage();
+      await waitFor(() => {
+        expect(screen.getByText('react')).toBeInTheDocument();
+        expect(screen.getByText('typescript')).toBeInTheDocument();
+      });
+    });
+
+    it('calls tagApi.remove and reloads when a tag is removed', async () => {
+      mockTagRemove.mockResolvedValue(undefined);
+      mockGetById
+        .mockResolvedValueOnce(mockPokWithTags)
+        .mockResolvedValueOnce({ ...mockPok, tags: [] });
+
+      const user = userEvent.setup();
+      renderViewPage();
+      await waitFor(() => screen.getByText('react'));
+
+      const removeButtons = screen.getAllByRole('button', { name: /remove tag react/i });
+      await user.click(removeButtons[0]);
+
+      await waitFor(() =>
+        expect(mockTagRemove).toHaveBeenCalledWith('pok-123', 'ut-1')
+      );
+    });
+  });
+
+  describe('with pending tag suggestions', () => {
+    const mockPokWithSuggestions: Pok = {
+      ...mockPok,
+      pendingSuggestions: [
+        { id: 'sug-1', pokId: 'pok-123', suggestedName: 'javascript', status: 'PENDING' },
+      ],
+    };
+
+    it('renders the tag suggestion prompt when suggestions exist', async () => {
+      mockGetById.mockResolvedValue(mockPokWithSuggestions);
+      renderViewPage();
+      await waitFor(() =>
+        expect(screen.getByText('javascript')).toBeInTheDocument()
+      );
+    });
+
+    it('does not render the suggestion prompt when there are no suggestions', async () => {
+      mockGetById.mockResolvedValue(mockPok);
+      renderViewPage();
+      await waitFor(() => screen.getByText(/some useful content/i));
+      expect(screen.queryByText(/suggested tags/i)).not.toBeInTheDocument();
     });
   });
 

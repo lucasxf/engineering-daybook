@@ -108,7 +108,9 @@ public class PokService {
         // Trigger async vector embedding generation (non-blocking)
         embeddingGenerationService.generateEmbeddingForPok(savedPok.getId());
 
-        return PokResponse.from(savedPok);
+        List<TagResponse> tags = buildTagResponses(savedPok.getId(), userId);
+        List<TagSuggestionResponse> suggestions = buildSuggestionResponses(savedPok.getId());
+        return PokResponse.from(savedPok, tags, suggestions);
     }
 
     /**
@@ -387,7 +389,12 @@ public class PokService {
         // Trigger async vector embedding regeneration (non-blocking)
         embeddingGenerationService.generateEmbeddingForPok(id);
 
-        return PokResponse.from(updatedPok);
+        // Trigger async AI tag suggestions (non-blocking) — content may have changed
+        tagSuggestionService.suggestTagsForPok(id, userId);
+
+        List<TagResponse> tags = buildTagResponses(id, userId);
+        List<TagSuggestionResponse> suggestions = buildSuggestionResponses(id);
+        return PokResponse.from(updatedPok, tags, suggestions);
     }
 
     /**
