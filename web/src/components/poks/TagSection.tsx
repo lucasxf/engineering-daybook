@@ -136,7 +136,6 @@ export function TagSection({ pokId, tags, pendingSuggestions, onChanged }: TagSe
                     placeholder={tTags('createNew')}
                     className="min-w-0 flex-1 rounded border border-gray-200 px-2 py-1 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
                     disabled={isBusy}
-                    // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus
                   />
                   <button
