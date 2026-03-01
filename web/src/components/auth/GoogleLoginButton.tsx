@@ -59,7 +59,7 @@ export function GoogleLoginButton({ mode }: GoogleLoginButtonProps) {
 
   return (
     <div>
-      <div className="flex justify-center rounded-md bg-white p-1 dark:bg-white">
+      <div className="flex justify-center overflow-hidden rounded-lg bg-white dark:bg-white">
         <GoogleLogin
           onSuccess={handleSuccess}
           onError={handleError}

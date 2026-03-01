@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { pokApi, type Pok } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 
 interface QuickEntryProps {
   onSaved: (pok: Pok) => void;
@@ -91,18 +92,18 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
         </p>
       )}
 
-      <div className="mt-2 flex items-center justify-between">
+      <div className="mt-3 flex items-center justify-between border-t border-slate-200 pt-3 dark:border-slate-700">
         <span className="text-xs text-slate-400 dark:text-slate-500">
           {t('quickEntry.hint')}
         </span>
-        <button
-          type="button"
+        <Button
+          variant="primary"
+          size="sm"
           onClick={handleSave}
           disabled={!content.trim() || saving}
-          className="rounded-md bg-primary-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {saving ? t('quickEntry.saving') : t('form.createButton')}
-        </button>
+        </Button>
       </div>
     </Card>
   );

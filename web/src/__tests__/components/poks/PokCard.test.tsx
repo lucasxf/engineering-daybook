@@ -1,12 +1,28 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
 import { PokCard } from '@/components/poks/PokCard';
 import { Pok } from '@/lib/pokApi';
 
+const mockPush = vi.hoisted(() => vi.fn());
+
 vi.mock('next/navigation', () => ({
   useParams: () => ({ locale: 'en' }),
+  useRouter: () => ({ push: mockPush }),
+}));
+
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => {
+    const keys: Record<string, string> = { 'view.editButton': 'Edit' };
+    return keys[key] ?? key;
+  },
 }));
 
 describe('PokCard', () => {
+  beforeEach(() => {
+    mockPush.mockClear();
+  });
+
   const basePok: Pok = {
     id: '123',
     userId: 'user-1',
@@ -75,5 +91,20 @@ describe('PokCard', () => {
 
     // Should display updatedAt in some format
     expect(screen.getByText(/2026|Feb|14/)).toBeInTheDocument();
+  });
+
+  it('renders an edit icon button with correct aria-label', () => {
+    render(<PokCard pok={basePok} />);
+
+    expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument();
+  });
+
+  it('navigates to edit page when edit icon is clicked without following card link', async () => {
+    const user = userEvent.setup();
+    render(<PokCard pok={basePok} />);
+
+    await user.click(screen.getByRole('button', { name: /edit/i }));
+
+    expect(mockPush).toHaveBeenCalledWith('/en/poks/123/edit');
   });
 });
