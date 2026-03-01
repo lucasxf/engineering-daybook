@@ -66,14 +66,14 @@ export function DeletePokButton({ onDelete }: DeletePokButtonProps) {
           aria-modal="true"
           aria-labelledby="delete-dialog-title"
         >
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-slate-800">
             <h2
               id="delete-dialog-title"
-              className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100"
+              className="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-100"
             >
               {t('confirmTitle')}
             </h2>
-            <p className="mb-6 text-gray-600 dark:text-gray-400">
+            <p className="mb-6 text-slate-600 dark:text-slate-400">
               {t('confirmMessage')}
             </p>
             <div className="flex justify-end space-x-3">

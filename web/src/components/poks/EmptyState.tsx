@@ -17,9 +17,9 @@ export function EmptyState() {
   const params = useParams<{ locale: string }>();
 
   return (
-    <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-8 text-center dark:border-gray-700">
+    <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 p-8 text-center dark:border-slate-700">
       <svg
-        className="mb-4 h-16 w-16 text-gray-400 dark:text-gray-600"
+        className="mb-4 h-16 w-16 text-slate-400 dark:text-slate-600"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -33,7 +33,7 @@ export function EmptyState() {
           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
         />
       </svg>
-      <p className="mb-4 text-lg text-gray-600 dark:text-gray-400">
+      <p className="mb-4 text-lg text-slate-600 dark:text-slate-400">
         {t('message')}
       </p>
       <Link

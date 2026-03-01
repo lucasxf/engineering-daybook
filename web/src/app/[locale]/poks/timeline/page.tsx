@@ -52,7 +52,7 @@ function TimelineContent() {
     <div className="mx-auto max-w-7xl py-8">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
           {t('timeline.title')}
         </h1>
       </div>

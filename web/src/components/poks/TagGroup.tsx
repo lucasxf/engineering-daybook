@@ -18,7 +18,7 @@ interface TagGroupProps {
 export function TagGroup({ label, poks }: TagGroupProps) {
   return (
     <section className="mb-8">
-      <h2 className="mb-3 text-xl font-semibold text-gray-900 dark:text-gray-100">{label}</h2>
+      <h2 className="mb-3 text-xl font-semibold text-slate-900 dark:text-slate-100">{label}</h2>
       <div className="flex flex-col gap-3">
         {poks.map((pok) => (
           <PokCard key={pok.id} pok={pok} />

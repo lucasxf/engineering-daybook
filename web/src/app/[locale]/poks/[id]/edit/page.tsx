@@ -115,7 +115,7 @@ export default function EditPokPage() {
   return (
     <div className="mx-auto max-w-2xl py-8">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
           {t('edit.title')}
         </h1>
         <Link href={`/${params.locale}/poks/${pokId}` as never}>

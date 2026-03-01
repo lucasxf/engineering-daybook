@@ -110,14 +110,14 @@ export default function ViewPokPage() {
         </div>
       </div>
 
-      <article className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <article className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
         {pok.title && (
-          <h1 className="mb-4 text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="mb-4 text-3xl font-bold text-slate-900 dark:text-slate-100">
             {pok.title}
           </h1>
         )}
         <div className="prose prose-gray max-w-none dark:prose-invert">
-          <p className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+          <p className="whitespace-pre-wrap text-slate-700 dark:text-slate-300">
             {pok.content}
           </p>
         </div>
@@ -129,7 +129,7 @@ export default function ViewPokPage() {
           onChanged={loadPok}
         />
 
-        <div className="mt-6 flex space-x-4 text-sm text-gray-500 dark:text-gray-500">
+        <div className="mt-6 flex space-x-4 text-sm text-slate-500 dark:text-slate-500">
           <time dateTime={pok.createdAt}>
             {t('view.created')}: {new Date(pok.createdAt).toLocaleDateString(params.locale)}
           </time>

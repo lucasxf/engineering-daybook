@@ -43,7 +43,7 @@ export default function NewPokPage() {
 
   return (
     <div className="mx-auto max-w-2xl py-8">
-      <h1 className="mb-6 text-3xl font-bold text-gray-900 dark:text-gray-100">
+      <h1 className="mb-6 text-3xl font-bold text-slate-900 dark:text-slate-100">
         {t('create.title')}
       </h1>
 

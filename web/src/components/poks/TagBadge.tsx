@@ -13,7 +13,7 @@ interface TagBadgeProps {
 export function TagBadge({ tag, onRemove }: TagBadgeProps) {
   return (
     <span
-      className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+      className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300"
       style={{ borderLeft: `3px solid ${resolveColor(tag.color)}` }}
     >
       {tag.name}
@@ -25,7 +25,7 @@ export function TagBadge({ tag, onRemove }: TagBadgeProps) {
             e.stopPropagation();
             onRemove(tag.id);
           }}
-          className="ml-0.5 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+          className="ml-0.5 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
           aria-label={`Remove tag ${tag.name}`}
         >
           ×

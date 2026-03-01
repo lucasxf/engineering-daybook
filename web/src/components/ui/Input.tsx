@@ -22,7 +22,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           'disabled:cursor-not-allowed disabled:opacity-50',
           hasError
             ? 'border-red-500 focus:ring-red-500'
-            : 'border-gray-300 dark:border-gray-600',
+            : 'border-slate-300 dark:border-slate-600',
           className
         )}
         {...props}

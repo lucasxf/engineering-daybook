@@ -186,7 +186,7 @@ export function RegisterForm({ locale }: RegisterFormProps) {
                   'h-full flex-1 rounded-full',
                   strength === 'medium' || strength === 'strong'
                     ? strengthColors[strength]
-                    : 'bg-gray-200 dark:bg-gray-700'
+                    : 'bg-slate-200 dark:bg-slate-700'
                 )}
               />
               <div
@@ -194,7 +194,7 @@ export function RegisterForm({ locale }: RegisterFormProps) {
                   'h-full flex-1 rounded-full',
                   strength === 'strong'
                     ? strengthColors[strength]
-                    : 'bg-gray-200 dark:bg-gray-700'
+                    : 'bg-slate-200 dark:bg-slate-700'
                 )}
               />
             </div>

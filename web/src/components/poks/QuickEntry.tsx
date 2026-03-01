@@ -62,14 +62,14 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
   );
 
   return (
-    <div className="mb-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+    <div className="mb-6 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
       <input
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder={t('form.titlePlaceholder')}
         disabled={saving}
-        className="mb-2 w-full rounded-md border border-gray-200 bg-transparent px-2 py-1.5 text-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:opacity-50 dark:border-gray-700 dark:placeholder-gray-500"
+        className="mb-2 w-full rounded-md border border-slate-200 bg-transparent px-2 py-1.5 text-sm placeholder-slate-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:opacity-50 dark:border-slate-700 dark:placeholder-slate-500"
         aria-label={t('form.titleLabel')}
       />
       <textarea
@@ -80,7 +80,7 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
         placeholder={t('quickEntry.placeholder')}
         disabled={saving}
         rows={3}
-        className="w-full resize-none rounded-md border border-gray-200 bg-transparent p-2 text-sm placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:opacity-50 dark:border-gray-700 dark:placeholder-gray-500"
+        className="w-full resize-none rounded-md border border-slate-200 bg-transparent p-2 text-sm placeholder-slate-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:opacity-50 dark:border-slate-700 dark:placeholder-slate-500"
         aria-label={t('quickEntry.placeholder')}
       />
 
@@ -91,7 +91,7 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
       )}
 
       <div className="mt-2 flex items-center justify-between">
-        <span className="text-xs text-gray-400 dark:text-gray-500">
+        <span className="text-xs text-slate-400 dark:text-slate-500">
           {t('quickEntry.hint')}
         </span>
         <button
