@@ -2,8 +2,15 @@ import { render, screen } from '@testing-library/react';
 import { PokList } from '@/components/poks/PokList';
 import { Pok } from '@/lib/pokApi';
 
+const mockPush = vi.hoisted(() => vi.fn());
+
 vi.mock('next/navigation', () => ({
   useParams: () => ({ locale: 'en' }),
+  useRouter: () => ({ push: mockPush }),
+}));
+
+vi.mock('next-intl', () => ({
+  useTranslations: () => (key: string) => key,
 }));
 
 describe('PokList', () => {

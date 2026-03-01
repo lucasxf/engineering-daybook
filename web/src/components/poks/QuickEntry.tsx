@@ -4,8 +4,10 @@ import { useState, useRef, useCallback, KeyboardEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { pokApi, type Pok } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
+import type { Tag } from '@/lib/tagApi';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { TagPicker } from './TagPicker';
 
 interface QuickEntryProps {
   onSaved: (pok: Pok) => void;
@@ -15,8 +17,8 @@ interface QuickEntryProps {
  * Phase A inline quick-entry for capturing learnings without leaving the feed.
  *
  * Content-only textarea — no title field. Submit via Ctrl+Enter (Cmd+Enter on Mac).
- * On success: clears the textarea, shows a toast (via onSaved callback), and
- * prepends the new learning to the feed.
+ * Includes an inline TagPicker so tags can be pre-assigned atomically at creation.
+ * On success: clears the textarea and tag selection, then calls onSaved.
  *
  * The "New Learning" button remains available in the header for the full-form
  * experience (deliberate entries with titles).
@@ -25,6 +27,7 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
   const t = useTranslations('poks');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -37,9 +40,14 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
     setError(null);
     try {
       const trimmedTitle = title.trim() || null;
-      const pok = await pokApi.create({ title: trimmedTitle, content: trimmedContent });
+      const pok = await pokApi.create({
+        title: trimmedTitle,
+        content: trimmedContent,
+        ...(selectedTags.length > 0 && { tagIds: selectedTags.map((tag) => tag.id) }),
+      });
       setTitle('');
       setContent('');
+      setSelectedTags([]);
       onSaved(pok);
     } catch (err) {
       if (err instanceof ApiRequestError) {
@@ -51,7 +59,7 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
       setSaving(false);
       textareaRef.current?.focus();
     }
-  }, [title, content, saving, onSaved, t]);
+  }, [title, content, selectedTags, saving, onSaved, t]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -85,6 +93,8 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
         className="w-full resize-none rounded-md border border-slate-200 bg-transparent p-2 text-sm placeholder-slate-400 placeholder:italic focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:opacity-50 dark:border-slate-700 dark:placeholder-slate-500"
         aria-label={t('quickEntry.placeholder')}
       />
+
+      <TagPicker selectedTags={selectedTags} onSelectionChange={setSelectedTags} />
 
       {error && (
         <p role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400">

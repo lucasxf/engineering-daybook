@@ -19,6 +19,7 @@ export interface Pok {
 export interface CreatePokDto {
   title?: string | null;
   content: string;
+  tagIds?: string[];
 }
 
 export interface UpdatePokDto {

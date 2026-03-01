@@ -4,9 +4,11 @@ import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
 import { Alert } from '@/components/ui/Alert';
 import { PokForm } from '@/components/poks/PokForm';
+import { TagPicker } from '@/components/poks/TagPicker';
 import { pokApi } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
 import { useState } from 'react';
+import type { Tag } from '@/lib/tagApi';
 import type { PokFormData } from '@/lib/validations/pokSchema';
 
 /**
@@ -14,6 +16,7 @@ import type { PokFormData } from '@/lib/validations/pokSchema';
  *
  * Features:
  * - PokForm component for input
+ * - TagPicker slot for pre-assigning tags atomically
  * - Success toast + redirect to POK list
  * - Error handling with user-friendly messages
  */
@@ -22,6 +25,7 @@ export default function NewPokPage() {
   const router = useRouter();
   const params = useParams<{ locale: string }>();
   const [error, setError] = useState<string | null>(null);
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
   const handleSubmit = async (data: PokFormData) => {
     setError(null);
@@ -29,9 +33,10 @@ export default function NewPokPage() {
       const newPok = await pokApi.create({
         title: data.title || null,
         content: data.content,
+        ...(selectedTags.length > 0 && { tagIds: selectedTags.map((tag) => tag.id) }),
       });
 
-      // Redirect to the new POK's view page so the user can immediately add tags
+      // Redirect to the new POK's view page
       router.push(`/${params.locale}/poks/${newPok.id}` as never);
     } catch (err) {
       if (err instanceof ApiRequestError) {
@@ -50,7 +55,13 @@ export default function NewPokPage() {
 
       {error && <Alert variant="error" className="mb-4">{error}</Alert>}
 
-      <PokForm onSubmit={handleSubmit} mode="create" />
+      <PokForm
+        onSubmit={handleSubmit}
+        mode="create"
+        renderAfterContent={
+          <TagPicker selectedTags={selectedTags} onSelectionChange={setSelectedTags} />
+        }
+      />
     </div>
   );
 }
