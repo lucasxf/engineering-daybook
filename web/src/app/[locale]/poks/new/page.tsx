@@ -25,13 +25,13 @@ export default function NewPokPage() {
   const handleSubmit = async (data: PokFormData) => {
     setError(null);
     try {
-      await pokApi.create({
+      const newPok = await pokApi.create({
         title: data.title || null,
         content: data.content,
       });
 
-      // Success - redirect to POK list
-      router.push(`/${params.locale}/poks` as never);
+      // Redirect to the new POK's view page so the user can immediately add tags
+      router.push(`/${params.locale}/poks/${newPok.id}` as never);
     } catch (err) {
       if (err instanceof ApiRequestError) {
         setError(err.message);
