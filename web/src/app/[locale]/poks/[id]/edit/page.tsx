@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { PokForm } from '@/components/poks/PokForm';
+import { TagSection } from '@/components/poks/TagSection';
 import { pokApi, type Pok } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
@@ -84,7 +85,7 @@ export default function EditPokPage() {
     );
   }
 
-  if (error || !pok) {
+  if (error !== null || !pok) {
     return (
       <div className="mx-auto max-w-2xl py-8">
         <div
@@ -127,6 +128,13 @@ export default function EditPokPage() {
           title: pok.title || '',
           content: pok.content,
         }}
+      />
+
+      <TagSection
+        pokId={pokId}
+        tags={pok.tags}
+        pendingSuggestions={pok.pendingSuggestions}
+        onChanged={loadPok}
       />
 
       {showSuccessToast && (

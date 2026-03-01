@@ -34,6 +34,14 @@ vi.mock('@/components/ui/Toast', () => ({
   ),
 }));
 
+vi.mock('@/components/poks/TagSection', () => ({
+  TagSection: ({ pokId, tags }: { pokId: string; tags: { name: string }[] }) => (
+    <div data-testid="tag-section" data-pok-id={pokId}>
+      {tags.map((t) => <span key={t.name}>{t.name}</span>)}
+    </div>
+  ),
+}));
+
 vi.mock('@/components/poks/PokForm', () => ({
   PokForm: ({ onSubmit, initialData }: { onSubmit: (d: { title: string; content: string }) => void; initialData?: { title: string; content: string } }) => (
     <div>
@@ -113,6 +121,15 @@ describe('EditPokPage', () => {
       await waitFor(() => {
         const cancelLink = screen.getByRole('link', { name: /cancel/i });
         expect(cancelLink).toHaveAttribute('href', '/en/poks/pok-456');
+      });
+    });
+
+    it('renders the tag section for the pok', async () => {
+      renderEditPage();
+      await waitFor(() => {
+        const tagSection = screen.getByTestId('tag-section');
+        expect(tagSection).toBeInTheDocument();
+        expect(tagSection).toHaveAttribute('data-pok-id', 'pok-456');
       });
     });
   });
