@@ -40,7 +40,7 @@ export function SearchBar({ onSearch, initialValue = '', placeholder }: SearchBa
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full focus-within:ring-1 focus-within:ring-primary-500 rounded-md">
       <input
         type="text"
         value={value}

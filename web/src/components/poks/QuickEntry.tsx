@@ -81,7 +81,7 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
         placeholder={t('quickEntry.placeholder')}
         disabled={saving}
         rows={3}
-        className="w-full resize-none rounded-md border border-slate-200 bg-transparent p-2 text-sm placeholder-slate-400 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:opacity-50 dark:border-slate-700 dark:placeholder-slate-500"
+        className="w-full resize-none rounded-md border border-slate-200 bg-transparent p-2 text-sm placeholder-slate-400 placeholder:italic focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 disabled:opacity-50 dark:border-slate-700 dark:placeholder-slate-500"
         aria-label={t('quickEntry.placeholder')}
       />
 

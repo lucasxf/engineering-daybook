@@ -43,10 +43,10 @@ export function PokCard({ pok, dateField = 'updatedAt' }: PokCardProps) {
   return (
     <Link
       href={`/${params.locale}/poks/${pok.id}` as never}
-      className="block rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
+      className="group block rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
     >
       <article>
-        <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
+        <h3 className="mb-2 text-lg font-semibold text-slate-900 transition-colors group-hover:text-primary-600 dark:text-slate-100 dark:group-hover:text-primary-400">
           {header}
         </h3>
         <p className="mb-3 text-sm text-slate-600 dark:text-slate-400">
