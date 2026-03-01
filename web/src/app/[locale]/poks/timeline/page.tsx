@@ -8,6 +8,7 @@ import { SortDropdown } from '@/components/poks/SortDropdown';
 import { TimelineView } from '@/components/poks/TimelineView';
 import { NoSearchResults } from '@/components/poks/NoSearchResults';
 import { EmptyState } from '@/components/poks/EmptyState';
+import { Alert } from '@/components/ui/Alert';
 import { Spinner } from '@/components/ui/Spinner';
 import { usePoksData } from '@/hooks/usePoksData';
 
@@ -72,15 +73,7 @@ function TimelineContent() {
         </div>
       </div>
 
-      {/* Error Alert */}
-      {error && (
-        <div
-          role="alert"
-          className="mb-4 rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-400"
-        >
-          {error}
-        </div>
-      )}
+      {error && <Alert variant="error" className="mb-4">{error}</Alert>}
 
       {/* Content */}
       {loading ? (

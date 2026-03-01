@@ -8,6 +8,7 @@ import { PokForm } from '@/components/poks/PokForm';
 import { TagSection } from '@/components/poks/TagSection';
 import { pokApi, type Pok } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
+import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { Toast } from '@/components/ui/Toast';
@@ -99,12 +100,7 @@ export default function EditPokPage() {
   if (error !== null || !pok) {
     return (
       <div className="mx-auto max-w-2xl py-8">
-        <div
-          role="alert"
-          className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-400"
-        >
-          {error || t('errors.notFound')}
-        </div>
+        <Alert variant="error">{error || t('errors.notFound')}</Alert>
         <Link href={`/${params.locale}/poks` as never}>
           <Button className="mt-4">{t('view.backButton')}</Button>
         </Link>
@@ -123,14 +119,7 @@ export default function EditPokPage() {
         </Link>
       </div>
 
-      {error && (
-        <div
-          role="alert"
-          className="mb-4 rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-400"
-        >
-          {error}
-        </div>
-      )}
+      {error && <Alert variant="error" className="mb-4">{error}</Alert>}
 
       <PokForm
         onSubmit={handleSubmit}

@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, KeyboardEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { pokApi, type Pok } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
+import { Card } from '@/components/ui/Card';
 
 interface QuickEntryProps {
   onSaved: (pok: Pok) => void;
@@ -62,7 +63,7 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
   );
 
   return (
-    <div className="mb-6 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+    <Card className="mb-6 p-4 shadow-sm dark:bg-slate-900">
       <input
         type="text"
         value={title}
@@ -103,6 +104,6 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
           {saving ? t('quickEntry.saving') : t('form.createButton')}
         </button>
       </div>
-    </div>
+    </Card>
   );
 }

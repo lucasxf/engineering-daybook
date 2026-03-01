@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { resetPasswordSchema, type ResetPasswordFormData } from '@/lib/validations';
 import { confirmPasswordResetApi } from '@/lib/auth';
 import { ApiRequestError } from '@/lib/api';
+import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
 import { FormField } from '@/components/ui/FormField';
 import { Spinner } from '@/components/ui/Spinner';
@@ -56,14 +57,7 @@ export function ResetPasswordForm({ token, locale }: ResetPasswordFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-      {serverError && (
-        <div
-          role="alert"
-          className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-400"
-        >
-          {serverError}
-        </div>
-      )}
+      {serverError && <Alert variant="error">{serverError}</Alert>}
 
       <FormField
         label={t('newPassword')}
