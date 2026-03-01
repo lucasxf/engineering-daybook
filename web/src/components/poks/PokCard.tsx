@@ -44,15 +44,11 @@ export function PokCard({ pok, dateField = 'updatedAt' }: PokCardProps) {
   });
 
   return (
-    <Link
-      href={`/${params.locale}/poks/${pok.id}` as never}
-      className="group relative block rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
-    >
+    <div className="group relative rounded-lg border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600">
       <button
         type="button"
         aria-label={t('view.editButton')}
         onClick={(e) => {
-          e.preventDefault();
           e.stopPropagation();
           router.push(`/${params.locale}/poks/${pok.id}/edit` as never);
         }}
@@ -62,33 +58,38 @@ export function PokCard({ pok, dateField = 'updatedAt' }: PokCardProps) {
           <path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" />
         </svg>
       </button>
-      <article>
-        <h3 className="mb-2 text-lg font-semibold text-slate-900 transition-colors group-hover:text-primary-600 dark:text-slate-100 dark:group-hover:text-primary-400">
-          {header}
-        </h3>
-        <p className="mb-3 text-sm text-slate-600 dark:text-slate-400">
-          {contentPreview}
-        </p>
-        {pok.tags && pok.tags.length > 0 && (
-          <div className="mb-2 flex flex-wrap gap-1">
-            {pok.tags.slice(0, 3).map((tag) => (
-              <TagBadge key={tag.id} tag={tag} />
-            ))}
-            {pok.tags.length > 3 && (
-              <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-slate-500 dark:text-slate-400">
-                +{pok.tags.length - 3}
-              </span>
-            )}
-          </div>
-        )}
-        <time
-          dateTime={dateValue}
-          className="text-xs text-slate-500 dark:text-slate-500"
-        >
-          {formattedDate}
-        </time>
-      </article>
-    </Link>
+      <Link
+        href={`/${params.locale}/poks/${pok.id}` as never}
+        className="block p-4"
+      >
+        <article>
+          <h3 className="mb-2 text-lg font-semibold text-slate-900 transition-colors group-hover:text-primary-600 dark:text-slate-100 dark:group-hover:text-primary-400">
+            {header}
+          </h3>
+          <p className="mb-3 text-sm text-slate-600 dark:text-slate-400">
+            {contentPreview}
+          </p>
+          {pok.tags && pok.tags.length > 0 && (
+            <div className="mb-2 flex flex-wrap gap-1">
+              {pok.tags.slice(0, 3).map((tag) => (
+                <TagBadge key={tag.id} tag={tag} />
+              ))}
+              {pok.tags.length > 3 && (
+                <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-slate-500 dark:text-slate-400">
+                  +{pok.tags.length - 3}
+                </span>
+              )}
+            </div>
+          )}
+          <time
+            dateTime={dateValue}
+            className="text-xs text-slate-500 dark:text-slate-500"
+          >
+            {formattedDate}
+          </time>
+        </article>
+      </Link>
+    </div>
   );
 }
 

@@ -124,6 +124,8 @@ docker info
 ```
 The `Bash(export *)` permission in `.claude/settings.json` covers this. (Added 2026-03-01)
 
+**Never add machine-specific absolute paths to `settings.json`:** `.claude/settings.json` is version-controlled and committed to the remote repository. Machine-specific paths (e.g. `/c/repo/apache-maven-3.9.11/bin/mvn`, `/c/Users/lucas/AppData/Roaming/npm/npm.cmd`) must go in `.claude/settings.local.json`, which is gitignored. Only portable, tool-name-based patterns (e.g. `Bash(mvn *)`, `Bash(npm run *)`) belong in `settings.json`. (Added 2026-03-01)
+
 **Claude Code "allow always" dialog saves wrong permission format:** The "don't ask again" dialog writes permissions to `settings.local.json` using a colon-separated format (e.g. `Bash(export:*)`) instead of the correct space-separated format (`Bash(export *)`). The colon format never matches actual shell commands, so the permission is silently ignored and the dialog reappears. Fix: add correct patterns directly to `.claude/settings.json` using space-separated syntax. Do NOT rely on the "allow always" dialog to persist permissions correctly. (Added 2026-03-01)
 
 ---

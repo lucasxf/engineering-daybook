@@ -58,7 +58,7 @@ export default function NewPokPage() {
       <PokForm
         onSubmit={handleSubmit}
         mode="create"
-        renderAfterContent={
+        afterContent={
           <TagPicker selectedTags={selectedTags} onSelectionChange={setSelectedTags} />
         }
       />

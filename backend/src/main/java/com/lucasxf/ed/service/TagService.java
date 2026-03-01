@@ -231,6 +231,10 @@ public class TagService {
         for (UUID userTagId : userTagIds) {
             try {
                 UserTag userTag = findOwnedUserTag(userTagId, userId);
+                if (userTag.getTag() == null) {
+                    log.warn("UserTag {} has null tag association; skipping during POK creation", userTagId);
+                    continue;
+                }
                 UUID globalTagId = userTag.getTag().getId();
                 if (seen.add(globalTagId)) {
                     toSave.add(new PokTag(pokId, globalTagId, PokTag.Source.MANUAL));

@@ -96,7 +96,8 @@ export function TagPicker({ selectedTags, onSelectionChange }: TagPickerProps) {
                       <button
                         type="button"
                         onClick={() => handleSelect(tag)}
-                        className="w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700"
+                        disabled={isBusy}
+                        className="w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:text-slate-300 dark:hover:bg-slate-700"
                       >
                         {tag.name}
                       </button>

@@ -14,7 +14,7 @@ interface PokFormProps {
   onSubmit: (data: PokFormData) => void | Promise<void>;
   initialData?: Partial<PokFormData>;
   mode?: 'create' | 'edit';
-  renderAfterContent?: ReactNode;
+  afterContent?: ReactNode;
 }
 
 /**
@@ -35,7 +35,7 @@ export function PokForm({
   onSubmit,
   initialData,
   mode = 'create',
-  renderAfterContent,
+  afterContent,
 }: PokFormProps) {
   const t = useTranslations('poks');
 
@@ -88,7 +88,7 @@ export function PokForm({
         />
       </FormField>
 
-      {renderAfterContent}
+      {afterContent}
 
       <div className="flex justify-end">
         <Button type="submit" disabled={isSubmitting}>

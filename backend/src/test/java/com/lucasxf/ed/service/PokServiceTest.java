@@ -41,6 +41,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import org.springframework.test.util.ReflectionTestUtils;
+
 /**
  * Unit tests for {@link PokService}.
  *
@@ -156,14 +158,16 @@ class PokServiceTest {
         List<UUID> tagIds = List.of(tagId1, tagId2);
         CreatePokRequest request = new CreatePokRequest("Title", "Content", tagIds);
         Pok savedPok = new Pok(userId, "Title", "Content");
+        UUID savedPokId = UUID.randomUUID();
+        ReflectionTestUtils.setField(savedPok, "id", savedPokId);
 
         when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
 
         // When
         pokService.create(request, userId);
 
-        // Then
-        verify(tagService).assignTagsToNewPok(savedPok.getId(), tagIds, userId);
+        // Then: a real UUID (not null) is forwarded to the tag service
+        verify(tagService).assignTagsToNewPok(savedPokId, tagIds, userId);
     }
 
     @Test
@@ -171,14 +175,16 @@ class PokServiceTest {
         // Given
         CreatePokRequest request = new CreatePokRequest("Title", "Content", null);
         Pok savedPok = new Pok(userId, "Title", "Content");
+        UUID savedPokId = UUID.randomUUID();
+        ReflectionTestUtils.setField(savedPok, "id", savedPokId);
 
         when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
 
         // When
         pokService.create(request, userId);
 
-        // Then: assignTagsToNewPok is called; it handles null gracefully internally
-        verify(tagService).assignTagsToNewPok(savedPok.getId(), null, userId);
+        // Then: assignTagsToNewPok is called with the real pokId; it handles null tagIds internally
+        verify(tagService).assignTagsToNewPok(savedPokId, null, userId);
     }
 
     // ===== GET POK BY ID TESTS =====

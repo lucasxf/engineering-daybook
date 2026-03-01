@@ -22,6 +22,8 @@ import jakarta.validation.constraints.Size;
 public record CreatePokRequest(
     @Size(max = 200, message = "Title must be 200 characters or less") String title,
     @NotBlank(message = "Content is required and must not be blank")
-    @Size(min = 1, max = 50000, message = "Content must be between 1 and 50,000 characters") String content,
+    @Size(min = 1, max = 50000, message = "Content must be between 1 and 50,000 characters")
+    String content,
+    @Size(max = 50, message = "You can assign at most 50 tags when creating a learning")
     List<UUID> tagIds) {
 }
