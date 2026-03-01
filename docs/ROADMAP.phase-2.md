@@ -56,6 +56,11 @@
 - All 256 unit tests pass; build clean; lint clean
 - **Still deferred:** TagInput combobox (FR8/AC19 edit-before-approve) and TagFilter (FR10/FR11) — web components not yet implemented
 
+**Notes (2026-03-01, PR #100 review fixes):**
+- Accessibility: `aria-label` added to icon-only "create tag" button in `TagSection` (was unlabelled for screen readers)
+- UX: tag input text is now preserved when tag creation fails — `setNewTagName`/`setShowPicker` moved inside the `if (tag)` success branch so the picker stays open and the typed name is not lost on failure
+- Edit page stability: `onChanged` in `EditPokPage` now calls a targeted `refreshTags` helper instead of the full `loadPok`, preventing the loading gate from toggling and unmounting the form (losing unsaved edits) on every tag change
+
 ### Milestone 2.3: Visualization ✅
 
 > **Spec:** `docs/specs/features/tags-visualization.md` — Status: Implemented (feat/tags-visualization, 2026-02-25)
