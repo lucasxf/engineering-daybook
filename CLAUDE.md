@@ -128,10 +128,10 @@ Active work:
 - [ ] Milestone 1.7.6: General visual quality — UI needs design pass
 - [ ] Phase 1 exit criterion: author uses app for 1+ week with satisfaction
 
-**Phase 2: Evolution** — 🔄 Started (2.1 done; 2.2 partially implemented; 2.3 done)
+**Phase 2: Evolution** — 🔄 Started (2.1, 2.2, 2.3 done; 2.4 planned)
 
 - [x] Milestone 2.1: POK editing, deletion, audit trail
-- [~] Milestone 2.2: Tagging System — backend + TagBadge/TagSuggestionPrompt web done (2026-02-25); TagFilter + TagInput combobox deferred
+- [x] Milestone 2.2: Tagging System — full web UI done (TagSection, add/remove tags from view and edit pages, post-create redirect to tag UI); TagFilter + TagInput combobox deferred but not blocking (2026-03-01)
 - [x] Milestone 2.3: Visualization (timeline, tag-grouped view, sort) — done (2026-02-25)
 - [ ] Milestone 2.4: UX Delight (inspirational prompts, homepage personalization)
 
