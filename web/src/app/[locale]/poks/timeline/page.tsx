@@ -50,7 +50,7 @@ function TimelineContent() {
   const showEmptyState = isEmptyResults && !hasSearchOrFilter && error === null;
 
   return (
-    <div className="mx-auto max-w-7xl py-8">
+    <div className="mx-auto max-w-7xl">
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">

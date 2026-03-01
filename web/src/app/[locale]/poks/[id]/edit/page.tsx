@@ -99,7 +99,7 @@ export default function EditPokPage() {
 
   if (error !== null || !pok) {
     return (
-      <div className="mx-auto max-w-2xl py-8">
+      <div className="mx-auto max-w-2xl">
         <Alert variant="error">{error || t('errors.notFound')}</Alert>
         <Link href={`/${params.locale}/poks` as never}>
           <Button className="mt-4">{t('view.backButton')}</Button>
