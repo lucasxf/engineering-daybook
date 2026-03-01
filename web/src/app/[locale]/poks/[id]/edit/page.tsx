@@ -56,6 +56,17 @@ export default function EditPokPage() {
     }
   };
 
+  // Refresh only tags/suggestions without toggling page-level loading.
+  // Wired to TagSection.onChanged so tag actions don't unmount PokForm and discard unsaved edits.
+  const refreshTags = async () => {
+    try {
+      const data = await pokApi.getById(pokId);
+      setPok((prev) => prev ? { ...prev, tags: data.tags, pendingSuggestions: data.pendingSuggestions } : data);
+    } catch {
+      // Silently ignore — tag UI remains usable from current state
+    }
+  };
+
   const handleSubmit = async (data: PokFormData) => {
     setError(null);
     try {
@@ -134,7 +145,7 @@ export default function EditPokPage() {
         pokId={pokId}
         tags={pok.tags}
         pendingSuggestions={pok.pendingSuggestions}
-        onChanged={loadPok}
+        onChanged={refreshTags}
       />
 
       {showSuccessToast && (

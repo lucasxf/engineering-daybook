@@ -125,6 +125,28 @@ describe('TagSection', () => {
     expect(onChanged).toHaveBeenCalled();
   });
 
+  it('create button has an accessible name', async () => {
+    const user = userEvent.setup();
+    renderSection();
+    await user.click(screen.getByRole('button', { name: /add tag/i }));
+    // The icon-only "+" button must have an aria-label so screen readers can announce it
+    expect(screen.getByRole('button', { name: /new tag name/i })).toBeInTheDocument();
+  });
+
+  it('keeps the picker open and input filled when tag creation fails', async () => {
+    const user = userEvent.setup();
+    // mockCreateTag returns null by default (failure case)
+    renderSection();
+    await user.click(screen.getByRole('button', { name: /add tag/i }));
+    await user.type(screen.getByPlaceholderText(/new tag name/i), 'typescript');
+    await user.keyboard('{Enter}');
+
+    await waitFor(() => expect(mockCreateTag).toHaveBeenCalledWith('typescript'));
+    // Picker should remain open and input should retain the typed value
+    expect(screen.getByPlaceholderText(/new tag name/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/new tag name/i)).toHaveValue('typescript');
+  });
+
   it('renders TagSuggestionPrompt when suggestions exist', () => {
     renderSection({
       pendingSuggestions: [

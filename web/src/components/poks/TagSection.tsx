@@ -77,9 +77,9 @@ export function TagSection({ pokId, tags, pendingSuggestions, onChanged }: TagSe
       if (tag) {
         await assignTag(pokId, tag.id);
         onChanged();
+        setNewTagName('');
+        setShowPicker(false);
       }
-      setNewTagName('');
-      setShowPicker(false);
     } finally {
       setIsBusy(false);
     }
@@ -142,6 +142,7 @@ export function TagSection({ pokId, tags, pendingSuggestions, onChanged }: TagSe
                     onClick={handleCreateAndAssign}
                     disabled={isBusy || !newTagName.trim()}
                     className="rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700 disabled:opacity-50"
+                    aria-label={tTags('createNew')}
                   >
                     +
                   </button>
