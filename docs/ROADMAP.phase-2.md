@@ -42,6 +42,7 @@
 | 2.2.6 | Approve/reject/modify suggested tags | ✅ Backend + `TagSuggestionPrompt` web component (feat/tagging-system, 2026-02-25) |
 | 2.2.7 | Tag management UI — add/remove tags from ViewPokPage and EditPokPage | ✅ `TagSection` reusable component; wired into ViewPokPage and EditPokPage (fix/tag-system-fixes, 2026-03-01) |
 | 2.2.8 | Post-create redirect to view page for immediate tag access | ✅ NewPokPage redirects to `/{locale}/poks/{id}` after creation (fix/tag-system-fixes, 2026-03-01) |
+| 2.2.9 | Tag-at-creation — assign tags inline when creating a learning | ✅ Backend: `CreatePokRequest` extended with optional `List<UUID> tagIds`; `TagService.assignTagsToNewPok()` validates ownership, deduplicates, and batch-saves; `PokService.create()` calls it atomically. Web: `TagPicker` component (no pokId required, manages local selection); integrated into `QuickEntry` and `/poks/new`; `tagIds` passed on save; selection cleared after save (chore/fix-home-and-create-pok-screens, 2026-03-01) |
 
 **Notes (2026-02-25):**
 - Backend: `Tag`, `UserTag`, `PokTag`, `PokTagSuggestion` entities; `TagService`, `TagSuggestionService`, `TagController`; `PokResponse`/`PokService` extended to include tags
@@ -92,6 +93,15 @@
 |---|---------|----------|
 | 2.4.1 | Random inspirational prompt on "add new learning" page — e.g., "TIL (Today I learned...)" — from localised dictionary, changes on every page load | Should Have |
 | 2.4.2 | Homepage personalization after first learning: persistent layout of (1) quick-entry textarea and (2) search bar | Must Have |
+
+**Visual polish shipped (2026-03-01, chore/fix-home-and-create-pok-screens):**
+- Google login button: removed white padding gap, added `overflow-hidden`
+- Feed narrowed from `max-w-7xl` to `max-w-3xl` (better reading width)
+- `PokCard`: pencil edit icon appears on hover, routes to edit page
+- `ViewPokPage`: ghost back arrow, ghost edit+pencil, ghost trash bin buttons
+- `DeletePokButton`: ghost trash bin with red-on-hover
+- `MonthGroup` (timeline): 2-digit year, JS capitalization, removed CSS `capitalize`
+- i18n title casing: "My Learnings" → "My learnings", "Meus Aprendizados" → "Meus aprendizados"
 
 ---
 
