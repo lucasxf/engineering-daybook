@@ -146,3 +146,11 @@ npm run test     # Run tests (Vitest)
   ```
 
 - **`scrollIntoView` is not implemented in jsdom (Vitest) — use optional chaining on the method:** jsdom, which Vitest uses as its DOM environment, does not implement `scrollIntoView` on DOM elements. Calling `element.scrollIntoView({ block: 'nearest' })` in a component `useEffect` (e.g., inside a custom `Select` dropdown to scroll the active option into view) will throw `TypeError: item?.scrollIntoView is not a function` when the test runs. Fix: use optional chaining on the method itself — `element?.scrollIntoView?.({ block: 'nearest' })` — so the call silently no-ops when the method is absent. The `?.` before the method name (not just before the object) is what matters.
+
+- **`<button>` (or `<Button>`) inside `<Link>` is invalid HTML — restructure to sibling elements:** An `<a>` element cannot contain interactive content (buttons, inputs, other links) per the HTML spec. This manifests as keyboard navigation breakage, WCAG 4.1.1 failures, and unpredictable browser behavior (some browsers fire the click on the outer `<a>`, some on the inner `<button>`, some on both). Two correct patterns:
+  1. Make the outer container a `<div>` with `relative` positioning; the `<Link>` wraps only the card content; the interactive button is a sibling with `absolute` positioning so it floats visually inside the card area.
+  2. Replace `<Button>` with a styled `<span>` inside `<Link>` when the link itself is the intended action (no separate button needed).
+
+  Seen in: `PokCard.tsx` (pattern 1) and `poks/[id]/page.tsx` (pattern 2). (Added 2026-03-01)
+
+- **`render` prefix on ReactNode props implies a render function — use a noun slot name instead:** React convention treats `render*` props as functions (`() => ReactNode` or `(args) => ReactNode`), not static nodes. A prop typed as `renderAfterContent?: ReactNode` will confuse readers who expect to call it. Use a noun slot name instead: `afterContent`, `contentSlot`, `hint`, or similar. Avoid any `render*` naming on a prop whose type is `ReactNode`. Seen in `PokForm.tsx` (`renderAfterContent` → `afterContent`). (Added 2026-03-01)

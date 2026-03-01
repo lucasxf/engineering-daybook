@@ -234,6 +234,13 @@ cd backend
 
 - **HuggingFace Inference API for `paraphrase-multilingual-MiniLM-L12-v2` returns a flat `float[]`, not `float[][]`:** The router endpoint (`https://router.huggingface.co/`) returns a single flat vector when the request body is `{"inputs": "text"}`. Use `.body(float[].class)` and return the response directly. Do NOT use `.body(float[][].class)` and index into `response[0]` — the Jackson deserializer will return `null` or throw when the shape is wrong. Symptom: `NullPointerException` or `EmbeddingUnavailableException("HuggingFace returned an empty embedding response")` even when the API returns 200. Other HuggingFace models (e.g., `sentence-transformers` via the direct inference API) may return `float[][]` — always verify the actual response shape for the specific model and endpoint being used.
 
+- **Constrain list/array DTO fields with `@Size(max = N)` to prevent N+1 resource exhaustion:** When a DTO field is a list that the service iterates with one repository call per element (e.g., `tagIds` driving `tagRepository.findById(id)` in a loop), an unconstrained input allows a caller to trigger an arbitrary number of database queries in a single request. Add `@Size(max = 50)` (or the appropriate domain bound) alongside other field-level constraints. This pattern applies to any future list input that drives a DB loop — not just `tagIds`. Already applied: `CreatePokRequest.tagIds`. (Added 2026-03-01)
+
+  ```java
+  @Size(max = 50)
+  private List<UUID> tagIds;
+  ```
+
 ---
 
 ## Testing
