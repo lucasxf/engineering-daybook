@@ -31,6 +31,7 @@ export function Select({ options, value, onChange, label, className }: SelectPro
   const listRef = useRef<HTMLUListElement>(null);
   const labelId = useId();
   const listId = useId();
+  const optionId = useId();
 
   const selectedOption = options.find((o) => o.value === value) ?? options[0];
 
@@ -121,6 +122,7 @@ export function Select({ options, value, onChange, label, className }: SelectPro
         aria-expanded={open}
         aria-labelledby={label ? labelId : undefined}
         aria-controls={listId}
+        aria-activedescendant={open && focusedIndex >= 0 ? `${optionId}-${focusedIndex}` : undefined}
         onClick={handleToggle}
         onKeyDown={handleKeyDown}
         className="inline-flex min-w-[10rem] items-center justify-between gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-slate-500"
@@ -148,6 +150,7 @@ export function Select({ options, value, onChange, label, className }: SelectPro
           {options.map((option, idx) => (
             <li
               key={option.value}
+              id={`${optionId}-${idx}`}
               role="option"
               aria-selected={option.value === value}
               onClick={() => handleSelect(option.value)}

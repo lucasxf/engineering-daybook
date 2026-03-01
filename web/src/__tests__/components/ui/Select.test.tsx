@@ -64,4 +64,21 @@ describe('Select', () => {
     fireEvent.keyDown(trigger, { key: 'Enter' });
     expect(onChange).toHaveBeenCalledWith('b');
   });
+
+  it('sets aria-activedescendant to focused option id during keyboard navigation', () => {
+    render(<Select options={options} value="a" onChange={vi.fn()} />);
+    const trigger = screen.getByRole('combobox');
+    fireEvent.click(trigger);
+    // On open, focusedIndex is set to the index of the current value ('a' = 0)
+    const initialDescendant = trigger.getAttribute('aria-activedescendant');
+    expect(initialDescendant).toBeTruthy();
+    // Move down: focusedIndex 0 → 1
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+    const nextDescendant = trigger.getAttribute('aria-activedescendant');
+    expect(nextDescendant).toBeTruthy();
+    expect(nextDescendant).not.toBe(initialDescendant);
+    // The focused option <li> must have the matching id
+    const focusedOption = document.getElementById(nextDescendant!);
+    expect(focusedOption).toHaveTextContent('Option B');
+  });
 });
