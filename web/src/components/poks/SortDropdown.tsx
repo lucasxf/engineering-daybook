@@ -65,7 +65,7 @@ export function SortDropdown({ value, onChange }: SortDropdownProps) {
         value={currentKey}
         onChange={handleChange}
         aria-label={t('label')}
-        className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+        className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
       >
         {options.map((option) => (
           <option key={option.key} value={option.key}>

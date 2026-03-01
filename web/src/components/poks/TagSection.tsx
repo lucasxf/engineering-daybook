@@ -133,7 +133,7 @@ export function TagSection({ pokId, tags, pendingSuggestions, onChanged }: TagSe
                       if (e.key === 'Escape') setShowPicker(false);
                     }}
                     placeholder={tTags('createNew')}
-                    className="min-w-0 flex-1 rounded border border-slate-200 px-2 py-1 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
+                    className="min-w-0 flex-1 rounded border border-slate-200 px-2 py-1 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
                     disabled={isBusy}
                     autoFocus
                   />
@@ -141,7 +141,7 @@ export function TagSection({ pokId, tags, pendingSuggestions, onChanged }: TagSe
                     type="button"
                     onClick={handleCreateAndAssign}
                     disabled={isBusy || !newTagName.trim()}
-                    className="rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700 disabled:opacity-50"
+                    className="rounded bg-primary-600 px-2 py-1 text-xs text-white hover:bg-primary-700 disabled:opacity-50"
                     aria-label={tTags('createNew')}
                   >
                     +
