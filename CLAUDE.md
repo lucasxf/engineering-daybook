@@ -117,6 +117,15 @@ GH="/c/Program Files/GitHub CLI/gh.exe"
 ```
 Do NOT call `gh` via PowerShell (`gh` is also not on the PowerShell PATH) or `cmd /c gh` (both silently fail or produce no output). Always use the full path in Bash. (Added 2026-02-27)
 
+**`docker` binary not on PATH in Git Bash on Windows:** Even when Docker Desktop is running, `docker` is not on the default Git Bash PATH. The binary lives at `/c/Program Files/Docker/Docker/resources/bin/docker.exe`. Fix: prepend it before any `docker`-dependent command:
+```bash
+export PATH="/c/Program Files/Docker/Docker/resources/bin:$PATH"
+docker info
+```
+The `Bash(export *)` permission in `.claude/settings.json` covers this. (Added 2026-03-01)
+
+**Claude Code "allow always" dialog saves wrong permission format:** The "don't ask again" dialog writes permissions to `settings.local.json` using a colon-separated format (e.g. `Bash(export:*)`) instead of the correct space-separated format (`Bash(export *)`). The colon format never matches actual shell commands, so the permission is silently ignored and the dialog reappears. Fix: add correct patterns directly to `.claude/settings.json` using space-separated syntax. Do NOT rely on the "allow always" dialog to persist permissions correctly. (Added 2026-03-01)
+
 ---
 
 ## Current Focus
@@ -131,7 +140,7 @@ Active work:
 **Phase 2: Evolution** — 🔄 Started (2.1, 2.2, 2.3 done; 2.4 planned)
 
 - [x] Milestone 2.1: POK editing, deletion, audit trail
-- [x] Milestone 2.2: Tagging System — full web UI done (TagSection, add/remove tags from view and edit pages, post-create redirect to tag UI); TagFilter + TagInput combobox deferred but not blocking (2026-03-01)
+- [x] Milestone 2.2: Tagging System — full web UI done (TagSection, add/remove tags from view and edit pages, tag-at-creation via TagPicker in QuickEntry and /poks/new, post-create redirect to tag UI); TagFilter + TagInput combobox deferred but not blocking (2026-03-01)
 - [x] Milestone 2.3: Visualization (timeline, tag-grouped view, sort) — done (2026-02-25)
 - [ ] Milestone 2.4: UX Delight (inspirational prompts, homepage personalization)
 
@@ -153,4 +162,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-03-01 (session: chore/visual-quality)*
+*Last updated: 2026-03-01 (session: chore/fix-home-and-create-pok-screens)*

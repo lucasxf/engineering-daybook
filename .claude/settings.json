@@ -39,13 +39,18 @@
       "Bash(gh repo *)",
       "Bash(gh run *)",
 
+      "Bash(export *)",
+
       "Bash(./mvnw *)",
       "Bash(mvn *)",
+      "Bash(/c/repo/apache-maven-3.9.11/bin/mvn *)",
 
+      "Bash(node *)",
       "Bash(npm run *)",
       "Bash(npm test *)",
       "Bash(npm install *)",
       "Bash(npx expo *)",
+      "Bash(/c/Users/lucas/AppData/Roaming/npm/npm.cmd *)",
 
       "Bash(docker compose *)"
     ]

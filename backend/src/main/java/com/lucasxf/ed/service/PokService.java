@@ -64,6 +64,7 @@ public class PokService {
     private final TagSuggestionService tagSuggestionService;
     private final EmbeddingGenerationService embeddingGenerationService;
     private final EmbeddingService embeddingService;
+    private final TagService tagService;
 
     public PokService(PokRepository pokRepository,
                       PokAuditLogRepository pokAuditLogRepository,
@@ -72,7 +73,8 @@ public class PokService {
                       PokTagSuggestionRepository pokTagSuggestionRepository,
                       @Lazy TagSuggestionService tagSuggestionService,
                       EmbeddingGenerationService embeddingGenerationService,
-                      EmbeddingService embeddingService) {
+                      EmbeddingService embeddingService,
+                      TagService tagService) {
         this.pokRepository = requireNonNull(pokRepository);
         this.pokAuditLogRepository = requireNonNull(pokAuditLogRepository);
         this.pokTagRepository = requireNonNull(pokTagRepository);
@@ -81,6 +83,7 @@ public class PokService {
         this.tagSuggestionService = requireNonNull(tagSuggestionService);
         this.embeddingGenerationService = requireNonNull(embeddingGenerationService);
         this.embeddingService = requireNonNull(embeddingService);
+        this.tagService = requireNonNull(tagService);
     }
 
     /**
@@ -101,6 +104,9 @@ public class PokService {
             savedPok.getId(), userId, request.title() != null && !request.title().isEmpty());
 
         logCreate(savedPok, userId);
+
+        // Assign requested tags atomically (within this transaction)
+        tagService.assignTagsToNewPok(savedPok.getId(), request.tagIds(), userId);
 
         // Trigger async AI tag suggestions (non-blocking)
         tagSuggestionService.suggestTagsForPok(savedPok.getId(), userId);

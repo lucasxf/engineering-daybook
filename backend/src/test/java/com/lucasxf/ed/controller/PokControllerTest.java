@@ -68,7 +68,7 @@ class PokControllerTest {
     @WithMockUser
     void createPok_withValidRequest_shouldReturn201() throws Exception {
         // Given
-        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content");
+        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null);
         PokResponse response = new PokResponse(
             pokId, userId, "Test Title", "Test content", null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
@@ -93,7 +93,7 @@ class PokControllerTest {
     @WithMockUser
     void createPok_withoutTitle_shouldReturn201() throws Exception {
         // Given: Title is optional (frictionless capture)
-        CreatePokRequest request = new CreatePokRequest(null, "Content without title");
+        CreatePokRequest request = new CreatePokRequest(null, "Content without title", null);
         PokResponse response = new PokResponse(
             pokId, userId, null, "Content without title", null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
@@ -115,7 +115,7 @@ class PokControllerTest {
     @WithMockUser
     void createPok_withEmptyContent_shouldReturn400() throws Exception {
         // Given: Content is mandatory
-        CreatePokRequest request = new CreatePokRequest("Title", "");
+        CreatePokRequest request = new CreatePokRequest("Title", "", null);
 
         // When/Then
         mockMvc.perform(post("/api/v1/poks")
@@ -130,7 +130,7 @@ class PokControllerTest {
     void createPok_withTitleTooLong_shouldReturn400() throws Exception {
         // Given: Title max 200 chars
         String longTitle = "a".repeat(201);
-        CreatePokRequest request = new CreatePokRequest(longTitle, "Content");
+        CreatePokRequest request = new CreatePokRequest(longTitle, "Content", null);
 
         // When/Then
         mockMvc.perform(post("/api/v1/poks")
@@ -143,7 +143,7 @@ class PokControllerTest {
     @Test
     void createPok_withoutAuthentication_shouldReturn401() throws Exception {
         // Given
-        CreatePokRequest request = new CreatePokRequest("Title", "Content");
+        CreatePokRequest request = new CreatePokRequest("Title", "Content", null);
 
         // When/Then: No authentication
         mockMvc.perform(post("/api/v1/poks")

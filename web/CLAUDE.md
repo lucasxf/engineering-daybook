@@ -127,4 +127,22 @@ npm run test     # Run tests (Vitest)
 
 - **Partial state refresh pattern for pages with in-progress forms:** When a page has both an editable form and a side panel that triggers data fetching (e.g., a tag picker calling `onChanged`), wiring `onChanged` to the full page loader (e.g., `loadPok`) causes the loading gate to toggle (`setLoading(true)`), which unmounts the form and discards any unsaved edits. Instead, add a targeted refresh function that fetches the latest data and updates only the relevant state slice via `setPok((prev) => prev ? { ...prev, tags: data.tags } : data)`, leaving `loading` unchanged. The full loader is only for initial mount; subsequent partial updates use the targeted refresh.
 
+- **Mock ALL hooks a component uses — adding a new hook to a component breaks existing tests:** When a component starts using a new `next/navigation` hook (e.g. `useRouter`) or a third-party hook (e.g. `useTranslations` from `next-intl`), any existing test that only mocked the hooks the component used before will now throw. The test does not import the component under test directly — it renders a parent — so the error surfaces as an unexpected runtime failure in an already-passing test file. Fix: whenever a component gains a new hook import, audit all test files that render that component (directly or via a parent) and extend their mocks. For `next/navigation`, always mock the full set — `useRouter`, `useParams`, `useSearchParams` — even if the current component only uses one; this prevents future drift:
+
+  ```typescript
+  vi.mock('next/navigation', () => ({
+    useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
+    useParams: () => ({ locale: 'en' }),
+    useSearchParams: () => new URLSearchParams(),
+  }));
+  ```
+
+  For `next-intl`, add a top-level mock when any child component calls `useTranslations`:
+
+  ```typescript
+  vi.mock('next-intl', () => ({
+    useTranslations: () => (key: string) => key,
+  }));
+  ```
+
 - **`scrollIntoView` is not implemented in jsdom (Vitest) — use optional chaining on the method:** jsdom, which Vitest uses as its DOM environment, does not implement `scrollIntoView` on DOM elements. Calling `element.scrollIntoView({ block: 'nearest' })` in a component `useEffect` (e.g., inside a custom `Select` dropdown to scroll the active option into view) will throw `TypeError: item?.scrollIntoView is not a function` when the test runs. Fix: use optional chaining on the method itself — `element?.scrollIntoView?.({ block: 'nearest' })` — so the call silently no-ops when the method is absent. The `?.` before the method name (not just before the object) is what matters.

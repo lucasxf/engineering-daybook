@@ -96,6 +96,8 @@ cd backend
 
 ## Known Pitfalls
 
+- **Package-private inter-service methods for atomic cross-service operations:** When `ServiceA` needs to call a helper on `ServiceB` that is only valid in the context of an ongoing operation in `ServiceA` (e.g. assigning tags immediately after POK creation), declare the helper as package-private (no access modifier) rather than `public`. This prevents callers outside the `service` package from invoking a method that has preconditions only `ServiceA` can satisfy. Example: `TagService.assignTagsToNewPok(UUID pokId, List<UUID> userTagIds, UUID userId)` is package-private — only `PokService` (same package) can call it. Both services must live in the same package for this to work. Keep these methods small and single-purpose; if the logic grows complex, extract to a dedicated orchestration service.
+
 - **`@Lazy` to break circular constructor injection:** When two services depend on each other via constructor injection, Spring throws `BeanCurrentlyInCreationException`. Fix: annotate one of the injected parameters with `@Lazy` — Spring injects a proxy instead of the real bean, breaking the cycle. Keep `@Lazy` on the less-frequently-used dependency. Never use field injection (`@Autowired`) just to avoid this; `@Lazy` preserves constructor injection semantics.
 
   ```java
@@ -157,6 +159,30 @@ cd backend
 - **`/error` must be in Spring Security `permitAll()`:** Spring dispatches internally to `/error` when an unhandled exception occurs. If `/error` is not in the `permitAll()` list, the security filter chain intercepts the error dispatch and returns a 401 with an empty response body — the actual error information is swallowed. Always include `"/error"` in `requestMatchers(...).permitAll()` in `SecurityConfig`.
 
 - **`PageImpl` total must reflect actual or approximate match count, not page size:** Constructing `new PageImpl<>(content, pageable, content.size())` always yields `totalElements = page_size` and `totalPages = 1`, making the client think there is exactly one page regardless of how many records exist. For queries that have a cheap count (keyword search), use the real `keywordPage.getTotalElements()`. For vector similarity (pgvector), use an approximation: `(long) offset + fetchedList.size()` — if `fetchedList.size() == limit` (over-fetched), there may be more pages; if under, this is the actual total.
+
+- **`argThat` type inference fails with `Iterable<?>` in Mockito:** When verifying a call to a method whose parameter type is `Iterable<? extends T>` (e.g. `pokTagRepository.saveAll(Iterable<? extends PokTag>)`), using `argThat(list -> ...)` fails to compile because Mockito cannot infer the lambda type from the wildcard generic bound. Fix: use `ArgumentCaptor` instead:
+
+  ```java
+  @SuppressWarnings("unchecked")
+  ArgumentCaptor<Iterable<PokTag>> captor =
+      ArgumentCaptor.forClass((Class<Iterable<PokTag>>) (Class<?>) Iterable.class);
+  verify(pokTagRepository).saveAll(captor.capture());
+  List<PokTag> saved = StreamSupport.stream(captor.getValue().spliterator(), false).toList();
+  // assert on saved
+  ```
+
+  The double cast `(Class<Iterable<PokTag>>) (Class<?>) Iterable.class` suppresses the unchecked-cast warning cleanly. Do NOT use raw `argThat` on wildcard-generic parameters.
+
+- **`@GeneratedValue` fields are null in pure unit tests (no DB):** JPA `@GeneratedValue(strategy = GenerationType.UUID)` is applied by the persistence provider at INSERT time — it never runs in a plain unit test. Calling `entity.getId()` after `new Entity(...)` returns `null`, causing downstream NPE (e.g. `List.of(null, ...)` throws). Fix: set the ID via `ReflectionTestUtils` in test setup:
+
+  ```java
+  import org.springframework.test.util.ReflectionTestUtils;
+
+  PokTag pokTag = new PokTag(...);
+  ReflectionTestUtils.setField(pokTag, "id", UUID.randomUUID());
+  ```
+
+  Apply this to every `@Entity` with a generated PK that is read during the test (including entities returned by mocked repositories).
 
 - **Java record declarations: inline unless the parameter list is long:** Declare record fields inline on the same line as the class name (follow `AdminProperties.java` and `SearchProperties.java` as reference). Multi-line format is only needed when the parameter list genuinely exceeds ~120 characters. Never break a short parameter list across multiple lines just for visual symmetry.
 

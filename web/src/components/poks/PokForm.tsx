@@ -1,5 +1,6 @@
 'use client';
 
+import { type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
@@ -13,6 +14,7 @@ interface PokFormProps {
   onSubmit: (data: PokFormData) => void | Promise<void>;
   initialData?: Partial<PokFormData>;
   mode?: 'create' | 'edit';
+  renderAfterContent?: ReactNode;
 }
 
 /**
@@ -33,6 +35,7 @@ export function PokForm({
   onSubmit,
   initialData,
   mode = 'create',
+  renderAfterContent,
 }: PokFormProps) {
   const t = useTranslations('poks');
 
@@ -84,6 +87,8 @@ export function PokForm({
           hasError={!!errors.content}
         />
       </FormField>
+
+      {renderAfterContent}
 
       <div className="flex justify-end">
         <Button type="submit" disabled={isSubmitting}>
