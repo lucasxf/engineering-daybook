@@ -62,7 +62,7 @@ export function TagGroupedView({ poks }: TagGroupedViewProps) {
       )}
 
       {allUntagged && (
-        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{t('nudge')}</p>
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t('nudge')}</p>
       )}
     </div>
   );

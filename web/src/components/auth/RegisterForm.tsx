@@ -12,6 +12,7 @@ import {
   getPasswordStrength,
 } from '@/lib/validations';
 import { ApiRequestError } from '@/lib/api';
+import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
@@ -90,14 +91,7 @@ export function RegisterForm({ locale }: RegisterFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-      {serverError && (
-        <div
-          role="alert"
-          className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-400"
-        >
-          {serverError}
-        </div>
-      )}
+      {serverError && <Alert variant="error">{serverError}</Alert>}
 
       <FormField
         label={t('displayName')}
@@ -186,7 +180,7 @@ export function RegisterForm({ locale }: RegisterFormProps) {
                   'h-full flex-1 rounded-full',
                   strength === 'medium' || strength === 'strong'
                     ? strengthColors[strength]
-                    : 'bg-gray-200 dark:bg-gray-700'
+                    : 'bg-slate-200 dark:bg-slate-700'
                 )}
               />
               <div
@@ -194,7 +188,7 @@ export function RegisterForm({ locale }: RegisterFormProps) {
                   'h-full flex-1 rounded-full',
                   strength === 'strong'
                     ? strengthColors[strength]
-                    : 'bg-gray-200 dark:bg-gray-700'
+                    : 'bg-slate-200 dark:bg-slate-700'
                 )}
               />
             </div>

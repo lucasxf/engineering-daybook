@@ -19,7 +19,7 @@ export function LogoLink() {
   return (
     <Link
       href={href as never}
-      className="text-xl font-bold hover:opacity-80 transition-opacity"
+      className="text-xl font-bold text-primary-600 transition-opacity hover:opacity-80 dark:text-primary-400"
     >
       learnimo
     </Link>

@@ -29,7 +29,8 @@ export function Toast({ message, onDismiss, durationMs = 3000 }: ToastProps) {
       className={cn(
         'fixed bottom-6 left-1/2 z-50 -translate-x-1/2',
         'rounded-md bg-green-600 px-5 py-3 text-sm font-medium text-white shadow-lg',
-        'dark:bg-green-700'
+        'dark:bg-green-700',
+        'animate-slideUp'
       )}
     >
       {message}

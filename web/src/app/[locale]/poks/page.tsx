@@ -10,6 +10,7 @@ import { SortDropdown } from '@/components/poks/SortDropdown';
 import { NoSearchResults } from '@/components/poks/NoSearchResults';
 import { ViewSwitcher } from '@/components/poks/ViewSwitcher';
 import { TagGroupedView } from '@/components/poks/TagGroupedView';
+import { Alert } from '@/components/ui/Alert';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/poks/EmptyState';
 import { Toast } from '@/components/ui/Toast';
@@ -75,10 +76,10 @@ function PoksContent() {
   const showEmptyState = isEmptyResults && !hasSearchOrFilter && error === null;
 
   return (
-    <div className="mx-auto max-w-7xl py-8">
+    <div className="mx-auto max-w-7xl">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
           {t('list.title')}
         </h1>
       </div>
@@ -101,15 +102,7 @@ function PoksContent() {
         </div>
       </div>
 
-      {/* Error Alert */}
-      {error && (
-        <div
-          role="alert"
-          className="mb-4 rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-400"
-        >
-          {error}
-        </div>
-      )}
+      {error && <Alert variant="error" className="mb-4">{error}</Alert>}
 
       {/* Content */}
       {loading ? (
@@ -128,7 +121,7 @@ function PoksContent() {
 
       {/* Results count (when not loading and has results) */}
       {!loading && poks.length > 0 && !isTagsView && (
-        <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
+        <div className="mt-4 text-center text-sm text-slate-600 dark:text-slate-400">
           {t('list.resultsCount', { count: totalElements })}
         </div>
       )}

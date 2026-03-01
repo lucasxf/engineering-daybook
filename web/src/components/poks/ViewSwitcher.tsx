@@ -72,14 +72,14 @@ export function ViewSwitcher() {
   const tabClass = (view: ActiveView) =>
     [
       'px-4 py-2 text-sm font-medium transition-colors',
-      'focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
+      'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
       activeView === view
-        ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-        : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100',
+        ? 'border-b-2 border-primary-600 text-primary-600 dark:border-primary-400 dark:text-primary-400'
+        : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100',
     ].join(' ');
 
   return (
-    <div role="tablist" className="flex border-b border-gray-200 dark:border-gray-700">
+    <div role="tablist" className="flex border-b border-slate-200 dark:border-slate-700">
       <Link
         href={feedHref}
         role="tab"

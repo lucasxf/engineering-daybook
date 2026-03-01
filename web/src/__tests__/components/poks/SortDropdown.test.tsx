@@ -22,97 +22,86 @@ const renderSortDropdown = (props: Parameters<typeof SortDropdown>[0]) => {
 };
 
 describe('SortDropdown', () => {
-  it('should render with label', () => {
+  it('renders with label', () => {
     const onChange = vi.fn();
-    const value: SortOption = { sortBy: 'updatedAt', sortDirection: 'DESC' };
+    const value: SortOption = { sortBy: 'createdAt', sortDirection: 'DESC' };
 
     renderSortDropdown({ value, onChange });
 
     expect(screen.getByText('Sort by:')).toBeInTheDocument();
   });
 
-  it('should render all sort options', () => {
-    const onChange = vi.fn();
-    const value: SortOption = { sortBy: 'createdAt', sortDirection: 'DESC' };
-
-    renderSortDropdown({ value, onChange });
-
-    expect(screen.getByText('Newest first')).toBeInTheDocument();
-    expect(screen.getByText('Oldest first')).toBeInTheDocument();
-    expect(screen.getByText('Recently updated')).toBeInTheDocument();
-  });
-
-  it('should display current selection', () => {
+  it('shows current selection in the trigger button', () => {
     const onChange = vi.fn();
     const value: SortOption = { sortBy: 'createdAt', sortDirection: 'ASC' };
 
     renderSortDropdown({ value, onChange });
 
-    const select = screen.getByLabelText('Sort by') as HTMLSelectElement;
-    expect(select.value).toBe('createdAt-ASC');
+    expect(screen.getByText('Oldest first')).toBeInTheDocument();
   });
 
-  it('should call onChange when selection changes', () => {
-    const onChange = vi.fn();
-    const value: SortOption = { sortBy: 'updatedAt', sortDirection: 'DESC' };
-
-    renderSortDropdown({ value, onChange });
-
-    const select = screen.getByLabelText('Sort by');
-    fireEvent.change(select, { target: { value: 'createdAt-ASC' } });
-
-    expect(onChange).toHaveBeenCalledWith({
-      sortBy: 'createdAt',
-      sortDirection: 'ASC',
-    });
-  });
-
-  it('should call onChange with correct value for each option', () => {
+  it('opens dropdown and shows all options on click', () => {
     const onChange = vi.fn();
     const value: SortOption = { sortBy: 'createdAt', sortDirection: 'DESC' };
 
     renderSortDropdown({ value, onChange });
 
-    const select = screen.getByLabelText('Sort by');
+    const trigger = screen.getByRole('combobox');
+    fireEvent.click(trigger);
 
-    // Oldest first
-    fireEvent.change(select, { target: { value: 'createdAt-ASC' } });
-    expect(onChange).toHaveBeenLastCalledWith({
-      sortBy: 'createdAt',
-      sortDirection: 'ASC',
-    });
-
-    // Recently updated
-    fireEvent.change(select, { target: { value: 'updatedAt-DESC' } });
-    expect(onChange).toHaveBeenLastCalledWith({
-      sortBy: 'updatedAt',
-      sortDirection: 'DESC',
-    });
-
-    // Newest first (default)
-    fireEvent.change(select, { target: { value: 'createdAt-DESC' } });
-    expect(onChange).toHaveBeenLastCalledWith({
-      sortBy: 'createdAt',
-      sortDirection: 'DESC',
-    });
+    expect(screen.getAllByText('Newest first').length).toBeGreaterThan(0);
+    expect(screen.getByText('Oldest first')).toBeInTheDocument();
+    expect(screen.getByText('Recently updated')).toBeInTheDocument();
   });
 
-  it('should be keyboard navigable', () => {
+  it('calls onChange when an option is clicked', () => {
     const onChange = vi.fn();
-    const value: SortOption = { sortBy: 'updatedAt', sortDirection: 'DESC' };
+    const value: SortOption = { sortBy: 'createdAt', sortDirection: 'DESC' };
 
     renderSortDropdown({ value, onChange });
 
-    const select = screen.getByLabelText('Sort by');
+    fireEvent.click(screen.getByRole('combobox'));
+    fireEvent.click(screen.getByText('Oldest first'));
 
-    // Focus the select
-    select.focus();
-    expect(document.activeElement).toBe(select);
+    expect(onChange).toHaveBeenCalledWith({ sortBy: 'createdAt', sortDirection: 'ASC' });
+  });
 
-    // Keyboard navigation works with native select
-    fireEvent.keyDown(select, { key: 'ArrowDown' });
-    fireEvent.change(select, { target: { value: 'createdAt-ASC' } });
+  it('calls onChange with correct value for recently updated', () => {
+    const onChange = vi.fn();
+    const value: SortOption = { sortBy: 'createdAt', sortDirection: 'DESC' };
 
-    expect(onChange).toHaveBeenCalled();
+    renderSortDropdown({ value, onChange });
+
+    fireEvent.click(screen.getByRole('combobox'));
+    fireEvent.click(screen.getByText('Recently updated'));
+
+    expect(onChange).toHaveBeenCalledWith({ sortBy: 'updatedAt', sortDirection: 'DESC' });
+  });
+
+  it('closes dropdown after selection', () => {
+    const onChange = vi.fn();
+    const value: SortOption = { sortBy: 'createdAt', sortDirection: 'DESC' };
+
+    renderSortDropdown({ value, onChange });
+
+    fireEvent.click(screen.getByRole('combobox'));
+    fireEvent.click(screen.getByText('Oldest first'));
+
+    // After selection dropdown should close — listbox should be gone
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  });
+
+  it('closes on Escape key', () => {
+    const onChange = vi.fn();
+    const value: SortOption = { sortBy: 'createdAt', sortDirection: 'DESC' };
+
+    renderSortDropdown({ value, onChange });
+
+    const trigger = screen.getByRole('combobox');
+    fireEvent.click(trigger);
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+
+    fireEvent.keyDown(trigger, { key: 'Escape' });
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 });

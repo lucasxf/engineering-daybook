@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { pokSchema, type PokFormData } from '@/lib/validations/pokSchema';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Textarea } from '@/components/ui/Textarea';
 import { FormField } from '@/components/ui/FormField';
 
 interface PokFormProps {
@@ -73,14 +74,14 @@ export function PokForm({
         error={errors.content?.message}
         htmlFor="pok-content"
       >
-        <textarea
+        <Textarea
           id="pok-content"
           rows={10}
           placeholder={t('form.contentPlaceholder')}
           {...register('content')}
           aria-invalid={!!errors.content}
           aria-describedby={errors.content ? 'pok-content-error' : undefined}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:border-blue-400 dark:focus:ring-blue-400"
+          hasError={!!errors.content}
         />
       </FormField>
 
