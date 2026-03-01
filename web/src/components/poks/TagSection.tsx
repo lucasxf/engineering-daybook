@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { Tag, TagSuggestion } from '@/lib/tagApi';
-import { tagApi } from '@/lib/tagApi';
 import { useTags } from '@/hooks/useTags';
 import { TagBadge } from './TagBadge';
 import { TagSuggestionPrompt } from './TagSuggestionPrompt';
@@ -26,7 +25,7 @@ interface TagSectionProps {
  */
 export function TagSection({ pokId, tags, pendingSuggestions, onChanged }: TagSectionProps) {
   const tTags = useTranslations('tags');
-  const { tags: userTags, createTag, assignTag } = useTags();
+  const { tags: userTags, createTag, assignTag, removeTag } = useTags();
 
   const [showPicker, setShowPicker] = useState(false);
   const [newTagName, setNewTagName] = useState('');
@@ -51,7 +50,7 @@ export function TagSection({ pokId, tags, pendingSuggestions, onChanged }: TagSe
 
   const handleRemove = async (tagId: string) => {
     try {
-      await tagApi.remove(pokId, tagId);
+      await removeTag(pokId, tagId);
       onChanged();
     } catch {
       // Silently ignore — tag may already be removed

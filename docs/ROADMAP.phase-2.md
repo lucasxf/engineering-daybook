@@ -27,8 +27,6 @@
 
 ---
 
-## Planned
-
 ### Milestone 2.2: Tagging System ✅
 
 > **Spec:** `docs/specs/features/tagging-system.md` — Status: Implemented
@@ -78,6 +76,10 @@
 - 6 E2E scenarios added to `web/e2e/poks.spec.ts` covering view switching, tag-grouped rendering, and timeline rendering
 - `playwright.config.ts` port changed to 3001 to avoid conflict with the main worktree running on 3000
 - All 239 unit tests pass; build clean; 6 E2E tests pass
+
+---
+
+## Planned
 
 ### Milestone 2.4: UX Delight
 

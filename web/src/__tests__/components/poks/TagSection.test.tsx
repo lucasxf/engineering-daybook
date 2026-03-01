@@ -3,16 +3,13 @@ import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { vi } from 'vitest';
 import { TagSection } from '@/components/poks/TagSection';
-import { tagApi } from '@/lib/tagApi';
 import { tagsMessages } from '@/test/page-test-utils';
 
-vi.mock('@/lib/tagApi', () => ({
-  tagApi: {
-    remove: vi.fn(),
-    assign: vi.fn(),
-    list: vi.fn(),
-    create: vi.fn(),
-  },
+// vi.hoisted() ensures these fns are available when vi.mock factories are evaluated
+const { mockCreateTag, mockAssignTag, mockRemoveTag } = vi.hoisted(() => ({
+  mockCreateTag: vi.fn(),
+  mockAssignTag: vi.fn(),
+  mockRemoveTag: vi.fn(),
 }));
 
 vi.mock('@/hooks/useTags', () => ({
@@ -24,7 +21,7 @@ vi.mock('@/hooks/useTags', () => ({
     error: null,
     createTag: mockCreateTag,
     assignTag: mockAssignTag,
-    removeTag: vi.fn(),
+    removeTag: mockRemoveTag,
     deleteTag: vi.fn(),
   }),
 }));
@@ -36,10 +33,6 @@ vi.mock('@/components/poks/TagSuggestionPrompt', () => ({
     </div>
   ),
 }));
-
-const mockCreateTag = vi.fn();
-const mockAssignTag = vi.fn();
-const mockRemove = vi.mocked(tagApi.remove);
 
 const assignedTag = { id: 'ut-1', tagId: 'tag-1', name: 'react', color: 'blue', createdAt: '2026-02-14T10:00:00Z' };
 
@@ -63,7 +56,7 @@ describe('TagSection', () => {
     vi.clearAllMocks();
     mockCreateTag.mockResolvedValue(null);
     mockAssignTag.mockResolvedValue(undefined);
-    mockRemove.mockResolvedValue(undefined);
+    mockRemoveTag.mockResolvedValue(undefined);
   });
 
   it('renders assigned tag badges', () => {
@@ -120,7 +113,7 @@ describe('TagSection', () => {
     expect(onChanged).toHaveBeenCalled();
   });
 
-  it('calls tagApi.remove and onChanged when a tag badge remove is clicked', async () => {
+  it('calls removeTag and onChanged when a tag badge remove is clicked', async () => {
     const user = userEvent.setup();
     const onChanged = vi.fn();
     renderSection({ tags: [assignedTag], onChanged });
@@ -128,7 +121,7 @@ describe('TagSection', () => {
     const removeBtn = screen.getByRole('button', { name: /remove tag react/i });
     await user.click(removeBtn);
 
-    await waitFor(() => expect(mockRemove).toHaveBeenCalledWith('pok-abc', 'ut-1'));
+    await waitFor(() => expect(mockRemoveTag).toHaveBeenCalledWith('pok-abc', 'ut-1'));
     expect(onChanged).toHaveBeenCalled();
   });
 
