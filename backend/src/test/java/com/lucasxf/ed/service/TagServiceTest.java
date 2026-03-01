@@ -11,6 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.test.util.ReflectionTestUtils;
+
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.PokTag;
 import com.lucasxf.ed.domain.Tag;
@@ -357,5 +359,99 @@ class TagServiceTest {
 
         // Then — no delete called, no exception
         verify(pokTagRepository, never()).delete(any());
+    }
+
+    // ===== assignTagsToNewPok =====
+
+    @Test
+    void assignTagsToNewPok_withValidTags_shouldSaveAllPokTags() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Tag tag1 = new Tag("java");
+        Tag tag2 = new Tag("spring");
+        ReflectionTestUtils.setField(tag1, "id", UUID.randomUUID());
+        ReflectionTestUtils.setField(tag2, "id", UUID.randomUUID());
+        UserTag userTag1 = new UserTag(userId, tag1, "blue");
+        UserTag userTag2 = new UserTag(userId, tag2, "green");
+        UUID userTagId1 = UUID.randomUUID();
+        UUID userTagId2 = UUID.randomUUID();
+        ReflectionTestUtils.setField(userTag1, "id", userTagId1);
+        ReflectionTestUtils.setField(userTag2, "id", userTagId2);
+
+        when(userTagRepository.findById(userTagId1)).thenReturn(Optional.of(userTag1));
+        when(userTagRepository.findById(userTagId2)).thenReturn(Optional.of(userTag2));
+
+        // When
+        tagService.assignTagsToNewPok(pokId, List.of(userTagId1, userTagId2), userId);
+
+        // Then
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Iterable<PokTag>> captor = ArgumentCaptor.forClass((Class<Iterable<PokTag>>) (Class<?>) Iterable.class);
+        verify(pokTagRepository).saveAll(captor.capture());
+        assertThat(captor.getValue()).hasSize(2);
+    }
+
+    @Test
+    void assignTagsToNewPok_withNullList_shouldDoNothing() {
+        // When
+        tagService.assignTagsToNewPok(UUID.randomUUID(), null, userId);
+
+        // Then
+        verify(pokTagRepository, never()).saveAll(any());
+    }
+
+    @Test
+    void assignTagsToNewPok_withEmptyList_shouldDoNothing() {
+        // When
+        tagService.assignTagsToNewPok(UUID.randomUUID(), List.of(), userId);
+
+        // Then
+        verify(pokTagRepository, never()).saveAll(any());
+    }
+
+    @Test
+    void assignTagsToNewPok_withInvalidTagId_shouldIgnoreAndContinue() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        UUID invalidTagId = UUID.randomUUID();
+        Tag tag = new Tag("java");
+        ReflectionTestUtils.setField(tag, "id", UUID.randomUUID());
+        UserTag userTag = new UserTag(userId, tag, "blue");
+        UUID validTagId = UUID.randomUUID();
+        ReflectionTestUtils.setField(userTag, "id", validTagId);
+
+        when(userTagRepository.findById(invalidTagId)).thenReturn(Optional.empty());
+        when(userTagRepository.findById(validTagId)).thenReturn(Optional.of(userTag));
+
+        // When — no exception
+        tagService.assignTagsToNewPok(pokId, List.of(invalidTagId, validTagId), userId);
+
+        // Then — only the valid tag is saved
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Iterable<PokTag>> captor = ArgumentCaptor.forClass((Class<Iterable<PokTag>>) (Class<?>) Iterable.class);
+        verify(pokTagRepository).saveAll(captor.capture());
+        assertThat(captor.getValue()).hasSize(1);
+    }
+
+    @Test
+    void assignTagsToNewPok_withDuplicateTagIds_shouldDedup() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Tag tag = new Tag("java");
+        ReflectionTestUtils.setField(tag, "id", UUID.randomUUID());
+        UserTag userTag = new UserTag(userId, tag, "blue");
+        UUID userTagId = UUID.randomUUID();
+        ReflectionTestUtils.setField(userTag, "id", userTagId);
+
+        when(userTagRepository.findById(userTagId)).thenReturn(Optional.of(userTag));
+
+        // When — same tagId twice
+        tagService.assignTagsToNewPok(pokId, List.of(userTagId, userTagId), userId);
+
+        // Then — only one PokTag saved
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<Iterable<PokTag>> captor = ArgumentCaptor.forClass((Class<Iterable<PokTag>>) (Class<?>) Iterable.class);
+        verify(pokTagRepository).saveAll(captor.capture());
+        assertThat(captor.getValue()).hasSize(1);
     }
 }

@@ -1,11 +1,16 @@
 package com.lucasxf.ed.service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.extern.slf4j.Slf4j;
 
 import com.lucasxf.ed.domain.PokTag;
 import com.lucasxf.ed.domain.Tag;
@@ -31,6 +36,7 @@ import com.lucasxf.ed.repository.UserTagRepository;
  * @author Lucas Xavier Ferreira
  * @since 2026-02-25
  */
+@Slf4j
 @Service
 @Transactional
 public class TagService {
@@ -202,6 +208,41 @@ public class TagService {
 
         pokTagRepository.findByPokIdAndTagId(pokId, userTag.getTag().getId())
                 .ifPresent(pokTagRepository::delete);
+    }
+
+    // ===== assignTagsToNewPok =====
+
+    /**
+     * Assigns multiple tags to a newly created POK atomically, skipping the POK ownership
+     * check (the caller guarantees the POK was just created by the same user in the same
+     * transaction). Invalid or non-owned {@code userTagIds} are silently ignored.
+     *
+     * @param pokId      the newly created POK's ID
+     * @param userTagIds the user-tag subscription IDs to assign (may be null or empty)
+     * @param userId     the authenticated user's ID
+     */
+    void assignTagsToNewPok(UUID pokId, List<UUID> userTagIds, UUID userId) {
+        if (userTagIds == null || userTagIds.isEmpty()) {
+            return;
+        }
+
+        Set<UUID> seen = new HashSet<>();
+        List<PokTag> toSave = new ArrayList<>();
+        for (UUID userTagId : userTagIds) {
+            try {
+                UserTag userTag = findOwnedUserTag(userTagId, userId);
+                UUID globalTagId = userTag.getTag().getId();
+                if (seen.add(globalTagId)) {
+                    toSave.add(new PokTag(pokId, globalTagId, PokTag.Source.MANUAL));
+                }
+            } catch (TagNotFoundException e) {
+                log.debug("Ignoring invalid/non-owned userTagId {} during POK creation", userTagId);
+            }
+        }
+
+        if (!toSave.isEmpty()) {
+            pokTagRepository.saveAll(toSave);
+        }
     }
 
     // ===== helpers =====
