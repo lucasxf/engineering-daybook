@@ -6,7 +6,9 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { pokApi, type Pok } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
+import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { Toast } from '@/components/ui/Toast';
 import { DeletePokButton } from '@/components/poks/DeletePokButton';
@@ -82,13 +84,8 @@ export default function ViewPokPage() {
 
   if (error !== null || !pok) {
     return (
-      <div className="mx-auto max-w-2xl py-8">
-        <div
-          role="alert"
-          className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-400"
-        >
-          {error || t('errors.notFound')}
-        </div>
+      <div className="mx-auto max-w-2xl">
+        <Alert variant="error">{error || t('errors.notFound')}</Alert>
         <Link href={`/${params.locale}/poks` as never}>
           <Button className="mt-4">{t('view.backButton')}</Button>
         </Link>
@@ -110,14 +107,14 @@ export default function ViewPokPage() {
         </div>
       </div>
 
-      <article className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <Card as="article" className="p-6 shadow-sm">
         {pok.title && (
-          <h1 className="mb-4 text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <h1 className="mb-4 text-3xl font-bold text-slate-900 dark:text-slate-100">
             {pok.title}
           </h1>
         )}
         <div className="prose prose-gray max-w-none dark:prose-invert">
-          <p className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+          <p className="whitespace-pre-wrap text-slate-700 dark:text-slate-300">
             {pok.content}
           </p>
         </div>
@@ -129,7 +126,7 @@ export default function ViewPokPage() {
           onChanged={loadPok}
         />
 
-        <div className="mt-6 flex space-x-4 text-sm text-gray-500 dark:text-gray-500">
+        <div className="mt-6 flex space-x-4 text-sm text-slate-500 dark:text-slate-500">
           <time dateTime={pok.createdAt}>
             {t('view.created')}: {new Date(pok.createdAt).toLocaleDateString(params.locale)}
           </time>
@@ -137,7 +134,7 @@ export default function ViewPokPage() {
             {t('view.updated')}: {new Date(pok.updatedAt).toLocaleDateString(params.locale)}
           </time>
         </div>
-      </article>
+      </Card>
 
       {showSuccessToast && (
         <Toast message={t('success.deleted')} onDismiss={handleSuccessToastDismiss} />

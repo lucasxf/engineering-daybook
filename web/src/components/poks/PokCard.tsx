@@ -43,13 +43,13 @@ export function PokCard({ pok, dateField = 'updatedAt' }: PokCardProps) {
   return (
     <Link
       href={`/${params.locale}/poks/${pok.id}` as never}
-      className="block rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800"
+      className="group block rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600"
     >
       <article>
-        <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <h3 className="mb-2 text-lg font-semibold text-slate-900 transition-colors group-hover:text-primary-600 dark:text-slate-100 dark:group-hover:text-primary-400">
           {header}
         </h3>
-        <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
+        <p className="mb-3 text-sm text-slate-600 dark:text-slate-400">
           {contentPreview}
         </p>
         {pok.tags && pok.tags.length > 0 && (
@@ -58,7 +58,7 @@ export function PokCard({ pok, dateField = 'updatedAt' }: PokCardProps) {
               <TagBadge key={tag.id} tag={tag} />
             ))}
             {pok.tags.length > 3 && (
-              <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-gray-500 dark:text-gray-400">
+              <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-slate-500 dark:text-slate-400">
                 +{pok.tags.length - 3}
               </span>
             )}
@@ -66,7 +66,7 @@ export function PokCard({ pok, dateField = 'updatedAt' }: PokCardProps) {
         )}
         <time
           dateTime={dateValue}
-          className="text-xs text-gray-500 dark:text-gray-500"
+          className="text-xs text-slate-500 dark:text-slate-500"
         >
           {formattedDate}
         </time>

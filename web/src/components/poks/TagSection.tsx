@@ -98,14 +98,14 @@ export function TagSection({ pokId, tags, pendingSuggestions, onChanged }: TagSe
           <button
             type="button"
             onClick={() => setShowPicker((v) => !v)}
-            className="inline-flex items-center gap-1 rounded-full border border-dashed border-gray-400 px-2 py-0.5 text-xs text-gray-500 hover:border-gray-600 hover:text-gray-700 dark:border-gray-500 dark:text-gray-400 dark:hover:border-gray-300 dark:hover:text-gray-300"
+            className="inline-flex items-center gap-1 rounded-full border border-dashed border-slate-400 px-2 py-0.5 text-xs text-slate-500 hover:border-slate-600 hover:text-slate-700 dark:border-slate-500 dark:text-slate-400 dark:hover:border-slate-300 dark:hover:text-slate-300"
             aria-label={tTags('addTag')}
           >
             + {tTags('addTag')}
           </button>
 
           {showPicker && (
-            <div className="absolute left-0 top-8 z-10 w-52 rounded-md border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+            <div className="absolute left-0 top-8 z-10 w-52 rounded-md border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
               {availableTags.length > 0 && (
                 <ul className="max-h-40 overflow-y-auto py-1">
                   {availableTags.map((tag) => (
@@ -114,7 +114,7 @@ export function TagSection({ pokId, tags, pendingSuggestions, onChanged }: TagSe
                         type="button"
                         disabled={isBusy}
                         onClick={() => handleAssign(tag.id)}
-                        className="w-full px-3 py-1.5 text-left text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 dark:text-gray-300 dark:hover:bg-gray-700"
+                        className="w-full px-3 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:text-slate-300 dark:hover:bg-slate-700"
                       >
                         {tag.name}
                       </button>
@@ -122,7 +122,7 @@ export function TagSection({ pokId, tags, pendingSuggestions, onChanged }: TagSe
                   ))}
                 </ul>
               )}
-              <div className="border-t border-gray-100 p-2 dark:border-gray-700">
+              <div className="border-t border-slate-100 p-2 dark:border-slate-700">
                 <div className="flex gap-1">
                   <input
                     type="text"
@@ -133,7 +133,7 @@ export function TagSection({ pokId, tags, pendingSuggestions, onChanged }: TagSe
                       if (e.key === 'Escape') setShowPicker(false);
                     }}
                     placeholder={tTags('createNew')}
-                    className="min-w-0 flex-1 rounded border border-gray-200 px-2 py-1 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+                    className="min-w-0 flex-1 rounded border border-slate-200 px-2 py-1 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100"
                     disabled={isBusy}
                     autoFocus
                   />
@@ -141,7 +141,7 @@ export function TagSection({ pokId, tags, pendingSuggestions, onChanged }: TagSe
                     type="button"
                     onClick={handleCreateAndAssign}
                     disabled={isBusy || !newTagName.trim()}
-                    className="rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700 disabled:opacity-50"
+                    className="rounded bg-primary-600 px-2 py-1 text-xs text-white hover:bg-primary-700 disabled:opacity-50"
                     aria-label={tTags('createNew')}
                   >
                     +

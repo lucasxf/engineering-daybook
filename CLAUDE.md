@@ -125,7 +125,7 @@ Do NOT call `gh` via PowerShell (`gh` is also not on the PowerShell PATH) or `cm
 
 Active work:
 - [x] Milestone 1.6.2: E2E tests with Playwright (5 tests; auth redirect, login, create/edit/delete)
-- [ ] Milestone 1.7.6: General visual quality — UI needs design pass
+- [x] Milestone 1.7.6: General visual quality — done (chore/visual-quality, 2026-03-01)
 - [ ] Phase 1 exit criterion: author uses app for 1+ week with satisfaction
 
 **Phase 2: Evolution** — 🔄 Started (2.1, 2.2, 2.3 done; 2.4 planned)
@@ -153,4 +153,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-02-27 (session: feat/mobile-app)*
+*Last updated: 2026-03-01 (session: chore/visual-quality)*

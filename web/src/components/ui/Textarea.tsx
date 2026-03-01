@@ -1,17 +1,17 @@
-import { forwardRef, type InputHTMLAttributes } from 'react';
+import { forwardRef, type TextareaHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
-interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   hasError?: boolean;
 }
 
 /**
- * Reusable text input with error state styling.
+ * Reusable textarea with error state styling — mirrors Input.tsx API.
  */
-export const Input = forwardRef<HTMLInputElement, InputProps>(
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, hasError, ...props }, ref) => {
     return (
-      <input
+      <textarea
         ref={ref}
         className={cn(
           'block w-full rounded-md border px-3 py-2 text-sm transition-colors',
@@ -31,4 +31,4 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
   }
 );
 
-Input.displayName = 'Input';
+Textarea.displayName = 'Textarea';

@@ -63,9 +63,9 @@ export function TagSuggestionPrompt({ pokId, suggestions, onResolved }: TagSugge
           return (
             <span
               key={suggestion.id}
-              className="inline-flex items-center gap-1 rounded-full border border-blue-300 bg-white px-2 py-0.5 text-xs dark:border-blue-600 dark:bg-gray-800"
+              className="inline-flex items-center gap-1 rounded-full border border-blue-300 bg-white px-2 py-0.5 text-xs dark:border-blue-600 dark:bg-slate-800"
             >
-              <span className="text-gray-700 dark:text-gray-300">{suggestion.suggestedName}</span>
+              <span className="text-slate-700 dark:text-slate-300">{suggestion.suggestedName}</span>
               <button
                 type="button"
                 disabled={isProcessing}

@@ -6,6 +6,7 @@ import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import dynamic from 'next/dynamic';
+import { Alert } from '@/components/ui/Alert';
 import { LoginForm } from '@/components/auth/LoginForm';
 
 const GoogleLoginButton = dynamic(
@@ -38,12 +39,9 @@ function LoginContent() {
       </div>
 
       {resetSuccess && (
-        <div
-          role="status"
-          className="mb-4 rounded-md border border-green-300 bg-green-50 p-3 text-sm text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-400"
-        >
+        <Alert variant="success" role="status" className="mb-4">
           {t('resetPasswordSuccess')}
-        </div>
+        </Alert>
       )}
 
       <LoginForm locale={params.locale} redirectTo={redirectTo} />

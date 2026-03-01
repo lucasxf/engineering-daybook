@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { validatePasswordResetTokenApi } from '@/lib/auth';
+import { Alert } from '@/components/ui/Alert';
 import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm';
 import { Spinner } from '@/components/ui/Spinner';
 
@@ -37,12 +38,7 @@ function ResetPasswordContent() {
   if (tokenState === 'invalid') {
     return (
       <div className="mx-auto max-w-sm py-12">
-        <div
-          role="alert"
-          className="rounded-md border border-red-300 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-400"
-        >
-          {t('resetPasswordInvalid')}
-        </div>
+        <Alert variant="error">{t('resetPasswordInvalid')}</Alert>
         <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400">
           <Link
             href={`/${params.locale}/forgot-password` as never}

@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { forgotPasswordSchema, type ForgotPasswordFormData } from '@/lib/validations';
 import { requestPasswordResetApi } from '@/lib/auth';
+import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { FormField } from '@/components/ui/FormField';
@@ -45,26 +46,12 @@ export function ForgotPasswordForm() {
   };
 
   if (submitted) {
-    return (
-      <div
-        role="status"
-        className="rounded-md border border-green-300 bg-green-50 p-4 text-sm text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-400"
-      >
-        {t('forgotPasswordSent')}
-      </div>
-    );
+    return <Alert variant="success" role="status">{t('forgotPasswordSent')}</Alert>;
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-      {serverError && (
-        <div
-          role="alert"
-          className="rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-400"
-        >
-          {serverError}
-        </div>
-      )}
+      {serverError && <Alert variant="error">{serverError}</Alert>}
 
       <FormField
         label={t('email')}

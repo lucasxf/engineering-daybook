@@ -31,7 +31,7 @@ export function MonthGroup({ monthDate, poks }: MonthGroupProps) {
 
   return (
     <section className="mb-8">
-      <h2 className="mb-3 text-xl font-semibold capitalize text-gray-900 dark:text-gray-100">
+      <h2 className="mb-3 text-xl font-semibold capitalize text-slate-900 dark:text-slate-100">
         {label}
       </h2>
       <div className="flex flex-col gap-3">

@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
+import { Alert } from '@/components/ui/Alert';
 import { PokForm } from '@/components/poks/PokForm';
 import { pokApi } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
@@ -42,19 +43,12 @@ export default function NewPokPage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl py-8">
-      <h1 className="mb-6 text-3xl font-bold text-gray-900 dark:text-gray-100">
+    <div className="mx-auto max-w-2xl">
+      <h1 className="mb-6 text-3xl font-bold text-slate-900 dark:text-slate-100">
         {t('create.title')}
       </h1>
 
-      {error && (
-        <div
-          role="alert"
-          className="mb-4 rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-400"
-        >
-          {error}
-        </div>
-      )}
+      {error && <Alert variant="error" className="mb-4">{error}</Alert>}
 
       <PokForm onSubmit={handleSubmit} mode="create" />
     </div>

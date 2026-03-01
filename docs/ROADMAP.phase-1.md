@@ -94,9 +94,7 @@ Root cause: three combined bugs prevented logged-in users from seeing their lear
 
 > **Phase B (Playwright E2E):** Completed. `@playwright/test` installed; `web/e2e/` has 5 passing tests covering all 4 journeys. Uses `page.route()` to mock all backend API calls — no live backend needed. Also added auth redirect to poks list page (unauthenticated users redirected to /login).
 
-### Milestone 1.7: MVP UX Review (partial)
-
-**Completed:**
+### Milestone 1.7: MVP UX Review ✅
 
 | # | Issue | Status |
 |---|-------|--------|
@@ -105,15 +103,12 @@ Root cause: three combined bugs prevented logged-in users from seeing their lear
 | 1.7.3 | Post-login landed on home, not feed | ✅ Done (chore/mvp-ux-review) |
 | 1.7.4 | "learnimo" title not clickable | ✅ Done (chore/mvp-ux-review) |
 | 1.7.5 | Feed used multi-column grid | ✅ Done (chore/mvp-ux-review) |
+| 1.7.6 | General visual quality — UI design pass | ✅ Done (chore/visual-quality, 2026-03-01) |
 | 1.7.7 | No inline quick-entry (Phase A content-only textarea) | ✅ Done (chore/mvp-ux-review) |
 | 1.7.8 | Google login button styling | ✅ Done (chore/mvp-ux-review) |
 | 1.7.9 | My Learnings screen bug fixes (EmptyState on errors, QuickEntry title field, label casing) | ✅ Done (fix/my-learnings-screen) |
 
-**Remaining:**
-
-| # | Issue | Status |
-|---|-------|--------|
-| 1.7.6 | General visual quality — UI looks like a raw form | ⏳ Needs design pass (v0.dev) |
+> **1.7.6 — General Visual Quality (chore/visual-quality, 2026-03-01):** 6 phases of work across 6 commits. Standardized palette to `slate-*`, added `fadeIn`/`slideUp` animation tokens, replaced raw `blue-*` with `primary-*` token in 6 components, extracted `ui/Alert.tsx` / `ui/Textarea.tsx` / `ui/Card.tsx` (eliminated 12 inline-alert copies), added `ui/Select.tsx` (accessible keyboard-nav dropdown replacing native `<select>`), removed double padding from 5 content pages, polished 404 page/LogoLink/SearchBar/PokCard/QuickEntry. 33 test files, 286 tests passing, production build clean.
 
 ---
 

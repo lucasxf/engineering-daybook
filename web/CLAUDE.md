@@ -20,12 +20,34 @@
 ├── /src
 │   ├── /app
 │   ├── /components
+│   │   └── /ui          # Shared primitive components (Alert, Button, Card, Input, Select, Textarea, ...)
 │   ├── /hooks
 │   ├── /lib
 │   ├── /locales
 │   └── /styles
 └── package.json
 ```
+
+---
+
+## Shared UI Component Library (`components/ui/`)
+
+Primitive, reusable components live in `web/src/components/ui/`. Always check here before writing inline markup.
+
+| Component | Purpose | Key props |
+|-----------|---------|-----------|
+| `Alert` | Error / success / info message block | `variant: 'error' \| 'success' \| 'info'`, `role` |
+| `Button` | Primary action button | `variant`, `size`, `disabled`, `loading` |
+| `Card` | Surface container | `as: 'div' \| 'article'` (polymorphic) |
+| `Input` | Text input | `hasError`, `forwardRef`-enabled |
+| `Select` | Accessible custom dropdown | `options`, `value`, `onChange`, keyboard nav, animated chevron, `slideUp` panel |
+| `Textarea` | Multi-line text input | `hasError`, `forwardRef`-enabled, mirrors `Input` API |
+
+**Rules:**
+- Prefer `ui/Alert` over ad-hoc `<div className="bg-red-...">` error blocks.
+- Prefer `ui/Select` over native `<select>` for any styled dropdown (consistent keyboard nav and animation).
+- `Card`, `Input`, `Textarea` all use `forwardRef` — pass `ref` freely.
+- All `ui/` components have unit tests. When adding a new primitive, add tests alongside it.
 
 ---
 
@@ -104,3 +126,5 @@ npm run test     # Run tests (Vitest)
 - **Semantic search `NoSearchResults` hint text must distinguish between no-data-yet and no-query-match:** A user with zero learnings sees the same empty state as a user whose search returned nothing. Use the presence of a non-empty `keyword` (or `searchMode`) to select the right copy: `noResultsSemantic` / `noResultsSemanticHint` when a search was performed; `noLearnings` / `noLearningsHint` when the feed is genuinely empty. Both cases must be covered by unit tests.
 
 - **Partial state refresh pattern for pages with in-progress forms:** When a page has both an editable form and a side panel that triggers data fetching (e.g., a tag picker calling `onChanged`), wiring `onChanged` to the full page loader (e.g., `loadPok`) causes the loading gate to toggle (`setLoading(true)`), which unmounts the form and discards any unsaved edits. Instead, add a targeted refresh function that fetches the latest data and updates only the relevant state slice via `setPok((prev) => prev ? { ...prev, tags: data.tags } : data)`, leaving `loading` unchanged. The full loader is only for initial mount; subsequent partial updates use the targeted refresh.
+
+- **`scrollIntoView` is not implemented in jsdom (Vitest) — use optional chaining on the method:** jsdom, which Vitest uses as its DOM environment, does not implement `scrollIntoView` on DOM elements. Calling `element.scrollIntoView({ block: 'nearest' })` in a component `useEffect` (e.g., inside a custom `Select` dropdown to scroll the active option into view) will throw `TypeError: item?.scrollIntoView is not a function` when the test runs. Fix: use optional chaining on the method itself — `element?.scrollIntoView?.({ block: 'nearest' })` — so the call silently no-ops when the method is absent. The `?.` before the method name (not just before the object) is what matters.

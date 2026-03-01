@@ -1,7 +1,7 @@
 'use client';
 
-import { type ChangeEvent } from 'react';
 import { useTranslations } from 'next-intl';
+import { Select } from '@/components/ui/Select';
 
 export interface SortOption {
   sortBy: 'createdAt' | 'updatedAt';
@@ -48,31 +48,24 @@ export function SortDropdown({ value, onChange }: SortDropdownProps) {
 
   const currentKey = `${value.sortBy}-${value.sortDirection}`;
 
-  const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    const selected = options.find((opt) => opt.key === e.target.value);
-    if (selected) {
-      onChange(selected.value);
-    }
+  const selectOptions = options.map((o) => ({ value: o.key, label: o.label }));
+
+  const handleChange = (key: string) => {
+    const selected = options.find((opt) => opt.key === key);
+    if (selected) onChange(selected.value);
   };
 
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor="sort-select" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
         {t('label')}:
-      </label>
-      <select
-        id="sort-select"
+      </span>
+      <Select
+        options={selectOptions}
         value={currentKey}
         onChange={handleChange}
-        aria-label={t('label')}
-        className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
-      >
-        {options.map((option) => (
-          <option key={option.key} value={option.key}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+        label={t('label')}
+      />
     </div>
   );
 }
