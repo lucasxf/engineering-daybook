@@ -29,7 +29,7 @@ const messages = {
     addTag: 'Add tag',
     createNew: 'New tag name...',
     badge: { remove: 'Remove tag' },
-    errors: {},
+    errors: { createFailed: 'Failed to create tag' },
     suggestions: { label: '', approve: '', reject: '' },
   },
 };
@@ -112,6 +112,20 @@ describe('TagPicker', () => {
     await user.click(screen.getByRole('button', { name: /remove tag react/i }));
 
     expect(onSelectionChange).toHaveBeenCalledWith([]);
+  });
+
+  it('shows an error message when createTag fails (returns null)', async () => {
+    const user = userEvent.setup();
+    mockCreateTag.mockResolvedValue(null);
+    renderPicker();
+
+    await user.click(screen.getByRole('button', { name: /add tag/i }));
+    await user.type(screen.getByPlaceholderText(/new tag name/i), 'typescript');
+    await user.keyboard('{Enter}');
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed to create tag')).toBeInTheDocument();
+    });
   });
 
   it('creates a new tag and calls onSelectionChange when submitted via input', async () => {

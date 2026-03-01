@@ -27,6 +27,7 @@ export function TagPicker({ selectedTags, onSelectionChange }: TagPickerProps) {
   const [showPicker, setShowPicker] = useState(false);
   const [newTagName, setNewTagName] = useState('');
   const [isBusy, setIsBusy] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
   const pickerRef = useRef<HTMLDivElement>(null);
 
   // Close picker on outside click
@@ -58,12 +59,15 @@ export function TagPicker({ selectedTags, onSelectionChange }: TagPickerProps) {
     const name = newTagName.trim();
     if (!name) return;
     setIsBusy(true);
+    setCreateError(null);
     try {
       const tag = await createTag(name);
       if (tag) {
         onSelectionChange([...selectedTags, tag]);
         setNewTagName('');
         setShowPicker(false);
+      } else {
+        setCreateError(tTags('errors.createFailed'));
       }
     } finally {
       setIsBusy(false);
@@ -130,6 +134,9 @@ export function TagPicker({ selectedTags, onSelectionChange }: TagPickerProps) {
                     +
                   </button>
                 </div>
+                {createError && (
+                  <p className="mt-1 text-xs text-red-500 dark:text-red-400">{createError}</p>
+                )}
               </div>
             </div>
           )}
