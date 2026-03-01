@@ -34,6 +34,15 @@ vi.mock('@/components/ui/Toast', () => ({
   ),
 }));
 
+vi.mock('@/components/poks/TagSection', () => ({
+  TagSection: ({ pokId, tags, onChanged }: { pokId: string; tags: { name: string }[]; onChanged: () => void }) => (
+    <div data-testid="tag-section" data-pok-id={pokId}>
+      {tags.map((t) => <span key={t.name}>{t.name}</span>)}
+      <button data-testid="trigger-tag-change" onClick={onChanged}>Change tag</button>
+    </div>
+  ),
+}));
+
 vi.mock('@/components/poks/PokForm', () => ({
   PokForm: ({ onSubmit, initialData }: { onSubmit: (d: { title: string; content: string }) => void; initialData?: { title: string; content: string } }) => (
     <div>
@@ -114,6 +123,29 @@ describe('EditPokPage', () => {
         const cancelLink = screen.getByRole('link', { name: /cancel/i });
         expect(cancelLink).toHaveAttribute('href', '/en/poks/pok-456');
       });
+    });
+
+    it('renders the tag section for the pok', async () => {
+      renderEditPage();
+      await waitFor(() => {
+        const tagSection = screen.getByTestId('tag-section');
+        expect(tagSection).toBeInTheDocument();
+        expect(tagSection).toHaveAttribute('data-pok-id', 'pok-456');
+      });
+    });
+
+    it('refreshes tags without unmounting the form when a tag changes', async () => {
+      const user = userEvent.setup();
+      const updatedPok = { ...existingPok, tags: [{ id: 'ut-1', tagId: 'tag-1', name: 'react', color: 'blue', createdAt: '2026-02-14T10:00:00Z' }] };
+      mockGetById.mockResolvedValueOnce(existingPok).mockResolvedValueOnce(updatedPok);
+      renderEditPage();
+      await waitFor(() => screen.getByTestId('submit-form'));
+
+      await user.click(screen.getByTestId('trigger-tag-change'));
+
+      await waitFor(() => expect(mockGetById).toHaveBeenCalledTimes(2));
+      // Form must still be present — refreshTags must not toggle loading, which would unmount PokForm
+      expect(screen.getByTestId('submit-form')).toBeInTheDocument();
     });
   });
 

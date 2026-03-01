@@ -25,7 +25,7 @@
 |-------|------|--------|
 | 0 — Foundation | `ROADMAP.phase-0.md` | ✅ Complete |
 | 1 — MVP | `ROADMAP.phase-1.md` | 🔄 Active |
-| 2 — Evolution | `ROADMAP.phase-2.md` | 🔄 Started (2.1 done; 2.2 partially implemented) |
+| 2 — Evolution | `ROADMAP.phase-2.md` | 🔄 Started (2.1, 2.2, 2.3 done; 2.4 planned) |
 | 3 — AI & Mobile | `ROADMAP.phase-3.md` | 🔄 In Progress (3.1, 3.3 done) |
 | 4 — Growth | `ROADMAP.phase-4.md` | ⏳ Planned |
 | 5 — Privacy | `ROADMAP.phase-5.md` | ⏳ Planned |

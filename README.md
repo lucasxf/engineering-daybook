@@ -191,7 +191,7 @@ See [ROADMAP.phase-1.md](./docs/ROADMAP.phase-1.md)
 ### Phase 2: Evolution — 🔄 Started
 See [ROADMAP.phase-2.md](./docs/ROADMAP.phase-2.md)
 - [x] POK editing, deletion, and audit trail
-- [~] Tagging system — backend + basic web (TagBadge, TagSuggestionPrompt) done; TagFilter + TagInput combobox deferred
+- [x] Tagging system — full web UI done (TagSection, add/remove tags from view and edit pages, post-create redirect to tag UI, AI keyword-based tag suggestions with approve/reject)
 - [x] Visualization — tag-grouped view, timeline view (month/year), sort options (Newest/Oldest/Recently updated)
 
 ### Phase 3: AI & Mobile — 🔄 In Progress

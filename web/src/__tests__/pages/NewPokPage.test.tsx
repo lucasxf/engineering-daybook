@@ -68,6 +68,8 @@ describe('NewPokPage', () => {
         deletedAt: null,
         createdAt: '2026-02-14T10:00:00Z',
         updatedAt: '2026-02-14T10:00:00Z',
+        tags: [],
+        pendingSuggestions: [],
       });
     });
 
@@ -83,11 +85,11 @@ describe('NewPokPage', () => {
       );
     });
 
-    it('redirects to poks list after creation', async () => {
+    it('redirects to the new pok view page after creation', async () => {
       const user = userEvent.setup();
       renderNewPokPage();
       await user.click(screen.getByTestId('submit-form'));
-      await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/en/poks'));
+      await waitFor(() => expect(mockRouter.push).toHaveBeenCalledWith('/en/poks/new-pok'));
     });
   });
 

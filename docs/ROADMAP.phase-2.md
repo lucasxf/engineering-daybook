@@ -1,6 +1,6 @@
 # Phase 2: Evolution
 
-> Status: **🔄 Started** — Milestones 2.1 and 2.3 complete; 2.2 partially implemented; 2.4 planned
+> Status: **🔄 Started** — Milestones 2.1, 2.2, and 2.3 complete; 2.4 planned
 
 ---
 
@@ -27,9 +27,7 @@
 
 ---
 
-## Planned
-
-### Milestone 2.2: Tagging System 🔄
+### Milestone 2.2: Tagging System ✅
 
 > **Spec:** `docs/specs/features/tagging-system.md` — Status: Implemented
 > **Note:** Intent-based related-concept tag suggestions (e.g., singleton → #designpatterns) ship in Phase 7.
@@ -42,12 +40,26 @@
 | 2.2.4 | Tag management (rename, delete) | ⏳ Backend ✅ (PATCH/DELETE `/api/v1/tags/{id}`); web UI deferred |
 | 2.2.5 | Basic AI auto-tag suggestions (keyword extraction from content) | ✅ Backend — `TagSuggestionService` keyword extraction (feat/tagging-system, 2026-02-25) |
 | 2.2.6 | Approve/reject/modify suggested tags | ✅ Backend + `TagSuggestionPrompt` web component (feat/tagging-system, 2026-02-25) |
+| 2.2.7 | Tag management UI — add/remove tags from ViewPokPage and EditPokPage | ✅ `TagSection` reusable component; wired into ViewPokPage and EditPokPage (fix/tag-system-fixes, 2026-03-01) |
+| 2.2.8 | Post-create redirect to view page for immediate tag access | ✅ NewPokPage redirects to `/{locale}/poks/{id}` after creation (fix/tag-system-fixes, 2026-03-01) |
 
 **Notes (2026-02-25):**
 - Backend: `Tag`, `UserTag`, `PokTag`, `PokTagSuggestion` entities; `TagService`, `TagSuggestionService`, `TagController`; `PokResponse`/`PokService` extended to include tags
 - Web: `tagApi.ts`, `useTags` hook, `TagBadge`, `TagSuggestionPrompt`; `PokCard` updated; i18n keys added (EN/PT-BR)
-- **Deferred:** TagInput combobox (FR8/AC19 edit-before-approve) and TagFilter (FR10/FR11) — web components deferred to a follow-up
 - AC19 (edit suggestion before approve) deferred; approve/reject works, editing not yet exposed in UI
+
+**Notes (2026-03-01, fix/tag-system-fixes):**
+- `TagSection` component (`web/src/components/poks/TagSection.tsx`) — reusable tag management UI with a prominent "Add tag" pill button, dropdown picker for existing and new tags, and `TagSuggestionPrompt` integration
+- `ViewPokPage` rewired to use `<TagSection>` (replaced the previously invisible inline picker)
+- `EditPokPage` now renders `<TagSection>` below the form — tags were entirely absent from edit before this fix
+- `NewPokPage` redirect changed from list (`/{locale}/poks`) to view page (`/{locale}/poks/{id}`) so users land directly on the tag UI after creating a learning
+- All 256 unit tests pass; build clean; lint clean
+- **Still deferred:** TagInput combobox (FR8/AC19 edit-before-approve) and TagFilter (FR10/FR11) — web components not yet implemented
+
+**Notes (2026-03-01, PR #100 review fixes):**
+- Accessibility: `aria-label` added to icon-only "create tag" button in `TagSection` (was unlabelled for screen readers)
+- UX: tag input text is now preserved when tag creation fails — `setNewTagName`/`setShowPicker` moved inside the `if (tag)` success branch so the picker stays open and the typed name is not lost on failure
+- Edit page stability: `onChanged` in `EditPokPage` now calls a targeted `refreshTags` helper instead of the full `loadPok`, preventing the loading gate from toggling and unmounting the form (losing unsaved edits) on every tag change
 
 ### Milestone 2.3: Visualization ✅
 
@@ -70,6 +82,10 @@
 - `playwright.config.ts` port changed to 3001 to avoid conflict with the main worktree running on 3000
 - All 239 unit tests pass; build clean; 6 E2E tests pass
 
+---
+
+## Planned
+
 ### Milestone 2.4: UX Delight
 
 | # | Feature | Priority |
@@ -83,7 +99,7 @@
 
 - [x] Learner can edit and delete POKs
 - [x] All changes are logged in audit trail
-- [~] Tagging system works (manual creation + AI suggestions for explicit tags) — backend + basic web done; TagFilter + TagInput combobox deferred
+- [x] Tagging system works (manual creation + AI suggestions for explicit tags) — full web UI done; TagFilter + TagInput combobox deferred (not blocking core tagging)
 - [x] Timeline and tag views are functional
 - [ ] Author actively uses tags to organize POKs
 - [ ] Inspirational prompts appear on add-learning page

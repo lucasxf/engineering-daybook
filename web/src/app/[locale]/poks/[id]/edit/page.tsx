@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { PokForm } from '@/components/poks/PokForm';
+import { TagSection } from '@/components/poks/TagSection';
 import { pokApi, type Pok } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
 import { Button } from '@/components/ui/Button';
@@ -55,6 +56,17 @@ export default function EditPokPage() {
     }
   };
 
+  // Refresh only tags/suggestions without toggling page-level loading.
+  // Wired to TagSection.onChanged so tag actions don't unmount PokForm and discard unsaved edits.
+  const refreshTags = async () => {
+    try {
+      const data = await pokApi.getById(pokId);
+      setPok((prev) => prev ? { ...prev, tags: data.tags, pendingSuggestions: data.pendingSuggestions } : data);
+    } catch {
+      // Silently ignore — tag UI remains usable from current state
+    }
+  };
+
   const handleSubmit = async (data: PokFormData) => {
     setError(null);
     try {
@@ -84,7 +96,7 @@ export default function EditPokPage() {
     );
   }
 
-  if (error || !pok) {
+  if (error !== null || !pok) {
     return (
       <div className="mx-auto max-w-2xl py-8">
         <div
@@ -127,6 +139,13 @@ export default function EditPokPage() {
           title: pok.title || '',
           content: pok.content,
         }}
+      />
+
+      <TagSection
+        pokId={pokId}
+        tags={pok.tags}
+        pendingSuggestions={pok.pendingSuggestions}
+        onChanged={refreshTags}
       />
 
       {showSuccessToast && (
