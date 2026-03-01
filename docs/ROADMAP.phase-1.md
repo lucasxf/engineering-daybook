@@ -110,6 +110,23 @@ Root cause: three combined bugs prevented logged-in users from seeing their lear
 
 > **1.7.6 — General Visual Quality (chore/visual-quality, 2026-03-01):** 6 phases of work across 6 commits. Standardized palette to `slate-*`, added `fadeIn`/`slideUp` animation tokens, replaced raw `blue-*` with `primary-*` token in 6 components, extracted `ui/Alert.tsx` / `ui/Textarea.tsx` / `ui/Card.tsx` (eliminated 12 inline-alert copies), added `ui/Select.tsx` (accessible keyboard-nav dropdown replacing native `<select>`), removed double padding from 5 content pages, polished 404 page/LogoLink/SearchBar/PokCard/QuickEntry. 33 test files, 286 tests passing, production build clean.
 
+### PR #104 Review Fixes (chore/fix-home-and-create-pok-screens, 2026-03-01) ✅
+
+Code quality and correctness fixes addressing 10 review items from PR #104 (develop → main). No new features; all changes are correctness, spec compliance, and defensive coding.
+
+| Area | Fix |
+|------|-----|
+| `CreatePokRequest.java` | `String content` type moved to its own line below stacked annotations; added `@Size(max = 50)` on `tagIds` to guard against N+1 exhaustion |
+| `TagService.java` | Added null guard on `userTag.getTag()` with `log.warn` in `assignTagsToNewPok` loop |
+| `PokServiceTest.java` | Applied `ReflectionTestUtils.setField` for non-null `pokId` in delegation tests (avoids NPE from `@GeneratedValue` fields being null outside JPA context) |
+| `PokCard.tsx` | Fixed `<button>` nested inside `<Link>` (invalid HTML) — outer `<div relative>`, `<Link>` wraps article, edit button is an absolute-positioned sibling |
+| `poks/[id]/page.tsx` | Fixed `<Button>` nested inside `<Link>` — replaced with styled `<span>` inside `<Link>` |
+| `PokForm.tsx` | Renamed prop `renderAfterContent` → `afterContent` (`render*` prefix implies a function, not a ReactNode slot) |
+| `poks/new/page.tsx` | Updated prop name to match `PokForm` rename |
+| `TagPicker.tsx` | Added `disabled={isBusy}` to available-tag buttons during async tag creation |
+| `.claude/settings.json` | Removed machine-specific absolute paths |
+| `CLAUDE.md` | Added directive: machine-specific paths must go in `settings.local.json`, not `settings.json` |
+
 ---
 
 ## Active / Pending

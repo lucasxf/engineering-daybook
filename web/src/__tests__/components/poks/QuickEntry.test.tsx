@@ -13,6 +13,20 @@ vi.mock('@/lib/api', () => ({
   ApiRequestError: class ApiRequestError extends Error {},
 }));
 
+vi.mock('@/hooks/useTags', () => ({
+  useTags: () => ({
+    tags: [
+      { id: 'ut-1', tagId: 'tag-1', name: 'react', color: 'blue', createdAt: '2026-02-25T10:00:00Z' },
+    ],
+    isLoading: false,
+    error: null,
+    createTag: vi.fn(),
+    assignTag: vi.fn(),
+    removeTag: vi.fn(),
+    deleteTag: vi.fn(),
+  }),
+}));
+
 const messages = {
   poks: {
     form: {
@@ -29,6 +43,13 @@ const messages = {
       unexpected: 'Something went wrong. Please try again.',
     },
   },
+  tags: {
+    addTag: 'Add tag',
+    createNew: 'New tag name...',
+    badge: { remove: 'Remove tag' },
+    errors: {},
+    suggestions: { label: '', approve: '', reject: '' },
+  },
 };
 
 const mockCreate = vi.mocked(pokApi.create);
@@ -41,6 +62,8 @@ const makePok = (overrides?: Partial<Pok>): Pok => ({
   deletedAt: null,
   createdAt: '2026-02-25T10:00:00Z',
   updatedAt: '2026-02-25T10:00:00Z',
+  tags: [],
+  pendingSuggestions: [],
   ...overrides,
 });
 
@@ -157,6 +180,26 @@ describe('QuickEntry', () => {
 
     await waitFor(() => {
       expect(mockCreate).toHaveBeenCalled();
+    });
+  });
+
+  it('includes tagIds in pokApi.create when tags are selected', async () => {
+    const user = userEvent.setup();
+    const onSaved = vi.fn();
+    mockCreate.mockResolvedValue(makePok());
+    renderQuickEntry(onSaved);
+
+    // Open tag picker and select 'react'
+    await user.click(screen.getByRole('button', { name: /add tag/i }));
+    await user.click(screen.getByRole('button', { name: 'react' }));
+
+    await user.type(screen.getByRole('textbox', { name: /what did you learn/i }), 'Tagged learning');
+    await user.click(screen.getByRole('button', { name: /save learning/i }));
+
+    await waitFor(() => {
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({ tagIds: ['ut-1'], content: 'Tagged learning' })
+      );
     });
   });
 });

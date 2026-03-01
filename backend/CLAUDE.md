@@ -96,6 +96,8 @@ cd backend
 
 ## Known Pitfalls
 
+- **Package-private inter-service methods for atomic cross-service operations:** When `ServiceA` needs to call a helper on `ServiceB` that is only valid in the context of an ongoing operation in `ServiceA` (e.g. assigning tags immediately after POK creation), declare the helper as package-private (no access modifier) rather than `public`. This prevents callers outside the `service` package from invoking a method that has preconditions only `ServiceA` can satisfy. Example: `TagService.assignTagsToNewPok(UUID pokId, List<UUID> userTagIds, UUID userId)` is package-private — only `PokService` (same package) can call it. Both services must live in the same package for this to work. Keep these methods small and single-purpose; if the logic grows complex, extract to a dedicated orchestration service.
+
 - **`@Lazy` to break circular constructor injection:** When two services depend on each other via constructor injection, Spring throws `BeanCurrentlyInCreationException`. Fix: annotate one of the injected parameters with `@Lazy` — Spring injects a proxy instead of the real bean, breaking the cycle. Keep `@Lazy` on the less-frequently-used dependency. Never use field injection (`@Autowired`) just to avoid this; `@Lazy` preserves constructor injection semantics.
 
   ```java
@@ -158,6 +160,30 @@ cd backend
 
 - **`PageImpl` total must reflect actual or approximate match count, not page size:** Constructing `new PageImpl<>(content, pageable, content.size())` always yields `totalElements = page_size` and `totalPages = 1`, making the client think there is exactly one page regardless of how many records exist. For queries that have a cheap count (keyword search), use the real `keywordPage.getTotalElements()`. For vector similarity (pgvector), use an approximation: `(long) offset + fetchedList.size()` — if `fetchedList.size() == limit` (over-fetched), there may be more pages; if under, this is the actual total.
 
+- **`argThat` type inference fails with `Iterable<?>` in Mockito:** When verifying a call to a method whose parameter type is `Iterable<? extends T>` (e.g. `pokTagRepository.saveAll(Iterable<? extends PokTag>)`), using `argThat(list -> ...)` fails to compile because Mockito cannot infer the lambda type from the wildcard generic bound. Fix: use `ArgumentCaptor` instead:
+
+  ```java
+  @SuppressWarnings("unchecked")
+  ArgumentCaptor<Iterable<PokTag>> captor =
+      ArgumentCaptor.forClass((Class<Iterable<PokTag>>) (Class<?>) Iterable.class);
+  verify(pokTagRepository).saveAll(captor.capture());
+  List<PokTag> saved = StreamSupport.stream(captor.getValue().spliterator(), false).toList();
+  // assert on saved
+  ```
+
+  The double cast `(Class<Iterable<PokTag>>) (Class<?>) Iterable.class` suppresses the unchecked-cast warning cleanly. Do NOT use raw `argThat` on wildcard-generic parameters.
+
+- **`@GeneratedValue` fields are null in pure unit tests (no DB):** JPA `@GeneratedValue(strategy = GenerationType.UUID)` is applied by the persistence provider at INSERT time — it never runs in a plain unit test. Calling `entity.getId()` after `new Entity(...)` returns `null`, causing downstream NPE (e.g. `List.of(null, ...)` throws). Fix: set the ID via `ReflectionTestUtils` in test setup:
+
+  ```java
+  import org.springframework.test.util.ReflectionTestUtils;
+
+  PokTag pokTag = new PokTag(...);
+  ReflectionTestUtils.setField(pokTag, "id", UUID.randomUUID());
+  ```
+
+  Apply this to every `@Entity` with a generated PK that is read during the test (including entities returned by mocked repositories).
+
 - **Java record declarations: inline unless the parameter list is long:** Declare record fields inline on the same line as the class name (follow `AdminProperties.java` and `SearchProperties.java` as reference). Multi-line format is only needed when the parameter list genuinely exceeds ~120 characters. Never break a short parameter list across multiple lines just for visual symmetry.
 
   ```java
@@ -207,6 +233,13 @@ cd backend
 - **Implementation classes belong in `service.impl`, interfaces in `service`:** The `service` package holds only the interface contracts; concrete implementations go under `service.impl`. Unit tests for an implementation class (`EmbeddingServiceTest`) may stay in the `service` test package but must import the implementation explicitly: `import com.lucasxf.ed.service.impl.HuggingFaceEmbeddingService;`.
 
 - **HuggingFace Inference API for `paraphrase-multilingual-MiniLM-L12-v2` returns a flat `float[]`, not `float[][]`:** The router endpoint (`https://router.huggingface.co/`) returns a single flat vector when the request body is `{"inputs": "text"}`. Use `.body(float[].class)` and return the response directly. Do NOT use `.body(float[][].class)` and index into `response[0]` — the Jackson deserializer will return `null` or throw when the shape is wrong. Symptom: `NullPointerException` or `EmbeddingUnavailableException("HuggingFace returned an empty embedding response")` even when the API returns 200. Other HuggingFace models (e.g., `sentence-transformers` via the direct inference API) may return `float[][]` — always verify the actual response shape for the specific model and endpoint being used.
+
+- **Constrain list/array DTO fields with `@Size(max = N)` to prevent N+1 resource exhaustion:** When a DTO field is a list that the service iterates with one repository call per element (e.g., `tagIds` driving `tagRepository.findById(id)` in a loop), an unconstrained input allows a caller to trigger an arbitrary number of database queries in a single request. Add `@Size(max = 50)` (or the appropriate domain bound) alongside other field-level constraints. This pattern applies to any future list input that drives a DB loop — not just `tagIds`. Already applied: `CreatePokRequest.tagIds`. (Added 2026-03-01)
+
+  ```java
+  @Size(max = 50)
+  private List<UUID> tagIds;
+  ```
 
 ---
 

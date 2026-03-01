@@ -41,6 +41,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 
+import org.springframework.test.util.ReflectionTestUtils;
+
 /**
  * Unit tests for {@link PokService}.
  *
@@ -74,6 +76,9 @@ class PokServiceTest {
     @Mock
     private EmbeddingService embeddingService;
 
+    @Mock
+    private TagService tagService;
+
     @InjectMocks
     private PokService pokService;
 
@@ -91,7 +96,7 @@ class PokServiceTest {
     @Test
     void create_withTitleAndContent_shouldCreatePok() {
         // Given
-        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content");
+        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null);
         Pok savedPok = new Pok(userId, "Test Title", "Test content");
 
         when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
@@ -111,7 +116,7 @@ class PokServiceTest {
     @Test
     void create_withContentOnly_shouldCreatePokWithNullTitle() {
         // Given: Title is null (optional for frictionless capture)
-        CreatePokRequest request = new CreatePokRequest(null, "Content without title");
+        CreatePokRequest request = new CreatePokRequest(null, "Content without title", null);
         Pok savedPok = new Pok(userId, null, "Content without title");
 
         when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
@@ -130,7 +135,7 @@ class PokServiceTest {
     @Test
     void create_withEmptyStringTitle_shouldCreatePokWithEmptyTitle() {
         // Given: Title is empty string (also valid)
-        CreatePokRequest request = new CreatePokRequest("", "Content with empty title");
+        CreatePokRequest request = new CreatePokRequest("", "Content with empty title", null);
         Pok savedPok = new Pok(userId, "", "Content with empty title");
 
         when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
@@ -143,6 +148,43 @@ class PokServiceTest {
         assertThat(response.content()).isEqualTo("Content with empty title");
 
         verify(pokRepository).save(any(Pok.class));
+    }
+
+    @Test
+    void create_withTagIds_shouldDelegateAssignmentToTagService() {
+        // Given
+        UUID tagId1 = UUID.randomUUID();
+        UUID tagId2 = UUID.randomUUID();
+        List<UUID> tagIds = List.of(tagId1, tagId2);
+        CreatePokRequest request = new CreatePokRequest("Title", "Content", tagIds);
+        Pok savedPok = new Pok(userId, "Title", "Content");
+        UUID savedPokId = UUID.randomUUID();
+        ReflectionTestUtils.setField(savedPok, "id", savedPokId);
+
+        when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
+
+        // When
+        pokService.create(request, userId);
+
+        // Then: a real UUID (not null) is forwarded to the tag service
+        verify(tagService).assignTagsToNewPok(savedPokId, tagIds, userId);
+    }
+
+    @Test
+    void create_withNullTagIds_shouldStillCallAssignTagsToNewPok() {
+        // Given
+        CreatePokRequest request = new CreatePokRequest("Title", "Content", null);
+        Pok savedPok = new Pok(userId, "Title", "Content");
+        UUID savedPokId = UUID.randomUUID();
+        ReflectionTestUtils.setField(savedPok, "id", savedPokId);
+
+        when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
+
+        // When
+        pokService.create(request, userId);
+
+        // Then: assignTagsToNewPok is called with the real pokId; it handles null tagIds internally
+        verify(tagService).assignTagsToNewPok(savedPokId, null, userId);
     }
 
     // ===== GET POK BY ID TESTS =====
@@ -606,7 +648,7 @@ class PokServiceTest {
     @Test
     void create_shouldReturnTagsAndSuggestionsInResponse() {
         // Given
-        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content");
+        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null);
         Pok savedPok = new Pok(userId, "Test Title", "Test content");
 
         when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
@@ -642,7 +684,7 @@ class PokServiceTest {
     @Test
     void create_shouldSaveAuditLogWithCreateAction() {
         // Given
-        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content");
+        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null);
         Pok savedPok = new Pok(userId, "Test Title", "Test content");
 
         when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);

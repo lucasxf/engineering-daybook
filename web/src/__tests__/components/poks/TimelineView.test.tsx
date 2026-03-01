@@ -77,10 +77,10 @@ describe('TimelineView', () => {
     const headings = screen.getAllByRole('heading', { level: 2 });
     // Feb 2026 > Jan 2026 > Mar 2025
     const firstHeading = headings[0].textContent ?? '';
-    expect(firstHeading).toContain('2026');
+    expect(firstHeading).toContain('26'); // 2-digit year
     // The oldest month should be last
     const lastHeading = headings[headings.length - 1].textContent ?? '';
-    expect(lastHeading).toContain('2025');
+    expect(lastHeading).toContain('25'); // 2-digit year for 2025
   });
 
   it('February 2026 comes before January 2026', () => {
@@ -100,8 +100,8 @@ describe('TimelineView', () => {
 
     const headings = screen.getAllByRole('heading', { level: 2 });
     const label = headings[0].textContent ?? '';
-    // Should include the year
-    expect(label).toContain('2026');
+    // Should include the 2-digit year
+    expect(label).toContain('26');
   });
 
   // ─── Empty ───────────────────────────────────────────────────────────────

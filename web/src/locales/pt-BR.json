@@ -98,7 +98,7 @@
       "title": "Novo aprendizado"
     },
     "list": {
-      "title": "Meus Aprendizados",
+      "title": "Meus aprendizados",
       "createButton": "Novo aprendizado",
       "resultsCount": "{count, plural, =1 {1 aprendizado encontrado} other {# aprendizados encontrados}}"
     },

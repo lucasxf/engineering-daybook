@@ -98,7 +98,7 @@
       "title": "New learning"
     },
     "list": {
-      "title": "My Learnings",
+      "title": "My learnings",
       "createButton": "New learning",
       "resultsCount": "{count, plural, =1 {1 learning found} other {# learnings found}}"
     },
