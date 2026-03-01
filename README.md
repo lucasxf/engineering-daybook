@@ -185,7 +185,7 @@ See [ROADMAP.phase-1.md](./docs/ROADMAP.phase-1.md)
 - [x] Deployed to production (learnimo.net · learnimo.com.br)
 - [x] Session persistence (httpOnly cookies)
 - [x] Inline quick-entry
-- [ ] Visual polish (1.7.6)
+- [x] Visual polish (1.7.6) — standardized palette, animation tokens, shared UI components (Alert, Card, Textarea, Select), accessible custom dropdown, spacing fixes
 - [ ] Phase 1 exit criterion: 1+ week usage
 
 ### Phase 2: Evolution — 🔄 Started
