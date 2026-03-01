@@ -17,7 +17,7 @@ export function EmptyState() {
   const params = useParams<{ locale: string }>();
 
   return (
-    <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 p-8 text-center dark:border-slate-700">
+    <div className="flex min-h-[400px] animate-fadeIn flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 p-8 text-center dark:border-slate-700">
       <svg
         className="mb-4 h-16 w-16 text-slate-400 dark:text-slate-600"
         fill="none"

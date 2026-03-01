@@ -61,12 +61,12 @@ export function DeletePokButton({ onDelete }: DeletePokButtonProps) {
 
       {showDialog && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
           aria-labelledby="delete-dialog-title"
         >
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-slate-800">
+          <div className="w-full max-w-md animate-slideUp rounded-lg bg-white p-6 shadow-xl dark:bg-slate-800">
             <h2
               id="delete-dialog-title"
               className="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-100"

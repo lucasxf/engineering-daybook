@@ -63,7 +63,7 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
   );
 
   return (
-    <Card className="mb-6 p-4 shadow-sm dark:bg-slate-900">
+    <Card className="mb-6 p-4 shadow-sm transition-shadow focus-within:shadow-md dark:bg-slate-900">
       <input
         type="text"
         value={title}

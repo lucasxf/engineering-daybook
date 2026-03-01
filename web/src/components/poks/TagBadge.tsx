@@ -25,7 +25,7 @@ export function TagBadge({ tag, onRemove }: TagBadgeProps) {
             e.stopPropagation();
             onRemove(tag.id);
           }}
-          className="ml-0.5 rounded-full text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+          className="ml-0.5 rounded-full text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200"
           aria-label={`Remove tag ${tag.name}`}
         >
           ×
