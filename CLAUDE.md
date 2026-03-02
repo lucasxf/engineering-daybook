@@ -100,13 +100,18 @@ test: add PokService unit tests
 
 ## Session Guidelines
 
-1. **Plan before coding** — show plan, wait for approval
-2. **Be critical** — challenge questions and push back on suggestions; don't just agree. Always show trade-offs and alternatives. (Updated 2026-02-25)
+1. **Plan before coding** — enter plan mode for any non-trivial task (3+ steps or architectural decisions). Write detailed specs upfront. If something goes sideways, STOP and re-plan — don't keep pushing.
+2. **Be critical** — challenge the user's questions AND your own work. Push back on suggestions; don't just agree. Always show trade-offs and alternatives. For non-trivial changes, ask "is there a more elegant way?" If a fix feels hacky, implement the elegant solution instead. Skip for simple, obvious fixes.
 3. **Quality over speed** — production-ready, not prototypes
 4. **Test everything** — no code without tests
 5. **Document decisions** — update ADRs when making architectural choices
-6. **Learn from command errors** — when a slash command encounters an error, fix the root cause in `.claude/commands/` before continuing
+6. **Learn from errors** — when a slash command encounters an error, fix the root cause in `.claude/commands/` before continuing. After ANY correction from the user, update `memory/MEMORY.md` Key Learnings with the pattern. Review Key Learnings at session start.
 7. **Wiring gate** — before marking a feature milestone complete, verify that every new component/hook is imported and rendered in at least one page or consumed by at least one caller. Orphaned (unreferenced) exports are a defect, not a deferral. If a component was intentionally deferred, do not commit it — keep it on a branch or document the gap explicitly. `/finish-session` enforces this with an orphaned-export check. (Added 2026-02-28)
+
+## Task Management
+
+- **Track Progress**: Mark milestone items complete in the active phase file (`docs/ROADMAP.phase-{N}.md`) — not in `docs/ROADMAP.md` (that's the index only).
+- **Document Results**: Run `/update-roadmap` or `/finish-session` to record session outcomes in the phase file.
 
 ## Environment Notes
 
@@ -164,4 +169,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-03-01 (session: chore/fix-home-and-create-pok-screens)*
+*Last updated: 2026-03-02 (session: chore/claude-md-maintenance)*
