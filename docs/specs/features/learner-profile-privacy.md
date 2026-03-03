@@ -1,6 +1,6 @@
 # Learner Profile Privacy
 
-> **Status:** Draft
+> **Status:** Approved
 > **Created:** 2026-03-02
 > **Implemented:** _pending_
 
@@ -16,7 +16,10 @@ end-to-end value while providing the stable foundation Phase 6.3 enhances (avata
 Without this, there is no way for `PUBLIC` learnings (introduced in 5.1) to actually reach other
 users — the visibility flag would exist in the DB with no surface to present it.
 
-**Design principle:** Private by default. No vanity metrics — ever.
+**Design principles:**
+- Private by default — learners opt in to sharing
+- No vanity metrics to others — ever; owner can always see their own counts privately
+- Private profile existence is not hidden — a minimal shell (handle only) is shown to non-owners
 
 **Phase/Milestone:** Phase 5 — Privacy / Milestone 5.2
 
@@ -43,16 +46,21 @@ users — the visibility flag would exist in the DB with no surface to present i
   `/learners/{handle}` can view the profile page (display name + public learnings). The
   profile does not expose follower counts, colleague counts, or total learning counts.
 
-- [ ] **FR3** *(Must Have)* — `PRIVATE` profile: the `/learners/{handle}` page returns
-  `403 Forbidden` to any user who is not the profile owner. Returns `403`, not `404`, to
-  avoid confirming handle existence to unauthorised parties.
+- [ ] **FR3** *(Must Have)* — `PRIVATE` profile: the `/learners/{handle}` page returns a
+  minimal shell to non-owners — only the handle and a "This profile is private" message.
+  No display name, no learnings, no counts, no avatar. This intentionally confirms that the
+  handle is registered (consistent with `GET /auth/handle/available` already doing the same)
+  while revealing zero personal information.
 
 - [ ] **FR4** *(Must Have)* — Profile owner can always view their own profile regardless of
   visibility setting (useful for previewing before making it public).
 
-- [ ] **FR5** *(Must Have)* — A `GET /api/v1/learners/{handle}` endpoint returns the public
-  profile data for `PUBLIC` profiles; `403` for `PRIVATE` profiles (non-owner); `200` for
-  the owner's own profile regardless of visibility.
+- [ ] **FR5** *(Must Have)* — A `GET /api/v1/learners/{handle}` endpoint returns:
+  - `200` with full profile (`{ handle, displayName, learningCount }`) for `PUBLIC` profiles
+    (non-owner) or the owner's own profile regardless of visibility
+  - `200` with minimal profile (`{ handle, profileVisibility: "PRIVATE" }`) for `PRIVATE`
+    profiles visited by non-owners — no display name, no learning count, nothing else
+  - `404` if the handle does not exist
 
 - [ ] **FR6** *(Must Have)* — A `GET /api/v1/learners/{handle}/poks` endpoint returns the
   paginated list of `PUBLIC` learnings for that learner. Requires authentication. Returns
@@ -78,12 +86,17 @@ users — the visibility flag would exist in the DB with no surface to present i
 
 #### Minimal Profile Page
 
-- [ ] **FR11** *(Must Have)* — Web: a `/[locale]/learners/[handle]` page is added. For
-  `PUBLIC` profiles it shows: display name, and a paginated list of the learner's `PUBLIC`
-  learnings. It does NOT show follower count, colleague count, or any learning count.
+- [ ] **FR11** *(Must Have)* — Web: a `/[locale]/learners/[handle]` page is added with
+  three distinct views:
+  - **Public profile (non-owner):** display name + paginated list of `PUBLIC` learnings.
+    No follower count, colleague count, or learning count shown to visitors.
+  - **Private profile (non-owner):** handle + "This profile is private" message only.
+    No other information visible.
+  - **Own profile (owner):** display name + all learnings (private + public, with visibility
+    badges) + own learning count. Follower and colleague counts will appear here in Phase 6.
 
-- [ ] **FR12** *(Must Have)* — The profile page owner view (own profile) shows all learnings
-  (including `PRIVATE` ones) with visibility badges, matching what `/poks` feed shows today.
+- [ ] **FR12** *(Must Have)* — The owner's profile view shows their own learning count
+  privately. This count is visible only to the owner — never to visitors.
 
 - [ ] **FR13** *(Should Have)* — A "View my profile" link is accessible from the settings
   page or from the user menu/header. One click to preview the public profile.
@@ -93,9 +106,10 @@ users — the visibility flag would exist in the DB with no surface to present i
 
 #### Anti-Vanity Rule
 
-- [ ] **FR15** *(Must Have)* — The public profile page exposes NO numerical counts to other
-  users: no learning count, no follower count, no colleague count, no tag count. The only
-  content shown is the learner's display name and their public learnings.
+- [ ] **FR15** *(Must Have)* — Non-owners visiting any profile (public or private) see NO
+  numerical counts: no learning count, no follower count, no colleague count, no tag count.
+  The owner, when viewing their own profile, sees their own counts privately. In Phase 5 this
+  means learning count only; follower and colleague counts will be added in Phase 6.
 
 #### Explicitly Out of Scope
 
@@ -109,9 +123,10 @@ users — the visibility flag would exist in the DB with no surface to present i
 
 ### Non-Functional
 
-1. **Security — 403 over 404 for private profiles:** `GET /api/v1/learners/{handle}` for a
-   private profile MUST return `403`, not `404`. `404` would confirm whether a handle
-   is registered.
+1. **Security — Minimal shell for private profiles:** `GET /api/v1/learners/{handle}` for a
+   private profile visited by a non-owner returns `200` with only `{ handle, profileVisibility }`.
+   Unknown handles return `404`. This intentionally allows confirming handle existence, consistent
+   with the already-public `GET /auth/handle/available` endpoint.
 2. **Security — Owner-only write gate:** `PATCH /api/v1/users/me/settings` is gated by the
    authenticated user's own identity — no user can update another's settings.
 3. **Data integrity — Backfill:** V15 migration uses `DEFAULT 'PRIVATE'` at SQL level. All
@@ -119,8 +134,10 @@ users — the visibility flag would exist in the DB with no surface to present i
 4. **Performance — Profile learnings query:** `GET /api/v1/learners/{handle}/poks` must add
    an index on `poks(user_id, visibility, deleted_at)` to avoid full-table scans for
    learners with many learnings.
-5. **Anti-vanity:** The `LearnerProfileResponse` DTO must not include any count fields. This
-   is a hard requirement — counts must not appear in the response even as `0`.
+5. **Anti-vanity — two response shapes:**
+   - Non-owner (public profile): `{ handle, displayName, learnings[] }` — no count fields, not even as `0`
+   - Non-owner (private profile): `{ handle, profileVisibility }` — nothing else
+   - Owner (own profile): `{ handle, displayName, learnings[], learningCount }` — counts visible only to self
 6. **i18n:** All new UI labels (settings page headings, profile page labels, visibility
    option labels, privacy explanations) are available in EN and PT-BR.
 7. **Accessibility:** Settings controls are keyboard-navigable and announce current values to
@@ -176,25 +193,32 @@ is needed for reading settings.
 **WHEN** authenticated learner Bob navigates to `/learners/alice`
 **THEN** Bob sees Alice's display name and a list of Alice's `PUBLIC` learnings
 
-### AC2: Private profile returns 403 to non-owner
+### AC2: Private profile returns minimal shell to non-owner
 **GIVEN** learner Alice has `profileVisibility = PRIVATE`
 **WHEN** authenticated learner Bob calls `GET /api/v1/learners/alice`
-**THEN** the response is `403 Forbidden`
+**THEN** the response is `200 OK` with only `{ "handle": "alice", "profileVisibility": "PRIVATE" }`
+**AND** no display name, no learnings, no counts are included
 
-### AC3: Private profile returns 403, not 404
+### AC3: Private profile page shows empty shell to non-owner
 **GIVEN** learner Alice has `profileVisibility = PRIVATE`
-**WHEN** authenticated learner Bob calls `GET /api/v1/learners/alice`
-**THEN** the response status is `403` (not `404`, which would confirm handle existence)
+**WHEN** authenticated learner Bob navigates to `/learners/alice`
+**THEN** Bob sees only the handle `@alice` and a "This profile is private" message
+**AND** no other information is visible
 
 ### AC4: Owner can view own private profile
 **GIVEN** Alice has `profileVisibility = PRIVATE`
 **WHEN** Alice navigates to `/learners/alice` (her own profile)
 **THEN** she sees her profile page with all her learnings (private + public)
 
-### AC5: Public profile does not show counts
+### AC5: Public profile does not show counts to visitors
 **GIVEN** learner Alice has a `PUBLIC` profile with 50 learnings
 **WHEN** Bob views Alice's profile
 **THEN** there is no learning count, follower count, colleague count, or any numerical metric visible
+
+### AC5b: Owner sees own learning count on their own profile
+**GIVEN** Alice has 5 learnings (3 public, 2 private)
+**WHEN** Alice views her own profile at `/learners/alice`
+**THEN** Alice sees her total learning count (5) displayed privately
 
 ### AC6: Public profile only shows PUBLIC learnings to non-owner
 **GIVEN** Alice has 3 `PUBLIC` and 2 `PRIVATE` learnings, and a `PUBLIC` profile
@@ -224,7 +248,7 @@ is needed for reading settings.
 ### AC11: Change profile visibility to PRIVATE
 **GIVEN** Alice has `profileVisibility = PUBLIC`
 **WHEN** Alice sets it back to `PRIVATE` via settings
-**THEN** other users immediately get `403` on `/learners/alice`
+**THEN** other users immediately see only the private shell on `/learners/alice` (handle + "This profile is private")
 
 ### AC12: Settings returned in /auth/me response
 **GIVEN** Alice has `profileVisibility = PUBLIC` and `defaultPokVisibility = PRIVATE`
@@ -312,15 +336,36 @@ public class LearnerController {
 }
 ```
 
-**Access-check pattern for profile endpoints:**
+**Profile response strategy — two shapes from one endpoint:**
 
 ```java
-private void verifyProfileAccess(User targetUser, UUID requestingUserId) {
-    if (targetUser.getProfileVisibility() == User.ProfileVisibility.PUBLIC) return;
-    if (targetUser.getId().equals(requestingUserId)) return;
-    throw new LearnerAccessDeniedException("Profile is private");
+// LearnerController.getProfile():
+public LearnerProfileResponse getProfile(String handle, Authentication auth) {
+    User target = userService.findByHandle(handle)
+        .orElseThrow(LearnerNotFoundException::new);  // → 404
+
+    boolean isOwner = target.getId().equals(currentUserId(auth));
+
+    if (!isOwner && target.getProfileVisibility() == PRIVATE) {
+        // Minimal shell — confirms handle exists, reveals nothing else
+        return LearnerProfileResponse.privateShell(target.getHandle());
+    }
+
+    // Full response — owner always; non-owner for PUBLIC profiles
+    List<Pok> learnings = isOwner
+        ? pokService.findAllByUserId(target.getId())
+        : pokService.findPublicByUserId(target.getId());
+
+    return LearnerProfileResponse.full(target, learnings, isOwner);
+    // isOwner=true → includes learningCount; isOwner=false → no counts
 }
 ```
+
+`LearnerProfileResponse` has a factory pattern with two shapes:
+- `privateShell(handle)` — `{ handle, profileVisibility: PRIVATE }` only
+- `full(user, learnings, isOwner)` — `{ handle, displayName, learnings[] }` + `learningCount` if `isOwner`
+
+`LearnerAccessDeniedException` is no longer needed for the main profile endpoint (private profiles return 200). It remains for `GET /api/v1/learners/{handle}/poks` which still returns `403` for private profiles.
 
 **`GET /auth/me` extension:**
 
@@ -362,8 +407,9 @@ Uses the existing `Select` component; no new UI primitives needed.
 
 - [ ] **Full TDD** for:
   - `LearnerService.verifyProfileAccess()` (unit) — 4 cases matching the access matrix
-  - `LearnerController` (MockMvc) — AC1 (200 for public), AC2/AC3 (403 for private non-owner),
-    AC4 (200 for owner on private), AC6 (only PUBLIC poks returned), AC9 (403 on poks for private profile), AC13 (404 on unknown handle)
+  - `LearnerController` (MockMvc) — AC1 (200 full profile for public), AC2 (200 minimal shell for private non-owner),
+    AC4 (200 full profile for owner on private), AC5b (learningCount in owner response), AC6 (only PUBLIC poks returned),
+    AC9 (403 on poks for private profile), AC13 (404 on unknown handle)
   - `UserController.updateSettings()` (unit + MockMvc) — AC10, AC11
   - `AuthService.me()` extension (unit) — AC12
 
@@ -381,7 +427,7 @@ Uses the existing `Select` component; no new UI primitives needed.
 - `controller/LearnerController.java` — `GET /api/v1/learners/{handle}` and `/{handle}/poks`
 - `service/LearnerService.java` — profile access logic, public learnings query
 - `service/UserService.java` — `updateSettings(UUID userId, UpdateUserSettingsRequest)` and `findByHandle(String handle)` (or extract to repo)
-- `dto/LearnerProfileResponse.java` — `{ handle, displayName }` (no counts)
+- `dto/LearnerProfileResponse.java` — two factory methods: `privateShell(handle)` and `full(user, learnings, isOwner)`; `learningCount` only serialised when `isOwner=true`
 - `dto/UserSettingsResponse.java` — `{ defaultPokVisibility, profileVisibility }`
 - `dto/UpdateUserSettingsRequest.java` — `{ defaultPokVisibility?, profileVisibility? }`
 - `exception/LearnerAccessDeniedException.java` — extends RuntimeException → 403
