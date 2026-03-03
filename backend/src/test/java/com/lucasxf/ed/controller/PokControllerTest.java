@@ -68,9 +68,9 @@ class PokControllerTest {
     @WithMockUser
     void createPok_withValidRequest_shouldReturn201() throws Exception {
         // Given
-        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null);
+        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null, null);
         PokResponse response = new PokResponse(
-            pokId, userId, "Test Title", "Test content", null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
+            pokId, userId, "Test Title", "Test content", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
 
         when(pokService.create(any(CreatePokRequest.class), any(UUID.class)))
@@ -93,9 +93,9 @@ class PokControllerTest {
     @WithMockUser
     void createPok_withoutTitle_shouldReturn201() throws Exception {
         // Given: Title is optional (frictionless capture)
-        CreatePokRequest request = new CreatePokRequest(null, "Content without title", null);
+        CreatePokRequest request = new CreatePokRequest(null, "Content without title", null, null);
         PokResponse response = new PokResponse(
-            pokId, userId, null, "Content without title", null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
+            pokId, userId, null, "Content without title", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
 
         when(pokService.create(any(CreatePokRequest.class), any(UUID.class)))
@@ -115,7 +115,7 @@ class PokControllerTest {
     @WithMockUser
     void createPok_withEmptyContent_shouldReturn400() throws Exception {
         // Given: Content is mandatory
-        CreatePokRequest request = new CreatePokRequest("Title", "", null);
+        CreatePokRequest request = new CreatePokRequest("Title", "", null, null);
 
         // When/Then
         mockMvc.perform(post("/api/v1/poks")
@@ -130,7 +130,7 @@ class PokControllerTest {
     void createPok_withTitleTooLong_shouldReturn400() throws Exception {
         // Given: Title max 200 chars
         String longTitle = "a".repeat(201);
-        CreatePokRequest request = new CreatePokRequest(longTitle, "Content", null);
+        CreatePokRequest request = new CreatePokRequest(longTitle, "Content", null, null);
 
         // When/Then
         mockMvc.perform(post("/api/v1/poks")
@@ -143,7 +143,7 @@ class PokControllerTest {
     @Test
     void createPok_withoutAuthentication_shouldReturn401() throws Exception {
         // Given
-        CreatePokRequest request = new CreatePokRequest("Title", "Content", null);
+        CreatePokRequest request = new CreatePokRequest("Title", "Content", null, null);
 
         // When/Then: No authentication
         mockMvc.perform(post("/api/v1/poks")
@@ -159,7 +159,7 @@ class PokControllerTest {
     void getPokById_whenExists_shouldReturn200() throws Exception {
         // Given
         PokResponse response = new PokResponse(
-            pokId, userId, "Title", "Content", null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
+            pokId, userId, "Title", "Content", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
 
         when(pokService.getById(eq(pokId), any(UUID.class))).thenReturn(response);
@@ -219,10 +219,10 @@ class PokControllerTest {
     void listPoks_shouldReturn200WithPagedResults() throws Exception {
         // Given
         PokResponse pok1 = new PokResponse(
-            UUID.randomUUID(), userId, "Title 1", "Content 1", null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
+            UUID.randomUUID(), userId, "Title 1", "Content 1", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
         PokResponse pok2 = new PokResponse(
-            UUID.randomUUID(), userId, null, "Content 2", null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
+            UUID.randomUUID(), userId, null, "Content 2", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
 
         Page<PokResponse> page = new PageImpl<>(
@@ -281,9 +281,9 @@ class PokControllerTest {
     @WithMockUser
     void updatePok_withValidRequest_shouldReturn200() throws Exception {
         // Given
-        UpdatePokRequest request = new UpdatePokRequest("Updated Title", "Updated content");
+        UpdatePokRequest request = new UpdatePokRequest("Updated Title", "Updated content", null);
         PokResponse response = new PokResponse(
-            pokId, userId, "Updated Title", "Updated content", null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
+            pokId, userId, "Updated Title", "Updated content", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
 
         when(pokService.update(eq(pokId), any(UpdatePokRequest.class), any(UUID.class)))
@@ -305,9 +305,9 @@ class PokControllerTest {
     @WithMockUser
     void updatePok_removingTitle_shouldReturn200() throws Exception {
         // Given: User removes title (sets to null)
-        UpdatePokRequest request = new UpdatePokRequest(null, "Content only");
+        UpdatePokRequest request = new UpdatePokRequest(null, "Content only", null);
         PokResponse response = new PokResponse(
-            pokId, userId, null, "Content only", null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
+            pokId, userId, null, "Content only", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
 
         when(pokService.update(eq(pokId), any(UpdatePokRequest.class), any(UUID.class)))
@@ -327,7 +327,7 @@ class PokControllerTest {
     @WithMockUser
     void updatePok_whenNotFound_shouldReturn404() throws Exception {
         // Given
-        UpdatePokRequest request = new UpdatePokRequest("Title", "Content");
+        UpdatePokRequest request = new UpdatePokRequest("Title", "Content", null);
 
         when(pokService.update(eq(pokId), any(UpdatePokRequest.class), any(UUID.class)))
             .thenThrow(new PokNotFoundException("POK not found"));
@@ -344,7 +344,7 @@ class PokControllerTest {
     @WithMockUser
     void updatePok_whenAccessDenied_shouldReturn403() throws Exception {
         // Given
-        UpdatePokRequest request = new UpdatePokRequest("Title", "Content");
+        UpdatePokRequest request = new UpdatePokRequest("Title", "Content", null);
 
         when(pokService.update(eq(pokId), any(UpdatePokRequest.class), any(UUID.class)))
             .thenThrow(new PokAccessDeniedException("You do not have permission to access this POK"));
@@ -361,7 +361,7 @@ class PokControllerTest {
     @WithMockUser
     void updatePok_withEmptyContent_shouldReturn400() throws Exception {
         // Given: Content is mandatory
-        UpdatePokRequest request = new UpdatePokRequest("Title", "");
+        UpdatePokRequest request = new UpdatePokRequest("Title", "", null);
 
         // When/Then
         mockMvc.perform(put("/api/v1/poks/{id}", pokId)
@@ -374,7 +374,7 @@ class PokControllerTest {
     @Test
     void updatePok_withoutAuthentication_shouldReturn401() throws Exception {
         // Given
-        UpdatePokRequest request = new UpdatePokRequest("Title", "Content");
+        UpdatePokRequest request = new UpdatePokRequest("Title", "Content", null);
 
         // When/Then
         mockMvc.perform(put("/api/v1/poks/{id}", pokId)
@@ -440,7 +440,7 @@ class PokControllerTest {
     void searchPoks_withKeyword_shouldReturn200() throws Exception {
         // Given
         PokResponse pok = new PokResponse(
-            pokId, userId, "Spring Boot", "Content about Spring", null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
+            pokId, userId, "Spring Boot", "Content about Spring", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
         Page<PokResponse> page = new PageImpl<>(List.of(pok), PageRequest.of(0, 20), 1);
 

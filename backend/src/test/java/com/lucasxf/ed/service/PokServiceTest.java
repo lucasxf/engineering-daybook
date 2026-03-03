@@ -96,7 +96,7 @@ class PokServiceTest {
     @Test
     void create_withTitleAndContent_shouldCreatePok() {
         // Given
-        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null);
+        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null, null);
         Pok savedPok = new Pok(userId, "Test Title", "Test content");
 
         when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
@@ -116,7 +116,7 @@ class PokServiceTest {
     @Test
     void create_withContentOnly_shouldCreatePokWithNullTitle() {
         // Given: Title is null (optional for frictionless capture)
-        CreatePokRequest request = new CreatePokRequest(null, "Content without title", null);
+        CreatePokRequest request = new CreatePokRequest(null, "Content without title", null, null);
         Pok savedPok = new Pok(userId, null, "Content without title");
 
         when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
@@ -135,7 +135,7 @@ class PokServiceTest {
     @Test
     void create_withEmptyStringTitle_shouldCreatePokWithEmptyTitle() {
         // Given: Title is empty string (also valid)
-        CreatePokRequest request = new CreatePokRequest("", "Content with empty title", null);
+        CreatePokRequest request = new CreatePokRequest("", "Content with empty title", null, null);
         Pok savedPok = new Pok(userId, "", "Content with empty title");
 
         when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
@@ -156,7 +156,7 @@ class PokServiceTest {
         UUID tagId1 = UUID.randomUUID();
         UUID tagId2 = UUID.randomUUID();
         List<UUID> tagIds = List.of(tagId1, tagId2);
-        CreatePokRequest request = new CreatePokRequest("Title", "Content", tagIds);
+        CreatePokRequest request = new CreatePokRequest("Title", "Content", tagIds, null);
         Pok savedPok = new Pok(userId, "Title", "Content");
         UUID savedPokId = UUID.randomUUID();
         ReflectionTestUtils.setField(savedPok, "id", savedPokId);
@@ -173,7 +173,7 @@ class PokServiceTest {
     @Test
     void create_withNullTagIds_shouldStillCallAssignTagsToNewPok() {
         // Given
-        CreatePokRequest request = new CreatePokRequest("Title", "Content", null);
+        CreatePokRequest request = new CreatePokRequest("Title", "Content", null, null);
         Pok savedPok = new Pok(userId, "Title", "Content");
         UUID savedPokId = UUID.randomUUID();
         ReflectionTestUtils.setField(savedPok, "id", savedPokId);
@@ -316,7 +316,7 @@ class PokServiceTest {
         // Given
         UUID pokId = UUID.randomUUID();
         Pok existingPok = new Pok(userId, "Old Title", "Old content");
-        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content");
+        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content", null);
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(existingPok));
         when(pokRepository.save(any(Pok.class))).thenReturn(existingPok);
@@ -337,7 +337,7 @@ class PokServiceTest {
         // Given: User wants to remove title (make it optional again)
         UUID pokId = UUID.randomUUID();
         Pok existingPok = new Pok(userId, "Old Title", "Content");
-        UpdatePokRequest request = new UpdatePokRequest(null, "Updated content");
+        UpdatePokRequest request = new UpdatePokRequest(null, "Updated content", null);
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(existingPok));
         when(pokRepository.save(any(Pok.class))).thenReturn(existingPok);
@@ -356,7 +356,7 @@ class PokServiceTest {
     void update_whenPokNotFound_shouldThrowPokNotFoundException() {
         // Given
         UUID pokId = UUID.randomUUID();
-        UpdatePokRequest request = new UpdatePokRequest("Title", "Content");
+        UpdatePokRequest request = new UpdatePokRequest("Title", "Content", null);
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.empty());
 
@@ -373,7 +373,7 @@ class PokServiceTest {
         // Given
         UUID pokId = UUID.randomUUID();
         Pok pok = new Pok(otherUserId, "Title", "Content");
-        UpdatePokRequest request = new UpdatePokRequest("New", "New content");
+        UpdatePokRequest request = new UpdatePokRequest("New", "New content", null);
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
 
@@ -633,7 +633,7 @@ class PokServiceTest {
         // Given
         UUID pokId = UUID.randomUUID();
         Pok existingPok = new Pok(userId, "Old Title", "Old content");
-        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content");
+        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content", null);
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(existingPok));
         when(pokRepository.save(any(Pok.class))).thenReturn(existingPok);
@@ -648,7 +648,7 @@ class PokServiceTest {
     @Test
     void create_shouldReturnTagsAndSuggestionsInResponse() {
         // Given
-        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null);
+        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null, null);
         Pok savedPok = new Pok(userId, "Test Title", "Test content");
 
         when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
@@ -666,7 +666,7 @@ class PokServiceTest {
         // Given
         UUID pokId = UUID.randomUUID();
         Pok existingPok = new Pok(userId, "Old Title", "Old content");
-        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content");
+        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content", null);
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(existingPok));
         when(pokRepository.save(any(Pok.class))).thenReturn(existingPok);
@@ -684,7 +684,7 @@ class PokServiceTest {
     @Test
     void create_shouldSaveAuditLogWithCreateAction() {
         // Given
-        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null);
+        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null, null);
         Pok savedPok = new Pok(userId, "Test Title", "Test content");
 
         when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
@@ -709,7 +709,7 @@ class PokServiceTest {
         // Given
         UUID pokId = UUID.randomUUID();
         Pok existingPok = new Pok(userId, "Old Title", "Old content");
-        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content");
+        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content", null);
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(existingPok));
         when(pokRepository.save(any(Pok.class))).thenReturn(existingPok);
@@ -757,7 +757,7 @@ class PokServiceTest {
         // Given: POK belongs to a different user
         UUID pokId = UUID.randomUUID();
         Pok pok = new Pok(otherUserId, "Title", "Content");
-        UpdatePokRequest request = new UpdatePokRequest("New", "New content");
+        UpdatePokRequest request = new UpdatePokRequest("New", "New content", null);
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
 
