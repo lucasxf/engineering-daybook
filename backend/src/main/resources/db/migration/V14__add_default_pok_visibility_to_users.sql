@@ -1,0 +1,2 @@
+ALTER TABLE users
+    ADD COLUMN default_pok_visibility VARCHAR(20) NOT NULL DEFAULT 'PRIVATE';
