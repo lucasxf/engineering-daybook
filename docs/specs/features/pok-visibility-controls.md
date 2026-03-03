@@ -1,6 +1,6 @@
 # POK Visibility Controls
 
-> **Status:** Approved
+> **Status:** In Progress
 > **Created:** 2026-03-02
 > **Implemented:** _pending_
 
