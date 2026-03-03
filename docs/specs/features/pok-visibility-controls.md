@@ -14,7 +14,12 @@ introduces a two-tier visibility model: `PRIVATE` (default) and `PUBLIC`. It is 
 privacy infrastructure for learnimo; higher tiers (`FOLLOWERS_ONLY`, `COLLEAGUES_ONLY`) and
 share-cascade mechanics unlock in Phase 6 when social concepts (follows, profiles) exist.
 
-**Design principle:** Private by default. Learners opt in to sharing — they never opt out.
+**Design principles:**
+- Private by default — learners opt in to sharing
+- The default visibility setting is freely adjustable at any time (PRIVATE → PUBLIC → PRIVATE)
+- A learning made `PUBLIC` cannot be reverted to `PRIVATE` — once shared, it stays shared
+- Exception: a public learning CAN be soft-deleted; deletion propagates and removes all
+  downstream shares (Phase 6.4 implements the cascade; Phase 5 handles the deletion itself)
 
 **Phase/Milestone:** Phase 5 — Privacy / Milestone 5.1
 
@@ -41,8 +46,10 @@ share-cascade mechanics unlock in Phase 6 when social concepts (follows, profile
 - [ ] **FR3** *(Must Have)* — Visibility can be set at creation time. Both the QuickEntry
   inline form and the full `/poks/new` page include a visibility picker.
 
-- [ ] **FR4** *(Must Have)* — Visibility can be changed on any existing learning at any time
-  via the edit page. There is no cooldown or confirmation — changes are instant.
+- [ ] **FR4** *(Must Have)* — Visibility on an existing learning can be changed from `PRIVATE`
+  to `PUBLIC` at any time via the edit page. This transition is **irreversible** — a learning
+  made `PUBLIC` cannot be reverted to `PRIVATE`. The learning must not be soft-deleted for a
+  visibility change to be valid. The UI makes the irreversibility clear before confirming.
 
 - [ ] **FR5** *(Must Have)* — `PRIVATE` learnings are accessible only by the owner. Any
   authenticated non-owner requesting a private learning receives `403 Forbidden`. The response
@@ -62,8 +69,9 @@ share-cascade mechanics unlock in Phase 6 when social concepts (follows, profile
 - [ ] **FR9** *(Should Have)* — A visual indicator is shown on POK cards and detail views:
   a lock icon for `PRIVATE`, a globe icon for `PUBLIC`.
 
-- [ ] **FR10** *(Should Have)* — The visibility picker is compact and inline — it does not
-  require navigating to a separate page (UX Mandate: minimum clicks).
+- [ ] **FR10** *(Must Have)* — The visibility picker is compact and inline — it does not
+  require navigating to a separate page (UX Mandate: minimum clicks). The label visible to
+  users must read "Visibility" or "Learning visibility" — never "POK visibility".
 
 #### Explicitly Out of Scope
 
@@ -148,10 +156,21 @@ since it represents the same concept. Phase 6 profile visibility will be a separ
 **THEN** all subsequent new learning forms open with `PUBLIC` pre-selected
 **AND** no existing learnings are affected
 
-### AC5: Edit visibility of existing learning
+### AC5: Edit visibility of existing learning (PRIVATE → PUBLIC)
 **GIVEN** I have a `PRIVATE` learning
 **WHEN** I edit it and change visibility to `PUBLIC`, then save
 **THEN** the learning is saved as `PUBLIC` and the indicator updates immediately
+
+### AC5b: PUBLIC learning cannot be reverted to PRIVATE
+**GIVEN** I have a `PUBLIC` learning
+**WHEN** I attempt to change its visibility back to `PRIVATE` via the edit form
+**THEN** the UI prevents the action (the PRIVATE option is disabled or absent) and the API
+returns `409 Conflict` if the request reaches the backend
+
+### AC5c: UI makes irreversibility clear before publish
+**GIVEN** I have a `PRIVATE` learning and am about to change it to `PUBLIC`
+**WHEN** I select `PUBLIC` in the visibility picker
+**THEN** a confirmation warning is shown explaining that this action cannot be undone
 
 ### AC6: Private learning is inaccessible to non-owner
 **GIVEN** user Alice has a `PRIVATE` learning with id `pok-123`
@@ -243,6 +262,20 @@ private void verifyOwnership(Pok pok, UUID userId) {
 }
 ```
 
+**Irreversible-public enforcement in update flow:**
+
+```java
+// PokService.update() — visibility change guard:
+if (existing.getVisibility() == Pok.Visibility.PUBLIC
+        && request.visibility() == Pok.Visibility.PRIVATE) {
+    throw new PokVisibilityImmutableException(
+        "A public learning cannot be reverted to private");
+    // → HTTP 409 Conflict
+}
+```
+
+New exception: `PokVisibilityImmutableException` → `409 Conflict` via `GlobalExceptionHandler`.
+
 **Default visibility in create flow:**
 
 ```java
@@ -286,6 +319,9 @@ extended in 5.2 with `profileVisibility`. Returns the updated user settings obje
 - `backend/src/main/resources/db/migration/V13__add_visibility_to_poks.sql`
 - `backend/src/main/resources/db/migration/V14__add_default_pok_visibility_to_users.sql`
 
+**New — Backend exceptions:**
+- `exception/PokVisibilityImmutableException.java` — extends RuntimeException → 409 Conflict
+
 **New — Web:**
 - `web/src/components/poks/VisibilityPicker.tsx` — compact visibility selector (wraps Select)
 - `web/src/components/poks/VisibilityBadge.tsx` — lock / globe icon with aria-label
@@ -293,7 +329,8 @@ extended in 5.2 with `profileVisibility`. Returns the updated user settings obje
 **Modified — Backend:**
 - `domain/Pok.java` — add `Visibility` inner enum (`PRIVATE`, `PUBLIC`); add `visibility` field with `@Enumerated(EnumType.STRING)` and `@Column(nullable = false, length = 20)`
 - `domain/User.java` — add `defaultPokVisibility` field of type `Pok.Visibility`; defaults to `Pok.Visibility.PRIVATE`
-- `service/PokService.java` — add `verifyAccess()` (reads); keep `verifyOwnership()` (writes); update `create()` for default visibility
+- `service/PokService.java` — add `verifyAccess()` (reads); keep `verifyOwnership()` (writes); update `create()` for default visibility; add irreversible-public guard in `update()`
+- `exception/GlobalExceptionHandler.java` — handle `PokVisibilityImmutableException` → 409
 - `service/UserService.java` — add `updateDefaultVisibility(UUID userId, Pok.Visibility visibility)`
 - `dto/CreatePokRequest.java` — add optional `Pok.Visibility visibility` field
 - `dto/PokResponse.java` — add `Pok.Visibility visibility` field
@@ -327,7 +364,9 @@ extended in 5.2 with `profileVisibility`. Returns the updated user settings obje
   and `defaultPokVisibility` on `User`
 - Phase 6.1 (Following & Colleagues) — depends on `Pok.Visibility` being extendable to
   `FOLLOWERS_ONLY` / `COLLEAGUES_ONLY`
-- Phase 6.4 (Share / Re-Learning) — share cascade depends on `visibility` field existing
+- Phase 6.4 (Share / Re-Learning) — must implement deletion cascade: when a public POK is
+  soft-deleted, all downstream shares are removed. The soft-delete hook point in `PokService`
+  introduced here is the integration point.
 
 **External:** None
 
