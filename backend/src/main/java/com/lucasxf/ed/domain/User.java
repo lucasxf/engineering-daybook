@@ -5,6 +5,8 @@ import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -45,6 +47,10 @@ public class User {
 
     @Column(name = "auth_provider", nullable = false, length = 20)
     private String authProvider = "local";
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "default_pok_visibility", nullable = false, length = 20)
+    private Pok.Visibility defaultPokVisibility = Pok.Visibility.PRIVATE;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
@@ -114,6 +120,14 @@ public class User {
 
     public void setAuthProvider(String authProvider) {
         this.authProvider = authProvider;
+    }
+
+    public Pok.Visibility getDefaultPokVisibility() {
+        return defaultPokVisibility;
+    }
+
+    public void setDefaultPokVisibility(Pok.Visibility defaultPokVisibility) {
+        this.defaultPokVisibility = defaultPokVisibility;
     }
 
     public Instant getCreatedAt() {
