@@ -139,6 +139,17 @@ Housekeeping session: GitHub Actions CI tooling added and repository cleaned up.
 | Deleted 9 stale worktrees | ✅ Done |
 | Added branch-deletion safety directive to `CLAUDE.md` Git Workflow section | ✅ Done |
 
+### Hook Metrics Cleanup (chore/hook-metrics-cleanup, 2026-03-04) ✅
+
+Automation/tooling chore: `track-usage.py` PostToolUse hook extended and usage stats reorganized.
+
+| Task | Status |
+|------|--------|
+| Added `Skill` tool handler to `.claude/scripts/track-usage.py` so slash commands invoked via the Skill tool are tracked correctly | ✅ Done |
+| Added `fix-pr` to `KNOWN_COMMANDS` list in `track-usage.py` | ✅ Done |
+| Added `Skill` to PostToolUse hook matcher in `.claude/settings.json` | ✅ Done |
+| Reorganized `.claude/metrics/usage-stats.toml` — pre-seeded missing commands, cleaned up test entries | ✅ Done |
+
 ---
 
 ## Active / Pending

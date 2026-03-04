@@ -195,12 +195,14 @@ See [ROADMAP.phase-2.md](./docs/ROADMAP.phase-2.md)
 - [x] POK editing, deletion, and audit trail
 - [x] Tagging system — full web UI done (TagSection, add/remove tags from view and edit pages, tag assignment at creation time via TagPicker, post-create redirect to tag UI, AI keyword-based tag suggestions with approve/reject)
 - [x] Visualization — tag-grouped view, timeline view (month/year), sort options (Newest/Oldest/Recently updated)
+- [ ] UX Delight — inspirational prompts, homepage personalization
 
 ### Phase 3: AI & Mobile — 🔄 In Progress
 See [ROADMAP.phase-3.md](./docs/ROADMAP.phase-3.md)
 - [x] Semantic search — hybrid keyword + vector search via pgvector; embeddings from HuggingFace Inference API
 - [ ] AI Connections (related learnings)
 - [x] Mobile app (Expo/React Native) — auth, feed, create/edit/delete, dark mode, i18n EN/PT-BR
+- [ ] App Store Publishing (TestFlight + Play Store internal track)
 
 ### Phase 5: Privacy — 🔄 In Progress
 See [ROADMAP.phase-5.md](./docs/ROADMAP.phase-5.md)
