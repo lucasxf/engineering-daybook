@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.User;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Response DTO for learner profile queries.
@@ -20,22 +21,29 @@ import com.lucasxf.ed.domain.User;
  *       included for the owner (anti-vanity rule).</li>
  * </ul>
  *
- * @author Lucas Xavier Ferreira
- * @since 2026-03-04
+ * @author lucasxf
+ * @since 5.2
  */
+@Schema(description = "Learner profile response — either a private shell or a full profile depending on visibility rules")
 public record LearnerProfileResponse(
+
+    @Schema(description = "The learner's unique handle", example = "lucasxf")
     String handle,
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "The learner's display name — null in private shell responses", example = "Lucas Xavier")
     String displayName,
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "Profile visibility setting — present only in private shell responses to signal the profile is private")
     User.ProfileVisibility profileVisibility,
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "List of the learner's learnings — null in private shell responses")
     List<PokSummary> learnings,
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "Total number of learnings — populated for the profile owner only (anti-vanity rule)")
     Integer learningCount) {
 
     /**
@@ -73,10 +81,11 @@ public record LearnerProfileResponse(
      *
      * <p>{@code visibility} is only included for the profile owner (visibility badge).
      */
+    @Schema(description = "Minimal learning summary included in profile responses")
     public record PokSummary(
-        UUID id,
-        @JsonInclude(JsonInclude.Include.NON_NULL) String title,
-        String content,
-        @JsonInclude(JsonInclude.Include.NON_NULL) Pok.Visibility visibility,
-        Instant createdAt) {}
+        @Schema(description = "Learning unique identifier") UUID id,
+        @JsonInclude(JsonInclude.Include.NON_NULL) @Schema(description = "Learning title — null if untitled") String title,
+        @Schema(description = "Learning content") String content,
+        @JsonInclude(JsonInclude.Include.NON_NULL) @Schema(description = "Visibility of this learning — present for profile owner only") Pok.Visibility visibility,
+        @Schema(description = "Creation timestamp (UTC)") Instant createdAt) {}
 }
