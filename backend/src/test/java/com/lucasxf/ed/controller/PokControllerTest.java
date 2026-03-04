@@ -6,8 +6,10 @@ import com.lucasxf.ed.dto.PokAuditLogResponse;
 import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
 import java.util.Collections;
+import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.exception.PokAccessDeniedException;
 import com.lucasxf.ed.exception.PokNotFoundException;
+import com.lucasxf.ed.exception.PokVisibilityImmutableException;
 import com.lucasxf.ed.config.CorsProperties;
 import com.lucasxf.ed.security.SecurityConfig;
 import com.lucasxf.ed.service.JwtService;
@@ -718,5 +720,102 @@ class PokControllerTest {
         // When/Then
         mockMvc.perform(get("/api/v1/poks/{id}/history", pokId))
             .andExpect(status().isUnauthorized());
+    }
+
+    // ===== VISIBILITY TESTS =====
+
+    @Test
+    @WithMockUser
+    void createPok_withPublicVisibility_shouldReturn201AndReturnPublicVisibility() throws Exception {
+        // AC6: explicit PUBLIC visibility is stored and returned
+        CreatePokRequest request = new CreatePokRequest("Title", "Content", null, Pok.Visibility.PUBLIC);
+        PokResponse response = new PokResponse(
+            pokId, userId, "Title", "Content", Pok.Visibility.PUBLIC, null, Instant.now(), Instant.now(),
+            Collections.emptyList(), Collections.emptyList()
+        );
+
+        when(pokService.create(any(CreatePokRequest.class), any(UUID.class))).thenReturn(response);
+
+        mockMvc.perform(post("/api/v1/poks")
+                .with(user(userId.toString()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.visibility").value("PUBLIC"));
+    }
+
+    @Test
+    @WithMockUser
+    void updatePok_publicToPrivate_shouldReturn409() throws Exception {
+        // AC9: making a public POK private is forbidden (irreversible)
+        UpdatePokRequest request = new UpdatePokRequest("Title", "Content", Pok.Visibility.PRIVATE);
+
+        when(pokService.update(eq(pokId), any(UpdatePokRequest.class), any(UUID.class)))
+            .thenThrow(new PokVisibilityImmutableException("A public learning cannot be reverted to private"));
+
+        mockMvc.perform(put("/api/v1/poks/{id}", pokId)
+                .with(user(userId.toString()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isConflict());
+    }
+
+    @Test
+    @WithMockUser
+    void updatePok_privateToPublic_shouldReturn200WithPublicVisibility() throws Exception {
+        // AC8: updating visibility to PUBLIC succeeds
+        UpdatePokRequest request = new UpdatePokRequest("Title", "Content", Pok.Visibility.PUBLIC);
+        PokResponse response = new PokResponse(
+            pokId, userId, "Title", "Content", Pok.Visibility.PUBLIC, null, Instant.now(), Instant.now(),
+            Collections.emptyList(), Collections.emptyList()
+        );
+
+        when(pokService.update(eq(pokId), any(UpdatePokRequest.class), any(UUID.class))).thenReturn(response);
+
+        mockMvc.perform(put("/api/v1/poks/{id}", pokId)
+                .with(user(userId.toString()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.visibility").value("PUBLIC"));
+    }
+
+    @Test
+    @WithMockUser
+    void searchPoks_withSemanticMode_shouldPassSearchModeToService() throws Exception {
+        // AC5b: searchMode param is forwarded to PokService.search
+        Page<PokResponse> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
+
+        when(pokService.search(
+            any(UUID.class), eq("java"), eq("semantic"),
+            eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20)
+        )).thenReturn(page);
+
+        mockMvc.perform(get("/api/v1/poks")
+                .with(user(userId.toString()))
+                .param("keyword", "java")
+                .param("searchMode", "semantic"))
+            .andExpect(status().isOk());
+
+        verify(pokService).search(eq(userId), eq("java"), eq("semantic"),
+            eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
+    }
+
+    @Test
+    @WithMockUser
+    void getPokById_publicPok_nonOwner_allowsAccess() throws Exception {
+        // AC12: a non-owner can read a public POK (service enforces; controller just forwards)
+        UUID otherUserId = UUID.randomUUID();
+        PokResponse response = new PokResponse(
+            pokId, otherUserId, "Public Learning", "Public content", Pok.Visibility.PUBLIC, null,
+            Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
+        );
+
+        when(pokService.getById(eq(pokId), any(UUID.class))).thenReturn(response);
+
+        mockMvc.perform(get("/api/v1/poks/{id}", pokId)
+                .with(user(userId.toString())))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.visibility").value("PUBLIC"));
     }
 }
