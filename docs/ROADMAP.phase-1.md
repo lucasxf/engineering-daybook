@@ -127,6 +127,18 @@ Code quality and correctness fixes addressing 10 review items from PR #104 (deve
 | `.claude/settings.json` | Removed machine-specific absolute paths |
 | `CLAUDE.md` | Added directive: machine-specific paths must go in `settings.local.json`, not `settings.json` |
 
+### Infrastructure / Tooling (chore/git-cleanup, 2026-03-04) ✅
+
+Housekeeping session: GitHub Actions CI tooling added and repository cleaned up.
+
+| Task | Status |
+|------|--------|
+| Investigated Claude GitHub integration — confirmed never set up (repo uses Copilot + Codex for PR reviews) | ✅ Done |
+| Installed Claude Code GitHub Action — created `.github/workflows/claude.yml` using `anthropics/claude-code-action@v1` with auto-PR-review and `@claude` mention support (PR #119 → `develop`) | ✅ Done |
+| Removed 31 local merged branches and 38 remote merged branches | ✅ Done |
+| Deleted 9 stale worktrees | ✅ Done |
+| Added branch-deletion safety directive to `CLAUDE.md` Git Workflow section | ✅ Done |
+
 ---
 
 ## Active / Pending
