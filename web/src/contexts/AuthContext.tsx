@@ -24,11 +24,14 @@ import {
 } from '@/lib/auth';
 import type { PokVisibility } from '@/lib/pokApi';
 
+export type ProfileVisibility = 'PRIVATE' | 'PUBLIC';
+
 export interface AuthUser {
   userId: string;
   email: string;
   handle: string;
   defaultPokVisibility: PokVisibility;
+  profileVisibility: ProfileVisibility;
 }
 
 export interface AuthContextValue {
@@ -54,6 +57,7 @@ function toAuthUser(response: AuthResponse): AuthUser {
     email: response.email,
     handle: response.handle,
     defaultPokVisibility: response.defaultPokVisibility ?? 'PRIVATE',
+    profileVisibility: response.profileVisibility ?? 'PRIVATE',
   };
 }
 
@@ -108,6 +112,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           email: response.email,
           handle: response.handle,
           defaultPokVisibility: 'PRIVATE',
+          profileVisibility: 'PRIVATE',
         });
       }
       return response;

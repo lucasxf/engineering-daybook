@@ -196,6 +196,29 @@
       "visibilityImmutable": "Um aprendizado público não pode ser tornado privado."
     }
   },
+  "settings": {
+    "title": "Configurações",
+    "privacy": {
+      "heading": "Privacidade",
+      "profileVisibility": "Visibilidade do perfil",
+      "profileVisibilityHint": "Controla quem pode ver seu perfil e aprendizados públicos.",
+      "defaultPokVisibility": "Visibilidade padrão dos aprendizados",
+      "defaultPokVisibilityHint": "Novos aprendizados usarão esta visibilidade por padrão.",
+      "private": "Privado",
+      "public": "Público",
+      "saveSuccess": "Configurações salvas",
+      "saveError": "Falha ao salvar configurações. Tente novamente.",
+      "viewProfile": "Ver meu perfil"
+    }
+  },
+  "learners": {
+    "privateProfile": "Este perfil é privado",
+    "privateProfileHint": "@{handle} optou por manter seu perfil privado.",
+    "noLearnings": "Nenhum aprendizado público ainda.",
+    "notFound": "Aprendiz não encontrado",
+    "notFoundHint": "Não existe um aprendiz com este identificador.",
+    "publicLearnings": "Aprendizados públicos"
+  },
   "tags": {
     "addTag": "Adicionar etiqueta",
     "createNew": "Nome da nova etiqueta...",

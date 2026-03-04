@@ -196,6 +196,29 @@
       "visibilityImmutable": "A public learning cannot be made private."
     }
   },
+  "settings": {
+    "title": "Settings",
+    "privacy": {
+      "heading": "Privacy",
+      "profileVisibility": "Profile visibility",
+      "profileVisibilityHint": "Controls who can view your profile and public learnings.",
+      "defaultPokVisibility": "Default learning visibility",
+      "defaultPokVisibilityHint": "New learnings will use this visibility by default.",
+      "private": "Private",
+      "public": "Public",
+      "saveSuccess": "Settings saved",
+      "saveError": "Failed to save settings. Please try again.",
+      "viewProfile": "View my profile"
+    }
+  },
+  "learners": {
+    "privateProfile": "This profile is private",
+    "privateProfileHint": "@{handle} has chosen to keep their profile private.",
+    "noLearnings": "No public learnings yet.",
+    "notFound": "Learner not found",
+    "notFoundHint": "There is no learner with this handle.",
+    "publicLearnings": "Public learnings"
+  },
   "tags": {
     "addTag": "Add tag",
     "createNew": "New tag name...",
