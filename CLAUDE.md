@@ -86,6 +86,8 @@ main ← develop ← feature/xxx
 
 **Main branch protection:** Never push directly to `main`. It is read-only — only pull from it. All code reaches `main` via PRs opened from `develop`. (Added 2026-02-25)
 
+**Branch deletion safety:** Never delete protected, default, or automation-managed branches (`main`, `develop`, `release-please--*`, `copilot/*`, or other CI/CD-managed branches) — even during batch branch cleanup operations. (Added 2026-03-04)
+
 **Commit format (Conventional Commits):**
 ```
 feat: add POK creation endpoint
