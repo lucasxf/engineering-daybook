@@ -304,6 +304,28 @@ class AuthControllerTest {
                 .andExpect(jsonPath("$.handle").value(HANDLE))
                 .andExpect(jsonPath("$.email").value(EMAIL))
                 .andExpect(jsonPath("$.userId").isNotEmpty())
+                .andExpect(jsonPath("$.defaultPokVisibility").value("PRIVATE"))
+                .andExpect(jsonPath("$.profileVisibility").value("PRIVATE"));
+        }
+
+        @Test
+        @DisplayName("AC12: should return profileVisibility and defaultPokVisibility in /me response")
+        void me_returnsProfileVisibility() throws Exception {
+            UserPrincipal principal = new UserPrincipal(USER_ID, EMAIL, HANDLE);
+            Authentication auth = new UsernamePasswordAuthenticationToken(
+                principal, null, List.of()
+            );
+
+            User mockUser = new User(EMAIL, null, "Test User", HANDLE);
+            ReflectionTestUtils.setField(mockUser, "id", USER_ID);
+            mockUser.setProfileVisibility(User.ProfileVisibility.PUBLIC);
+            mockUser.setDefaultPokVisibility(Pok.Visibility.PRIVATE);
+            when(userService.findById(USER_ID)).thenReturn(mockUser);
+
+            mockMvc.perform(get("/api/v1/auth/me")
+                    .with(authentication(auth)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.profileVisibility").value("PUBLIC"))
                 .andExpect(jsonPath("$.defaultPokVisibility").value("PRIVATE"));
         }
 
