@@ -37,6 +37,7 @@
 - Web: `VisibilityPicker` and `VisibilityBadge` components; integrated into QuickEntry, PokForm, PokCard, detail page, and settings
 - Mobile: `PokVisibility` type, visibility picker in create screen, visibility badge + toggle in detail screen
 - E2E: 4 new visibility scenarios in `web/e2e/poks.spec.ts`
+- [x] Code review feedback addressed (PR #118 review pass: style fixes, mobile stale-state privacy bug, web default visibility initialised from auth context)
 
 ## Milestone 5.2: Learner Profile Privacy ⏳ Planned
 
