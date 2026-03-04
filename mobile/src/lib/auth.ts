@@ -5,11 +5,18 @@ import { tokenStore } from './tokenStore';
 // Types
 // ---------------------------------------------------------------------------
 
+export type PokVisibility = 'PRIVATE' | 'PUBLIC';
+export type ProfileVisibility = 'PRIVATE' | 'PUBLIC';
+
 /** User identity returned to consumers (no tokens). */
 export interface AuthResponse {
   handle: string;
   userId: string;
   email: string;
+  /** Present on /auth/me responses; absent on login/register. */
+  defaultPokVisibility?: PokVisibility;
+  /** Present on /auth/me responses; absent on login/register. */
+  profileVisibility?: ProfileVisibility;
 }
 
 /** Backend response shape — includes tokens in body (RISK-1, mobile support). */
