@@ -180,6 +180,69 @@ test.describe('Semantic search', () => {
   });
 });
 
+test.describe('Visibility', () => {
+  test('detail page shows Public badge for a public learning', async ({ page }) => {
+    const PUBLIC_POK: MockPok = { ...MOCK_POK, visibility: 'PUBLIC' };
+    await setupApiMocks(page, { authenticated: true, pok: PUBLIC_POK });
+    await page.goto(`/en/poks/${PUBLIC_POK.id}`);
+
+    // VisibilityBadge renders "🌐 Public" for PUBLIC learnings
+    await expect(page.getByText(/🌐/)).toBeVisible();
+  });
+
+  test('detail page shows Private badge for a private learning', async ({ page }) => {
+    await setupApiMocks(page, { authenticated: true, pok: MOCK_POK });
+    await page.goto(`/en/poks/${MOCK_POK.id}`);
+
+    // VisibilityBadge renders "🔒 Private" for PRIVATE learnings
+    await expect(page.getByText(/🔒/)).toBeVisible();
+  });
+
+  test('feed shows PUBLIC badge on card for public learnings', async ({ page }) => {
+    const PUBLIC_POK: MockPok = { ...MOCK_POK, id: 'pok-public', visibility: 'PUBLIC' };
+
+    await setupApiMocks(page, { authenticated: true, poks: [PUBLIC_POK] });
+    await page.goto('/en/poks');
+
+    // Public learning card shows 🌐 badge
+    await expect(page.getByText(/🌐/)).toBeVisible();
+  });
+
+  test('QuickEntry creates a PUBLIC learning when user selects Public visibility', async ({
+    page,
+  }) => {
+    const PUBLIC_POK: MockPok = {
+      ...MOCK_POK,
+      id: 'pok-public-new',
+      content: 'This is a public learning.',
+      visibility: 'PUBLIC',
+    };
+
+    await setupApiMocks(page, {
+      authenticated: true,
+      poks: [],
+      createdPok: PUBLIC_POK,
+    });
+
+    await page.goto('/en/poks');
+    await expect(page.getByText(/no learnings yet/i)).toBeVisible();
+
+    // Open visibility picker (combobox labeled "Visibility") and select PUBLIC
+    await page.getByRole('combobox', { name: /visibility/i }).click();
+    await page.getByRole('option', { name: /public/i }).click();
+
+    // Irreversibility warning should appear
+    await expect(page.getByText(/cannot be made private/i)).toBeVisible();
+
+    // Fill content and save
+    await page.getByRole('textbox', { name: /what did you learn/i }).fill(PUBLIC_POK.content);
+    await page.getByRole('button', { name: /save learning/i }).click();
+
+    // The new learning card in the feed should show the PUBLIC badge
+    await expect(page.getByText(/🌐/)).toBeVisible();
+  });
+});
+
 test.describe('Delete learning', () => {
   test('deletes a learning via the confirmation dialog and returns to the list', async ({
     page,

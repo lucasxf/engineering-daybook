@@ -2,15 +2,18 @@
 
 import { useState, useRef, useCallback, KeyboardEvent } from 'react';
 import { useTranslations } from 'next-intl';
-import { pokApi, type Pok } from '@/lib/pokApi';
+import { pokApi, type Pok, type PokVisibility } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
 import type { Tag } from '@/lib/tagApi';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { TagPicker } from './TagPicker';
+import { VisibilityPicker } from './VisibilityPicker';
+import type { Visibility } from './VisibilityBadge';
 
 interface QuickEntryProps {
   onSaved: (pok: Pok) => void;
+  defaultVisibility?: PokVisibility;
 }
 
 /**
@@ -22,12 +25,15 @@ interface QuickEntryProps {
  *
  * The "New Learning" button remains available in the header for the full-form
  * experience (deliberate entries with titles).
+ *
+ * @param defaultVisibility the user's default visibility preference; falls back to PRIVATE
  */
-export function QuickEntry({ onSaved }: QuickEntryProps) {
+export function QuickEntry({ onSaved, defaultVisibility = 'PRIVATE' }: QuickEntryProps) {
   const t = useTranslations('poks');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+  const [visibility, setVisibility] = useState<Visibility>(defaultVisibility);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -43,11 +49,13 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
       const pok = await pokApi.create({
         title: trimmedTitle,
         content: trimmedContent,
+        visibility,
         ...(selectedTags.length > 0 && { tagIds: selectedTags.map((tag) => tag.id) }),
       });
       setTitle('');
       setContent('');
       setSelectedTags([]);
+      setVisibility(defaultVisibility);
       onSaved(pok);
     } catch (err) {
       if (err instanceof ApiRequestError) {
@@ -59,7 +67,7 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
       setSaving(false);
       textareaRef.current?.focus();
     }
-  }, [title, content, selectedTags, saving, onSaved, t]);
+  }, [title, content, selectedTags, visibility, saving, onSaved, t, defaultVisibility]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -95,6 +103,10 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
       />
 
       <TagPicker selectedTags={selectedTags} onSelectionChange={setSelectedTags} />
+
+      <div className="mt-2">
+        <VisibilityPicker value={visibility} onChange={setVisibility} />
+      </div>
 
       {error && (
         <p role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400">

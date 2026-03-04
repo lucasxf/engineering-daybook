@@ -160,6 +160,11 @@ Active work:
 - [x] Milestone 3.3: Mobile App (Expo/React Native) — done (2026-02-27)
 - [ ] Milestone 3.4: App Store Publishing
 
+**Phase 5: Privacy** — 🔄 In Progress (5.1 done; 5.2 planned)
+
+- [x] Milestone 5.1: POK Visibility Controls — private/public visibility on POKs and user default preference; irreversible PUBLIC→PRIVATE enforcement; access control; web + mobile UI indicators (2026-03-04)
+- [ ] Milestone 5.2: Learner Profile Privacy
+
 See `docs/ROADMAP.md` for full active milestone details.
 
 ---

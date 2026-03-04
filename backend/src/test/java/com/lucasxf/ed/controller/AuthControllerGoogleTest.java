@@ -10,6 +10,7 @@ import com.lucasxf.ed.service.AuthResult;
 import com.lucasxf.ed.service.AuthService;
 import com.lucasxf.ed.service.GoogleLoginResult;
 import com.lucasxf.ed.service.JwtService;
+import com.lucasxf.ed.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -48,6 +49,9 @@ class AuthControllerGoogleTest {
 
     @MockitoBean
     private JwtService jwtService;
+
+    @MockitoBean
+    private UserService userService;
 
     private static final UUID USER_ID = UUID.randomUUID();
     private static final AuthResult AUTH_RESULT = new AuthResult(

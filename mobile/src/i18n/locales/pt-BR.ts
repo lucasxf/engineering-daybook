@@ -100,6 +100,12 @@ export default {
       tags: 'Etiquetas',
       noTags: 'Sem etiquetas',
     },
+    visibility: {
+      private: 'Privado',
+      public: 'Público',
+      pickerLabel: 'Visibilidade',
+      publicWarning: 'Uma vez público, não pode ser tornado privado novamente.',
+    },
     errors: {
       contentRequired: 'O conteúdo é obrigatório',
       contentMaxLength: 'Conteúdo muito longo (máx 50 000 chars)',

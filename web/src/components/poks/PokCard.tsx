@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Pok } from '@/lib/pokApi';
 import { TagBadge } from './TagBadge';
+import { VisibilityBadge } from './VisibilityBadge';
 
 interface PokCardProps {
   pok: Pok;
@@ -81,12 +82,15 @@ export function PokCard({ pok, dateField = 'updatedAt' }: PokCardProps) {
               )}
             </div>
           )}
-          <time
-            dateTime={dateValue}
-            className="text-xs text-slate-500 dark:text-slate-500"
-          >
-            {formattedDate}
-          </time>
+          <div className="flex items-center gap-2">
+            <time
+              dateTime={dateValue}
+              className="text-xs text-slate-500 dark:text-slate-500"
+            >
+              {formattedDate}
+            </time>
+            {pok.visibility === 'PUBLIC' && <VisibilityBadge visibility={pok.visibility} />}
+          </div>
         </article>
       </Link>
     </div>

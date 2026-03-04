@@ -234,6 +234,16 @@ cd backend
 
 - **HuggingFace Inference API for `paraphrase-multilingual-MiniLM-L12-v2` returns a flat `float[]`, not `float[][]`:** The router endpoint (`https://router.huggingface.co/`) returns a single flat vector when the request body is `{"inputs": "text"}`. Use `.body(float[].class)` and return the response directly. Do NOT use `.body(float[][].class)` and index into `response[0]` — the Jackson deserializer will return `null` or throw when the shape is wrong. Symptom: `NullPointerException` or `EmbeddingUnavailableException("HuggingFace returned an empty embedding response")` even when the API returns 200. Other HuggingFace models (e.g., `sentence-transformers` via the direct inference API) may return `float[][]` — always verify the actual response shape for the specific model and endpoint being used.
 
+- **`@WebMvcTest` slices only wire explicitly declared beans — every new controller dependency needs a matching `@MockitoBean` in every test class for that controller:** When a constructor parameter is added to a controller (e.g., injecting `UserService` into `AuthController`), all `@WebMvcTest` test classes for that controller must also declare a `@MockitoBean` for the new dependency. Spring's `@WebMvcTest` slice does not auto-discover beans outside the web layer; missing a `@MockitoBean` causes `ApplicationContext failure threshold exceeded` (Spring Boot 4.x retries and then gives up). All `@WebMvcTest` classes targeting the same controller must stay in sync whenever the controller's constructor changes.
+
+  ```java
+  // In AuthControllerTest, AuthControllerGoogleTest, etc. — every @WebMvcTest for AuthController:
+  @MockitoBean
+  UserService userService;
+  ```
+
+  Symptom: `IllegalStateException: ApplicationContext failure threshold (1) exceeded` on an otherwise-passing test class, where the only change was adding a new constructor dependency to the controller under test.
+
 - **Constrain list/array DTO fields with `@Size(max = N)` to prevent N+1 resource exhaustion:** When a DTO field is a list that the service iterates with one repository call per element (e.g., `tagIds` driving `tagRepository.findById(id)` in a loop), an unconstrained input allows a caller to trigger an arbitrary number of database queries in a single request. Add `@Size(max = 50)` (or the appropriate domain bound) alongside other field-level constraints. This pattern applies to any future list input that drives a DB loop — not just `tagIds`. Already applied: `CreatePokRequest.tagIds`. (Added 2026-03-01)
 
   ```java

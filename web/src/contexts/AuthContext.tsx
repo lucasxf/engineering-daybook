@@ -22,11 +22,13 @@ import {
   type GoogleLoginResponse,
   type CompleteGoogleSignupPayload,
 } from '@/lib/auth';
+import type { PokVisibility } from '@/lib/pokApi';
 
 export interface AuthUser {
   userId: string;
   email: string;
   handle: string;
+  defaultPokVisibility: PokVisibility;
 }
 
 export interface AuthContextValue {
@@ -47,7 +49,12 @@ interface AuthProviderProps {
 }
 
 function toAuthUser(response: AuthResponse): AuthUser {
-  return { userId: response.userId, email: response.email, handle: response.handle };
+  return {
+    userId: response.userId,
+    email: response.email,
+    handle: response.handle,
+    defaultPokVisibility: response.defaultPokVisibility ?? 'PRIVATE',
+  };
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
@@ -96,7 +103,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     async (idToken: string): Promise<GoogleLoginResponse> => {
       const response = await googleLoginApi(idToken);
       if (!response.requiresHandle && response.handle && response.userId && response.email) {
-        setUser({ userId: response.userId, email: response.email, handle: response.handle });
+        setUser({
+          userId: response.userId,
+          email: response.email,
+          handle: response.handle,
+          defaultPokVisibility: 'PRIVATE',
+        });
       }
       return response;
     },

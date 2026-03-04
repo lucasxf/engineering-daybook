@@ -12,6 +12,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { Toast } from '@/components/ui/Toast';
 import { DeletePokButton } from '@/components/poks/DeletePokButton';
 import { TagSection } from '@/components/poks/TagSection';
+import { VisibilityBadge } from '@/components/poks/VisibilityBadge';
 
 /**
  * Page for viewing a single POK.
@@ -140,6 +141,10 @@ export default function ViewPokPage() {
           pendingSuggestions={pok.pendingSuggestions}
           onChanged={loadPok}
         />
+
+        <div className="mt-4">
+          <VisibilityBadge visibility={pok.visibility} />
+        </div>
 
         <div className="mt-6 flex space-x-4 text-sm text-slate-500 dark:text-slate-500">
           <time dateTime={pok.createdAt}>

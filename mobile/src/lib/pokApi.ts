@@ -5,11 +5,14 @@ import type { Tag, TagSuggestion } from './tagApi';
 // Types (mirror web/src/lib/pokApi.ts)
 // ---------------------------------------------------------------------------
 
+export type PokVisibility = 'PRIVATE' | 'PUBLIC';
+
 export interface Pok {
   id: string;
   userId: string;
   title: string | null;
   content: string;
+  visibility: PokVisibility;
   deletedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -20,11 +23,13 @@ export interface Pok {
 export interface CreatePokDto {
   title?: string | null;
   content: string;
+  visibility?: PokVisibility;
 }
 
 export interface UpdatePokDto {
   title?: string | null;
   content: string;
+  visibility?: PokVisibility;
 }
 
 export interface PokPage {

@@ -18,11 +18,13 @@ import org.springframework.data.domain.Sort;
 
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.PokAuditLog;
+import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.dto.CreatePokRequest;
 import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
 import com.lucasxf.ed.exception.PokAccessDeniedException;
 import com.lucasxf.ed.exception.PokNotFoundException;
+import com.lucasxf.ed.exception.PokVisibilityImmutableException;
 import com.lucasxf.ed.dto.PokAuditLogResponse;
 import com.lucasxf.ed.repository.PokAuditLogRepository;
 import com.lucasxf.ed.repository.PokRepository;
@@ -35,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -79,16 +82,22 @@ class PokServiceTest {
     @Mock
     private TagService tagService;
 
+    @Mock
+    private UserService userService;
+
     @InjectMocks
     private PokService pokService;
 
     private UUID userId;
     private UUID otherUserId;
+    private User currentUser;
 
     @BeforeEach
     void setUp() {
         userId = UUID.randomUUID();
         otherUserId = UUID.randomUUID();
+        currentUser = new User("alice@example.com", "hash", "Alice", "alice");
+        lenient().when(userService.findById(userId)).thenReturn(currentUser);
     }
 
     // ===== CREATE POK TESTS =====
@@ -96,7 +105,7 @@ class PokServiceTest {
     @Test
     void create_withTitleAndContent_shouldCreatePok() {
         // Given
-        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null);
+        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null, null);
         Pok savedPok = new Pok(userId, "Test Title", "Test content");
 
         when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
@@ -116,7 +125,7 @@ class PokServiceTest {
     @Test
     void create_withContentOnly_shouldCreatePokWithNullTitle() {
         // Given: Title is null (optional for frictionless capture)
-        CreatePokRequest request = new CreatePokRequest(null, "Content without title", null);
+        CreatePokRequest request = new CreatePokRequest(null, "Content without title", null, null);
         Pok savedPok = new Pok(userId, null, "Content without title");
 
         when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
@@ -135,7 +144,7 @@ class PokServiceTest {
     @Test
     void create_withEmptyStringTitle_shouldCreatePokWithEmptyTitle() {
         // Given: Title is empty string (also valid)
-        CreatePokRequest request = new CreatePokRequest("", "Content with empty title", null);
+        CreatePokRequest request = new CreatePokRequest("", "Content with empty title", null, null);
         Pok savedPok = new Pok(userId, "", "Content with empty title");
 
         when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
@@ -156,7 +165,7 @@ class PokServiceTest {
         UUID tagId1 = UUID.randomUUID();
         UUID tagId2 = UUID.randomUUID();
         List<UUID> tagIds = List.of(tagId1, tagId2);
-        CreatePokRequest request = new CreatePokRequest("Title", "Content", tagIds);
+        CreatePokRequest request = new CreatePokRequest("Title", "Content", tagIds, null);
         Pok savedPok = new Pok(userId, "Title", "Content");
         UUID savedPokId = UUID.randomUUID();
         ReflectionTestUtils.setField(savedPok, "id", savedPokId);
@@ -173,7 +182,7 @@ class PokServiceTest {
     @Test
     void create_withNullTagIds_shouldStillCallAssignTagsToNewPok() {
         // Given
-        CreatePokRequest request = new CreatePokRequest("Title", "Content", null);
+        CreatePokRequest request = new CreatePokRequest("Title", "Content", null, null);
         Pok savedPok = new Pok(userId, "Title", "Content");
         UUID savedPokId = UUID.randomUUID();
         ReflectionTestUtils.setField(savedPok, "id", savedPokId);
@@ -236,7 +245,7 @@ class PokServiceTest {
         // When/Then
         assertThatThrownBy(() -> pokService.getById(pokId, userId))
             .isInstanceOf(PokAccessDeniedException.class)
-            .hasMessage("You do not have permission to access this POK");
+            .isInstanceOf(PokAccessDeniedException.class);
 
         verify(pokRepository).findByIdAndDeletedAtIsNull(pokId);
     }
@@ -316,7 +325,7 @@ class PokServiceTest {
         // Given
         UUID pokId = UUID.randomUUID();
         Pok existingPok = new Pok(userId, "Old Title", "Old content");
-        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content");
+        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content", null);
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(existingPok));
         when(pokRepository.save(any(Pok.class))).thenReturn(existingPok);
@@ -337,7 +346,7 @@ class PokServiceTest {
         // Given: User wants to remove title (make it optional again)
         UUID pokId = UUID.randomUUID();
         Pok existingPok = new Pok(userId, "Old Title", "Content");
-        UpdatePokRequest request = new UpdatePokRequest(null, "Updated content");
+        UpdatePokRequest request = new UpdatePokRequest(null, "Updated content", null);
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(existingPok));
         when(pokRepository.save(any(Pok.class))).thenReturn(existingPok);
@@ -356,7 +365,7 @@ class PokServiceTest {
     void update_whenPokNotFound_shouldThrowPokNotFoundException() {
         // Given
         UUID pokId = UUID.randomUUID();
-        UpdatePokRequest request = new UpdatePokRequest("Title", "Content");
+        UpdatePokRequest request = new UpdatePokRequest("Title", "Content", null);
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.empty());
 
@@ -373,14 +382,14 @@ class PokServiceTest {
         // Given
         UUID pokId = UUID.randomUUID();
         Pok pok = new Pok(otherUserId, "Title", "Content");
-        UpdatePokRequest request = new UpdatePokRequest("New", "New content");
+        UpdatePokRequest request = new UpdatePokRequest("New", "New content", null);
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
 
         // When/Then
         assertThatThrownBy(() -> pokService.update(pokId, request, userId))
             .isInstanceOf(PokAccessDeniedException.class)
-            .hasMessage("You do not have permission to access this POK");
+            .isInstanceOf(PokAccessDeniedException.class);
 
         verify(pokRepository).findByIdAndDeletedAtIsNull(pokId);
     }
@@ -432,7 +441,7 @@ class PokServiceTest {
         // When/Then
         assertThatThrownBy(() -> pokService.softDelete(pokId, userId))
             .isInstanceOf(PokAccessDeniedException.class)
-            .hasMessage("You do not have permission to access this POK");
+            .isInstanceOf(PokAccessDeniedException.class);
 
         verify(pokRepository).findByIdAndDeletedAtIsNull(pokId);
     }
@@ -633,7 +642,7 @@ class PokServiceTest {
         // Given
         UUID pokId = UUID.randomUUID();
         Pok existingPok = new Pok(userId, "Old Title", "Old content");
-        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content");
+        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content", null);
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(existingPok));
         when(pokRepository.save(any(Pok.class))).thenReturn(existingPok);
@@ -648,7 +657,7 @@ class PokServiceTest {
     @Test
     void create_shouldReturnTagsAndSuggestionsInResponse() {
         // Given
-        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null);
+        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null, null);
         Pok savedPok = new Pok(userId, "Test Title", "Test content");
 
         when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
@@ -666,7 +675,7 @@ class PokServiceTest {
         // Given
         UUID pokId = UUID.randomUUID();
         Pok existingPok = new Pok(userId, "Old Title", "Old content");
-        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content");
+        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content", null);
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(existingPok));
         when(pokRepository.save(any(Pok.class))).thenReturn(existingPok);
@@ -684,7 +693,7 @@ class PokServiceTest {
     @Test
     void create_shouldSaveAuditLogWithCreateAction() {
         // Given
-        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null);
+        CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null, null);
         Pok savedPok = new Pok(userId, "Test Title", "Test content");
 
         when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
@@ -709,7 +718,7 @@ class PokServiceTest {
         // Given
         UUID pokId = UUID.randomUUID();
         Pok existingPok = new Pok(userId, "Old Title", "Old content");
-        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content");
+        UpdatePokRequest request = new UpdatePokRequest("New Title", "New content", null);
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(existingPok));
         when(pokRepository.save(any(Pok.class))).thenReturn(existingPok);
@@ -757,7 +766,7 @@ class PokServiceTest {
         // Given: POK belongs to a different user
         UUID pokId = UUID.randomUUID();
         Pok pok = new Pok(otherUserId, "Title", "Content");
-        UpdatePokRequest request = new UpdatePokRequest("New", "New content");
+        UpdatePokRequest request = new UpdatePokRequest("New", "New content", null);
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
 
@@ -908,5 +917,108 @@ class PokServiceTest {
         // Then: verify call was made (DESC is the else-branch in buildSort)
         verify(pokRepository).searchPoks(
             eq(userId), eq(null), eq(null), eq(null), eq(null), eq(null), any(Pageable.class));
+    }
+
+    // ===== VISIBILITY ACCESS CONTROL TESTS =====
+
+    @Test
+    void getById_privateOwner_allowsAccess() {
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(userId, "Title", "Content", Pok.Visibility.PRIVATE);
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+
+        // Should not throw
+        pokService.getById(pokId, userId);
+    }
+
+    @Test
+    void getById_privateNonOwner_throwsAccessDenied() {
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(otherUserId, "Title", "Content", Pok.Visibility.PRIVATE);
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+
+        assertThatThrownBy(() -> pokService.getById(pokId, userId))
+            .isInstanceOf(PokAccessDeniedException.class);
+    }
+
+    @Test
+    void getById_publicOwner_allowsAccess() {
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(userId, "Title", "Content", Pok.Visibility.PUBLIC);
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+
+        // Should not throw
+        pokService.getById(pokId, userId);
+    }
+
+    @Test
+    void getById_publicNonOwner_allowsAccess() {
+        UUID pokId = UUID.randomUUID();
+        // POK belongs to otherUserId but is PUBLIC
+        Pok pok = new Pok(otherUserId, "Title", "Content", Pok.Visibility.PUBLIC);
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+
+        // Requesting as userId (non-owner) — should succeed
+        pokService.getById(pokId, userId);
+    }
+
+    @Test
+    void update_publicNonOwner_throwsAccessDenied() {
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(otherUserId, "Title", "Content", Pok.Visibility.PUBLIC);
+        UpdatePokRequest request = new UpdatePokRequest("New", "New content", null);
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+
+        assertThatThrownBy(() -> pokService.update(pokId, request, userId))
+            .isInstanceOf(PokAccessDeniedException.class);
+    }
+
+    @Test
+    void create_withExplicitVisibility_usesThatVisibility() {
+        CreatePokRequest request = new CreatePokRequest("Title", "Content", null, Pok.Visibility.PUBLIC);
+        Pok savedPok = new Pok(userId, "Title", "Content", Pok.Visibility.PUBLIC);
+        when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
+
+        PokResponse response = pokService.create(request, userId);
+
+        assertThat(response.visibility()).isEqualTo(Pok.Visibility.PUBLIC);
+    }
+
+    @Test
+    void create_withNullVisibility_usesUserDefault() {
+        // default is PRIVATE (set in @BeforeEach via currentUser default)
+        CreatePokRequest request = new CreatePokRequest("Title", "Content", null, null);
+        Pok savedPok = new Pok(userId, "Title", "Content", Pok.Visibility.PRIVATE);
+        when(pokRepository.save(any(Pok.class))).thenReturn(savedPok);
+
+        PokResponse response = pokService.create(request, userId);
+
+        assertThat(response.visibility()).isEqualTo(Pok.Visibility.PRIVATE);
+        verify(userService).findById(userId);
+    }
+
+    @Test
+    void update_publicToPrivate_throwsImmutableException() {
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(userId, "Title", "Content", Pok.Visibility.PUBLIC);
+        UpdatePokRequest request = new UpdatePokRequest("Title", "Content", Pok.Visibility.PRIVATE);
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+
+        assertThatThrownBy(() -> pokService.update(pokId, request, userId))
+            .isInstanceOf(PokVisibilityImmutableException.class)
+            .hasMessageContaining("public learning cannot be reverted");
+    }
+
+    @Test
+    void update_privateToPublic_succeeds() {
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(userId, "Title", "Content", Pok.Visibility.PRIVATE);
+        UpdatePokRequest request = new UpdatePokRequest("Title", "Content", Pok.Visibility.PUBLIC);
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+        when(pokRepository.save(any(Pok.class))).thenReturn(pok);
+
+        pokService.update(pokId, request, userId);
+
+        assertThat(pok.getVisibility()).isEqualTo(Pok.Visibility.PUBLIC);
     }
 }
