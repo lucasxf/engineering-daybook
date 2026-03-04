@@ -63,7 +63,7 @@ describe('RegisterPage', () => {
     beforeEach(() => {
       mockAuth = createMockAuth({
         isAuthenticated: true,
-        user: { userId: 'u1', email: 'test@example.com', handle: 'testuser' },
+        user: { userId: 'u1', email: 'test@example.com', handle: 'testuser', defaultPokVisibility: 'PRIVATE' as const },
       });
     });
 

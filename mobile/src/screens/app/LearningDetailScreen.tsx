@@ -163,7 +163,7 @@ export function LearningDetailScreen() {
         <LearningForm
           defaultValues={{ title: pok.title ?? '', content: pok.content }}
           onSubmit={handleUpdate}
-          onCancel={() => { setEditing(false); setServerError(null); }}
+          onCancel={() => { setEditing(false); setEditVisibility(pok.visibility); setServerError(null); }}
           submitLabel={t('learnings.edit.submitButton')}
           serverError={serverError}
         />
@@ -209,7 +209,7 @@ export function LearningDetailScreen() {
           <Button
             label={t('learnings.detail.editButton')}
             variant="secondary"
-            onPress={() => setEditing(true)}
+            onPress={() => { setEditing(true); setEditVisibility(pok.visibility); }}
             style={{ flex: 1 }}
           />
           <Button

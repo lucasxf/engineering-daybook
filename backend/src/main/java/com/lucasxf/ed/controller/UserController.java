@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ import static java.util.Objects.requireNonNull;
  */
 @RestController
 @RequestMapping("/api/v1/users")
-@io.swagger.v3.oas.annotations.tags.Tag(name = "Users", description = "User profile and settings")
+@Tag(name = "Users", description = "User profile and settings")
 public class UserController {
 
     private final UserService userService;

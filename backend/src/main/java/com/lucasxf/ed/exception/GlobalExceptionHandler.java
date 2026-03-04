@@ -31,8 +31,7 @@ public class GlobalExceptionHandler {
             HttpStatus.UNAUTHORIZED.value(),
             HttpStatus.UNAUTHORIZED.getReasonPhrase(),
             ex.getMessage(),
-            request.getRequestURI()
-        );
+            request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
@@ -46,8 +45,7 @@ public class GlobalExceptionHandler {
             HttpStatus.CONFLICT.value(),
             HttpStatus.CONFLICT.getReasonPhrase(),
             ex.getMessage(),
-            request.getRequestURI()
-        );
+            request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
@@ -61,8 +59,7 @@ public class GlobalExceptionHandler {
             HttpStatus.UNAUTHORIZED.value(),
             HttpStatus.UNAUTHORIZED.getReasonPhrase(),
             ex.getMessage(),
-            request.getRequestURI()
-        );
+            request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
@@ -76,8 +73,7 @@ public class GlobalExceptionHandler {
             HttpStatus.BAD_REQUEST.value(),
             HttpStatus.BAD_REQUEST.getReasonPhrase(),
             ex.getMessage(),
-            request.getRequestURI()
-        );
+            request.getRequestURI());
 
         return ResponseEntity.badRequest().body(error);
     }
@@ -91,8 +87,7 @@ public class GlobalExceptionHandler {
             HttpStatus.BAD_REQUEST.value(),
             "Bad Request",
             "Required parameter '" + ex.getParameterName() + "' is missing",
-            request.getRequestURI()
-        );
+            request.getRequestURI());
 
         return ResponseEntity.badRequest().body(error);
     }
@@ -113,8 +108,7 @@ public class GlobalExceptionHandler {
             "Bad Request",
             "Validation failed",
             request.getRequestURI(),
-            details
-        );
+            details);
 
         return ResponseEntity.badRequest().body(error);
     }
@@ -144,8 +138,7 @@ public class GlobalExceptionHandler {
             status.value(),
             status.getReasonPhrase(),
             message,
-            request.getRequestURI()
-        );
+            request.getRequestURI());
 
         return ResponseEntity.status(status).body(error);
     }
@@ -159,8 +152,7 @@ public class GlobalExceptionHandler {
             HttpStatus.NOT_FOUND.value(),
             HttpStatus.NOT_FOUND.getReasonPhrase(),
             ex.getMessage(),
-            request.getRequestURI()
-        );
+            request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
@@ -174,8 +166,7 @@ public class GlobalExceptionHandler {
             HttpStatus.NOT_FOUND.value(),
             HttpStatus.NOT_FOUND.getReasonPhrase(),
             ex.getMessage(),
-            request.getRequestURI()
-        );
+            request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
@@ -191,8 +182,7 @@ public class GlobalExceptionHandler {
             HttpStatus.FORBIDDEN.value(),
             HttpStatus.FORBIDDEN.getReasonPhrase(),
             ex.getMessage(),
-            request.getRequestURI()
-        );
+            request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
@@ -206,8 +196,7 @@ public class GlobalExceptionHandler {
             HttpStatus.NOT_FOUND.value(),
             HttpStatus.NOT_FOUND.getReasonPhrase(),
             ex.getMessage(),
-            request.getRequestURI()
-        );
+            request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
@@ -221,8 +210,7 @@ public class GlobalExceptionHandler {
             HttpStatus.CONFLICT.value(),
             HttpStatus.CONFLICT.getReasonPhrase(),
             ex.getMessage(),
-            request.getRequestURI()
-        );
+            request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
@@ -236,8 +224,7 @@ public class GlobalExceptionHandler {
             HttpStatus.CONFLICT.value(),
             HttpStatus.CONFLICT.getReasonPhrase(),
             ex.getMessage(),
-            request.getRequestURI()
-        );
+            request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
@@ -253,8 +240,7 @@ public class GlobalExceptionHandler {
             HttpStatus.CONFLICT.value(),
             HttpStatus.CONFLICT.getReasonPhrase(),
             "Resource already exists",
-            request.getRequestURI()
-        );
+            request.getRequestURI());
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
@@ -270,8 +256,7 @@ public class GlobalExceptionHandler {
             HttpStatus.INTERNAL_SERVER_ERROR.value(),
             "Internal Server Error",
             "An unexpected error occurred",
-            request.getRequestURI()
-        );
+            request.getRequestURI());
 
         return ResponseEntity.internalServerError().body(error);
     }

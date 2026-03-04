@@ -230,8 +230,7 @@ class PokControllerTest {
         Page<PokResponse> page = new PageImpl<>(
             List.of(pok1, pok2),
             PageRequest.of(0, 20),
-            2
-        );
+            2);
 
         when(pokService.search(any(UUID.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20))).thenReturn(page);
 
@@ -457,8 +456,7 @@ class PokControllerTest {
             eq(null),
             eq(null),
             eq(0),
-            eq(20)
-        )).thenReturn(page);
+            eq(20))).thenReturn(page);
 
         // When/Then
         mockMvc.perform(get("/api/v1/poks")
@@ -488,8 +486,7 @@ class PokControllerTest {
             eq(null),
             eq(null),
             eq(0),
-            eq(20)
-        )).thenReturn(page);
+            eq(20))).thenReturn(page);
 
         // When/Then
         mockMvc.perform(get("/api/v1/poks")
@@ -518,8 +515,7 @@ class PokControllerTest {
             eq(null),
             eq(null),
             eq(0),
-            eq(20)
-        )).thenReturn(page);
+            eq(20))).thenReturn(page);
 
         // When/Then
         mockMvc.perform(get("/api/v1/poks")
@@ -539,8 +535,7 @@ class PokControllerTest {
             eq(null),
             eq(null),
             eq(0),
-            eq(20)
-        );
+            eq(20));
     }
 
     @Test
@@ -560,8 +555,7 @@ class PokControllerTest {
             eq("2026-02-01T00:00:00Z"),
             eq("2026-02-28T23:59:59Z"),
             eq(1),
-            eq(10)
-        )).thenReturn(page);
+            eq(10))).thenReturn(page);
 
         // When/Then
         mockMvc.perform(get("/api/v1/poks")
@@ -588,8 +582,7 @@ class PokControllerTest {
             eq("2026-02-01T00:00:00Z"),
             eq("2026-02-28T23:59:59Z"),
             eq(1),
-            eq(10)
-        );
+            eq(10));
     }
 
     @Test
@@ -609,8 +602,7 @@ class PokControllerTest {
             eq(null),
             eq(null),
             eq(0),
-            eq(20)
-        )).thenReturn(page);
+            eq(20))).thenReturn(page);
 
         // When/Then
         mockMvc.perform(get("/api/v1/poks")
@@ -637,8 +629,7 @@ class PokControllerTest {
             eq(null),
             eq(null),
             eq(0),
-            eq(20)
-        )).thenReturn(emptyPage);
+            eq(20))).thenReturn(emptyPage);
 
         // When/Then
         mockMvc.perform(get("/api/v1/poks")
@@ -667,12 +658,10 @@ class PokControllerTest {
         // Given
         PokAuditLogResponse entry1 = new PokAuditLogResponse(
             UUID.randomUUID(), pokId, userId, "CREATE",
-            null, "Title", null, "Content", Instant.now().minusSeconds(100)
-        );
+            null, "Title", null, "Content", Instant.now().minusSeconds(100));
         PokAuditLogResponse entry2 = new PokAuditLogResponse(
             UUID.randomUUID(), pokId, userId, "UPDATE",
-            "Title", "Updated Title", "Content", "Updated content", Instant.now()
-        );
+            "Title", "Updated Title", "Content", "Updated content", Instant.now());
 
         when(pokService.getHistory(eq(pokId), any(UUID.class)))
             .thenReturn(List.of(entry2, entry1));
@@ -731,8 +720,7 @@ class PokControllerTest {
         CreatePokRequest request = new CreatePokRequest("Title", "Content", null, Pok.Visibility.PUBLIC);
         PokResponse response = new PokResponse(
             pokId, userId, "Title", "Content", Pok.Visibility.PUBLIC, null, Instant.now(), Instant.now(),
-            Collections.emptyList(), Collections.emptyList()
-        );
+            Collections.emptyList(), Collections.emptyList());
 
         when(pokService.create(any(CreatePokRequest.class), any(UUID.class))).thenReturn(response);
 
@@ -767,8 +755,7 @@ class PokControllerTest {
         UpdatePokRequest request = new UpdatePokRequest("Title", "Content", Pok.Visibility.PUBLIC);
         PokResponse response = new PokResponse(
             pokId, userId, "Title", "Content", Pok.Visibility.PUBLIC, null, Instant.now(), Instant.now(),
-            Collections.emptyList(), Collections.emptyList()
-        );
+            Collections.emptyList(), Collections.emptyList());
 
         when(pokService.update(eq(pokId), any(UpdatePokRequest.class), any(UUID.class))).thenReturn(response);
 
@@ -808,8 +795,7 @@ class PokControllerTest {
         UUID otherUserId = UUID.randomUUID();
         PokResponse response = new PokResponse(
             pokId, otherUserId, "Public Learning", "Public content", Pok.Visibility.PUBLIC, null,
-            Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
-        );
+            Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList());
 
         when(pokService.getById(eq(pokId), any(UUID.class))).thenReturn(response);
 

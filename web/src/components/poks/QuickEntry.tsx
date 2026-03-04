@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, KeyboardEvent } from 'react';
 import { useTranslations } from 'next-intl';
-import { pokApi, type Pok } from '@/lib/pokApi';
+import { pokApi, type Pok, type PokVisibility } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
 import type { Tag } from '@/lib/tagApi';
 import { Card } from '@/components/ui/Card';
@@ -13,6 +13,7 @@ import type { Visibility } from './VisibilityBadge';
 
 interface QuickEntryProps {
   onSaved: (pok: Pok) => void;
+  defaultVisibility?: PokVisibility;
 }
 
 /**
@@ -24,13 +25,15 @@ interface QuickEntryProps {
  *
  * The "New Learning" button remains available in the header for the full-form
  * experience (deliberate entries with titles).
+ *
+ * @param defaultVisibility the user's default visibility preference; falls back to PRIVATE
  */
-export function QuickEntry({ onSaved }: QuickEntryProps) {
+export function QuickEntry({ onSaved, defaultVisibility = 'PRIVATE' }: QuickEntryProps) {
   const t = useTranslations('poks');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
-  const [visibility, setVisibility] = useState<Visibility>('PRIVATE');
+  const [visibility, setVisibility] = useState<Visibility>(defaultVisibility);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -52,7 +55,7 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
       setTitle('');
       setContent('');
       setSelectedTags([]);
-      setVisibility('PRIVATE');
+      setVisibility(defaultVisibility);
       onSaved(pok);
     } catch (err) {
       if (err instanceof ApiRequestError) {
@@ -64,7 +67,7 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
       setSaving(false);
       textareaRef.current?.focus();
     }
-  }, [title, content, selectedTags, visibility, saving, onSaved, t]);
+  }, [title, content, selectedTags, visibility, saving, onSaved, t, defaultVisibility]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {

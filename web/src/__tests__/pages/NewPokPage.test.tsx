@@ -13,6 +13,14 @@ vi.mock('next/navigation', () => ({
   useRouter: () => mockRouter,
 }));
 
+vi.mock('@/hooks/useAuth', () => ({
+  useAuth: () => ({
+    user: { userId: 'u1', email: 'test@example.com', handle: 'testuser', defaultPokVisibility: 'PRIVATE' as const },
+    isAuthenticated: true,
+    isLoading: false,
+  }),
+}));
+
 vi.mock('@/lib/pokApi', () => ({
   pokApi: { create: vi.fn() },
   ApiRequestError: class ApiRequestError extends Error {},

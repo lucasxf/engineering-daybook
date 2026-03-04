@@ -15,6 +15,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/poks/EmptyState';
 import { Toast } from '@/components/ui/Toast';
 import { usePoksData } from '@/hooks/usePoksData';
+import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
 
 /**
@@ -31,6 +32,7 @@ function PoksContent() {
   const t = useTranslations('poks');
   const searchParams = useSearchParams();
   const isTagsView = searchParams.get('view') === 'tags';
+  const { user } = useAuth();
 
   // Feed view fetches paginated (size=20); tag-grouped needs all (size=1000)
   const fetchSize = isTagsView ? 1000 : 20;
@@ -85,7 +87,10 @@ function PoksContent() {
       </div>
 
       {/* Inline quick-entry */}
-      <QuickEntry onSaved={handleQuickSaveWithToast} />
+      <QuickEntry
+        onSaved={handleQuickSaveWithToast}
+        defaultVisibility={user?.defaultPokVisibility ?? 'PRIVATE'}
+      />
 
       {/* View switcher */}
       <div className="mb-4">

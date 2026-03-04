@@ -7,6 +7,8 @@ import jakarta.servlet.http.Cookie;
 
 import com.lucasxf.ed.config.AuthProperties;
 import com.lucasxf.ed.config.CorsProperties;
+import com.lucasxf.ed.domain.Pok;
+import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.dto.AuthResponse;
 import com.lucasxf.ed.dto.GoogleLoginResponse;
 import com.lucasxf.ed.security.CookieHelper;
@@ -16,6 +18,7 @@ import com.lucasxf.ed.service.AuthResult;
 import com.lucasxf.ed.service.AuthService;
 import com.lucasxf.ed.service.GoogleLoginResult;
 import com.lucasxf.ed.service.JwtService;
+import com.lucasxf.ed.service.UserService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -27,6 +30,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,6 +64,9 @@ class AuthControllerTest {
 
     @MockitoBean
     private JwtService jwtService;
+
+    @MockitoBean
+    private UserService userService;
 
     private static final UUID USER_ID = UUID.randomUUID();
     private static final String EMAIL = "test@example.com";
@@ -279,19 +286,25 @@ class AuthControllerTest {
     class Me {
 
         @Test
-        @DisplayName("should return 200 with user identity when authenticated")
+        @DisplayName("should return 200 with user identity and defaultPokVisibility when authenticated")
         void me_authenticated() throws Exception {
             UserPrincipal principal = new UserPrincipal(USER_ID, EMAIL, HANDLE);
             Authentication auth = new UsernamePasswordAuthenticationToken(
                 principal, null, List.of()
             );
 
+            User mockUser = new User(EMAIL, null, "Test User", HANDLE);
+            ReflectionTestUtils.setField(mockUser, "id", USER_ID);
+            // defaultPokVisibility defaults to PRIVATE in User entity
+            when(userService.findById(USER_ID)).thenReturn(mockUser);
+
             mockMvc.perform(get("/api/v1/auth/me")
                     .with(authentication(auth)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.handle").value(HANDLE))
                 .andExpect(jsonPath("$.email").value(EMAIL))
-                .andExpect(jsonPath("$.userId").isNotEmpty());
+                .andExpect(jsonPath("$.userId").isNotEmpty())
+                .andExpect(jsonPath("$.defaultPokVisibility").value("PRIVATE"));
         }
 
         @Test

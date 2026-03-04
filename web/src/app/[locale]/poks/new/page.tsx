@@ -10,6 +10,7 @@ import { ApiRequestError } from '@/lib/api';
 import { useState } from 'react';
 import type { Tag } from '@/lib/tagApi';
 import type { PokFormSubmitData } from '@/components/poks/PokForm';
+import { useAuth } from '@/hooks/useAuth';
 
 /**
  * Page for creating a new POK.
@@ -24,6 +25,7 @@ export default function NewPokPage() {
   const t = useTranslations('poks');
   const router = useRouter();
   const params = useParams<{ locale: string }>();
+  const { user } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
@@ -59,6 +61,7 @@ export default function NewPokPage() {
       <PokForm
         onSubmit={handleSubmit}
         mode="create"
+        initialData={{ visibility: user?.defaultPokVisibility ?? 'PRIVATE' }}
         afterContent={
           <TagPicker selectedTags={selectedTags} onSelectionChange={setSelectedTags} />
         }

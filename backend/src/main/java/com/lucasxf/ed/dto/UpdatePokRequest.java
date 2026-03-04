@@ -28,6 +28,5 @@ public record UpdatePokRequest(
     @Size(min = 1, max = 50000, message = "Content must be between 1 and 50,000 characters")
     String content,
 
-    Pok.Visibility visibility
-) {
+    Pok.Visibility visibility) {
 }
