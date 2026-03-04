@@ -1,8 +1,8 @@
 # Learner Profile Privacy
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-03-02
-> **Implemented:** _pending_
+> **Implemented:** 2026-03-04
 
 ---
 
@@ -477,18 +477,60 @@ Uses the existing `Select` component; no new UI primitives needed.
 
 ## Post-Implementation Notes
 
-> _This section is filled AFTER implementation._
-
 ### Commits
-- _(pending)_
+
+| Hash | Description |
+|------|-------------|
+| `7beb856` | docs: mark spec learner-profile-privacy as in progress |
+| `1a2efb9` | feat(backend): add ProfileVisibility to User entity and V15 migration |
+| `2ac51b7` | feat(backend): extend settings endpoint with profileVisibility |
+| `d4bcab5` | feat(backend): extend AuthResponse and /auth/me with profileVisibility |
+| `3dd8111` | feat(backend): add LearnerController, LearnerService, and profile DTOs |
+| `38fb8de` | feat(web): extend AuthContext with profileVisibility and add settings page |
+| `c4235fe` | feat(web): add learner profile page /learners/[handle] |
+| `16668ee` | feat(mobile): add privacy settings section to ProfileScreen |
+| `9bc5e0b` | test: add E2E tests for settings and learner profile pages |
+| `ec5c17a` | docs: add Javadoc and OpenAPI annotations to LearnerController and LearnerProfileResponse |
+| `aff617a` | fix(test): remove unused ObjectMapper field from LearnerControllerTest |
 
 ### Architectural Decisions
 
-_(pending — record key decisions, e.g. whether `AuthResponse` extension vs. new `MeResponse` DTO
-was the right call, and whether `LearnerService` vs. extending `PokService` for public pok queries)_
+1. **`AuthResponse` extended vs. new `MeResponse` DTO** — Chose to extend `AuthResponse` with
+   optional `@JsonInclude(NON_NULL)` fields. Rationale: `GET /auth/me` already returns `AuthResponse`
+   and the frontend reads these fields immediately on load. A separate DTO would add indirection
+   with no benefit. The `NON_NULL` annotation ensures login/register responses (which don't include
+   settings) are not affected.
+
+2. **`LearnerService` vs. extending `PokService`** — Created a dedicated `LearnerService` to own
+   the profile access matrix logic. `PokService` is focused on the authenticated user's own content;
+   mixing public profile queries there would conflate two distinct security models.
+
+3. **Factory pattern on `LearnerProfileResponse`** — Used `privateShell()` and `full()` static
+   factory methods to keep the two response shapes explicit at the call site. The anti-vanity rule
+   (no counts for non-owners) is enforced inside `full()` via the `isOwner` parameter — callers
+   cannot accidentally pass a count.
+
+4. **Private profiles return 200 (not 403)** — Per spec: private profiles confirm handle existence
+   but reveal nothing. Returning 404 for private profiles would differ from the already-public
+   `GET /auth/handle/available` endpoint (which confirms handle existence), creating inconsistency.
 
 ### Deviations from Spec
-- _(pending)_
+
+- `UserSettingsResponse` DTO (listed in spec's File Changes) was not created. The `PATCH
+  /api/v1/users/me/settings` endpoint returns `204 No Content` (no body) which is simpler and
+  aligns with REST semantics for PATCH on settings that have no derived state to return. The
+  frontend already has the new value from optimistic UI update.
+
+- `GET /api/v1/users/me/settings` (read endpoint) was not implemented — the spec listed it as
+  a "New `UserController`" item but it was not part of any AC. Settings are read via
+  `GET /auth/me` per FR8 and AC12.
 
 ### Lessons Learned
-- _(pending)_
+
+- `@WebMvcTest` slices do not provide `ObjectMapper` unless explicitly imported via
+  `@Import(JacksonConfig.class)`. For controller tests with GET-only endpoints (no request body),
+  simply remove the unused `@Autowired ObjectMapper` field rather than importing the full config.
+
+- The `Pok` entity uses a `makePublic()` method (not `setVisibility()`) — visibility is treated
+  as an irreversible transition. Service and test code must use the constructor overload or
+  `makePublic()` rather than a setter.
