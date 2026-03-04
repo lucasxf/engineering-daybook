@@ -2,7 +2,7 @@
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "Task|Bash",
+        "matcher": "Task|Bash|Skill",
         "hooks": [
           {
             "type": "command",
