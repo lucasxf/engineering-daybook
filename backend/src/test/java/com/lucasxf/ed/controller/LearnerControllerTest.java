@@ -3,7 +3,6 @@ package com.lucasxf.ed.controller;
 import java.util.List;
 import java.util.UUID;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucasxf.ed.config.CorsProperties;
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.User;
@@ -46,9 +45,6 @@ class LearnerControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @MockitoBean
     private LearnerService learnerService;
