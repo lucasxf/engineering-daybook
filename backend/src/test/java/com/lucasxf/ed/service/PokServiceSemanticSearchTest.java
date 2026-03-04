@@ -49,6 +49,7 @@ class PokServiceSemanticSearchTest {
     @Mock private EmbeddingGenerationService embeddingGenerationService;
     @Mock private EmbeddingService embeddingService;
     @Mock private TagService tagService;
+    @Mock private UserService userService;
 
     private PokService pokService;
     private UUID userId;
@@ -61,7 +62,7 @@ class PokServiceSemanticSearchTest {
             pokRepository, pokAuditLogRepository, pokTagRepository,
             userTagRepository, pokTagSuggestionRepository,
             tagSuggestionService, embeddingGenerationService, embeddingService,
-            tagService);
+            tagService, userService);
         userId = UUID.randomUUID();
         pok1 = new Pok(userId, "Java basics", "Introduction to Java");
         pok2 = new Pok(userId, "Spring Boot", "Building REST APIs");
