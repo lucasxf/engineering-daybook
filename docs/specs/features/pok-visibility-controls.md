@@ -1,8 +1,8 @@
 # POK Visibility Controls
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-03-02
-> **Implemented:** _pending_
+> **Implemented:** 2026-03-04
 
 ---
 
@@ -374,18 +374,37 @@ extended in 5.2 with `profileVisibility`. Returns the updated user settings obje
 
 ## Post-Implementation Notes
 
-> _This section is filled AFTER implementation._
-
 ### Commits
-- _(pending)_
+
+| # | Hash | Description |
+|---|------|-------------|
+| 1 | (V13/V14 migrations) | chore: add migrations V13 (pok visibility) and V14 (user default visibility) |
+| 2 | (domain model) | feat: add Visibility enum to Pok, defaultPokVisibility to User, update DTOs |
+| 3 | (exception) | feat: add PokVisibilityImmutableException and GlobalExceptionHandler mapping |
+| 4 | (UserService) | feat: add UserService with findById and updateDefaultVisibility |
+| 5 | 58e28fc | feat: refactor PokService with verifyAccess, visibility-aware create and update |
+| 6 | 861f999 | feat: add UserController PATCH /api/v1/users/me/settings |
+| 7 | 431f51a | test: add PokController tests for visibility-based access control |
+| 8 | 4e413be | feat: add VisibilityPicker and VisibilityBadge components (web) |
+| 9 | ffbdf34 | feat: integrate visibility into web POK forms, cards, and detail page |
+| 10 | 6ec8885 | feat: add visibility picker and badge to mobile learning screens |
+| 11 | 1527d68 | test: add E2E tests for visibility flows |
 
 ### Architectural Decisions
 
-_(pending — record key decisions here, e.g. whether to extract `Visibility` to a top-level enum
-when Phase 6 adds profile tiers)_
+- **`Pok.Visibility` stays as inner enum** — keeping it nested in `Pok` is correct for now; Phase 6 may introduce a top-level `Visibility` shared with `ProfileVisibility` if they converge.
+- **`verifyAccess()` pattern** — reads use `verifyAccess(userId, pok)` (PUBLIC → any authenticated user; PRIVATE → owner only); writes continue to use `verifyOwnership`. This separation is intentional and prevents unintentional public writes.
+- **PUBLIC → PRIVATE is permanently forbidden** — enforced by `PokVisibilityImmutableException` (409 Conflict) at the service layer. Decision: irreversibility prevents confusing downstream consumers who bookmarked or referenced a public URL.
+- **Mobile uses inline toggle buttons** instead of a native `Picker` — avoids the complexity of RN's native picker API while matching the visual language of the existing RN `Button` components.
+- **Web `PokForm` manages visibility as `useState`** separate from react-hook-form — visibility is not a text input and doesn't need Zod validation; keeping it out of the form schema avoids schema drift. The `PokFormSubmitData` type unions both.
 
 ### Deviations from Spec
-- _(pending)_
+
+- **`GET /api/v1/learners/{handle}/poks` endpoint deferred** — listed in the spec as a Phase 5.1 item but belongs to Milestone 5.2 (Learner Profile Privacy), which depends on the profile page. Deferred to the learner-profile-privacy spec.
+- **`defaultVisibility` UI not implemented in web/mobile** — the `PATCH /api/v1/users/me/settings` endpoint is implemented, but no settings screen yet. Deferred to Milestone 5.2 or a dedicated UX pass.
 
 ### Lessons Learned
-- _(pending)_
+
+- **Mockito `lenient()` for shared `@BeforeEach` stubs**: When a stub is needed by most but not all tests, `lenient().when(...)` prevents UnnecessaryStubbingException without requiring per-test setup.
+- **Windows Playwright E2E `--grep` flag can't use `|` operator with pipe in Git Bash** — the pipe is intercepted by the shell. Use separate `--grep` runs or wrap in quotes carefully.
+- **`getByText(/🔒/)` in E2E matches the VisibilityPicker dropdown trigger** too, not just badge elements — be specific about which element you expect to NOT be visible, or use a container-scoped locator.
