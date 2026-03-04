@@ -180,13 +180,20 @@
       "updated": "Learning updated successfully",
       "deleted": "Learning deleted successfully"
     },
+    "visibility": {
+      "private": "Private",
+      "public": "Public",
+      "pickerLabel": "Visibility",
+      "publicWarning": "Public learnings cannot be made private again."
+    },
     "errors": {
       "notFound": "Learning not found",
       "forbidden": "You don't have permission to access this learning",
       "contentRequired": "Content is required and must not be blank",
       "titleTooLong": "Title must be 200 characters or less",
       "contentTooLong": "Content must be 50,000 characters or less",
-      "unexpected": "Something went wrong. Please try again."
+      "unexpected": "Something went wrong. Please try again.",
+      "visibilityImmutable": "A public learning cannot be made private."
     }
   },
   "tags": {
