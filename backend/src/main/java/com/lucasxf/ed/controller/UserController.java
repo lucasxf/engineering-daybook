@@ -63,6 +63,9 @@ public class UserController {
         if (request.defaultPokVisibility() != null) {
             userService.updateDefaultPokVisibility(userId, request.defaultPokVisibility());
         }
+        if (request.profileVisibility() != null) {
+            userService.updateProfileVisibility(userId, request.profileVisibility());
+        }
         return ResponseEntity.noContent().build();
     }
 }

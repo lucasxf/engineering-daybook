@@ -3,6 +3,7 @@ package com.lucasxf.ed.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucasxf.ed.config.CorsProperties;
 import com.lucasxf.ed.domain.Pok;
+import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.dto.UpdateUserSettingsRequest;
 import com.lucasxf.ed.exception.UserNotFoundException;
 import com.lucasxf.ed.security.SecurityConfig;
@@ -55,7 +56,7 @@ class UserControllerTest {
 
     @Test
     void updateSettings_withDefaultPokVisibility_returns204() throws Exception {
-        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(Pok.Visibility.PUBLIC);
+        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(Pok.Visibility.PUBLIC, null);
 
         mockMvc.perform(patch("/api/v1/users/me/settings")
                 .with(user(userId.toString()))
@@ -68,7 +69,7 @@ class UserControllerTest {
 
     @Test
     void updateSettings_withNullDefaultPokVisibility_skipsUpdate() throws Exception {
-        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(null);
+        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(null, null);
 
         mockMvc.perform(patch("/api/v1/users/me/settings")
                 .with(user(userId.toString()))
@@ -77,6 +78,36 @@ class UserControllerTest {
             .andExpect(status().isNoContent());
 
         verify(userService, never()).updateDefaultPokVisibility(any(), any());
+        verify(userService, never()).updateProfileVisibility(any(), any());
+    }
+
+    @Test
+    void updateSettings_withProfileVisibility_returns204() throws Exception {
+        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(null, User.ProfileVisibility.PUBLIC);
+
+        mockMvc.perform(patch("/api/v1/users/me/settings")
+                .with(user(userId.toString()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isNoContent());
+
+        verify(userService).updateProfileVisibility(eq(userId), eq(User.ProfileVisibility.PUBLIC));
+        verify(userService, never()).updateDefaultPokVisibility(any(), any());
+    }
+
+    @Test
+    void updateSettings_withBothFields_updatesBoth() throws Exception {
+        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(
+            Pok.Visibility.PUBLIC, User.ProfileVisibility.PRIVATE);
+
+        mockMvc.perform(patch("/api/v1/users/me/settings")
+                .with(user(userId.toString()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isNoContent());
+
+        verify(userService).updateDefaultPokVisibility(eq(userId), eq(Pok.Visibility.PUBLIC));
+        verify(userService).updateProfileVisibility(eq(userId), eq(User.ProfileVisibility.PRIVATE));
     }
 
     @Test
@@ -84,7 +115,7 @@ class UserControllerTest {
         doThrow(new UserNotFoundException("User not found: " + userId))
             .when(userService).updateDefaultPokVisibility(eq(userId), any());
 
-        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(Pok.Visibility.PUBLIC);
+        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(Pok.Visibility.PUBLIC, null);
 
         mockMvc.perform(patch("/api/v1/users/me/settings")
                 .with(user(userId.toString()))
@@ -95,7 +126,7 @@ class UserControllerTest {
 
     @Test
     void updateSettings_unauthenticated_returns401() throws Exception {
-        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(Pok.Visibility.PUBLIC);
+        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(Pok.Visibility.PUBLIC, null);
 
         mockMvc.perform(patch("/api/v1/users/me/settings")
                 .contentType(MediaType.APPLICATION_JSON)
