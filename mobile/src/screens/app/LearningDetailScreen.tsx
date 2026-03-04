@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, ScrollView, View, ActivityIndicator } from 'react-native';
+import { Alert, ScrollView, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { AppStackParamList } from '@/navigation/AppStack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/contexts/I18nContext';
-import { pokApi, type Pok } from '@/lib/pokApi';
+import { pokApi, type Pok, type PokVisibility } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
 import type { PokFormData } from '@/lib/validations';
 import { Text } from '@/components/ui/Text';
@@ -28,6 +28,7 @@ export function LearningDetailScreen() {
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [editVisibility, setEditVisibility] = useState<PokVisibility>('PRIVATE');
 
   const loadPok = useCallback(async () => {
     setLoading(true);
@@ -35,6 +36,7 @@ export function LearningDetailScreen() {
     try {
       const data = await pokApi.getById(pokId);
       setPok(data);
+      setEditVisibility(data.visibility);
     } catch {
       setError(t('learnings.errors.loadFailed'));
     } finally {
@@ -51,6 +53,7 @@ export function LearningDetailScreen() {
       const updated = await pokApi.update(pok.id, {
         title: data.title || null,
         content: data.content,
+        visibility: editVisibility,
       });
       setPok(updated);
       setEditing(false);
@@ -110,6 +113,53 @@ export function LearningDetailScreen() {
         <Text variant="heading" style={{ padding: theme.spacing.md }}>
           {t('learnings.edit.title')}
         </Text>
+
+        {/* Visibility toggle (only shown when current visibility is PRIVATE) */}
+        {pok.visibility === 'PRIVATE' && (
+          <View style={{ paddingHorizontal: theme.spacing.md, paddingBottom: theme.spacing.sm, gap: theme.spacing.xs }}>
+            <Text variant="label">{t('learnings.visibility.pickerLabel')}</Text>
+            <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityState={{ selected: editVisibility === 'PRIVATE' }}
+                onPress={() => setEditVisibility('PRIVATE')}
+                style={{
+                  flex: 1,
+                  padding: theme.spacing.sm,
+                  borderRadius: theme.radii.md,
+                  borderWidth: 1,
+                  borderColor: editVisibility === 'PRIVATE' ? theme.colors.primary : theme.colors.border,
+                  backgroundColor: editVisibility === 'PRIVATE' ? theme.colors.surfaceAlt : 'transparent',
+                  alignItems: 'center',
+                }}
+              >
+                <Text variant="bodySm">🔒 {t('learnings.visibility.private')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityState={{ selected: editVisibility === 'PUBLIC' }}
+                onPress={() => setEditVisibility('PUBLIC')}
+                style={{
+                  flex: 1,
+                  padding: theme.spacing.sm,
+                  borderRadius: theme.radii.md,
+                  borderWidth: 1,
+                  borderColor: editVisibility === 'PUBLIC' ? theme.colors.primary : theme.colors.border,
+                  backgroundColor: editVisibility === 'PUBLIC' ? theme.colors.surfaceAlt : 'transparent',
+                  alignItems: 'center',
+                }}
+              >
+                <Text variant="bodySm">🌐 {t('learnings.visibility.public')}</Text>
+              </TouchableOpacity>
+            </View>
+            {editVisibility === 'PUBLIC' && (
+              <Text variant="bodySm" style={{ color: theme.colors.warning }}>
+                {t('learnings.visibility.publicWarning')}
+              </Text>
+            )}
+          </View>
+        )}
+
         <LearningForm
           defaultValues={{ title: pok.title ?? '', content: pok.content }}
           onSubmit={handleUpdate}
@@ -126,6 +176,13 @@ export function LearningDetailScreen() {
       <ScrollView contentContainerStyle={{ padding: theme.spacing.md, gap: theme.spacing.md }}>
         {pok.title && <Text variant="heading">{pok.title}</Text>}
         <Text variant="body" style={{ lineHeight: 24 }}>{pok.content}</Text>
+
+        {/* Visibility badge */}
+        <Text variant="bodySm" style={{ color: theme.colors.textSecondary }}>
+          {pok.visibility === 'PUBLIC'
+            ? `🌐 ${t('learnings.visibility.public')}`
+            : `🔒 ${t('learnings.visibility.private')}`}
+        </Text>
 
         {pok.tags.length > 0 && (
           <View style={{ gap: theme.spacing.xs }}>
