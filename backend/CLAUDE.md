@@ -251,6 +251,8 @@ cd backend
   private List<UUID> tagIds;
   ```
 
+- **`@WebMvcTest` does not provide `ObjectMapper` unless a Jackson config is explicitly imported:** `@Autowired ObjectMapper` fails with `UnsatisfiedDependencyException` in `@WebMvcTest` slices because `ObjectMapper` is not part of the web MVC slice. Fix: either add `@Import(JacksonConfig.class)` (if available) to the test class, or — if the controller test has only GET endpoints — simply remove the unused field. The `@WebMvcTest` slice only provides what is explicitly declared via `@MockitoBean`, `@Import`, or `@EnableConfigurationProperties`.
+
 ---
 
 ## Testing

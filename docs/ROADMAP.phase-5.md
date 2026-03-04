@@ -1,6 +1,6 @@
 # Phase 5: Privacy
 
-> Status: **🔄 In Progress** (5.1 done; 5.2 planned)
+> Status: **🔄 In Progress** (5.1 done; 5.2 done)
 
 ---
 
@@ -39,13 +39,29 @@
 - E2E: 4 new visibility scenarios in `web/e2e/poks.spec.ts`
 - [x] Code review feedback addressed (PR #118 review pass: style fixes, mobile stale-state privacy bug, web default visibility initialised from auth context)
 
-## Milestone 5.2: Learner Profile Privacy ⏳ Planned
+## Milestone 5.2: Learner Profile Privacy ✅ Complete — done (feat/privacy-system, 2026-03-04)
 
-| # | Feature | Priority |
-|---|---------|----------|
-| 5.2.1 | Profile visibility: public / followers-only / colleagues-only / private | Must Have |
-| 5.2.2 | Public profiles discoverable; private profiles visible only to owner | Must Have |
-| 5.2.3 | No visible follower count, colleague count, or total learning count on public profiles (anti-vanity) | Must Have |
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 5.2.1 | Profile visibility: public / followers-only / colleagues-only / private | Must Have | ✅ |
+| 5.2.2 | Public profiles discoverable; private profiles visible only to owner | Must Have | ✅ |
+| 5.2.3 | No visible follower count, colleague count, or total learning count on public profiles (anti-vanity) | Must Have | ✅ |
+
+**Delivered:**
+- Flyway V15: `profile_visibility` column on `users` (PRIVATE default, NOT NULL)
+- `ProfileVisibility` enum on `User` entity
+- `LearnerController` + `LearnerService` — GET `/api/v1/learners/{handle}` with access control
+- `LearnerProfileResponse` DTO — public-safe profile fields, anti-vanity (no counts)
+- `LearnerNotFoundException` (404) and `LearnerAccessDeniedException` (403)
+- `UserController` + `AuthController` extended with `profileVisibility` field; `AuthResponse` updated
+- `PokRepository` extended for public-POK queries on a learner's profile
+- `GlobalExceptionHandler` — new exception mappings for learner errors
+- Web: `/[locale]/settings` page with profile visibility picker; `/[locale]/learners/[handle]` public profile page
+- Web: `userApi.ts`, `learnerApi.ts`; `AuthContext.tsx` extended with `profileVisibility`
+- Web: i18n keys added to `en.json` and `pt-BR.json`
+- Mobile: `ProfileScreen.tsx` extended with privacy section; `userApi.ts` added; i18n keys added
+- E2E: extended `mock-api.ts`; new `settings.spec.ts` and `learners.spec.ts`
+- Tests: `LearnerControllerTest`, `LearnerServiceTest`, `UserServiceTest`, `AuthControllerTest`
 
 ## Exit Criteria
 
@@ -53,4 +69,4 @@
 - [x] Learners can set their default visibility preference
 - [x] Access control correctly enforced for all endpoints and UI views
 - [x] Public learnings cannot be reverted to private
-- [ ] Learner profile privacy (5.2)
+- [x] Learner profile privacy (5.2)

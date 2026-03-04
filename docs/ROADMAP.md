@@ -28,7 +28,7 @@
 | 2 — Evolution | `ROADMAP.phase-2.md` | 🔄 Started (2.1, 2.2, 2.3 done; 2.4 planned) |
 | 3 — AI & Mobile | `ROADMAP.phase-3.md` | 🔄 In Progress (3.1, 3.3 done) |
 | 4 — Growth | `ROADMAP.phase-4.md` | ⏳ Planned |
-| 5 — Privacy | `ROADMAP.phase-5.md` | 🔄 In Progress (5.1 done; 5.2 planned) |
+| 5 — Privacy | `ROADMAP.phase-5.md` | 🔄 In Progress (5.1 done; 5.2 done) |
 | 6 — Social | `ROADMAP.phase-6.md` | ⏳ Planned |
 | 7 — Gamification | `ROADMAP.phase-7.md` | ⏳ Planned |
 
