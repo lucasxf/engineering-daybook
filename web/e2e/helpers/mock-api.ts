@@ -17,6 +17,7 @@ export interface MockPok {
   userId: string;
   title: string | null;
   content: string;
+  visibility: 'PRIVATE' | 'PUBLIC';
   deletedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -29,6 +30,7 @@ export const MOCK_POK: MockPok = {
   userId: 'user-1',
   title: 'Test Learning',
   content: 'This is test content for a learning.',
+  visibility: 'PRIVATE',
   deletedAt: null,
   createdAt: '2026-01-01T10:00:00Z',
   updatedAt: '2026-01-01T10:00:00Z',

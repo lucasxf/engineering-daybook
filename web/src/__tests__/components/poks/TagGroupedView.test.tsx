@@ -24,6 +24,7 @@ function makePok(id: string, title: string, tagNames: string[]): Pok {
     userId: 'u1',
     title,
     content: 'content',
+    visibility: 'PRIVATE',
     deletedAt: null,
     createdAt: '2026-02-01T10:00:00Z',
     updatedAt: '2026-02-01T10:00:00Z',

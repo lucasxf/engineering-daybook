@@ -9,7 +9,7 @@ import { pokApi } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
 import { useState } from 'react';
 import type { Tag } from '@/lib/tagApi';
-import type { PokFormData } from '@/lib/validations/pokSchema';
+import type { PokFormSubmitData } from '@/components/poks/PokForm';
 
 /**
  * Page for creating a new POK.
@@ -27,12 +27,13 @@ export default function NewPokPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
-  const handleSubmit = async (data: PokFormData) => {
+  const handleSubmit = async (data: PokFormSubmitData) => {
     setError(null);
     try {
       const newPok = await pokApi.create({
         title: data.title || null,
         content: data.content,
+        visibility: data.visibility,
         ...(selectedTags.length > 0 && { tagIds: selectedTags.map((tag) => tag.id) }),
       });
 

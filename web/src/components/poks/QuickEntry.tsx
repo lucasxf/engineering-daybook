@@ -8,6 +8,8 @@ import type { Tag } from '@/lib/tagApi';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { TagPicker } from './TagPicker';
+import { VisibilityPicker } from './VisibilityPicker';
+import type { Visibility } from './VisibilityBadge';
 
 interface QuickEntryProps {
   onSaved: (pok: Pok) => void;
@@ -28,6 +30,7 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+  const [visibility, setVisibility] = useState<Visibility>('PRIVATE');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -43,11 +46,13 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
       const pok = await pokApi.create({
         title: trimmedTitle,
         content: trimmedContent,
+        visibility,
         ...(selectedTags.length > 0 && { tagIds: selectedTags.map((tag) => tag.id) }),
       });
       setTitle('');
       setContent('');
       setSelectedTags([]);
+      setVisibility('PRIVATE');
       onSaved(pok);
     } catch (err) {
       if (err instanceof ApiRequestError) {
@@ -59,7 +64,7 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
       setSaving(false);
       textareaRef.current?.focus();
     }
-  }, [title, content, selectedTags, saving, onSaved, t]);
+  }, [title, content, selectedTags, visibility, saving, onSaved, t]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -95,6 +100,10 @@ export function QuickEntry({ onSaved }: QuickEntryProps) {
       />
 
       <TagPicker selectedTags={selectedTags} onSelectionChange={setSelectedTags} />
+
+      <div className="mt-2">
+        <VisibilityPicker value={visibility} onChange={setVisibility} />
+      </div>
 
       {error && (
         <p role="alert" className="mt-1 text-xs text-red-600 dark:text-red-400">

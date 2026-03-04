@@ -28,6 +28,7 @@ describe('PokCard', () => {
     userId: 'user-1',
     title: 'Test Title',
     content: 'Test content',
+    visibility: 'PRIVATE',
     deletedAt: null,
     createdAt: '2026-02-14T10:00:00Z',
     updatedAt: '2026-02-14T10:00:00Z',

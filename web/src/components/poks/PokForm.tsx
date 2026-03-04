@@ -1,18 +1,24 @@
 'use client';
 
-import { type ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { pokSchema, type PokFormData } from '@/lib/validations/pokSchema';
+import type { PokVisibility } from '@/lib/pokApi';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
 import { FormField } from '@/components/ui/FormField';
+import { VisibilityPicker } from './VisibilityPicker';
+
+export interface PokFormSubmitData extends PokFormData {
+  visibility: PokVisibility;
+}
 
 interface PokFormProps {
-  onSubmit: (data: PokFormData) => void | Promise<void>;
-  initialData?: Partial<PokFormData>;
+  onSubmit: (data: PokFormSubmitData) => void | Promise<void>;
+  initialData?: Partial<PokFormData & { visibility: PokVisibility }>;
   mode?: 'create' | 'edit';
   afterContent?: ReactNode;
 }
@@ -38,6 +44,9 @@ export function PokForm({
   afterContent,
 }: PokFormProps) {
   const t = useTranslations('poks');
+  const [visibility, setVisibility] = useState<PokVisibility>(
+    initialData?.visibility ?? 'PRIVATE'
+  );
 
   const {
     register,
@@ -52,7 +61,7 @@ export function PokForm({
   });
 
   const handleFormSubmit = async (data: PokFormData) => {
-    await onSubmit(data);
+    await onSubmit({ ...data, visibility });
   };
 
   return (
@@ -86,6 +95,10 @@ export function PokForm({
           aria-describedby={errors.content ? 'pok-content-error' : undefined}
           hasError={!!errors.content}
         />
+      </FormField>
+
+      <FormField label={t('visibility.pickerLabel')} htmlFor="pok-visibility">
+        <VisibilityPicker value={visibility} onChange={setVisibility} />
       </FormField>
 
       {afterContent}

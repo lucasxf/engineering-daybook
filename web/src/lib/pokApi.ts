@@ -4,11 +4,14 @@ import type { Tag, TagSuggestion } from './tagApi';
 /**
  * POK (Piece of Knowledge) data types.
  */
+export type PokVisibility = 'PRIVATE' | 'PUBLIC';
+
 export interface Pok {
   id: string;
   userId: string;
   title: string | null;
   content: string;
+  visibility: PokVisibility;
   deletedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -20,11 +23,13 @@ export interface CreatePokDto {
   title?: string | null;
   content: string;
   tagIds?: string[];
+  visibility?: PokVisibility;
 }
 
 export interface UpdatePokDto {
   title?: string | null;
   content: string;
+  visibility?: PokVisibility;
 }
 
 export interface PokPage {

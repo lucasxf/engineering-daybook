@@ -16,6 +16,12 @@ const messages = {
       updateButton: 'Update POK',
       submitting: 'Saving...',
     },
+    visibility: {
+      private: 'Private',
+      public: 'Public',
+      pickerLabel: 'Visibility',
+      publicWarning: 'Public learnings cannot be made private again.',
+    },
     errors: {
       titleTooLong: 'Title must be 200 characters or less',
       contentRequired: 'Content is required and must not be blank',
@@ -79,6 +85,7 @@ describe('PokForm', () => {
       expect(mockOnSubmit).toHaveBeenCalledWith({
         title: '',
         content: 'Test content',
+        visibility: 'PRIVATE',
       });
     });
   });
@@ -100,6 +107,7 @@ describe('PokForm', () => {
       expect(mockOnSubmit).toHaveBeenCalledWith({
         title: 'Test Title',
         content: 'Test content',
+        visibility: 'PRIVATE',
       });
     });
   });
@@ -160,6 +168,7 @@ describe('PokForm', () => {
       expect(mockOnSubmit).toHaveBeenCalledWith({
         title: '',
         content: 'Content without title',
+        visibility: 'PRIVATE',
       });
     });
   });
