@@ -207,6 +207,7 @@ See [ROADMAP.phase-3.md](./docs/ROADMAP.phase-3.md)
 ### Phase 5: Privacy — 🔄 In Progress
 See [ROADMAP.phase-5.md](./docs/ROADMAP.phase-5.md)
 - [x] POK Visibility Controls — private by default, per-learning public toggle (irreversible), default visibility preference, access control enforcement, UI indicators on web and mobile
+- [x] Learner Profile Privacy — profileVisibility field, public learner profile page, settings page/screen, E2E tests
 
 ---
 

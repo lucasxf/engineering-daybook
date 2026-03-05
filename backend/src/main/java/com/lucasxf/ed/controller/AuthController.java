@@ -145,7 +145,7 @@ public class AuthController {
         User user = userService.findById(principal.userId());
         return ResponseEntity.ok(
             new AuthResponse(principal.handle(), principal.userId(), principal.email(),
-                user.getDefaultPokVisibility())
+                user.getDefaultPokVisibility(), user.getProfileVisibility())
         );
     }
 

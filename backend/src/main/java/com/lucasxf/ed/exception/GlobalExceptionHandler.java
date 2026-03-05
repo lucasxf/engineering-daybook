@@ -143,6 +143,36 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(error);
     }
 
+    @ExceptionHandler(LearnerNotFoundException.class)
+    public ResponseEntity<ApiError> handleLearnerNotFound(
+            LearnerNotFoundException ex,
+            HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+            HttpStatus.NOT_FOUND.value(),
+            HttpStatus.NOT_FOUND.getReasonPhrase(),
+            ex.getMessage(),
+            request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(LearnerAccessDeniedException.class)
+    public ResponseEntity<ApiError> handleLearnerAccessDenied(
+            LearnerAccessDeniedException ex,
+            HttpServletRequest request) {
+
+        log.warn("Learner access denied on {}: {}", request.getRequestURI(), ex.getMessage());
+
+        ApiError error = new ApiError(
+            HttpStatus.FORBIDDEN.value(),
+            HttpStatus.FORBIDDEN.getReasonPhrase(),
+            ex.getMessage(),
+            request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ApiError> handleUserNotFound(
             UserNotFoundException ex,

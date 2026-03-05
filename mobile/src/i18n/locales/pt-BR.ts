@@ -138,6 +138,15 @@ export default {
     logoutConfirmTitle: 'Sair?',
     logoutConfirmOk: 'Sair',
     logoutConfirmCancel: 'Cancelar',
+    privacy: {
+      heading: 'Privacidade',
+      profileVisibility: 'Visibilidade do perfil',
+      defaultPokVisibility: 'Visibilidade padrão dos aprendizados',
+      private: 'Privado',
+      public: 'Público',
+      saveSuccess: 'Configurações salvas',
+      saveError: 'Falha ao salvar. Tente novamente.',
+    },
   },
 
   common: {

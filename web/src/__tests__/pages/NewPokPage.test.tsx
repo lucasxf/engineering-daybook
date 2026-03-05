@@ -18,6 +18,7 @@ vi.mock('@/hooks/useAuth', () => ({
     user: { userId: 'u1', email: 'test@example.com', handle: 'testuser', defaultPokVisibility: 'PRIVATE' as const },
     isAuthenticated: true,
     isLoading: false,
+    updateUser: vi.fn(),
   }),
 }));
 

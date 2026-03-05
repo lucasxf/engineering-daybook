@@ -24,11 +24,14 @@ import {
 } from '@/lib/auth';
 import type { PokVisibility } from '@/lib/pokApi';
 
+export type ProfileVisibility = 'PRIVATE' | 'PUBLIC';
+
 export interface AuthUser {
   userId: string;
   email: string;
   handle: string;
   defaultPokVisibility: PokVisibility;
+  profileVisibility: ProfileVisibility;
 }
 
 export interface AuthContextValue {
@@ -40,6 +43,7 @@ export interface AuthContextValue {
   logout: () => Promise<void>;
   googleLogin: (idToken: string) => Promise<GoogleLoginResponse>;
   completeGoogleSignup: (payload: CompleteGoogleSignupPayload) => Promise<void>;
+  updateUser: (patch: Partial<AuthUser>) => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -54,6 +58,7 @@ function toAuthUser(response: AuthResponse): AuthUser {
     email: response.email,
     handle: response.handle,
     defaultPokVisibility: response.defaultPokVisibility ?? 'PRIVATE',
+    profileVisibility: response.profileVisibility ?? 'PRIVATE',
   };
 }
 
@@ -108,6 +113,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           email: response.email,
           handle: response.handle,
           defaultPokVisibility: 'PRIVATE',
+          profileVisibility: 'PRIVATE',
         });
       }
       return response;
@@ -132,6 +138,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, []);
 
+  const updateUser = useCallback((patch: Partial<AuthUser>) => {
+    setUser((prev) => (prev ? { ...prev, ...patch } : prev));
+  }, []);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
@@ -142,8 +152,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       logout,
       googleLogin: googleLoginAction,
       completeGoogleSignup,
+      updateUser,
     }),
-    [user, isLoading, login, register, logout, googleLoginAction, completeGoogleSignup]
+    [user, isLoading, login, register, logout, googleLoginAction, completeGoogleSignup, updateUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -77,4 +77,47 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.updateDefaultPokVisibility(userId, Pok.Visibility.PUBLIC))
             .isInstanceOf(UserNotFoundException.class);
     }
+
+    // ===== updateProfileVisibility =====
+
+    @Test
+    void updateProfileVisibility_existingUser_updatesAndSaves() {
+        User user = makeUser();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        userService.updateProfileVisibility(userId, User.ProfileVisibility.PUBLIC);
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertThat(captor.getValue().getProfileVisibility()).isEqualTo(User.ProfileVisibility.PUBLIC);
+    }
+
+    @Test
+    void updateProfileVisibility_unknownUser_throwsUserNotFoundException() {
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.updateProfileVisibility(userId, User.ProfileVisibility.PUBLIC))
+            .isInstanceOf(UserNotFoundException.class);
+    }
+
+    // ===== findByHandle =====
+
+    @Test
+    void findByHandle_existingHandle_returnsUser() {
+        User user = makeUser();
+        when(userRepository.findByHandle("alice")).thenReturn(Optional.of(user));
+
+        Optional<User> result = userService.findByHandle("alice");
+
+        assertThat(result).contains(user);
+    }
+
+    @Test
+    void findByHandle_unknownHandle_returnsEmpty() {
+        when(userRepository.findByHandle("ghost")).thenReturn(Optional.empty());
+
+        Optional<User> result = userService.findByHandle("ghost");
+
+        assertThat(result).isEmpty();
+    }
 }

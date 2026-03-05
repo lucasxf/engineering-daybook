@@ -141,6 +141,15 @@ export default {
     logoutConfirmTitle: 'Sign out?',
     logoutConfirmOk: 'Sign out',
     logoutConfirmCancel: 'Cancel',
+    privacy: {
+      heading: 'Privacy',
+      profileVisibility: 'Profile visibility',
+      defaultPokVisibility: 'Default learning visibility',
+      private: 'Private',
+      public: 'Public',
+      saveSuccess: 'Settings saved',
+      saveError: 'Failed to save. Please try again.',
+    },
   },
 
   // Common

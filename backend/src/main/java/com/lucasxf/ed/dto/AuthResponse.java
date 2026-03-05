@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lucasxf.ed.domain.Pok;
+import com.lucasxf.ed.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
@@ -43,20 +44,25 @@ public record AuthResponse(
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Schema(description = "User's default visibility for new learnings — populated on /me only")
-    Pok.Visibility defaultPokVisibility) {
+    Pok.Visibility defaultPokVisibility,
 
-    /** Identity-only constructor — for web login/register/refresh (cookie-based, no tokens, no defaultPokVisibility). */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "User's profile visibility — populated on /me only")
+    User.ProfileVisibility profileVisibility) {
+
+    /** Identity-only constructor — for web login/register/refresh (cookie-based, no tokens, no settings). */
     public AuthResponse(String handle, UUID userId, String email) {
-        this(handle, userId, email, null, null, null);
+        this(handle, userId, email, null, null, null, null);
     }
 
-    /** Mobile login/refresh constructor — includes tokens in body but no defaultPokVisibility. */
+    /** Mobile login/refresh constructor — includes tokens in body but no settings. */
     public AuthResponse(String handle, UUID userId, String email, String accessToken, String refreshToken) {
-        this(handle, userId, email, accessToken, refreshToken, null);
+        this(handle, userId, email, accessToken, refreshToken, null, null);
     }
 
-    /** /me constructor — includes defaultPokVisibility from a DB-fetched User. */
-    public AuthResponse(String handle, UUID userId, String email, Pok.Visibility defaultPokVisibility) {
-        this(handle, userId, email, null, null, defaultPokVisibility);
+    /** /me constructor — includes settings from a DB-fetched User. */
+    public AuthResponse(String handle, UUID userId, String email,
+            Pok.Visibility defaultPokVisibility, User.ProfileVisibility profileVisibility) {
+        this(handle, userId, email, null, null, defaultPokVisibility, profileVisibility);
     }
 }

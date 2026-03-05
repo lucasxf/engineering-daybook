@@ -1,6 +1,7 @@
 package com.lucasxf.ed.dto;
 
 import com.lucasxf.ed.domain.Pok;
+import com.lucasxf.ed.domain.User;
 
 /**
  * Request body for {@code PATCH /api/v1/users/me/settings}.
@@ -10,4 +11,4 @@ import com.lucasxf.ed.domain.Pok;
  * @author Lucas Xavier Ferreira
  * @since 2026-03-04
  */
-public record UpdateUserSettingsRequest(Pok.Visibility defaultPokVisibility) {}
+public record UpdateUserSettingsRequest(Pok.Visibility defaultPokVisibility, User.ProfileVisibility profileVisibility) {}

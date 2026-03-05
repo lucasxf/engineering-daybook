@@ -52,6 +52,10 @@ public class User {
     @Column(name = "default_pok_visibility", nullable = false, length = 20)
     private Pok.Visibility defaultPokVisibility = Pok.Visibility.PRIVATE;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "profile_visibility", nullable = false, length = 20)
+    private ProfileVisibility profileVisibility = ProfileVisibility.PRIVATE;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
@@ -130,11 +134,23 @@ public class User {
         this.defaultPokVisibility = defaultPokVisibility;
     }
 
+    public ProfileVisibility getProfileVisibility() {
+        return profileVisibility;
+    }
+
+    public void setProfileVisibility(ProfileVisibility profileVisibility) {
+        this.profileVisibility = profileVisibility;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
 
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public enum ProfileVisibility {
+        PUBLIC, PRIVATE
     }
 }
