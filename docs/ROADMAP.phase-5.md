@@ -62,6 +62,7 @@
 - Mobile: `ProfileScreen.tsx` extended with privacy section; `userApi.ts` added; i18n keys added
 - E2E: extended `mock-api.ts`; new `settings.spec.ts` and `learners.spec.ts`
 - Tests: `LearnerControllerTest`, `LearnerServiceTest`, `UserServiceTest`, `AuthControllerTest`
+- [x] Post-review bug fixes applied (PR #125, 2026-03-05): auth context sync (`updateUser` on `AuthContext` so `QuickEntry` / consumers see fresh `defaultPokVisibility` / `profileVisibility` without reload); learner count query (`PokRepository.countByUserIdAndDeletedAtIsNull` replaces `learnings.size()` so total count is not capped at `PROFILE_PAGE_SIZE=20`)
 
 ## Exit Criteria
 
