@@ -43,6 +43,7 @@ export interface AuthContextValue {
   logout: () => Promise<void>;
   googleLogin: (idToken: string) => Promise<GoogleLoginResponse>;
   completeGoogleSignup: (payload: CompleteGoogleSignupPayload) => Promise<void>;
+  updateUser: (patch: Partial<AuthUser>) => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
@@ -137,6 +138,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, []);
 
+  const updateUser = useCallback((patch: Partial<AuthUser>) => {
+    setUser((prev) => (prev ? { ...prev, ...patch } : prev));
+  }, []);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
@@ -147,8 +152,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       logout,
       googleLogin: googleLoginAction,
       completeGoogleSignup,
+      updateUser,
     }),
-    [user, isLoading, login, register, logout, googleLoginAction, completeGoogleSignup]
+    [user, isLoading, login, register, logout, googleLoginAction, completeGoogleSignup, updateUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

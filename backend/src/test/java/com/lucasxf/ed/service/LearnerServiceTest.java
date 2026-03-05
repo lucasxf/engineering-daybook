@@ -106,11 +106,13 @@ class LearnerServiceTest {
         Pok priv = makePok(Pok.Visibility.PRIVATE);
         when(pokRepository.findByUserIdAndDeletedAtIsNull(eq(aliceId), any(Pageable.class)))
             .thenReturn(new PageImpl<>(List.of(pub, priv)));
+        // Total count may exceed the profile page size — simulate 25 total learnings
+        when(pokRepository.countByUserIdAndDeletedAtIsNull(aliceId)).thenReturn(25L);
 
         LearnerProfileResponse response = learnerService.getProfile("alice", aliceId);
 
-        assertThat(response.learnings()).hasSize(2);
-        assertThat(response.learningCount()).isEqualTo(2); // owner sees count
+        assertThat(response.learnings()).hasSize(2); // only paged preview (2 in this mock)
+        assertThat(response.learningCount()).isEqualTo(25); // accurate total from count query
     }
 
     @Test
@@ -120,6 +122,7 @@ class LearnerServiceTest {
         Pok priv = makePok(Pok.Visibility.PRIVATE);
         when(pokRepository.findByUserIdAndDeletedAtIsNull(eq(aliceId), any(Pageable.class)))
             .thenReturn(new PageImpl<>(List.of(priv)));
+        when(pokRepository.countByUserIdAndDeletedAtIsNull(aliceId)).thenReturn(1L);
 
         LearnerProfileResponse response = learnerService.getProfile("alice", aliceId);
 

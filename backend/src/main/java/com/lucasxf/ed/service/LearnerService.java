@@ -69,19 +69,22 @@ public class LearnerService {
         }
 
         List<Pok> learnings;
+        Integer totalCount;
         if (isOwner) {
             learnings = pokRepository
                 .findByUserIdAndDeletedAtIsNull(target.getId(),
                     PageRequest.of(0, PROFILE_PAGE_SIZE, DEFAULT_SORT))
                 .getContent();
+            totalCount = (int) pokRepository.countByUserIdAndDeletedAtIsNull(target.getId());
         } else {
             learnings = pokRepository
                 .findByUserIdAndVisibilityAndDeletedAtIsNull(target.getId(),
                     Pok.Visibility.PUBLIC, PageRequest.of(0, PROFILE_PAGE_SIZE, DEFAULT_SORT))
                 .getContent();
+            totalCount = null;
         }
 
-        return LearnerProfileResponse.full(target, learnings, isOwner);
+        return LearnerProfileResponse.full(target, learnings, isOwner, totalCount);
     }
 
     /**

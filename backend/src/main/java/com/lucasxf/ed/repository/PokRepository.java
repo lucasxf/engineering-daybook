@@ -53,6 +53,17 @@ public interface PokRepository extends JpaRepository<Pok, UUID> {
     Page<Pok> findByUserIdAndVisibilityAndDeletedAtIsNull(UUID userId, Pok.Visibility visibility, Pageable pageable);
 
     /**
+     * Counts all active (non-deleted) POKs for a specific user.
+     *
+     * <p>Used to return the accurate total learning count to a profile owner,
+     * independent of the page size used when fetching the preview learnings list.
+     *
+     * @param userId the user ID
+     * @return the total number of active POKs for the user
+     */
+    long countByUserIdAndDeletedAtIsNull(UUID userId);
+
+    /**
      * Returns the IDs of all active (non-deleted) POKs belonging to a user.
      *
      * <p>Used for bulk tag operations (e.g., removing a tag from all user POKs).

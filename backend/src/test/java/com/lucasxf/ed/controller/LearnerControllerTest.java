@@ -73,7 +73,7 @@ class LearnerControllerTest {
     @Test
     void getProfile_publicProfile_returns200WithFullProfile() throws Exception {
         User alice = makeAlice(User.ProfileVisibility.PUBLIC);
-        LearnerProfileResponse fullProfile = LearnerProfileResponse.full(alice, List.of(makePublicPok()), false);
+        LearnerProfileResponse fullProfile = LearnerProfileResponse.full(alice, List.of(makePublicPok()), false, null);
         when(learnerService.getProfile(eq("alice"), any(UUID.class))).thenReturn(fullProfile);
 
         mockMvc.perform(get("/api/v1/learners/alice")
@@ -103,7 +103,7 @@ class LearnerControllerTest {
     void getProfile_owner_privateProfile_returns200WithFullProfileAndCount() throws Exception {
         User alice = makeAlice(User.ProfileVisibility.PRIVATE);
         List<Pok> poks = List.of(makePublicPok(), makePublicPok());
-        LearnerProfileResponse ownerProfile = LearnerProfileResponse.full(alice, poks, true);
+        LearnerProfileResponse ownerProfile = LearnerProfileResponse.full(alice, poks, true, poks.size());
         when(learnerService.getProfile(eq("alice"), any(UUID.class))).thenReturn(ownerProfile);
 
         mockMvc.perform(get("/api/v1/learners/alice")

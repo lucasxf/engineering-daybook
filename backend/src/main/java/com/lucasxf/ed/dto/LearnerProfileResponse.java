@@ -60,19 +60,24 @@ public record LearnerProfileResponse(
      * Creates a full profile response.
      *
      * <p>For non-owners: {@code learningCount} is null (anti-vanity rule).
-     * For owners: {@code learningCount} is the total number of learnings.
+     * For owners: {@code learningCount} is the caller-supplied accurate total, which must come
+     * from a dedicated count query rather than being derived from the (possibly paged)
+     * {@code learnings} list.
      *
-     * @param user      the learner's User entity
-     * @param learnings the list of learnings to expose
-     * @param isOwner   whether the requesting user is the owner of this profile
+     * @param user          the learner's User entity
+     * @param learnings     the list of learnings to expose (may be a paged subset)
+     * @param isOwner       whether the requesting user is the owner of this profile
+     * @param learningCount the accurate total learning count — must be non-null when
+     *                      {@code isOwner} is {@code true}, ignored (null) for non-owners
      * @return a full profile response
      */
-    public static LearnerProfileResponse full(User user, List<Pok> learnings, boolean isOwner) {
+    public static LearnerProfileResponse full(
+            User user, List<Pok> learnings, boolean isOwner, Integer learningCount) {
         List<PokSummary> summaries = learnings.stream()
             .map(p -> new PokSummary(p.getId(), p.getTitle(), p.getContent(),
                 isOwner ? p.getVisibility() : null, p.getCreatedAt()))
             .toList();
-        Integer count = isOwner ? learnings.size() : null;
+        Integer count = isOwner ? learningCount : null;
         return new LearnerProfileResponse(user.getHandle(), user.getDisplayName(), null, summaries, count);
     }
 

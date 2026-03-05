@@ -14,7 +14,7 @@ import type { ProfileVisibility } from '@/lib/auth';
 
 export default function SettingsPage() {
   const t = useTranslations('settings');
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const params = useParams<{ locale: string }>();
 
   const [profileVisibility, setProfileVisibility] = useState<ProfileVisibility>(
@@ -30,6 +30,7 @@ export default function SettingsPage() {
     setFeedback(null);
     try {
       await updateUserSettings({ profileVisibility: value });
+      updateUser({ profileVisibility: value });
       setFeedback({ type: 'success', message: t('privacy.saveSuccess') });
     } catch {
       setFeedback({ type: 'error', message: t('privacy.saveError') });
@@ -42,6 +43,7 @@ export default function SettingsPage() {
     setFeedback(null);
     try {
       await updateUserSettings({ defaultPokVisibility: value });
+      updateUser({ defaultPokVisibility: value });
       setFeedback({ type: 'success', message: t('privacy.saveSuccess') });
     } catch {
       setFeedback({ type: 'error', message: t('privacy.saveError') });
