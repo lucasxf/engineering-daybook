@@ -43,6 +43,7 @@
       "Bash(git fetch *)",
       "Bash(git checkout *)",
       "Bash(git stash *)",
+      "Bash(git worktree *)",
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git push *)",
@@ -53,6 +54,8 @@
       "Bash(gh api *)",
       "Bash(gh repo *)",
       "Bash(gh run *)",
+
+      "Bash(\"$GH\" *)",
 
       "Bash(export *)",
 
