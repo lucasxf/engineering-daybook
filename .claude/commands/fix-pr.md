@@ -371,3 +371,11 @@ Mark the report as processed to prevent accidental reuse in a future run.
 ```bash
 mv "$TRIAGE_FILE" "${TRIAGE_FILE%.md}-done.md"
 ```
+
+After archiving, output this exact closing banner so the user knows the command has finished:
+
+```
+---
+✅ /fix-pr complete — PR #$PR_NUMBER
+---
+```
