@@ -46,6 +46,7 @@ export type SearchMode = 'hybrid' | 'semantic' | 'keyword';
 export interface PokSearchParams {
   keyword?: string;
   searchMode?: SearchMode;
+  tagId?: string;
   sortBy?: 'createdAt' | 'updatedAt';
   sortDirection?: 'ASC' | 'DESC';
   createdFrom?: string; // ISO 8601
@@ -95,6 +96,7 @@ export const pokApi = {
     // Add parameters only if they have values
     if (params?.keyword) queryParams.set('keyword', params.keyword);
     if (params?.searchMode) queryParams.set('searchMode', params.searchMode);
+    if (params?.tagId) queryParams.set('tagId', params.tagId);
     if (params?.sortBy) queryParams.set('sortBy', params.sortBy);
     if (params?.sortDirection) queryParams.set('sortDirection', params.sortDirection);
     if (params?.createdFrom) queryParams.set('createdFrom', params.createdFrom);
