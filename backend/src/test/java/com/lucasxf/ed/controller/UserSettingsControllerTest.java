@@ -31,15 +31,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Integration tests for {@link UserController}.
+ * Integration tests for {@link UserSettingsController}.
  *
  * @author Lucas Xavier Ferreira
  * @since 2026-03-04
  */
-@WebMvcTest(UserController.class)
+@WebMvcTest(UserSettingsController.class)
 @Import(SecurityConfig.class)
 @EnableConfigurationProperties(CorsProperties.class)
-class UserControllerTest {
+class UserSettingsControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

@@ -313,8 +313,7 @@ class AuthControllerTest {
         void me_returnsProfileVisibility() throws Exception {
             UserPrincipal principal = new UserPrincipal(USER_ID, EMAIL, HANDLE);
             Authentication auth = new UsernamePasswordAuthenticationToken(
-                principal, null, List.of()
-            );
+                principal, null, List.of());
 
             User mockUser = new User(EMAIL, null, "Test User", HANDLE);
             ReflectionTestUtils.setField(mockUser, "id", USER_ID);
