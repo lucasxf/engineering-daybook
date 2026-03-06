@@ -13,6 +13,7 @@ import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { LearningForm } from '@/components/feed/LearningForm';
+import { MarkdownContent } from '@/components/ui/MarkdownContent';
 
 type RouteProps = RouteProp<AppStackParamList, 'LearningDetail'>;
 
@@ -175,7 +176,7 @@ export function LearningDetailScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <ScrollView contentContainerStyle={{ padding: theme.spacing.md, gap: theme.spacing.md }}>
         {pok.title && <Text variant="heading">{pok.title}</Text>}
-        <Text variant="body" style={{ lineHeight: 24 }}>{pok.content}</Text>
+        <MarkdownContent content={pok.content} />
 
         {/* Visibility badge */}
         <Text variant="bodySm" style={{ color: theme.colors.textSecondary }}>

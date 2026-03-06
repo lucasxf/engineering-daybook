@@ -1,6 +1,6 @@
 # Phase 8: Knowledge Enrichment
 
-> Status: **⏳ Planned**
+> Status: **🔄 In Progress** (8.1 done; 8.2, 8.3 planned)
 
 ---
 
@@ -16,19 +16,27 @@
 
 ## Milestone 8.1: Markdown Support
 
+> Status: **✅ Done** (2026-03-06) — 8.1.8 deferred (Should Have)
+
 > POK content renders as plain text today. This milestone adds full markdown rendering across web and mobile.
 
-| # | Feature | Priority | Platform |
-|---|---------|----------|----------|
-| 8.1.1 | Add `react-markdown` + `remark-gfm` to web dependencies | Must Have | Web |
-| 8.1.2 | Add `rehype-sanitize` for HTML sanitization (XSS prevention) | Must Have | Web |
-| 8.1.3 | Create `MarkdownContent` component (web) | Must Have | Web |
-| 8.1.4 | Replace plain text rendering on ViewPokPage, PokCard preview, LearnerProfilePage | Must Have | Web |
-| 8.1.5 | Add `react-native-markdown-display` to mobile dependencies | Must Have | Mobile |
-| 8.1.6 | Create `MarkdownContent` component (mobile) | Must Have | Mobile |
-| 8.1.7 | Replace plain text rendering on LearningDetailScreen, LearningCard preview | Must Have | Mobile |
-| 8.1.8 | Markdown rendering for POK titles (web + mobile) | Should Have | Both |
-| 8.1.9 | Unit tests for markdown components (web + mobile) | Must Have | Both |
+| # | Feature | Priority | Platform | Status |
+|---|---------|----------|----------|--------|
+| 8.1.1 | Add `react-markdown` + `remark-gfm` to web dependencies | Must Have | Web | ✅ Done |
+| 8.1.2 | Add `rehype-sanitize` for HTML sanitization (XSS prevention) | Must Have | Web | ✅ Done |
+| 8.1.3 | Create `MarkdownContent` component (web) | Must Have | Web | ✅ Done |
+| 8.1.4 | Replace plain text rendering on ViewPokPage, PokCard preview, LearnerProfilePage | Must Have | Web | ✅ Done |
+| 8.1.5 | Add `react-native-markdown-display` to mobile dependencies | Must Have | Mobile | ✅ Done |
+| 8.1.6 | Create `MarkdownContent` component (mobile) | Must Have | Mobile | ✅ Done |
+| 8.1.7 | Replace plain text rendering on LearningDetailScreen, LearningCard preview | Must Have | Mobile | ✅ Done |
+| 8.1.8 | Markdown rendering for POK titles (web + mobile) | Should Have | Both | ⏳ Deferred |
+| 8.1.9 | Unit tests for markdown components (web + mobile) | Must Have | Both | ✅ Done |
+
+**Implementation notes (2026-03-06):**
+- Card previews (PokCard, LearningCard) use a `stripMarkdown()` utility to render plain text rather than rendered markdown — cleaner at 100–200 char truncation lengths
+- `@tailwindcss/typography` was missing from web dependencies; added as part of 8.1.1 (the existing `prose` classes on ViewPokPage were inert without it)
+- Mobile component tests added a 3rd jest project (`components`) with `testEnvironment: 'node'` to work around a `jest-expo` + Node 22 + RN 0.76 incompatibility (see `mobile/CLAUDE.md`)
+- `rehype-sanitize` default schema strips `input` elements (task list checkboxes) and raw HTML blocks — by design for XSS safety
 
 **Implementer notes:**
 - Web detail page (`web/src/app/[locale]/poks/[id]/page.tsx` line 132): `prose prose-gray` Tailwind classes already wrap the content div — swapping the inner `<p>` for `<MarkdownContent>` will make headings, lists, code blocks, and bold/italic render automatically
@@ -115,7 +123,7 @@
 
 ## Exit Criteria
 
-- [ ] POK content renders markdown in all views (web + mobile): headings, bold, italics, code blocks, lists
+- [x] POK content renders markdown in all views (web + mobile): headings, bold, italics, code blocks, lists
 - [ ] Tags are stored with canonical lowercase+dashes `name` and a `display_name` column
 - [ ] Tags are displayed as the learner typed them (with dashes instead of spaces)
 - [ ] Tag-based filtering works in the feed (web, at minimum)

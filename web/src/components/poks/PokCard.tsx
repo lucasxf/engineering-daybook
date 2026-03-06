@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Pok } from '@/lib/pokApi';
 import { TagBadge } from './TagBadge';
 import { VisibilityBadge } from './VisibilityBadge';
+import { stripMarkdown } from '@/lib/stripMarkdown';
 
 interface PokCardProps {
   pok: Pok;
@@ -33,8 +34,8 @@ export function PokCard({ pok, dateField = 'updatedAt' }: PokCardProps) {
     ? pok.title
     : truncate(pok.content, 50);
 
-  // Content preview: first 100 chars
-  const contentPreview = truncate(pok.content, 100);
+  // Content preview: first 100 chars of plain text (markdown stripped for readability)
+  const contentPreview = truncate(stripMarkdown(pok.content), 100);
 
   // Format date using the active locale
   const dateValue = pok[dateField];
