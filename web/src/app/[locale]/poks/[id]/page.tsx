@@ -13,6 +13,7 @@ import { Toast } from '@/components/ui/Toast';
 import { DeletePokButton } from '@/components/poks/DeletePokButton';
 import { TagSection } from '@/components/poks/TagSection';
 import { VisibilityBadge } from '@/components/poks/VisibilityBadge';
+import { MarkdownContent } from '@/components/ui/MarkdownContent';
 
 /**
  * Page for viewing a single POK.
@@ -129,11 +130,7 @@ export default function ViewPokPage() {
             {pok.title}
           </h1>
         )}
-        <div className="prose prose-gray max-w-none dark:prose-invert">
-          <p className="whitespace-pre-wrap text-slate-700 dark:text-slate-300">
-            {pok.content}
-          </p>
-        </div>
+        <MarkdownContent content={pok.content} />
 
         <TagSection
           pokId={pokId}
