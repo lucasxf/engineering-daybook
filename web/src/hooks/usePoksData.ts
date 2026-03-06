@@ -170,7 +170,7 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
   );
 
   const handleClearSearch = useCallback(() => {
-    updateURL('', sortOption);
+    updateURL('', sortOption, null);
   }, [sortOption, updateURL]);
 
   const handleQuickSave = useCallback((pok: Pok) => {
