@@ -292,3 +292,11 @@ Provide a brief summary:
 - Test results (if tests were run)
 - What's next (link to ROADMAP.md priorities)
 - Any blockers or pending items
+
+After the summary, output this exact closing banner so the user knows the command has finished:
+
+```
+---
+✅ /finish-session complete
+---
+```

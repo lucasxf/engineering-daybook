@@ -146,3 +146,11 @@ Next Steps:
 2. Address any CI/CD failures
 3. Wait for approval and merge
 ```
+
+After the summary, output this exact closing banner so the user knows the command has finished:
+
+```
+---
+✅ /create-pr complete — PR #$PR_NUMBER: $PR_URL
+---
+```
