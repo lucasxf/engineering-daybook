@@ -251,9 +251,10 @@ Show consolidated git diff for all modified files so I can review before committ
 
 ## 6. Commit
 
-Before creating the commit, stage the session metrics file (updated live by the PostToolUse hook throughout the session):
+Before creating the commit, stage the session delta file (written live by the PostToolUse hook throughout the session).
+The canonical `usage-stats.toml` is NOT modified by individual sessions — it is updated only by `/compile-metrics` on `develop`:
 ```bash
-git add .claude/metrics/usage-stats.toml
+git add .claude/metrics/sessions/ 2>/dev/null || true
 ```
 
 After I approve the diff, create a commit with:

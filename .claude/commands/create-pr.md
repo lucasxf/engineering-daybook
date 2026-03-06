@@ -46,11 +46,17 @@ echo "Base branch: $BASE_BRANCH"
 
 ## 3. Check for Uncommitted Changes
 
-First, commit the session metrics file if dirty (updated live by the PostToolUse hook — expected to be dirty).
-`--only` stages from the work tree and commits just this file, ignoring anything else in the index:
+First, commit the session metrics delta file if dirty or untracked (written live by the PostToolUse hook — expected to have changes).
+The canonical `usage-stats.toml` is NOT touched by individual sessions — only `/compile-metrics` on `develop` updates it:
 ```bash
-git diff --quiet -- .claude/metrics/usage-stats.toml || \
-  git commit --only .claude/metrics/usage-stats.toml -m "chore: update session metrics"
+# Stage any modified or untracked session delta files
+SESSIONS_MODIFIED=$(git diff --name-only -- .claude/metrics/sessions/ 2>/dev/null)
+SESSIONS_UNTRACKED=$(git ls-files --others --exclude-standard .claude/metrics/sessions/ 2>/dev/null | grep '\.toml$')
+
+if [[ -n "$SESSIONS_MODIFIED" || -n "$SESSIONS_UNTRACKED" ]]; then
+  git add .claude/metrics/sessions/
+  git commit -m "chore: update session metrics delta"
+fi
 ```
 
 Then check for any remaining uncommitted changes:
