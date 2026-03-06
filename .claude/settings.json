@@ -20,7 +20,7 @@
             "type": "command",
             "command": "bash \".claude/scripts/run-track-usage.sh\"",
             "timeout": 5,
-            "async": true
+            "async": false
           }
         ]
       }
