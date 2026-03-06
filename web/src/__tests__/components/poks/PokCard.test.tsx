@@ -52,6 +52,16 @@ describe('PokCard', () => {
     expect(screen.getByText(/a{100}/)).toBeInTheDocument();
   });
 
+  it('strips markdown syntax from the content preview', () => {
+    const pok = { ...basePok, content: '**bold** and *italic* text' };
+
+    render(<PokCard pok={pok} />);
+
+    // Markdown markers should be stripped — raw syntax should not appear
+    expect(screen.getByText(/bold and italic text/)).toBeInTheDocument();
+    expect(screen.queryByText(/\*\*/)).not.toBeInTheDocument();
+  });
+
   it('displays first 50 chars of content as header when no title', () => {
     const pok = { ...basePok, title: null, content: 'Content without title' };
 

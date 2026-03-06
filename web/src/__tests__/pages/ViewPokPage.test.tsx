@@ -56,6 +56,10 @@ vi.mock('@/components/poks/DeletePokButton', () => ({
   ),
 }));
 
+vi.mock('@/components/ui/MarkdownContent', () => ({
+  MarkdownContent: ({ content }: { content: string }) => <div data-testid="markdown-content">{content}</div>,
+}));
+
 const mockGetById = vi.mocked(pokApi.getById);
 const mockDelete = vi.mocked(pokApi.delete);
 
