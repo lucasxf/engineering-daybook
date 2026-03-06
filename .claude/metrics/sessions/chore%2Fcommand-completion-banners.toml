@@ -1,0 +1,8 @@
+[metadata]
+session_branch = "chore/command-completion-banners"
+session_start = "2026-03-06T16:56:15Z"
+last_updated = "2026-03-06T16:56:15Z"
+
+[command_usage.create-pr]
+invocations = 1
+last_used = "2026-03-06T16:56:15Z"

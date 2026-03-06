@@ -394,3 +394,11 @@ Triage report saved → <absolute path to TRIAGE_FILE>
 
 Next step: /fix-pr $PR_NUMBER
 ```
+
+After the confirmation, output this exact closing banner so the user knows the command has finished:
+
+```
+---
+✅ /review-pr complete — triage saved for PR #$PR_NUMBER
+---
+```
