@@ -16,13 +16,28 @@
 -- rows. After the bulk UPDATE both would become "machine-learning", violating
 -- the new UNIQUE constraint. We resolve collisions before the UPDATE runs.
 
--- 1a. Elect a winner for each collision group: the tag with the minimum id.
+-- 1a. Elect a winner for each collision group: the oldest tag (by created_at, then id::text
+--     as tiebreaker). MIN(id) cannot be used — UUID has no ordering aggregate in PostgreSQL.
 CREATE TEMP TABLE tag_dedup_winners AS
-SELECT LOWER(REPLACE(name, ' ', '-')) AS canonical,
-       MIN(id)                        AS winner_id
-FROM   tags
-GROUP  BY LOWER(REPLACE(name, ' ', '-'))
-HAVING COUNT(*) > 1;
+WITH collision_groups AS (
+    SELECT LOWER(REPLACE(name, ' ', '-')) AS canonical
+    FROM   tags
+    GROUP  BY LOWER(REPLACE(name, ' ', '-'))
+    HAVING COUNT(*) > 1
+),
+ranked AS (
+    SELECT t.id,
+           g.canonical,
+           ROW_NUMBER() OVER (
+               PARTITION BY g.canonical
+               ORDER BY t.created_at, t.id::text
+           ) AS rn
+    FROM   tags t
+    JOIN   collision_groups g ON LOWER(REPLACE(t.name, ' ', '-')) = g.canonical
+)
+SELECT canonical, id AS winner_id
+FROM   ranked
+WHERE  rn = 1;
 
 -- 1b. Collect all loser rows: members of a collision group that are NOT the winner.
 CREATE TEMP TABLE tag_dedup_losers AS

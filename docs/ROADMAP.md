@@ -35,7 +35,7 @@
 | 5 — Privacy | `ROADMAP.phase-5.md` | 🔄 In Progress (5.1 done; 5.2 done) |
 | 6 — Social | `ROADMAP.phase-6.md` | ⏳ Planned |
 | 7 — Gamification | `ROADMAP.phase-7.md` | ⏸️ Postponed |
-| 8 — Knowledge Enrichment | `ROADMAP.phase-8.md` | 🔄 In Progress (8.2 done) |
+| 8 — Knowledge Enrichment | `ROADMAP.phase-8.md` | 🔄 In Progress (8.1 done; 8.2 done) |
 
 ---
 
