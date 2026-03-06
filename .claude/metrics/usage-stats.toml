@@ -2,7 +2,7 @@
 # Collected by pulse agent, analyzed by automation-sentinel agent
 
 [metadata]
-timestamp = "2026-03-06T01:49:42Z"
+timestamp = "2026-03-06T01:50:11Z"
 commit_sha = ""
 branch = "develop"
 schema_version = "1.0.0"
@@ -71,8 +71,8 @@ invocations = 0
 last_used = ""
 
 [command_usage.review-pr]
-invocations = 0
-last_used = ""
+invocations = 1
+last_used = "2026-03-06T01:50:11Z"
 
 [command_usage.fix-pr]
 invocations = 1
