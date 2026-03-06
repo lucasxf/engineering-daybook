@@ -1072,4 +1072,65 @@ class PokServiceTest {
 
         assertThat(pok.getVisibility()).isEqualTo(Pok.Visibility.PUBLIC);
     }
+
+    // ===== SEARCH — TAG FILTER WITH DATE FILTERS =====
+
+    @Test
+    void search_withTagIdAndDateFilters_shouldApplyDateFiltersToTagQuery() {
+        // Given
+        UUID tagId = UUID.randomUUID();
+        String createdFrom = "2026-01-01T00:00:00Z";
+        String createdTo = "2026-01-31T23:59:59Z";
+        int page = 0;
+        int size = 20;
+        Page<Pok> pokPage = new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
+
+        when(pokRepository.findByUserIdAndTagId(
+            eq(userId),
+            eq(tagId),
+            any(Instant.class),
+            any(Instant.class),
+            eq(null),
+            eq(null),
+            any(Pageable.class)
+        )).thenReturn(pokPage);
+
+        // When
+        Page<PokResponse> result = pokService.search(
+            userId, null, null, tagId, null, null, createdFrom, createdTo, null, null, page, size);
+
+        // Then: date filters are parsed and passed through to the tagId query
+        assertThat(result.getTotalElements()).isZero();
+        verify(pokRepository).findByUserIdAndTagId(
+            eq(userId), eq(tagId),
+            any(Instant.class), any(Instant.class),
+            eq(null), eq(null),
+            any(Pageable.class));
+        verify(pokRepository, never()).searchPoks(any(), any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void search_withTagIdOnly_shouldCallTagQueryWithNullDates() {
+        // Given
+        UUID tagId = UUID.randomUUID();
+        int page = 0;
+        int size = 20;
+        Page<Pok> pokPage = new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
+
+        when(pokRepository.findByUserIdAndTagId(
+            eq(userId), eq(tagId),
+            eq(null), eq(null), eq(null), eq(null),
+            any(Pageable.class)
+        )).thenReturn(pokPage);
+
+        // When
+        pokService.search(userId, null, null, tagId, null, null, null, null, null, null, page, size);
+
+        // Then: tagId path is taken; searchPoks is never called
+        verify(pokRepository).findByUserIdAndTagId(
+            eq(userId), eq(tagId),
+            eq(null), eq(null), eq(null), eq(null),
+            any(Pageable.class));
+        verify(pokRepository, never()).searchPoks(any(), any(), any(), any(), any(), any(), any());
+    }
 }
