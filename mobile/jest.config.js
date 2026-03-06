@@ -26,12 +26,35 @@ module.exports = {
       testRegex: 'src/(?!(lib|hooks)/).*__tests__/.*\\.test\\.(ts|tsx)$',
       setupFilesAfterEnv: ['@testing-library/jest-native/extend-expect'],
       transformIgnorePatterns: [
-        'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|date-fns)',
+        'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|date-fns|react-native-markdown-display)',
       ],
       collectCoverageFrom: [
         'src/hooks/**/*.{ts,tsx}',
         '!src/**/__tests__/**',
         '!src/**/*.test.{ts,tsx}',
+      ],
+    },
+    // Component unit tests — node environment to avoid jest-expo setup.js failures on Node 22 + RN 0.76
+    // See: mobile/CLAUDE.md "jest-expo preset fails with RN 0.76 in Node 22"
+    {
+      displayName: 'components',
+      testEnvironment: 'node',
+      testRegex: 'src/components/.*__tests__/.*\\.test\\.tsx$',
+      transform: {
+        '^.+\\.tsx?$': ['babel-jest', { configFile: './babel.config.js' }],
+      },
+      moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/src/$1',
+        '^react-native$': '<rootDir>/src/__mocks__/react-native.js',
+        '^react-native-markdown-display$': '<rootDir>/src/__mocks__/react-native-markdown-display.js',
+      },
+      transformIgnorePatterns: [
+        'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|react-native-markdown-display)',
+      ],
+      collectCoverageFrom: [
+        'src/components/**/*.{ts,tsx}',
+        '!src/components/**/__tests__/**',
+        '!src/components/**/*.test.{ts,tsx}',
       ],
     },
   ],
