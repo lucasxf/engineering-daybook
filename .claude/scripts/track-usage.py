@@ -37,13 +37,23 @@ from pathlib import Path
 
 SESSIONS_DIR = Path(__file__).parent.parent / "metrics" / "sessions"
 
-KNOWN_COMMANDS = {
-    "start-session", "finish-session", "create-pr", "directive",
-    "update-roadmap", "review-code", "quick-test", "build-quiet",
-    "verify-quiet", "docker-start", "docker-stop", "api-doc",
-    "resume-session", "save-response", "test-service", "write-spec",
-    "implement-spec", "review-pr", "fix-pr", "compile-metrics",
+# --- BEGIN AUTO-GENERATED: KNOWN_AGENTS ---
+KNOWN_AGENTS = {
+    "automation-sentinel", "hedy", "imhotep", "nexus", "pixl",
+    "professor-x", "session-optimizer", "sous-chef", "steward",
+    "tech-writer", "virgil",
 }
+# --- END AUTO-GENERATED: KNOWN_AGENTS ---
+
+# --- BEGIN AUTO-GENERATED: KNOWN_COMMANDS ---
+KNOWN_COMMANDS = {
+    "api-doc", "build-quiet", "compile-metrics", "create-pr", "directive",
+    "docker-start", "docker-stop", "finish-session", "fix-pr",
+    "implement-spec", "quick-test", "resume-session", "review-code",
+    "review-pr", "save-response", "start-session", "test-service",
+    "update-roadmap", "verify-quiet", "write-spec",
+}
+# --- END AUTO-GENERATED: KNOWN_COMMANDS ---
 
 
 def now_iso() -> str:
@@ -180,6 +190,14 @@ def main():
             if subagent_type:
                 section = "agent_usage"
                 key = subagent_type
+                # When a custom agent is invoked via general-purpose, detect it
+                # by scanning the task description for a known agent name.
+                if subagent_type == "general-purpose":
+                    description = tool_input.get("description", "").lower()
+                    for agent_name in KNOWN_AGENTS:
+                        if agent_name in description:
+                            key = agent_name
+                            break
 
         elif tool_name == "Skill":
             # Claude programmatically invoked a slash command

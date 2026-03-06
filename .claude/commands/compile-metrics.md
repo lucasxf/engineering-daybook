@@ -9,6 +9,16 @@ Aggregates all per-session delta files from `.claude/metrics/sessions/` into the
 
 Execute the following steps in order:
 
+## 0. Sync Automation Registry
+
+Before compiling, run the registry sync script to keep KNOWN_AGENTS, KNOWN_COMMANDS, and documentation tables in sync with the current agent/command files:
+
+```bash
+python3 .claude/scripts/sync-automation-registry.py
+```
+
+If the script reports changes, they will be included in the commit at Step 6.
+
 ## 1. Guard: Verify Branch
 
 ```bash
@@ -179,5 +189,9 @@ The agent should:
 2. Read all agent files in `.claude/agents/` (skip `archive/` subdirectory)
 3. Read all command files in `.claude/commands/`
 4. Generate a health report covering: overall status, usage tables, zero-usage analysis, redundancy analysis, gaps, and top 3-5 prioritized recommendations
+
+**Agent Usage table requirements:**
+- Include a `Type` column with `Built-in` (Explore, Plan, general-purpose) or `Custom` (all others in `.claude/agents/`)
+- Do NOT use parenthetical "(built-in)" annotations in the Agent name column
 
 Display the sentinel's report as the final output of `/compile-metrics`.
