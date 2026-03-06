@@ -24,8 +24,15 @@ color: cyan
 **Purpose:** Analyze pre-collected metrics from `.claude/metrics/usage-stats.toml`
 
 **Data Source:**
-- **Primary:** `.claude/metrics/usage-stats.toml` (collected by `pulse` agent)
+- **Primary:** `.claude/metrics/usage-stats.toml` (compiled by `/compile-metrics`)
 - **Secondary:** Git history (for feature-specific analysis)
+
+**Agent Usage Table — Required Columns:**
+The Agent Usage table MUST include a `Type` column with values:
+- `Built-in` — for `Explore`, `Plan`, `general-purpose` (Claude Code built-in subagent types)
+- `Custom` — for all agents defined in `.claude/agents/` (e.g., `tech-writer`, `steward`, `sous-chef`)
+
+Do NOT use parenthetical annotations like "(built-in)" in the agent name column. The `Type` column is the canonical way to express this.
 
 **Capabilities:**
 - Usage Analysis: Read metrics, identify usage patterns
@@ -109,12 +116,13 @@ color: cyan
 
 ## Overall Health: HEALTHY
 
-### Agents (9 total)
-| Agent | Status | Last Used | Issues |
-|-------|--------|-----------|--------|
-| tech-writer | Healthy | Today | None |
-| automation-sentinel | Healthy | Today | None |
-| sous-chef | Healthy | 2 days ago | None |
+### Agents (N total)
+| Agent | Type | Invocations | Last Used | Status |
+|-------|------|-------------|-----------|--------|
+| tech-writer | Custom | 4 | Today | Active |
+| automation-sentinel | Custom | 1 | Today | On-demand |
+| Explore | Built-in | 10 | Today | Active |
+| general-purpose | Built-in | 9 | Today | Active |
 | ...
 
 ### Recommendations
@@ -126,11 +134,12 @@ color: cyan
 
 ## Integration with Other Agents
 
-### pulse (Primary Integration)
-- **Relationship:** pulse collects metrics → sentinel analyzes metrics
+### /compile-metrics (Primary Integration)
+- **Relationship:** `/compile-metrics` aggregates session deltas → sentinel analyzes metrics
 - **Workflow:**
-  1. `pulse` → Scans git history, updates `.claude/metrics/usage-stats.toml`
+  1. `/compile-metrics` → Merges per-session delta files into `.claude/metrics/usage-stats.toml`, then auto-triggers this agent
   2. `automation-sentinel` → Reads TOML file, performs analysis
+- **Note:** `pulse` agent (git-history scanner) was archived in favour of this delta-file approach (2026-03-06)
 
 ### tech-writer
 - **Relationship:** Sentinel identifies doc gaps → tech-writer fills them

@@ -150,6 +150,29 @@ Automation/tooling chore: `track-usage.py` PostToolUse hook extended and usage s
 | Added `Skill` to PostToolUse hook matcher in `.claude/settings.json` | ✅ Done |
 | Reorganized `.claude/metrics/usage-stats.toml` — pre-seeded missing commands, cleaned up test entries | ✅ Done |
 
+### Cross-Session Metrics Safety (chore/cross-session-metrics, 2026-03-06) ✅
+
+Tooling fix: resolved a concurrency bug where parallel Claude Code sessions in separate worktrees would conflict on `usage-stats.toml` by writing to it simultaneously. (PR review: collision-safe encoding + --only flag fix)
+
+| Task | Status |
+|------|--------|
+| Modified `.claude/scripts/track-usage.py` to write per-session delta files to `.claude/metrics/sessions/{branch}.toml` instead of updating `usage-stats.toml` in-place | ✅ Done |
+| Created `.claude/commands/compile-metrics.md` — new `/compile-metrics` slash command that aggregates session delta files into the canonical `usage-stats.toml` on `develop` | ✅ Done |
+| Updated `.claude/commands/finish-session.md` and `.claude/commands/create-pr.md` to stage session delta files instead of the canonical file | ✅ Done |
+| Added 15 unit tests in `.claude/scripts/test_track_usage.py` (all passing) | ✅ Done |
+
+### Automation Registry Sync (chore/tooling, 2026-03-06) ✅
+
+Tooling chore: improved custom-agent tracking accuracy and automated registry maintenance for `.claude/` commands and agents.
+
+| Task | Status |
+|------|--------|
+| Fixed `track-usage.py` custom-agent tracking — added `KNOWN_AGENTS` set with marker comments; when `subagent_type == "general-purpose"`, hook now scans `tool_input["description"]` for known agent names so `tech-writer`, `steward`, etc. are tracked correctly instead of falling through as generic subagents | ✅ Done |
+| Created `.claude/scripts/sync-automation-registry.py` — auto-sync script that scans frontmatter from `.claude/agents/*.md` and `.claude/commands/*.md` and regenerates `KNOWN_AGENTS`/`KNOWN_COMMANDS` blocks in `track-usage.py`, commands table in `commands/README.md`, and agents table in `agents-readme.md` | ✅ Done |
+| Updated `.claude/agents-readme.md` — removed archived `pulse` agent row, added auto-generated table markers, added Name Origins table, renumbered sections 8–11 | ✅ Done |
+| Updated `.claude/agents/automation-sentinel.md` — added `Type` column (Built-in/Custom) requirement to report template; updated data source reference from `pulse` to `/compile-metrics` | ✅ Done |
+| Updated `.claude/commands/compile-metrics.md` — added Step 0 to run sync script before compilation; updated Step 8 to require `Type` column in sentinel Agent Usage table | ✅ Done |
+
 ---
 
 ## Active / Pending

@@ -61,30 +61,50 @@ public class TagService {
         this.pokRepository = pokRepository;
     }
 
+    // ===== normalise =====
+
+    /**
+     * Normalises a raw tag name input into canonical ({@code name}) and display ({@code displayName}) forms.
+     *
+     * <ul>
+     *   <li>{@code name} — trimmed, whitespace runs replaced by a single dash, lowercased (e.g. {@code "claude-code"})</li>
+     *   <li>{@code displayName} — trimmed, whitespace runs replaced by a single dash, casing preserved (e.g. {@code "Claude-Code"})</li>
+     * </ul>
+     *
+     * @param input raw user input
+     * @return a two-element array: {@code [name, displayName]}
+     */
+    static String[] normalise(String input) {
+        String trimmed = input.trim().replaceAll("\\s+", "-").replaceAll("-+", "-");
+        return new String[] { trimmed.toLowerCase(), trimmed };
+    }
+
     // ===== createOrReuse =====
 
     /**
-     * Creates a tag subscription for the user, reusing a global tag if the name already
-     * exists (case-insensitive). If the user already has an active subscription with the
-     * same name, returns the existing subscription idempotently.
+     * Creates a tag subscription for the user, reusing a global tag if the canonical name already
+     * exists. If the user already has an active subscription with the same canonical name,
+     * returns the existing subscription idempotently.
      *
      * @param request the create request containing the tag name
      * @param userId  the authenticated user's ID
      * @return the tag response (new or existing subscription)
      */
     public TagResponse createOrReuse(CreateTagRequest request, UUID userId) {
-        String trimmedName = request.name().trim();
+        String[] normalised = normalise(request.name());
+        String canonicalName = normalised[0];
+        String displayName = normalised[1];
 
-        if (userTagRepository.existsByUserIdAndTagNameIgnoreCaseAndDeletedAtIsNull(userId, trimmedName)) {
+        if (userTagRepository.existsByUserIdAndTagNameAndDeletedAtIsNull(userId, canonicalName)) {
             UserTag existing = userTagRepository.findByUserIdAndDeletedAtIsNull(userId).stream()
-                    .filter(ut -> ut.getTag().getName().equalsIgnoreCase(trimmedName))
+                    .filter(ut -> canonicalName.equals(ut.getTag().getName()))
                     .findFirst()
                     .orElseThrow();
             return TagResponse.from(existing);
         }
 
-        Tag globalTag = tagRepository.findByNameIgnoreCase(trimmedName)
-                .orElseGet(() -> tagRepository.save(new Tag(trimmedName)));
+        Tag globalTag = tagRepository.findByName(canonicalName)
+                .orElseGet(() -> tagRepository.save(new Tag(canonicalName, displayName)));
 
         String color = DEFAULT_COLORS.get(random.nextInt(DEFAULT_COLORS.size()));
         UserTag userTag = userTagRepository.save(new UserTag(userId, globalTag, color));
@@ -124,9 +144,12 @@ public class TagService {
     public TagResponse renameTag(UUID userTagId, UpdateTagRequest request, UUID userId) {
         UserTag oldUserTag = findOwnedUserTag(userTagId, userId);
 
-        String newName = request.name().trim();
-        if (userTagRepository.existsByUserIdAndTagNameIgnoreCaseAndDeletedAtIsNull(userId, newName)) {
-            throw new TagConflictException("Tag '" + newName + "' already exists");
+        String[] normalised = normalise(request.name());
+        String canonicalName = normalised[0];
+        String displayName = normalised[1];
+
+        if (userTagRepository.existsByUserIdAndTagNameAndDeletedAtIsNull(userId, canonicalName)) {
+            throw new TagConflictException("Tag '" + canonicalName + "' already exists");
         }
 
         // Soft-delete old subscription
@@ -134,8 +157,8 @@ public class TagService {
         userTagRepository.save(oldUserTag);
 
         // Migrate pok_tags: bulk-reassign from old tag to new global tag
-        Tag newGlobalTag = tagRepository.findByNameIgnoreCase(newName)
-                .orElseGet(() -> tagRepository.save(new Tag(newName)));
+        Tag newGlobalTag = tagRepository.findByName(canonicalName)
+                .orElseGet(() -> tagRepository.save(new Tag(canonicalName, displayName)));
 
         List<UUID> userPokIds = pokRepository.findIdsByUserId(userId);
         if (!userPokIds.isEmpty()) {

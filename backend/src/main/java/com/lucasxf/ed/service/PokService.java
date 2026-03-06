@@ -204,6 +204,7 @@ public class PokService {
         UUID userId,
         String keyword,
         String searchMode,
+        UUID tagId,
         String sortBy,
         String sortDirection,
         String createdFrom,
@@ -213,10 +214,24 @@ public class PokService {
         int page,
         int size
     ) {
-        log.debug("Searching POKs for user {} with keyword='{}', searchMode={}, page={}, size={}",
-            userId, keyword, searchMode, page, size);
+        log.debug("Searching POKs for user {} with keyword='{}', searchMode={}, tagId={}, page={}, size={}",
+            userId, keyword, searchMode, tagId, page, size);
 
         List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
+
+        // Tag filter takes precedence — bypass semantic search when a tag filter is active.
+        // Date-range filters are supported alongside tagId via the combined repository query.
+        if (tagId != null) {
+            Instant createdFromInstant = parseInstant(createdFrom);
+            Instant createdToInstant = parseInstant(createdTo);
+            Instant updatedFromInstant = parseInstant(updatedFrom);
+            Instant updatedToInstant = parseInstant(updatedTo);
+            Sort sort = buildSort(sortBy, sortDirection);
+            Pageable pageable = PageRequest.of(page, size, sort);
+            Page<Pok> poks = pokRepository.findByUserIdAndTagId(userId, tagId,
+                createdFromInstant, createdToInstant, updatedFromInstant, updatedToInstant, pageable);
+            return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()));
+        }
 
         boolean hasKeyword = keyword != null && !keyword.isBlank();
         if (hasKeyword && ("semantic".equals(searchMode) || "hybrid".equals(searchMode))) {

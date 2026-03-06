@@ -53,7 +53,7 @@ class TagSuggestionServiceTest {
     void suggestTagsForPok_withMatchingUserTag_shouldCreatePendingSuggestion() {
         // Given
         Pok pok = new Pok(userId, "Spring Boot Tutorial", "Learning Spring Boot basics and REST");
-        Tag tag = new Tag("spring-boot");
+        Tag tag = new Tag("spring-boot", "spring-boot");
         UserTag userTag = new UserTag(userId, tag, "blue");
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
@@ -75,7 +75,7 @@ class TagSuggestionServiceTest {
     void suggestTagsForPok_withAlreadyAssignedTag_shouldSkipSuggestion() {
         // Given — tag already assigned to this POK
         Pok pok = new Pok(userId, "Spring Boot Tutorial", "Learning Spring Boot");
-        Tag tag = new Tag("spring-boot");
+        Tag tag = new Tag("spring-boot", "spring-boot");
         UserTag userTag = new UserTag(userId, tag, "blue");
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
@@ -94,7 +94,7 @@ class TagSuggestionServiceTest {
     void suggestTagsForPok_withExistingPendingSuggestion_shouldNotDuplicate() {
         // Given — suggestion already pending
         Pok pok = new Pok(userId, "Spring Boot Tutorial", "Learning Spring Boot");
-        Tag tag = new Tag("spring-boot");
+        Tag tag = new Tag("spring-boot", "spring-boot");
         UserTag userTag = new UserTag(userId, tag, "blue");
         PokTagSuggestion existing = new PokTagSuggestion(pokId, userId, "spring-boot");
 
@@ -114,7 +114,7 @@ class TagSuggestionServiceTest {
     void suggestTagsForPok_withNonMatchingUserTags_shouldCreateNoSuggestions() {
         // Given — user has "docker" tag but POK is about Java
         Pok pok = new Pok(userId, "Java Streams", "Learning about functional streams in Java");
-        Tag tag = new Tag("docker");
+        Tag tag = new Tag("docker", "docker");
         UserTag userTag = new UserTag(userId, tag, "blue");
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
@@ -166,12 +166,12 @@ class TagSuggestionServiceTest {
     void approveSuggestion_shouldCreatePokTagWithAiSourceAndMarkApproved() {
         // Given
         UUID suggestionId = UUID.randomUUID();
-        Tag tag = new Tag("kubernetes");
+        Tag tag = new Tag("kubernetes", "kubernetes");
         PokTagSuggestion suggestion = new PokTagSuggestion(pokId, userId, "kubernetes");
 
         when(suggestionRepository.findByIdAndUserIdAndStatus(suggestionId, userId, PokTagSuggestion.Status.PENDING))
                 .thenReturn(Optional.of(suggestion));
-        when(tagRepository.findByNameIgnoreCase("kubernetes")).thenReturn(Optional.of(tag));
+        when(tagRepository.findByName("kubernetes")).thenReturn(Optional.of(tag));
         when(pokTagRepository.findByPokIdAndTagId(any(), any())).thenReturn(Optional.empty());
         when(pokTagRepository.save(any(PokTag.class))).thenAnswer(inv -> inv.getArgument(0));
 
@@ -189,13 +189,13 @@ class TagSuggestionServiceTest {
     void approveSuggestion_withAlreadyAssignedTag_shouldMarkApprovedWithAiEditedSource() {
         // Given — tag already manually assigned; approve upgrades source to AI_EDITED
         UUID suggestionId = UUID.randomUUID();
-        Tag tag = new Tag("kubernetes");
+        Tag tag = new Tag("kubernetes", "kubernetes");
         PokTagSuggestion suggestion = new PokTagSuggestion(pokId, userId, "kubernetes");
         PokTag existing = new PokTag(pokId, tag.getId(), PokTag.Source.MANUAL);
 
         when(suggestionRepository.findByIdAndUserIdAndStatus(suggestionId, userId, PokTagSuggestion.Status.PENDING))
                 .thenReturn(Optional.of(suggestion));
-        when(tagRepository.findByNameIgnoreCase("kubernetes")).thenReturn(Optional.of(tag));
+        when(tagRepository.findByName("kubernetes")).thenReturn(Optional.of(tag));
         when(pokTagRepository.findByPokIdAndTagId(any(), any())).thenReturn(Optional.of(existing));
 
         // When

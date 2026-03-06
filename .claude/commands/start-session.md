@@ -81,3 +81,11 @@ After loading, report approximate token savings vs full load:
 - Mobile session: ~55% reduction
 - Documentation session: ~15% reduction (intentionally loads more)
 - Full context: baseline
+
+After the token savings report, output this exact closing banner so the user knows the command has finished:
+
+```
+---
+✅ /start-session complete
+---
+```

@@ -251,6 +251,12 @@ Show consolidated git diff for all modified files so I can review before committ
 
 ## 6. Commit
 
+Before creating the commit, stage the session delta file (written live by the PostToolUse hook throughout the session).
+The canonical `usage-stats.toml` is NOT modified by individual sessions — it is updated only by `/compile-metrics` on `develop`:
+```bash
+git add .claude/metrics/sessions/ 2>/dev/null || true
+```
+
 After I approve the diff, create a commit with:
 - Proper semantic commit message (feat/fix/docs/refactor/test/chore)
 - Reference to what was implemented
@@ -286,3 +292,11 @@ Provide a brief summary:
 - Test results (if tests were run)
 - What's next (link to ROADMAP.md priorities)
 - Any blockers or pending items
+
+After the summary, output this exact closing banner so the user knows the command has finished:
+
+```
+---
+✅ /finish-session complete
+---
+```

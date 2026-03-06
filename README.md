@@ -209,6 +209,12 @@ See [ROADMAP.phase-5.md](./docs/ROADMAP.phase-5.md)
 - [x] POK Visibility Controls — private by default, per-learning public toggle (irreversible), default visibility preference, access control enforcement, UI indicators on web and mobile
 - [x] Learner Profile Privacy — profileVisibility field, public learner profile page, settings page/screen, E2E tests
 
+### Phase 8: Knowledge Enrichment — 🔄 In Progress
+See [ROADMAP.phase-8.md](./docs/ROADMAP.phase-8.md)
+- [x] Markdown Support — react-markdown + rehype-sanitize (web), react-native-markdown-display (mobile); renders in all views
+- [x] Tag Improvements — display_name column, TagService.normalise(), GET /api/v1/poks?tagId filter, TagFilter component wired into feed, mobile tag components updated
+- [ ] Knowledge Paths — planning and spec only (graph visualization, grouped by topic)
+
 ---
 
 ## API Documentation

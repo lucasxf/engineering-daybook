@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Wrapper: resolves Python and runs track-usage.py.
-# Called by the PostToolUse hook in settings.json.
+# Called by PostToolUse and UserPromptSubmit hooks in settings.json.
 # Reads JSON from stdin; silently exits on any failure.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -13,7 +13,7 @@ INPUT="$(cat)"
 for py in python3 python /usr/bin/python3 /usr/local/bin/python3; do
   if command -v "$py" >/dev/null 2>&1 || [ -x "$py" ]; then
     echo "$INPUT" | "$py" "$TRACKER"
-    exit $?
+    exit 0
   fi
 done
 

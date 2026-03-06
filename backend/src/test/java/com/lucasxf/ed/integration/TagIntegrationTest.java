@@ -322,6 +322,89 @@ class TagIntegrationTest {
                 .andExpect(jsonPath("$[0].name").value("kubernetes"));
     }
 
+    // ===== AC: displayName field in TagResponse =====
+
+    @Test
+    @DisplayName("displayName — tag response includes displayName with original casing")
+    void createTag_shouldReturnDisplayName() throws Exception {
+        assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not available");
+
+        Cookie token = registerAndLogin();
+
+        mockMvc.perform(post("/api/v1/tags")
+                        .cookie(token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\": \"spring-boot\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("spring-boot"))
+                .andExpect(jsonPath("$.displayName").value("spring-boot"));
+    }
+
+    @Test
+    @DisplayName("displayName — spaces in input are converted to dashes in both name and displayName")
+    void createTag_withSpaces_shouldNormaliseNameAndDisplayName() throws Exception {
+        assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not available");
+
+        Cookie token = registerAndLogin();
+
+        mockMvc.perform(post("/api/v1/tags")
+                        .cookie(token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\": \"machine learning\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name").value("machine-learning"))
+                .andExpect(jsonPath("$.displayName").value("machine-learning"));
+    }
+
+    // ===== AC: tagId filter for GET /poks =====
+
+    @Test
+    @DisplayName("tagId filter — GET /poks?tagId returns only POKs tagged with that tag")
+    void listPoks_withTagIdFilter_shouldReturnOnlyTaggedPoks() throws Exception {
+        assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not available");
+
+        Cookie token = registerAndLogin();
+
+        // Create a tag
+        MvcResult tagResult = mockMvc.perform(post("/api/v1/tags")
+                        .cookie(token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\": \"java\"}"))
+                .andExpect(status().isCreated())
+                .andReturn();
+        String userTagId = objectMapper.readTree(tagResult.getResponse().getContentAsString()).get("id").asText();
+        String globalTagId = objectMapper.readTree(tagResult.getResponse().getContentAsString()).get("tagId").asText();
+
+        // Create two POKs
+        MvcResult pok1Result = mockMvc.perform(post("/api/v1/poks")
+                        .cookie(token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\": \"Tagged POK\", \"content\": \"About Java\"}"))
+                .andExpect(status().isCreated())
+                .andReturn();
+        String pok1Id = objectMapper.readTree(pok1Result.getResponse().getContentAsString()).get("id").asText();
+
+        mockMvc.perform(post("/api/v1/poks")
+                        .cookie(token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\": \"Untagged POK\", \"content\": \"About Python\"}"))
+                .andExpect(status().isCreated());
+
+        // Assign tag to pok1 only
+        mockMvc.perform(post("/api/v1/poks/" + pok1Id + "/tags/" + userTagId)
+                        .cookie(token))
+                .andExpect(status().isNoContent());
+
+        // Filter by tagId — should return only pok1
+        mockMvc.perform(get("/api/v1/poks")
+                        .cookie(token)
+                        .param("tagId", globalTagId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].title").value("Tagged POK"));
+    }
+
     // ===== helpers =====
 
     /**

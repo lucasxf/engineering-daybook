@@ -15,7 +15,7 @@ const { mockCreateTag, mockAssignTag, mockRemoveTag } = vi.hoisted(() => ({
 vi.mock('@/hooks/useTags', () => ({
   useTags: () => ({
     tags: [
-      { id: 'ut-10', tagId: 'tag-10', name: 'vue', color: 'green', createdAt: '2026-02-14T10:00:00Z' },
+      { id: 'ut-10', tagId: 'tag-10', name: 'vue', displayName: 'vue', color: 'green', createdAt: '2026-02-14T10:00:00Z' },
     ],
     isLoading: false,
     error: null,
@@ -34,7 +34,7 @@ vi.mock('@/components/poks/TagSuggestionPrompt', () => ({
   ),
 }));
 
-const assignedTag = { id: 'ut-1', tagId: 'tag-1', name: 'react', color: 'blue', createdAt: '2026-02-14T10:00:00Z' };
+const assignedTag = { id: 'ut-1', tagId: 'tag-1', name: 'react', displayName: 'react', color: 'blue', createdAt: '2026-02-14T10:00:00Z' };
 
 const renderSection = (overrides?: Partial<Parameters<typeof TagSection>[0]>) => {
   const props = {
@@ -100,7 +100,7 @@ describe('TagSection', () => {
   it('creates and assigns a new tag on Enter key', async () => {
     const user = userEvent.setup();
     const onChanged = vi.fn();
-    const newTag = { id: 'ut-99', tagId: 'tag-99', name: 'typescript', color: 'blue', createdAt: '2026-02-14T10:00:00Z' };
+    const newTag = { id: 'ut-99', tagId: 'tag-99', name: 'typescript', displayName: 'typescript', color: 'blue', createdAt: '2026-02-14T10:00:00Z' };
     mockCreateTag.mockResolvedValue(newTag);
 
     renderSection({ onChanged });

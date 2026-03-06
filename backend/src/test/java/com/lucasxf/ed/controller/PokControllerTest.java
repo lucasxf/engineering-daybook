@@ -232,7 +232,7 @@ class PokControllerTest {
             PageRequest.of(0, 20),
             2);
 
-        when(pokService.search(any(UUID.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20))).thenReturn(page);
+        when(pokService.search(any(UUID.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20))).thenReturn(page);
 
         // When/Then
         mockMvc.perform(get("/api/v1/poks")
@@ -246,7 +246,7 @@ class PokControllerTest {
             .andExpect(jsonPath("$.number").value(0))
             .andExpect(jsonPath("$.size").value(20));
 
-        verify(pokService).search(eq(userId), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
+        verify(pokService).search(eq(userId), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
     }
 
     @Test
@@ -255,7 +255,7 @@ class PokControllerTest {
         // Given
         Page<PokResponse> emptyPage = Page.empty(PageRequest.of(1, 10));
 
-        when(pokService.search(any(UUID.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(1), eq(10))).thenReturn(emptyPage);
+        when(pokService.search(any(UUID.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(1), eq(10))).thenReturn(emptyPage);
 
         // When/Then
         mockMvc.perform(get("/api/v1/poks")
@@ -455,6 +455,7 @@ class PokControllerTest {
             eq(null),
             eq(null),
             eq(null),
+            eq(null),
             eq(0),
             eq(20))).thenReturn(page);
 
@@ -466,7 +467,7 @@ class PokControllerTest {
             .andExpect(jsonPath("$.content[0].title").value("Spring Boot"))
             .andExpect(jsonPath("$.totalElements").value(1));
 
-        verify(pokService).search(eq(userId), eq("spring"), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
+        verify(pokService).search(eq(userId), eq("spring"), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
     }
 
     @Test
@@ -477,6 +478,7 @@ class PokControllerTest {
 
         when(pokService.search(
             any(UUID.class),
+            eq(null),
             eq(null),
             eq(null),
             eq("createdAt"),
@@ -495,7 +497,7 @@ class PokControllerTest {
                 .param("sortDirection", "ASC"))
             .andExpect(status().isOk());
 
-        verify(pokService).search(eq(userId), eq(null), eq(null), eq("createdAt"), eq("ASC"), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
+        verify(pokService).search(eq(userId), eq(null), eq(null), eq(null), eq("createdAt"), eq("ASC"), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
     }
 
     @Test
@@ -506,6 +508,7 @@ class PokControllerTest {
 
         when(pokService.search(
             any(UUID.class),
+            eq(null),
             eq(null),
             eq(null),
             eq(null),
@@ -530,6 +533,7 @@ class PokControllerTest {
             eq(null),
             eq(null),
             eq(null),
+            eq(null),
             eq("2026-01-01T00:00:00Z"),
             eq("2026-01-31T23:59:59Z"),
             eq(null),
@@ -547,6 +551,7 @@ class PokControllerTest {
         when(pokService.search(
             any(UUID.class),
             eq("docker"),
+            eq(null),
             eq(null),
             eq("updatedAt"),
             eq("DESC"),
@@ -575,6 +580,7 @@ class PokControllerTest {
             eq(userId),
             eq("docker"),
             eq(null),
+            eq(null),
             eq("updatedAt"),
             eq("DESC"),
             eq("2026-01-01T00:00:00Z"),
@@ -601,6 +607,7 @@ class PokControllerTest {
             eq(null),
             eq(null),
             eq(null),
+            eq(null),
             eq(0),
             eq(20))).thenReturn(page);
 
@@ -609,7 +616,7 @@ class PokControllerTest {
                 .with(user(userId.toString())))
             .andExpect(status().isOk());
 
-        verify(pokService).search(eq(userId), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
+        verify(pokService).search(eq(userId), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
     }
 
     @Test
@@ -628,6 +635,7 @@ class PokControllerTest {
             eq(null),
             eq(null),
             eq(null),
+            eq(null),
             eq(0),
             eq(20))).thenReturn(emptyPage);
 
@@ -639,7 +647,28 @@ class PokControllerTest {
             .andExpect(jsonPath("$.content").isEmpty())
             .andExpect(jsonPath("$.totalElements").value(0));
 
-        verify(pokService).search(eq(userId), eq("nonexistent"), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
+        verify(pokService).search(eq(userId), eq("nonexistent"), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
+    }
+
+    @Test
+    @WithMockUser
+    void listPoks_withTagIdFilter_shouldPassTagIdToService() throws Exception {
+        // AC11: tagId param is forwarded to PokService.search
+        UUID tagId = UUID.randomUUID();
+        Page<PokResponse> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
+
+        when(pokService.search(
+            any(UUID.class), eq(null), eq(null), eq(tagId),
+            eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20)
+        )).thenReturn(page);
+
+        mockMvc.perform(get("/api/v1/poks")
+                .with(user(userId.toString()))
+                .param("tagId", tagId.toString()))
+            .andExpect(status().isOk());
+
+        verify(pokService).search(eq(userId), eq(null), eq(null), eq(tagId),
+            eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
     }
 
     @Test
@@ -775,7 +804,7 @@ class PokControllerTest {
 
         when(pokService.search(
             any(UUID.class), eq("java"), eq("semantic"),
-            eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20)
+            eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20)
         )).thenReturn(page);
 
         mockMvc.perform(get("/api/v1/poks")
@@ -785,7 +814,7 @@ class PokControllerTest {
             .andExpect(status().isOk());
 
         verify(pokService).search(eq(userId), eq("java"), eq("semantic"),
-            eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
+            eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
     }
 
     @Test

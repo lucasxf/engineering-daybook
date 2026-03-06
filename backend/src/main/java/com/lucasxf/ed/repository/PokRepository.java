@@ -140,4 +140,37 @@ public interface PokRepository extends JpaRepository<Pok, UUID> {
         @Param("updatedTo") Instant updatedTo,
         Pageable pageable
     );
+
+    /**
+     * Returns active POKs for a user that are tagged with the given global tag ID,
+     * with optional date-range filters.
+     *
+     * <p>Uses a subquery against {@code PokTag} (no JPA relationship declared) to
+     * leverage the existing {@code idx_pok_tags_tag_id} index. Date filters follow
+     * the same COALESCE pattern as {@link #searchPoks} — null values are ignored.
+     *
+     * @param userId      the user's ID
+     * @param tagId       the global tag's ID to filter by
+     * @param createdFrom optional minimum creation date (inclusive)
+     * @param createdTo   optional maximum creation date (inclusive)
+     * @param updatedFrom optional minimum update date (inclusive)
+     * @param updatedTo   optional maximum update date (inclusive)
+     * @param pageable    pagination and sorting parameters
+     * @return a page of matching active POKs
+     */
+    @Query("SELECT p FROM Pok p WHERE p.userId = :userId AND p.deletedAt IS NULL " +
+           "AND p.id IN (SELECT pt.pokId FROM PokTag pt WHERE pt.tagId = :tagId) " +
+           "AND p.createdAt >= COALESCE(:createdFrom, p.createdAt) " +
+           "AND p.createdAt <= COALESCE(:createdTo, p.createdAt) " +
+           "AND p.updatedAt >= COALESCE(:updatedFrom, p.updatedAt) " +
+           "AND p.updatedAt <= COALESCE(:updatedTo, p.updatedAt)")
+    Page<Pok> findByUserIdAndTagId(
+        @Param("userId") UUID userId,
+        @Param("tagId") UUID tagId,
+        @Param("createdFrom") Instant createdFrom,
+        @Param("createdTo") Instant createdTo,
+        @Param("updatedFrom") Instant updatedFrom,
+        @Param("updatedTo") Instant updatedTo,
+        Pageable pageable
+    );
 }

@@ -16,6 +16,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@react-oauth/google": "^0.13.4",
+    "@tailwindcss/typography": "^0.5.19",
     "clsx": "^2.1.1",
     "jwt-decode": "^4.0.0",
     "next": "^16.1.6",
@@ -24,10 +25,14 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-hook-form": "^7.71.1",
+    "react-markdown": "^10.1.0",
+    "rehype-sanitize": "^6.0.0",
+    "remark-gfm": "^4.0.1",
     "tailwind-merge": "^3.5.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.50.0",
     "@swc/helpers": "^0.5.19",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -43,7 +48,6 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3",
-    "vitest": "^4.0.18",
-    "@playwright/test": "^1.50.0"
+    "vitest": "^4.0.18"
   }
 }

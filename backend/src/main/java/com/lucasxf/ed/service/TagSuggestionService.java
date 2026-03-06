@@ -139,7 +139,8 @@ public class TagSuggestionService {
     public void approveSuggestion(UUID suggestionId, UUID userId) {
         PokTagSuggestion suggestion = findOwnedSuggestion(suggestionId, userId);
 
-        var tagOpt = tagRepository.findByNameIgnoreCase(suggestion.getSuggestedName());
+        String canonicalName = TagService.normalise(suggestion.getSuggestedName())[0];
+        var tagOpt = tagRepository.findByName(canonicalName);
         if (tagOpt.isEmpty()) {
             // Global tag no longer exists (edge case) — just mark approved
             suggestion.approve();

@@ -1,6 +1,8 @@
 # Phase 7: Gamification (TBD)
 
-> Status: **⏳ Planned**
+> Status: **⏸️ Postponed**
+>
+> Postponed 2026-03-06 — deprioritized in favor of Phase 8 (Knowledge Enrichment). Will revisit after Phase 8.
 
 ---
 
@@ -64,7 +66,7 @@
 | Feature | Rationale |
 |---------|-----------|
 | AI Chat Interface | Query POKs via natural language conversation |
-| Graph Visualization | Visual map of POK connections and tag relationships |
+| ~~Graph Visualization~~ | **Moved to Phase 8.3 (Knowledge Paths)** |
 | Browser Extension | Quick capture from any webpage |
 | IDE Plugin | Capture learnings without leaving the editor |
 | Offline Mode | Full offline-first with sync |

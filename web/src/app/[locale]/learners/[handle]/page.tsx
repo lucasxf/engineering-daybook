@@ -9,6 +9,7 @@ import { ApiRequestError } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { Alert } from '@/components/ui/Alert';
+import { MarkdownContent } from '@/components/ui/MarkdownContent';
 
 export default function LearnerProfilePage() {
   const t = useTranslations('learners');
@@ -115,9 +116,7 @@ export default function LearnerProfilePage() {
                       {pok.title}
                     </p>
                   )}
-                  <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
-                    {pok.content}
-                  </p>
+                  <MarkdownContent content={pok.content} variant="compact" />
                 </div>
                 {isOwner && pok.visibility && (
                   <span className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium

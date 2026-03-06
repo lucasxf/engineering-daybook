@@ -96,6 +96,16 @@ cd backend
 
 ## Known Pitfalls
 
+- **Use `replaceAll("\\s+", "-")` not `replace(' ', '-')` for slug/name normalisation:** `String.replace(char, char)` operates character-by-character, so `"spring  boot"` produces `"spring--boot"` instead of `"spring-boot"`, and tabs/newlines are silently ignored. This causes deduplication bugs when the normalised form is used as a unique key. Always use `.replaceAll("\\s+", "-").replaceAll("-+", "-")` to collapse all whitespace runs and consecutive dashes in one pass. (Added 2026-03-06)
+
+  ```java
+  // WRONG — double spaces and tabs produce consecutive dashes
+  String normalised = input.trim().replace(' ', '-').toLowerCase();
+
+  // CORRECT — all whitespace runs → single dash, consecutive dashes collapsed
+  String normalised = input.trim().replaceAll("\\s+", "-").replaceAll("-+", "-").toLowerCase();
+  ```
+
 - **Package-private inter-service methods for atomic cross-service operations:** When `ServiceA` needs to call a helper on `ServiceB` that is only valid in the context of an ongoing operation in `ServiceA` (e.g. assigning tags immediately after POK creation), declare the helper as package-private (no access modifier) rather than `public`. This prevents callers outside the `service` package from invoking a method that has preconditions only `ServiceA` can satisfy. Example: `TagService.assignTagsToNewPok(UUID pokId, List<UUID> userTagIds, UUID userId)` is package-private — only `PokService` (same package) can call it. Both services must live in the same package for this to work. Keep these methods small and single-purpose; if the logic grows complex, extract to a dedicated orchestration service.
 
 - **`@Lazy` to break circular constructor injection:** When two services depend on each other via constructor injection, Spring throws `BeanCurrentlyInCreationException`. Fix: annotate one of the injected parameters with `@Lazy` — Spring injects a proxy instead of the real bean, breaking the cycle. Keep `@Lazy` on the less-frequently-used dependency. Never use field injection (`@Autowired`) just to avoid this; `@Lazy` preserves constructor injection semantics.
@@ -263,6 +273,8 @@ cd backend
   long totalCount = pokRepository.countByUserIdAndDeletedAtIsNull(userId);
   return LearnerProfileResponse.full(user, learnings, isOwner, (int) totalCount);
   ```
+
+- **Flyway backfill migrations that introduce a new UNIQUE constraint must deduplicate before the bulk UPDATE:** When normalising a column that previously allowed two values to coexist (e.g. `"machine learning"` and `"machine-learning"` were distinct under `LOWER(name)` but both normalise to `"machine-learning"` after a spaces→dashes transform), the bulk `UPDATE` will produce duplicate values and the subsequent `ALTER TABLE … ADD CONSTRAINT … UNIQUE` (or the UPDATE itself if a unique index already exists) will fail with a uniqueness violation — aborting Flyway before startup. Fix: add a dedup step before the bulk UPDATE that (1) elects a winner per collision group using `ROW_NUMBER() OVER (PARTITION BY canonical ORDER BY created_at, id::text)` — **do NOT use `MIN(id)`, as PostgreSQL does not support `MIN()` on UUID columns** (no ordering aggregate registered for that type), (2) reassigns all FK references in every dependent table from loser to winner (using `NOT EXISTS` guards where the target table has a unique index), and (3) deletes the now-orphaned loser rows. Apply this pattern to any backfill that transforms a column used as a unique key. (Added 2026-03-06)
 
 ---
 
