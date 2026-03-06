@@ -1,7 +1,7 @@
 [metadata]
 session_branch = "develop"
 session_start = "2026-03-06T17:33:15Z"
-last_updated = "2026-03-06T18:18:12Z"
+last_updated = "2026-03-06T18:41:55Z"
 
 [agent_usage.general-purpose]
 invocations = 2
@@ -12,5 +12,13 @@ invocations = 1
 last_used = "2026-03-06T18:14:21Z"
 
 [command_usage.finish-session]
+invocations = 2
+last_used = "2026-03-06T18:40:45Z"
+
+[agent_usage.Explore]
 invocations = 1
-last_used = "2026-03-06T18:16:51Z"
+last_used = "2026-03-06T18:26:00Z"
+
+[agent_usage.tech-writer]
+invocations = 2
+last_used = "2026-03-06T18:41:55Z"
