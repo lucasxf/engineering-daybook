@@ -2,11 +2,11 @@
 # Collected by pulse agent, analyzed by automation-sentinel agent
 
 [metadata]
-timestamp = "2026-03-06T16:45:21Z"
+timestamp = "2026-03-06T17:26:39Z"
 commit_sha = ""
 branch = "develop"
 schema_version = "1.0.0"
-updated_by = "hook"
+updated_by = "compile-metrics"
 
 # Agent Usage Metrics
 [agent_usage.automation-sentinel]
@@ -14,8 +14,8 @@ invocations = 0
 last_used = ""
 
 [agent_usage.general-purpose]
-invocations = 6
-last_used = "2026-03-06T16:45:21Z"
+invocations = 9
+last_used = "2026-03-06T17:05:37Z"
 
 [agent_usage.sous-chef]
 invocations = 0
@@ -55,27 +55,27 @@ last_used = ""
 
 # Command Usage Metrics
 [command_usage.start-session]
-invocations = 11
-last_used = "2026-03-06T13:44:58Z"
+invocations = 12
+last_used = "2026-03-06T15:00:34Z"
 
 [command_usage.finish-session]
-invocations = 1
-last_used = "2026-03-06T12:21:37Z"
+invocations = 4
+last_used = "2026-03-06T16:48:48Z"
 
 [command_usage.resume-session]
 invocations = 0
 last_used = ""
 
 [command_usage.create-pr]
-invocations = 2
-last_used = "2026-03-06T16:25:43Z"
+invocations = 4
+last_used = "2026-03-06T16:56:15Z"
 
 [command_usage.review-pr]
-invocations = 3
+invocations = 4
 last_used = "2026-03-06T16:36:27Z"
 
 [command_usage.fix-pr]
-invocations = 2
+invocations = 3
 last_used = "2026-03-06T16:40:22Z"
 
 [command_usage.directive]
@@ -133,13 +133,18 @@ last_used = ""
 # Productivity Metrics
 
 [agent_usage.Explore]
-invocations = 9
-last_used = "2026-03-06T15:05:50Z"
+invocations = 10
+last_used = "2026-03-06T16:54:50Z"
 
 
 [agent_usage.Plan]
 invocations = 2
 last_used = "2026-03-06T14:41:50Z"
+
+
+[command_usage.compile-metrics]
+invocations = 1
+last_used = "2026-03-06T17:25:45Z"
 
 [productivity]
 current_total_locs = 0
@@ -153,5 +158,5 @@ net_locs = 0
 # Health Metrics
 [health]
 schema_errors = 0
-total_agents = 11
-total_commands = 19
+total_agents = 13
+total_commands = 20
