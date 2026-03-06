@@ -12,8 +12,8 @@ const { mockCreateTag } = vi.hoisted(() => ({
 vi.mock('@/hooks/useTags', () => ({
   useTags: () => ({
     tags: [
-      { id: 'ut-1', tagId: 'tag-1', name: 'react', color: 'blue', createdAt: '2026-02-25T10:00:00Z' },
-      { id: 'ut-2', tagId: 'tag-2', name: 'spring', color: 'green', createdAt: '2026-02-25T10:00:00Z' },
+      { id: 'ut-1', tagId: 'tag-1', name: 'react', displayName: 'react', color: 'blue', createdAt: '2026-02-25T10:00:00Z' },
+      { id: 'ut-2', tagId: 'tag-2', name: 'spring', displayName: 'spring', color: 'green', createdAt: '2026-02-25T10:00:00Z' },
     ],
     isLoading: false,
     error: null,
@@ -80,7 +80,7 @@ describe('TagPicker', () => {
   it('does not show already-selected tags in the dropdown', async () => {
     const user = userEvent.setup();
     const selected: Tag[] = [
-      { id: 'ut-1', tagId: 'tag-1', name: 'react', color: 'blue', createdAt: '2026-02-25T10:00:00Z' },
+      { id: 'ut-1', tagId: 'tag-1', name: 'react', displayName: 'react', color: 'blue', createdAt: '2026-02-25T10:00:00Z' },
     ];
     renderPicker(selected);
 
@@ -92,7 +92,7 @@ describe('TagPicker', () => {
 
   it('renders selected tags as badges with a remove button', () => {
     const selected: Tag[] = [
-      { id: 'ut-1', tagId: 'tag-1', name: 'react', color: 'blue', createdAt: '2026-02-25T10:00:00Z' },
+      { id: 'ut-1', tagId: 'tag-1', name: 'react', displayName: 'react', color: 'blue', createdAt: '2026-02-25T10:00:00Z' },
     ];
     renderPicker(selected);
 
@@ -104,7 +104,7 @@ describe('TagPicker', () => {
   it('calls onSelectionChange without the removed tag when the remove button is clicked', async () => {
     const user = userEvent.setup();
     const selected: Tag[] = [
-      { id: 'ut-1', tagId: 'tag-1', name: 'react', color: 'blue', createdAt: '2026-02-25T10:00:00Z' },
+      { id: 'ut-1', tagId: 'tag-1', name: 'react', displayName: 'react', color: 'blue', createdAt: '2026-02-25T10:00:00Z' },
     ];
     const onSelectionChange = vi.fn();
     renderPicker(selected, onSelectionChange);
@@ -131,7 +131,7 @@ describe('TagPicker', () => {
   it('creates a new tag and calls onSelectionChange when submitted via input', async () => {
     const user = userEvent.setup();
     const onSelectionChange = vi.fn();
-    const newTag: Tag = { id: 'ut-new', tagId: 'tag-new', name: 'typescript', color: 'blue', createdAt: '2026-02-25T10:00:00Z' };
+    const newTag: Tag = { id: 'ut-new', tagId: 'tag-new', name: 'typescript', displayName: 'typescript', color: 'blue', createdAt: '2026-02-25T10:00:00Z' };
     mockCreateTag.mockResolvedValue(newTag);
     renderPicker([], onSelectionChange);
 

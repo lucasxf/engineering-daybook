@@ -468,7 +468,7 @@ class PokServiceTest {
         )).thenReturn(pokPage);
 
         // When
-        Page<PokResponse> result = pokService.search(userId, keyword, null, null, null, null, null, null, null, page, size);
+        Page<PokResponse> result = pokService.search(userId, keyword, null, null, null, null, null, null, null, null, page, size);
 
         // Then
         assertThat(result.getTotalElements()).isEqualTo(1);
@@ -497,7 +497,7 @@ class PokServiceTest {
         )).thenReturn(pokPage);
 
         // When
-        pokService.search(userId, null, null, sortBy, sortDirection, null, null, null, null, page, size);
+        pokService.search(userId, null, null, null, sortBy, sortDirection, null, null, null, null, page, size);
 
         // Then: Verify Sort object is built correctly
         verify(pokRepository).searchPoks(
@@ -531,7 +531,7 @@ class PokServiceTest {
         )).thenReturn(pokPage);
 
         // When
-        pokService.search(userId, null, null, null, null, createdFrom, createdTo, null, null, page, size);
+        pokService.search(userId, null, null, null, null, null, createdFrom, createdTo, null, null, page, size);
 
         // Then: Verify dates are parsed correctly
         verify(pokRepository).searchPoks(
@@ -563,7 +563,7 @@ class PokServiceTest {
         )).thenReturn(pokPage);
 
         // When
-        pokService.search(userId, null, null, null, null, null, null, null, null, page, size);
+        pokService.search(userId, null, null, null, null, null, null, null, null, null, page, size);
 
         // Then: Default sort should be updatedAt DESC
         verify(pokRepository).searchPoks(
@@ -595,7 +595,7 @@ class PokServiceTest {
         )).thenReturn(pokPage);
 
         // When
-        pokService.search(userId, null, null, null, null, null, null, null, null, page, size);
+        pokService.search(userId, null, null, null, null, null, null, null, null, null, page, size);
 
         // Then: Verify pagination is correctly passed
         verify(pokRepository).searchPoks(
@@ -628,7 +628,7 @@ class PokServiceTest {
         )).thenReturn(pokPage);
 
         // When
-        Page<PokResponse> result = pokService.search(userId, null, null, null, null, null, null, null, null, 0, 20);
+        Page<PokResponse> result = pokService.search(userId, null, null, null, null, null, null, null, null, null, 0, 20);
 
         // Then
         assertThat(result.getTotalElements()).isEqualTo(2);
@@ -859,7 +859,7 @@ class PokServiceTest {
 
         // When
         Page<PokResponse> result = pokService.search(
-            userId, null, null, null, null, null, null, updatedFrom, updatedTo, page, size);
+            userId, null, null, null, null, null, null, null, updatedFrom, updatedTo, page, size);
 
         // Then: dates are parsed and passed through to repository
         assertThat(result.getTotalElements()).isZero();
@@ -877,7 +877,7 @@ class PokServiceTest {
 
         // When/Then
         assertThatThrownBy(() ->
-            pokService.search(userId, null, null, null, null, invalidDate, null, null, null, 0, 20))
+            pokService.search(userId, null, null, null, null, null, invalidDate, null, null, null, 0, 20))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Invalid date format")
             .hasMessageContaining(invalidDate);
@@ -892,7 +892,7 @@ class PokServiceTest {
 
         // When/Then
         assertThatThrownBy(() ->
-            pokService.search(userId, null, null, invalidSortField, null, null, null, null, null, 0, 20))
+            pokService.search(userId, null, null, null, invalidSortField, null, null, null, null, null, 0, 20))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Invalid sort field")
             .hasMessageContaining(invalidSortField);
@@ -912,7 +912,7 @@ class PokServiceTest {
         )).thenReturn(pokPage);
 
         // When
-        pokService.search(userId, null, null, sortBy, sortDirection, null, null, null, null, page, size);
+        pokService.search(userId, null, null, null, sortBy, sortDirection, null, null, null, null, page, size);
 
         // Then: verify call was made (DESC is the else-branch in buildSort)
         verify(pokRepository).searchPoks(

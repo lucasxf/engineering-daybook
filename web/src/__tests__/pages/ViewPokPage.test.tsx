@@ -176,8 +176,8 @@ describe('ViewPokPage', () => {
       mockGetById.mockResolvedValue({
         ...mockPok,
         tags: [
-          { id: 'ut-1', tagId: 'tag-1', name: 'react', color: 'blue', createdAt: '2026-02-14T10:00:00Z' },
-          { id: 'ut-2', tagId: 'tag-2', name: 'typescript', color: 'green', createdAt: '2026-02-14T10:00:00Z' },
+          { id: 'ut-1', tagId: 'tag-1', name: 'react', displayName: 'react', color: 'blue', createdAt: '2026-02-14T10:00:00Z' },
+          { id: 'ut-2', tagId: 'tag-2', name: 'typescript', displayName: 'typescript', color: 'green', createdAt: '2026-02-14T10:00:00Z' },
         ],
       });
       renderViewPage();
