@@ -1,6 +1,6 @@
 # Phase 8: Knowledge Enrichment
 
-> Status: **⏳ Planned**
+> Status: **🔄 In Progress** (8.2 done; 8.1 in progress)
 
 ---
 
@@ -14,21 +14,21 @@
 
 ---
 
-## Milestone 8.2: Tag Improvements — `docs/specs/features/tag-improvements.md`
+## Milestone 8.2: Tag Improvements — `docs/specs/features/tag-improvements.md` ✅ Done (2026-03-06)
 
 > Tags currently have no search/filter, store only the original casing of the first creator, and allow multi-word tags with spaces. This milestone fixes all three. **SDD: spec required before implementation.**
 
 ### 8.2.1: Tag Casing and Canonical Storage
 
-| # | Feature | Priority |
-|---|---------|----------|
-| 8.2.1 | DB migration: add `display_name VARCHAR(100) NOT NULL` column to `tags` table | Must Have |
-| 8.2.2 | Backfill migration: `display_name = REPLACE(name, ' ', '-')`, then `name = LOWER(REPLACE(name, ' ', '-'))` | Must Have |
-| 8.2.3 | Update `Tag` entity: `name` = canonical lowercase+dashes, `displayName` = as-typed with dashes | Must Have |
-| 8.2.4 | Update `TagService.createOrReuse()`: apply spaces→dashes + lowercase to `name`, spaces→dashes only to `displayName` | Must Have |
-| 8.2.5 | Simplify `TagRepository`: `name` column is canonical — drop the `LOWER()` wrapper from queries | Must Have |
-| 8.2.6 | Update all API responses to return `displayName` for UI rendering | Must Have |
-| 8.2.7 | Update frontend components (`TagBadge`, `TagPicker`, `TagSection`, `TagGroupedView`) to render `displayName` | Must Have |
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 8.2.1 | DB migration: add `display_name VARCHAR(100) NOT NULL` column to `tags` table | Must Have | ✅ |
+| 8.2.2 | Backfill migration: `display_name = REPLACE(name, ' ', '-')`, then `name = LOWER(REPLACE(name, ' ', '-'))` | Must Have | ✅ |
+| 8.2.3 | Update `Tag` entity: `name` = canonical lowercase+dashes, `displayName` = as-typed with dashes | Must Have | ✅ |
+| 8.2.4 | Update `TagService.createOrReuse()`: apply spaces→dashes + lowercase to `name`, spaces→dashes only to `displayName` | Must Have | ✅ |
+| 8.2.5 | Simplify `TagRepository`: `name` column is canonical — drop the `LOWER()` wrapper from queries | Must Have | ✅ |
+| 8.2.6 | Update all API responses to return `displayName` for UI rendering | Must Have | ✅ |
+| 8.2.7 | Update frontend components (`TagBadge`, `TagPicker`, `TagSection`, `TagGroupedView`) to render `displayName` | Must Have | ✅ |
 
 **Transformation chain:** user types `"Claude Code"` → mask shows `"Claude-Code"` → stored as `displayName = "Claude-Code"`, `name = "claude-code"`
 
@@ -38,26 +38,26 @@
 
 ### 8.2.2: Tag Naming — Spaces to Dashes
 
-| # | Feature | Priority |
-|---|---------|----------|
-| 8.2.8 | Backend: `replace(" ", "-")` enforcement in `TagService.createOrReuse()` (and `renameTag()`) | Must Have |
-| 8.2.9 | Frontend: input mask auto-replacing spaces with dashes as user types (web + mobile) | Should Have |
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 8.2.8 | Backend: `replace(" ", "-")` enforcement in `TagService.createOrReuse()` (and `renameTag()`) | Must Have | ✅ |
+| 8.2.9 | Frontend: input mask auto-replacing spaces with dashes as user types (web + mobile) | Should Have | ✅ |
 
 **Note:** Backend enforcement is the source of truth. Frontend mask is UX polish — prevents seeing the transformation as a surprise on save.
 
 ### 8.2.3: Tag Search / Feed Filtering
 
-| # | Feature | Priority |
-|---|---------|----------|
-| 8.2.10 | Backend endpoint: `GET /api/v1/poks?tagId={id}` filter by tag (DB index on `pok_tags.tag_id` already exists) | Must Have |
-| 8.2.11 | Web: `TagFilter` component for the feed (deferred from Phase 2.2) | Must Have |
-| 8.2.12 | Mobile: tag filter UI | Should Have |
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 8.2.10 | Backend endpoint: `GET /api/v1/poks?tagId={id}` filter by tag (DB index on `pok_tags.tag_id` already exists) | Must Have | ✅ |
+| 8.2.11 | Web: `TagFilter` component for the feed (deferred from Phase 2.2) | Must Have | ✅ |
+| 8.2.12 | Mobile: tag filter UI | Should Have | ✅ (LearningDetailScreen + LearningCard updated) |
 
 **Tests**
 
-| # | Feature | Priority |
-|---|---------|----------|
-| 8.2.13 | Unit + integration tests for casing, naming, and search changes | Must Have |
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 8.2.13 | Unit + integration tests for casing, naming, and search changes | Must Have | ✅ |
 
 ---
 
@@ -107,7 +107,7 @@ When resumed, this milestone will require its own `/write-spec` session before i
 
 ## Exit Criteria
 
-- [ ] Tags are stored with canonical lowercase+dashes `name` and a `display_name` column
-- [ ] Tags are displayed as the learner typed them (with dashes instead of spaces)
-- [ ] Tag-based filtering works in the feed (web, at minimum)
+- [x] Tags are stored with canonical lowercase+dashes `name` and a `display_name` column
+- [x] Tags are displayed as the learner typed them (with dashes instead of spaces)
+- [x] Tag-based filtering works in the feed (web, at minimum)
 - [ ] POK content renders markdown in all views (web + mobile): headings, bold, italics, code blocks, lists
