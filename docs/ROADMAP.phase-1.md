@@ -152,7 +152,7 @@ Automation/tooling chore: `track-usage.py` PostToolUse hook extended and usage s
 
 ### Cross-Session Metrics Safety (chore/cross-session-metrics, 2026-03-06) ✅
 
-Tooling fix: resolved a concurrency bug where parallel Claude Code sessions in separate worktrees would conflict on `usage-stats.toml` by writing to it simultaneously.
+Tooling fix: resolved a concurrency bug where parallel Claude Code sessions in separate worktrees would conflict on `usage-stats.toml` by writing to it simultaneously. (PR review: collision-safe encoding + --only flag fix)
 
 | Task | Status |
 |------|--------|
