@@ -53,6 +53,20 @@ public interface PokRepository extends JpaRepository<Pok, UUID> {
     Page<Pok> findByUserIdAndVisibilityAndDeletedAtIsNull(UUID userId, Pok.Visibility visibility, Pageable pageable);
 
     /**
+     * Finds all active (non-deleted) POKs for a user whose visibility is one of the given tiers.
+     *
+     * <p>Used by the learner profile service to return only the POKs visible to the requesting
+     * user based on their relationship (follower, colleague, etc.).
+     *
+     * @param userId       the POK owner's user ID
+     * @param visibilities the set of visibility levels to include
+     * @param pageable     pagination and sorting parameters
+     * @return a page of matching active POKs
+     */
+    Page<Pok> findByUserIdAndVisibilityInAndDeletedAtIsNull(
+        UUID userId, java.util.Collection<Pok.Visibility> visibilities, Pageable pageable);
+
+    /**
      * Counts all active (non-deleted) POKs for a specific user.
      *
      * <p>Used to return the accurate total learning count to a profile owner,

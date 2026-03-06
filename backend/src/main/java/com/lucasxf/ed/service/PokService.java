@@ -67,6 +67,7 @@ public class PokService {
     private final EmbeddingService embeddingService;
     private final TagService tagService;
     private final UserService userService;
+    private final FollowService followService;
 
     public PokService(PokRepository pokRepository,
                       PokAuditLogRepository pokAuditLogRepository,
@@ -77,7 +78,8 @@ public class PokService {
                       EmbeddingGenerationService embeddingGenerationService,
                       EmbeddingService embeddingService,
                       TagService tagService,
-                      UserService userService) {
+                      UserService userService,
+                      FollowService followService) {
         this.pokRepository = requireNonNull(pokRepository);
         this.pokAuditLogRepository = requireNonNull(pokAuditLogRepository);
         this.pokTagRepository = requireNonNull(pokTagRepository);
@@ -88,6 +90,7 @@ public class PokService {
         this.embeddingService = requireNonNull(embeddingService);
         this.tagService = requireNonNull(tagService);
         this.userService = requireNonNull(userService);
+        this.followService = requireNonNull(followService);
     }
 
     /**
@@ -401,11 +404,11 @@ public class PokService {
 
         verifyOwnership(pok, userId);
 
-        // Enforce irreversible visibility: PUBLIC → PRIVATE is forbidden
-        if (request.visibility() == Pok.Visibility.PRIVATE
-                && pok.getVisibility() == Pok.Visibility.PUBLIC) {
+        // Enforce widening-only rule: visibility can only increase (ordinal ≥ current)
+        if (request.visibility() != null
+                && request.visibility().ordinal() < pok.getVisibility().ordinal()) {
             throw new PokVisibilityImmutableException(
-                "A public learning cannot be reverted to private");
+                "Visibility can only be widened, not narrowed");
         }
 
         String oldTitle = pok.getTitle();
@@ -413,8 +416,9 @@ public class PokService {
 
         pok.updateTitle(request.title());
         pok.updateContent(request.content());
-        if (request.visibility() == Pok.Visibility.PUBLIC) {
-            pok.makePublic();
+        if (request.visibility() != null
+                && request.visibility().ordinal() > pok.getVisibility().ordinal()) {
+            pok.widenVisibility(request.visibility());
         }
         pok.clearEmbedding();  // Mark stale; will be regenerated async below
 
@@ -467,21 +471,38 @@ public class PokService {
     }
 
     /**
-     * Verifies read access to a POK.
+     * Verifies read access to a POK based on visibility tier.
      *
-     * <p>PUBLIC learnings are accessible to any authenticated user.
-     * PRIVATE learnings are accessible only to the owner.
-     * Always returns 403 (never 404) to prevent confirming resource existence.
+     * <ul>
+     *   <li>PUBLIC — any authenticated user</li>
+     *   <li>FOLLOWERS_ONLY — owner or anyone who follows the owner</li>
+     *   <li>COLLEAGUES_ONLY — owner or mutual follows (colleagues)</li>
+     *   <li>PRIVATE — owner only</li>
+     * </ul>
+     *
+     * <p>Always throws 403 (never 404) to prevent confirming resource existence.
      *
      * @param pok    the POK to check
      * @param userId the requesting user's ID
-     * @throws PokAccessDeniedException if the POK is private and belongs to another user
+     * @throws PokAccessDeniedException if the requester does not have access
      */
     private void verifyAccess(Pok pok, UUID userId) {
         if (pok.getVisibility() == Pok.Visibility.PUBLIC) return;
         if (pok.getUserId().equals(userId)) return;
-        log.warn("Access denied: user {} attempted to read PRIVATE POK {} owned by {}",
-            userId, pok.getId(), pok.getUserId());
+
+        UUID ownerId = pok.getUserId();
+        switch (pok.getVisibility()) {
+            case FOLLOWERS_ONLY -> {
+                if (followService.isFollowing(userId, ownerId)) return;
+            }
+            case COLLEAGUES_ONLY -> {
+                if (followService.areColleagues(userId, ownerId)) return;
+            }
+            default -> { /* PRIVATE — only owner, already checked above */ }
+        }
+
+        log.warn("Access denied: user {} attempted to read {} POK {} owned by {}",
+            userId, pok.getVisibility(), pok.getId(), ownerId);
         throw new PokAccessDeniedException("You do not have permission to access this learning");
     }
 
