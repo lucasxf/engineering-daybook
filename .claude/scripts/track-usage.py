@@ -18,8 +18,11 @@ Bash tool calls are intentionally NOT scanned — free-text pattern matching
 on Bash command strings produces false positives (commit messages, echo
 output, etc. containing a command name get miscounted as invocations).
 
-Unknown agents/commands are added automatically so the file self-heals
-as new agents and commands are introduced.
+Unknown agents/commands invoked via Task or Skill tool events are added
+automatically so the file self-heals as new agents and commands are
+introduced. User-typed slash commands (UserPromptSubmit) are limited to
+the KNOWN_COMMANDS allowlist — unknowns are silently ignored to avoid
+false positives from free-text pattern matching.
 
 Cross-session safety: each session writes to its own delta file at
 .claude/metrics/sessions/{sanitized-branch}.toml instead of updating
@@ -34,6 +37,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Optional
 
 SESSIONS_DIR = Path(__file__).parent.parent / "metrics" / "sessions"
 
@@ -111,12 +115,12 @@ def increment_entry(content: str, section: str, key: str, timestamp: str) -> str
     header = f"[{section}.{key}]"
     if header in content:
         pattern = re.compile(
-            rf"(\[{re.escape(section)}.{re.escape(key)}\]\s*\n"
+            rf"(\[{re.escape(section)}\.{re.escape(key)}\]\s*\n"
             rf"invocations = )(\d+)",
         )
         content = pattern.sub(lambda m: m.group(1) + str(int(m.group(2)) + 1), content)
         pattern_date = re.compile(
-            rf"(\[{re.escape(section)}.{re.escape(key)}\][^\[]*last_used = )\"[^\"]*\""
+            rf"(\[{re.escape(section)}\.{re.escape(key)}\][^\[]*last_used = )\"[^\"]*\""
         )
         content = pattern_date.sub(lambda m: f'{m.group(1)}"{timestamp}"', content)
     else:
@@ -132,7 +136,7 @@ def update_delta_metadata(content: str, timestamp: str) -> str:
     return content
 
 
-def detect_slash_command(prompt: str) -> str | None:
+def detect_slash_command(prompt: str) -> Optional[str]:
     """
     Detect a /command-name at the very start of a user prompt.
     Anchored to start — no free-text scanning, no false positives.

@@ -1,6 +1,7 @@
 'use client';
 
 import { useTags } from '@/hooks/useTags';
+import { resolveTagColor } from '@/lib/tagColors';
 
 interface TagFilterProps {
   selectedTagId: string | null;
@@ -33,7 +34,7 @@ export function TagFilter({ selectedTagId, onTagSelect }: TagFilterProps) {
                 ? 'bg-primary-600 text-white'
                 : 'bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'
             }`}
-            style={isSelected ? undefined : { borderLeft: `3px solid ${resolveColor(tag.color)}` }}
+            style={isSelected ? undefined : { borderLeft: `3px solid ${resolveTagColor(tag.color)}` }}
             aria-pressed={isSelected}
           >
             {tag.displayName}
@@ -44,16 +45,3 @@ export function TagFilter({ selectedTagId, onTagSelect }: TagFilterProps) {
   );
 }
 
-function resolveColor(color: string): string {
-  const palette: Record<string, string> = {
-    blue: '#3b82f6',
-    green: '#22c55e',
-    red: '#ef4444',
-    purple: '#a855f7',
-    yellow: '#eab308',
-    orange: '#f97316',
-    pink: '#ec4899',
-    teal: '#14b8a6',
-  };
-  return palette[color] ?? '#6b7280';
-}

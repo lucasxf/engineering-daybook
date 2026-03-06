@@ -13,7 +13,7 @@ INPUT="$(cat)"
 for py in python3 python /usr/bin/python3 /usr/local/bin/python3; do
   if command -v "$py" >/dev/null 2>&1 || [ -x "$py" ]; then
     echo "$INPUT" | "$py" "$TRACKER"
-    exit $?
+    exit 0
   fi
 done
 
