@@ -38,6 +38,7 @@
 - Mobile: `PokVisibility` type, visibility picker in create screen, visibility badge + toggle in detail screen
 - E2E: 4 new visibility scenarios in `web/e2e/poks.spec.ts`
 - [x] Code review feedback addressed (PR #118 review pass: style fixes, mobile stale-state privacy bug, web default visibility initialised from auth context)
+- [x] PR #122 code review feedback addressed (commit `08c9618` on develop): PokService tag owner fix, LearnerController DTO return type fix, auth response completeness, web a11y, state sync fixes, type dedup, i18n (2026-03-05)
 
 ## Milestone 5.2: Learner Profile Privacy ✅ Complete — done (feat/privacy-system, 2026-03-04)
 
