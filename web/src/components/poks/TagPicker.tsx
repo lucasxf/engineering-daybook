@@ -114,7 +114,7 @@ export function TagPicker({ selectedTags, onSelectionChange }: TagPickerProps) {
                   <input
                     type="text"
                     value={newTagName}
-                    onChange={(e) => setNewTagName(e.target.value.replace(/ /g, '-'))}
+                    onChange={(e) => setNewTagName(e.target.value.replace(/\s+/g, '-'))}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleCreateAndSelect();
                       if (e.key === 'Escape') setShowPicker(false);

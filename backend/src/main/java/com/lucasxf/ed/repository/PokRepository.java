@@ -12,7 +12,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.lucasxf.ed.domain.Pok;
-import com.lucasxf.ed.domain.PokTag;
 
 /**
  * Data access for {@link Pok} entities.

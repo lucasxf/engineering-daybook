@@ -127,7 +127,7 @@ export function TagSection({ pokId, tags, pendingSuggestions, onChanged }: TagSe
                   <input
                     type="text"
                     value={newTagName}
-                    onChange={(e) => setNewTagName(e.target.value.replace(/ /g, '-'))}
+                    onChange={(e) => setNewTagName(e.target.value.replace(/\s+/g, '-'))}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleCreateAndAssign();
                       if (e.key === 'Escape') setShowPicker(false);
