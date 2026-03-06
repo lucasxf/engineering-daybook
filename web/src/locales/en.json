@@ -180,14 +180,46 @@
       "updated": "Learning updated successfully",
       "deleted": "Learning deleted successfully"
     },
+    "visibility": {
+      "private": "Private",
+      "public": "Public",
+      "pickerLabel": "Visibility",
+      "publicWarning": "Public learnings cannot be made private again."
+    },
     "errors": {
       "notFound": "Learning not found",
       "forbidden": "You don't have permission to access this learning",
       "contentRequired": "Content is required and must not be blank",
       "titleTooLong": "Title must be 200 characters or less",
       "contentTooLong": "Content must be 50,000 characters or less",
-      "unexpected": "Something went wrong. Please try again."
+      "unexpected": "Something went wrong. Please try again.",
+      "visibilityImmutable": "A public learning cannot be made private."
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "privacy": {
+      "heading": "Privacy",
+      "profileVisibility": "Profile visibility",
+      "profileVisibilityHint": "Controls who can view your profile and public learnings.",
+      "defaultPokVisibility": "Default learning visibility",
+      "defaultPokVisibilityHint": "New learnings will use this visibility by default.",
+      "private": "Private",
+      "public": "Public",
+      "saveSuccess": "Settings saved",
+      "saveError": "Failed to save settings. Please try again.",
+      "viewProfile": "View my profile"
+    }
+  },
+  "learners": {
+    "privateProfile": "This profile is private",
+    "privateProfileHint": "@{handle} has chosen to keep their profile private.",
+    "noLearnings": "No public learnings yet.",
+    "notFound": "Learner not found",
+    "notFoundHint": "There is no learner with this handle.",
+    "publicLearnings": "Public learnings",
+    "learningCount": "{count, plural, one {# learning} other {# learnings}}",
+    "unexpectedError": "Something went wrong."
   },
   "tags": {
     "addTag": "Add tag",

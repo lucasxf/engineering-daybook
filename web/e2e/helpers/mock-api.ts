@@ -10,6 +10,8 @@ export const MOCK_USER = {
   userId: 'user-1',
   email: 'test@example.com',
   handle: 'testuser',
+  defaultPokVisibility: 'PRIVATE' as const,
+  profileVisibility: 'PRIVATE' as const,
 };
 
 export interface MockPok {
@@ -17,6 +19,7 @@ export interface MockPok {
   userId: string;
   title: string | null;
   content: string;
+  visibility: 'PRIVATE' | 'PUBLIC';
   deletedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -29,6 +32,7 @@ export const MOCK_POK: MockPok = {
   userId: 'user-1',
   title: 'Test Learning',
   content: 'This is test content for a learning.',
+  visibility: 'PRIVATE',
   deletedAt: null,
   createdAt: '2026-01-01T10:00:00Z',
   updatedAt: '2026-01-01T10:00:00Z',
@@ -51,11 +55,21 @@ function makePokPage(poks: MockPok[]) {
 // Mock configuration
 // ---------------------------------------------------------------------------
 
+export interface MockLearnerProfile {
+  handle: string;
+  displayName?: string;
+  profileVisibility?: 'PRIVATE' | 'PUBLIC';
+  learnings?: MockPok[];
+  learningCount?: number;
+}
+
 export interface ApiMockConfig {
   /** Whether GET /auth/me succeeds. Defaults to true. */
   authenticated?: boolean;
   /** Override the user returned by /auth/me. Defaults to MOCK_USER. */
   user?: typeof MOCK_USER;
+  /** Learner profiles keyed by handle. Used for GET /learners/{handle}. */
+  learnerProfiles?: Record<string, MockLearnerProfile>;
   /** POKs returned by GET /poks. Defaults to []. */
   poks?: MockPok[];
   /** POK returned by GET /poks/{id}. Defaults to MOCK_POK. */
@@ -91,6 +105,7 @@ export async function setupApiMocks(page: Page, config: ApiMockConfig = {}) {
     loginResponse = MOCK_USER,
     createdPok = MOCK_POK,
     updatedPok,
+    learnerProfiles = {},
   } = config;
 
   await page.route(`${API}/**`, async (route) => {
@@ -156,6 +171,39 @@ export async function setupApiMocks(page: Page, config: ApiMockConfig = {}) {
         await route.fulfill({ status: 204 });
         return;
       }
+    }
+
+    // --- User settings ---
+
+    if (path === '/users/me/settings' && method === 'PATCH') {
+      await route.fulfill({ status: 204 });
+      return;
+    }
+
+    // --- Learner profiles ---
+
+    const learnerProfileMatch = path.match(/^\/learners\/([^/]+)$/);
+    if (learnerProfileMatch && method === 'GET') {
+      const handle = learnerProfileMatch[1];
+      const profile = learnerProfiles[handle];
+      if (profile) {
+        await route.fulfill({ json: profile });
+      } else {
+        await route.fulfill({ status: 404, json: { message: 'Not found' } });
+      }
+      return;
+    }
+
+    const learnerPoksMatch = path.match(/^\/learners\/([^/]+)\/poks$/);
+    if (learnerPoksMatch && method === 'GET') {
+      const handle = learnerPoksMatch[1];
+      const profile = learnerProfiles[handle];
+      if (profile && profile.profileVisibility !== 'PRIVATE') {
+        await route.fulfill({ json: makePokPage(profile.learnings ?? []) });
+      } else {
+        await route.fulfill({ status: 403, json: { message: 'Forbidden' } });
+      }
+      return;
     }
 
     // Unrecognized route — abort to avoid connection errors to localhost:8080

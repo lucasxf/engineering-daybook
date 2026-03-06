@@ -6,6 +6,8 @@ import java.util.UUID;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,6 +32,18 @@ import com.lucasxf.ed.config.VectorAttributeConverter;
 @Table(name = "poks")
 public class Pok {
 
+    /**
+     * Visibility level for a learning entry.
+     *
+     * <p>{@code PRIVATE} — accessible only to the owner (default).
+     * {@code PUBLIC} — accessible to any authenticated user who knows the ID.
+     * Transitioning from {@code PUBLIC} back to {@code PRIVATE} is forbidden once shared.
+     */
+    public enum Visibility {
+        PRIVATE,
+        PUBLIC
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -53,6 +67,10 @@ public class Pok {
     @Convert(converter = VectorAttributeConverter.class)
     private float[] embedding;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Visibility visibility = Visibility.PRIVATE;
+
     @Column(name = "deleted_at")
     private Instant deletedAt;
 
@@ -67,16 +85,29 @@ public class Pok {
     }
 
     /**
-     * Creates a new POK.
+     * Creates a new POK with the given visibility.
+     *
+     * @param userId     the ID of the user creating the POK
+     * @param title      optional title (can be null or empty for frictionless capture)
+     * @param content    mandatory content (the actual knowledge/learning)
+     * @param visibility visibility level for this POK
+     */
+    public Pok(UUID userId, String title, String content, Visibility visibility) {
+        this.userId = userId;
+        this.title = title;
+        this.content = content;
+        this.visibility = visibility;
+    }
+
+    /**
+     * Creates a new POK with default {@code PRIVATE} visibility.
      *
      * @param userId  the ID of the user creating the POK
      * @param title   optional title (can be null or empty for frictionless capture)
      * @param content mandatory content (the actual knowledge/learning)
      */
     public Pok(UUID userId, String title, String content) {
-        this.userId = userId;
-        this.title = title;
-        this.content = content;
+        this(userId, title, content, Visibility.PRIVATE);
     }
 
     @PreUpdate
@@ -187,5 +218,19 @@ public class Pok {
 
     public float[] getEmbedding() {
         return embedding;
+    }
+
+    public Visibility getVisibility() {
+        return visibility;
+    }
+
+    /**
+     * Promotes this POK to {@code PUBLIC} visibility.
+     *
+     * <p>This transition is <strong>irreversible</strong> — once public, a POK cannot
+     * be reverted to private. Callers must enforce this constraint before invoking.
+     */
+    public void makePublic() {
+        this.visibility = Visibility.PUBLIC;
     }
 }

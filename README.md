@@ -150,6 +150,7 @@ See `backend/src/main/resources/application.yml` for configuration details.
   - Sort options: Newest, Oldest, Recently updated
   - Hybrid search (keyword + semantic via pgvector cosine similarity)
   - AI-powered embeddings via HuggingFace Inference API (async, non-blocking)
+  - Visibility controls — private by default; learners can make individual learnings public (irreversible); per-user default visibility preference
 
 - **Web Application**
   - Responsive design with Tailwind CSS
@@ -164,6 +165,7 @@ See `backend/src/main/resources/application.yml` for configuration details.
   - Auth: login, register, password reset, Google OAuth
   - Learning feed with search (hybrid keyword + semantic)
   - Create, edit, and delete learnings
+  - Visibility picker at creation; visibility badge and toggle on detail screen
   - Dark mode / light mode / system theme
   - Internationalization (EN/PT-BR)
 
@@ -193,12 +195,19 @@ See [ROADMAP.phase-2.md](./docs/ROADMAP.phase-2.md)
 - [x] POK editing, deletion, and audit trail
 - [x] Tagging system — full web UI done (TagSection, add/remove tags from view and edit pages, tag assignment at creation time via TagPicker, post-create redirect to tag UI, AI keyword-based tag suggestions with approve/reject)
 - [x] Visualization — tag-grouped view, timeline view (month/year), sort options (Newest/Oldest/Recently updated)
+- [ ] UX Delight — inspirational prompts, homepage personalization
 
 ### Phase 3: AI & Mobile — 🔄 In Progress
 See [ROADMAP.phase-3.md](./docs/ROADMAP.phase-3.md)
 - [x] Semantic search — hybrid keyword + vector search via pgvector; embeddings from HuggingFace Inference API
 - [ ] AI Connections (related learnings)
 - [x] Mobile app (Expo/React Native) — auth, feed, create/edit/delete, dark mode, i18n EN/PT-BR
+- [ ] App Store Publishing (TestFlight + Play Store internal track)
+
+### Phase 5: Privacy — 🔄 In Progress
+See [ROADMAP.phase-5.md](./docs/ROADMAP.phase-5.md)
+- [x] POK Visibility Controls — private by default, per-learning public toggle (irreversible), default visibility preference, access control enforcement, UI indicators on web and mobile
+- [x] Learner Profile Privacy — profileVisibility field, public learner profile page, settings page/screen, E2E tests
 
 ---
 

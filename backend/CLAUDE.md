@@ -234,11 +234,34 @@ cd backend
 
 - **HuggingFace Inference API for `paraphrase-multilingual-MiniLM-L12-v2` returns a flat `float[]`, not `float[][]`:** The router endpoint (`https://router.huggingface.co/`) returns a single flat vector when the request body is `{"inputs": "text"}`. Use `.body(float[].class)` and return the response directly. Do NOT use `.body(float[][].class)` and index into `response[0]` — the Jackson deserializer will return `null` or throw when the shape is wrong. Symptom: `NullPointerException` or `EmbeddingUnavailableException("HuggingFace returned an empty embedding response")` even when the API returns 200. Other HuggingFace models (e.g., `sentence-transformers` via the direct inference API) may return `float[][]` — always verify the actual response shape for the specific model and endpoint being used.
 
+- **`@WebMvcTest` slices only wire explicitly declared beans — every new controller dependency needs a matching `@MockitoBean` in every test class for that controller:** When a constructor parameter is added to a controller (e.g., injecting `UserService` into `AuthController`), all `@WebMvcTest` test classes for that controller must also declare a `@MockitoBean` for the new dependency. Spring's `@WebMvcTest` slice does not auto-discover beans outside the web layer; missing a `@MockitoBean` causes `ApplicationContext failure threshold exceeded` (Spring Boot 4.x retries and then gives up). All `@WebMvcTest` classes targeting the same controller must stay in sync whenever the controller's constructor changes.
+
+  ```java
+  // In AuthControllerTest, AuthControllerGoogleTest, etc. — every @WebMvcTest for AuthController:
+  @MockitoBean
+  UserService userService;
+  ```
+
+  Symptom: `IllegalStateException: ApplicationContext failure threshold (1) exceeded` on an otherwise-passing test class, where the only change was adding a new constructor dependency to the controller under test.
+
 - **Constrain list/array DTO fields with `@Size(max = N)` to prevent N+1 resource exhaustion:** When a DTO field is a list that the service iterates with one repository call per element (e.g., `tagIds` driving `tagRepository.findById(id)` in a loop), an unconstrained input allows a caller to trigger an arbitrary number of database queries in a single request. Add `@Size(max = 50)` (or the appropriate domain bound) alongside other field-level constraints. This pattern applies to any future list input that drives a DB loop — not just `tagIds`. Already applied: `CreatePokRequest.tagIds`. (Added 2026-03-01)
 
   ```java
   @Size(max = 50)
   private List<UUID> tagIds;
+  ```
+
+- **`@WebMvcTest` does not provide `ObjectMapper` unless a Jackson config is explicitly imported:** `@Autowired ObjectMapper` fails with `UnsatisfiedDependencyException` in `@WebMvcTest` slices because `ObjectMapper` is not part of the web MVC slice. Fix: either add `@Import(JacksonConfig.class)` (if available) to the test class, or — if the controller test has only GET endpoints — simply remove the unused field. The `@WebMvcTest` slice only provides what is explicitly declared via `@MockitoBean`, `@Import`, or `@EnableConfigurationProperties`.
+
+- **Derive `totalCount` from a count query, not from a paged result's `.size()`:** When a service method fetches a paginated subset of records and also needs to return the total count, using `list.size()` gives the page size (e.g. 20) rather than the real total. Use a dedicated `countBy*` Spring Data JPA method instead, and pass the result as an explicit parameter to the DTO factory. Applies any time the endpoint must expose "how many items does this entity have?" to callers.
+
+  ```java
+  // WRONG — list.size() returns at most PROFILE_PAGE_SIZE (= 20)
+  Integer count = isOwner ? learnings.size() : null;
+
+  // CORRECT — separate count query
+  long totalCount = pokRepository.countByUserIdAndDeletedAtIsNull(userId);
+  return LearnerProfileResponse.full(user, learnings, isOwner, (int) totalCount);
   ```
 
 ---

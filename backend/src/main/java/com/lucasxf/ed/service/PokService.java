@@ -30,6 +30,7 @@ import com.lucasxf.ed.dto.UpdatePokRequest;
 import com.lucasxf.ed.exception.EmbeddingUnavailableException;
 import com.lucasxf.ed.exception.PokAccessDeniedException;
 import com.lucasxf.ed.exception.PokNotFoundException;
+import com.lucasxf.ed.exception.PokVisibilityImmutableException;
 import com.lucasxf.ed.repository.PokAuditLogRepository;
 import com.lucasxf.ed.repository.PokRepository;
 import com.lucasxf.ed.repository.PokTagRepository;
@@ -65,6 +66,7 @@ public class PokService {
     private final EmbeddingGenerationService embeddingGenerationService;
     private final EmbeddingService embeddingService;
     private final TagService tagService;
+    private final UserService userService;
 
     public PokService(PokRepository pokRepository,
                       PokAuditLogRepository pokAuditLogRepository,
@@ -74,7 +76,8 @@ public class PokService {
                       @Lazy TagSuggestionService tagSuggestionService,
                       EmbeddingGenerationService embeddingGenerationService,
                       EmbeddingService embeddingService,
-                      TagService tagService) {
+                      TagService tagService,
+                      UserService userService) {
         this.pokRepository = requireNonNull(pokRepository);
         this.pokAuditLogRepository = requireNonNull(pokAuditLogRepository);
         this.pokTagRepository = requireNonNull(pokTagRepository);
@@ -84,6 +87,7 @@ public class PokService {
         this.embeddingGenerationService = requireNonNull(embeddingGenerationService);
         this.embeddingService = requireNonNull(embeddingService);
         this.tagService = requireNonNull(tagService);
+        this.userService = requireNonNull(userService);
     }
 
     /**
@@ -97,7 +101,10 @@ public class PokService {
     public PokResponse create(CreatePokRequest request, UUID userId) {
         log.debug("Creating POK for user {} with title: {}", userId, request.title());
 
-        Pok pok = new Pok(userId, request.title(), request.content());
+        Pok.Visibility visibility = request.visibility() != null
+            ? request.visibility()
+            : userService.findById(userId).getDefaultPokVisibility();
+        Pok pok = new Pok(userId, request.title(), request.content(), visibility);
         Pok savedPok = pokRepository.save(pok);
 
         log.info("POK created: id={}, userId={}, hasTitle={}",
@@ -123,7 +130,7 @@ public class PokService {
      * Retrieves a POK by ID.
      *
      * @param id     the POK ID
-     * @param userId the ID of the user requesting the POK
+     * @param userId the ID of the requesting user (used for access check only — not the owner)
      * @return the POK
      * @throws PokNotFoundException       if the POK is not found or soft-deleted
      * @throws PokAccessDeniedException   if the POK belongs to another user
@@ -135,9 +142,9 @@ public class PokService {
         Pok pok = pokRepository.findByIdAndDeletedAtIsNull(id)
             .orElseThrow(() -> new PokNotFoundException("POK not found"));
 
-        verifyOwnership(pok, userId);
+        verifyAccess(pok, userId);
 
-        List<TagResponse> tags = buildTagResponses(pok.getId(), userId);
+        List<TagResponse> tags = buildTagResponses(pok.getId(), pok.getUserId());
         List<TagSuggestionResponse> suggestions = buildSuggestionResponses(pok.getId());
 
         return PokResponse.from(pok, tags, suggestions);
@@ -379,11 +386,21 @@ public class PokService {
 
         verifyOwnership(pok, userId);
 
+        // Enforce irreversible visibility: PUBLIC → PRIVATE is forbidden
+        if (request.visibility() == Pok.Visibility.PRIVATE
+                && pok.getVisibility() == Pok.Visibility.PUBLIC) {
+            throw new PokVisibilityImmutableException(
+                "A public learning cannot be reverted to private");
+        }
+
         String oldTitle = pok.getTitle();
         String oldContent = pok.getContent();
 
         pok.updateTitle(request.title());
         pok.updateContent(request.content());
+        if (request.visibility() == Pok.Visibility.PUBLIC) {
+            pok.makePublic();
+        }
         pok.clearEmbedding();  // Mark stale; will be regenerated async below
 
         Pok updatedPok = pokRepository.save(pok);
@@ -435,7 +452,29 @@ public class PokService {
     }
 
     /**
-     * Verifies that the POK belongs to the user.
+     * Verifies read access to a POK.
+     *
+     * <p>PUBLIC learnings are accessible to any authenticated user.
+     * PRIVATE learnings are accessible only to the owner.
+     * Always returns 403 (never 404) to prevent confirming resource existence.
+     *
+     * @param pok    the POK to check
+     * @param userId the requesting user's ID
+     * @throws PokAccessDeniedException if the POK is private and belongs to another user
+     */
+    private void verifyAccess(Pok pok, UUID userId) {
+        if (pok.getVisibility() == Pok.Visibility.PUBLIC) return;
+        if (pok.getUserId().equals(userId)) return;
+        log.warn("Access denied: user {} attempted to read PRIVATE POK {} owned by {}",
+            userId, pok.getId(), pok.getUserId());
+        throw new PokAccessDeniedException("You do not have permission to access this learning");
+    }
+
+    /**
+     * Verifies that the POK belongs to the user (write gate).
+     *
+     * <p>Ownership is always required for write operations (update, delete, history),
+     * regardless of the POK's visibility level.
      *
      * @param pok    the POK to verify
      * @param userId the user ID
@@ -443,9 +482,9 @@ public class PokService {
      */
     private void verifyOwnership(Pok pok, UUID userId) {
         if (!pok.getUserId().equals(userId)) {
-            log.warn("Access denied: user {} attempted to access POK {} owned by {}",
+            log.warn("Access denied: user {} attempted to modify POK {} owned by {}",
                 userId, pok.getId(), pok.getUserId());
-            throw new PokAccessDeniedException("You do not have permission to access this POK");
+            throw new PokAccessDeniedException("You do not have permission to modify this learning");
         }
     }
 

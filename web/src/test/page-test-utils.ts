@@ -15,6 +15,7 @@ export function createMockAuth(overrides?: Partial<AuthContextValue>): AuthConte
     logout: vi.fn(),
     googleLogin: vi.fn(),
     completeGoogleSignup: vi.fn(),
+    updateUser: vi.fn(),
     ...overrides,
   };
 }

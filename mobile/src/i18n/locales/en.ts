@@ -102,6 +102,12 @@ export default {
       tags: 'Tags',
       noTags: 'No tags',
     },
+    visibility: {
+      private: 'Private',
+      public: 'Public',
+      pickerLabel: 'Visibility',
+      publicWarning: 'Once public, this cannot be made private again.',
+    },
     errors: {
       contentRequired: 'Content is required',
       contentMaxLength: 'Content is too long (max 50 000 chars)',
@@ -135,6 +141,15 @@ export default {
     logoutConfirmTitle: 'Sign out?',
     logoutConfirmOk: 'Sign out',
     logoutConfirmCancel: 'Cancel',
+    privacy: {
+      heading: 'Privacy',
+      profileVisibility: 'Profile visibility',
+      defaultPokVisibility: 'Default learning visibility',
+      private: 'Private',
+      public: 'Public',
+      saveSuccess: 'Settings saved',
+      saveError: 'Failed to save. Please try again.',
+    },
   },
 
   // Common

@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 """
-PostToolUse hook — tracks agent invocations in real-time.
+PostToolUse hook — tracks agent and slash-command invocations in real-time.
 
-Fires after every Task tool call. Reads the subagent_type from stdin JSON,
-increments the matching [agent_usage.<name>] entry in usage-stats.toml,
-and updates last_used timestamp. No LLM involved — pure file I/O.
-
-Also fires on Bash tool calls matching command slash commands, updating
-[command_usage.<name>] entries. Detects commands by inspecting the
-tool_input.command field for known .claude/commands/ patterns.
+Fires after Task, Bash, and Skill tool calls:
+- Task: reads subagent_type → increments [agent_usage.<name>]
+- Skill: reads skill name → increments [command_usage.<name>]
+- Bash: fallback detection for known slash-command patterns
 
 Unknown agents/commands are added automatically so the file self-heals
 as new agents are introduced.
@@ -28,7 +25,7 @@ KNOWN_COMMANDS = {
     "update-roadmap", "review-code", "quick-test", "build-quiet",
     "verify-quiet", "docker-start", "docker-stop", "api-doc",
     "resume-session", "save-response", "test-service", "write-spec",
-    "implement-spec", "review-pr",
+    "implement-spec", "review-pr", "fix-pr",
 }
 
 
@@ -107,6 +104,12 @@ def main():
             if subagent_type:
                 section = "agent_usage"
                 key = subagent_type
+
+        elif tool_name == "Skill":
+            skill_name = tool_input.get("skill", "").strip()
+            if skill_name:
+                section = "command_usage"
+                key = skill_name
 
         elif tool_name == "Bash":
             cmd = detect_command(tool_input)

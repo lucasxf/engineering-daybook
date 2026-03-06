@@ -39,6 +39,12 @@ const messages = {
       hint: 'Ctrl+Enter to save',
       saving: 'Saving...',
     },
+    visibility: {
+      private: 'Private',
+      public: 'Public',
+      pickerLabel: 'Visibility',
+      publicWarning: 'Public learnings cannot be made private again.',
+    },
     errors: {
       unexpected: 'Something went wrong. Please try again.',
     },
@@ -59,6 +65,7 @@ const makePok = (overrides?: Partial<Pok>): Pok => ({
   userId: 'user-1',
   title: null,
   content: 'Some content',
+  visibility: 'PRIVATE',
   deletedAt: null,
   createdAt: '2026-02-25T10:00:00Z',
   updatedAt: '2026-02-25T10:00:00Z',
@@ -117,7 +124,7 @@ describe('QuickEntry', () => {
     await user.click(screen.getByRole('button', { name: /save learning/i }));
 
     await waitFor(() => {
-      expect(mockCreate).toHaveBeenCalledWith({ title: null, content: 'Learned something' });
+      expect(mockCreate).toHaveBeenCalledWith({ title: null, content: 'Learned something', visibility: 'PRIVATE' });
     });
   });
 
@@ -132,7 +139,7 @@ describe('QuickEntry', () => {
     await user.click(screen.getByRole('button', { name: /save learning/i }));
 
     await waitFor(() => {
-      expect(mockCreate).toHaveBeenCalledWith({ title: 'My Title', content: 'Learned something' });
+      expect(mockCreate).toHaveBeenCalledWith({ title: 'My Title', content: 'Learned something', visibility: 'PRIVATE' });
     });
   });
 

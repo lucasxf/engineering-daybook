@@ -13,6 +13,7 @@ import com.lucasxf.ed.domain.Pok;
  * @param userId             owner user ID
  * @param title              optional title (can be null)
  * @param content            POK content
+ * @param visibility         visibility level of this learning
  * @param deletedAt          soft delete timestamp (null if active)
  * @param createdAt          creation timestamp
  * @param updatedAt          last update timestamp
@@ -26,6 +27,7 @@ public record PokResponse(
     UUID userId,
     String title,
     String content,
+    Pok.Visibility visibility,
     Instant deletedAt,
     Instant createdAt,
     Instant updatedAt,
@@ -46,6 +48,7 @@ public record PokResponse(
             pok.getUserId(),
             pok.getTitle(),
             pok.getContent(),
+            pok.getVisibility(),
             pok.getDeletedAt(),
             pok.getCreatedAt(),
             pok.getUpdatedAt(),
@@ -68,6 +71,7 @@ public record PokResponse(
             pok.getUserId(),
             pok.getTitle(),
             pok.getContent(),
+            pok.getVisibility(),
             pok.getDeletedAt(),
             pok.getCreatedAt(),
             pok.getUpdatedAt(),

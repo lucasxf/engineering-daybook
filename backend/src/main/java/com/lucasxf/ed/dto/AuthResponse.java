@@ -3,6 +3,8 @@ package com.lucasxf.ed.dto;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.lucasxf.ed.domain.Pok;
+import com.lucasxf.ed.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
@@ -13,6 +15,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * that cannot store cookies. Web clients should ignore these fields and rely on cookies
  * instead. Both fields are omitted from the JSON body when no tokens are issued (e.g. the
  * {@code /me} endpoint).
+ *
+ * <p>{@code defaultPokVisibility} and {@code profileVisibility} are populated on all auth
+ * operations (login, register, refresh, Google sign-in, and {@code /me}) since the {@code User}
+ * entity is already loaded during token issuance. The separate {@code /me} endpoint remains
+ * useful for restoring session state on page load without re-issuing tokens.
  *
  * @author Lucas Xavier Ferreira
  * @since 2026-02-11
@@ -35,10 +42,29 @@ public record AuthResponse(
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Schema(description = "Opaque refresh token — mobile clients only; web clients use the refresh_token cookie")
-    String refreshToken) {
+    String refreshToken,
 
-    /** Identity-only constructor — for endpoints that do not issue tokens (e.g. {@code /me}). */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "User's default visibility for new learnings")
+    Pok.Visibility defaultPokVisibility,
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "User's profile visibility")
+    User.ProfileVisibility profileVisibility) {
+
+    /** Identity-only constructor — for web login/register/refresh (cookie-based, no tokens, no settings). */
     public AuthResponse(String handle, UUID userId, String email) {
-        this(handle, userId, email, null, null);
+        this(handle, userId, email, null, null, null, null);
+    }
+
+    /** Mobile login/refresh constructor — includes tokens in body but no settings. */
+    public AuthResponse(String handle, UUID userId, String email, String accessToken, String refreshToken) {
+        this(handle, userId, email, accessToken, refreshToken, null, null);
+    }
+
+    /** /me constructor — includes settings from a DB-fetched User, no tokens in body. */
+    public AuthResponse(String handle, UUID userId, String email,
+            Pok.Visibility defaultPokVisibility, User.ProfileVisibility profileVisibility) {
+        this(handle, userId, email, null, null, defaultPokVisibility, profileVisibility);
     }
 }

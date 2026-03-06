@@ -14,6 +14,7 @@ interface SelectProps {
   onChange: (value: string) => void;
   label?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 /**
@@ -23,7 +24,7 @@ interface SelectProps {
  * - Arrow keys to navigate, Enter/Space to select, Escape to close
  * - Closes on outside click
  */
-export function Select({ options, value, onChange, label, className }: SelectProps) {
+export function Select({ options, value, onChange, label, className, disabled = false }: SelectProps) {
   const [open, setOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -125,7 +126,8 @@ export function Select({ options, value, onChange, label, className }: SelectPro
         aria-activedescendant={open && focusedIndex >= 0 ? `${optionId}-${focusedIndex}` : undefined}
         onClick={handleToggle}
         onKeyDown={handleKeyDown}
-        className="inline-flex min-w-[10rem] items-center justify-between gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-slate-500"
+        disabled={disabled}
+        className="inline-flex min-w-[10rem] items-center justify-between gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-slate-500"
       >
         <span>{selectedOption?.label}</span>
         <svg

@@ -29,6 +29,7 @@ function makePok(id: string, createdAt: string): Pok {
     userId: 'u1',
     title: `Learning ${id}`,
     content: 'content',
+    visibility: 'PRIVATE',
     deletedAt: null,
     createdAt,
     updatedAt: createdAt,

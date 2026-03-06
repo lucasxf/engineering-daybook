@@ -2,11 +2,11 @@
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "Task|Bash",
+        "matcher": "Task|Bash|Skill",
         "hooks": [
           {
             "type": "command",
-            "command": "python \".claude/scripts/track-usage.py\"",
+            "command": "bash \".claude/scripts/run-track-usage.sh\"",
             "timeout": 5,
             "async": true
           }
@@ -22,6 +22,9 @@
       "Bash(git log *)",
       "Bash(git diff *)",
       "Bash(git branch *)",
+      "Bash(git pull *)",
+      "Bash(git merge *)",
+      "Bash(git rebase *)",
       "Bash(git show *)",
       "Bash(git show-ref *)",
       "Bash(git ls-tree *)",

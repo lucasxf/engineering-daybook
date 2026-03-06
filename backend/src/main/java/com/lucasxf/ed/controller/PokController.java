@@ -39,7 +39,9 @@ import static java.util.Objects.requireNonNull;
  * REST controller for POK (Piece of Knowledge) endpoints.
  *
  * <p>All endpoints require JWT authentication. User ID is extracted from the
- * authentication context and used to enforce ownership rules.
+ * authentication context and used to enforce access control rules:
+ * {@code PUBLIC} learnings are readable by any authenticated user;
+ * {@code PRIVATE} learnings are accessible to their owner only.
  *
  * @author Lucas Xavier Ferreira
  * @since 2026-02-14
@@ -85,6 +87,9 @@ public class PokController {
     /**
      * Retrieves a POK by ID.
      *
+     * <p>PUBLIC learnings are accessible to any authenticated user.
+     * PRIVATE learnings are accessible only to the owner.
+     *
      * @param id             the POK ID
      * @param authentication the authenticated user
      * @return the POK
@@ -92,11 +97,13 @@ public class PokController {
     @GetMapping("/{id}")
     @Operation(
         summary = "Get POK by ID",
-        description = "Retrieves a specific POK by its ID. User must own the POK."
+        description = "Retrieves a specific POK by its ID. " +
+                      "PUBLIC learnings are accessible to any authenticated user. " +
+                      "PRIVATE learnings are accessible only to the owner."
     )
     @ApiResponse(responseCode = "200", description = "POK found")
     @ApiResponse(responseCode = "401", description = "Unauthorized")
-    @ApiResponse(responseCode = "403", description = "Forbidden - POK belongs to another user")
+    @ApiResponse(responseCode = "403", description = "Forbidden - POK is private and belongs to another user")
     @ApiResponse(responseCode = "404", description = "POK not found or soft-deleted")
     public ResponseEntity<PokResponse> getById(
         @PathVariable UUID id,

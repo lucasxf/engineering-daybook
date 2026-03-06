@@ -12,7 +12,7 @@ import { Alert } from '@/components/ui/Alert';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { Toast } from '@/components/ui/Toast';
-import type { PokFormData } from '@/lib/validations/pokSchema';
+import type { PokFormSubmitData } from '@/components/poks/PokForm';
 
 /**
  * Page for editing an existing POK.
@@ -68,12 +68,13 @@ export default function EditPokPage() {
     }
   };
 
-  const handleSubmit = async (data: PokFormData) => {
+  const handleSubmit = async (data: PokFormSubmitData) => {
     setError(null);
     try {
       await pokApi.update(pokId, {
         title: data.title || null,
         content: data.content,
+        visibility: data.visibility,
       });
       setShowSuccessToast(true);
     } catch (err) {
@@ -127,6 +128,7 @@ export default function EditPokPage() {
         initialData={{
           title: pok.title || '',
           content: pok.content,
+          visibility: pok.visibility,
         }}
       />
 

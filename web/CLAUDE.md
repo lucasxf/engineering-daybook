@@ -154,3 +154,16 @@ npm run test     # Run tests (Vitest)
   Seen in: `PokCard.tsx` (pattern 1) and `poks/[id]/page.tsx` (pattern 2). (Added 2026-03-01)
 
 - **`render` prefix on ReactNode props implies a render function — use a noun slot name instead:** React convention treats `render*` props as functions (`() => ReactNode` or `(args) => ReactNode`), not static nodes. A prop typed as `renderAfterContent?: ReactNode` will confuse readers who expect to call it. Use a noun slot name instead: `afterContent`, `contentSlot`, `hint`, or similar. Avoid any `render*` naming on a prop whose type is `ReactNode`. Seen in `PokForm.tsx` (`renderAfterContent` → `afterContent`). (Added 2026-03-01)
+
+- **Sync `AuthContext` after mutating API calls that change user preferences:** When a settings endpoint (e.g., `PATCH /users/me/settings`) returns 204 No Content, the caller cannot read the updated user from the response. Without explicitly calling `updateUser(patch)` on `AuthContext` after success, every component that reads `user.defaultPokVisibility` or `user.profileVisibility` (e.g. `QuickEntry` initializing new POK visibility) sees stale values until the next full page reload. Pattern: expose `updateUser(patch: Partial<AuthUser>)` on `AuthContextValue` and call it in the success handler of any settings mutation.
+
+  ```typescript
+  // In AuthContext.tsx — expose the updater
+  const updateUser = useCallback((patch: Partial<AuthUser>) => {
+    setUser((prev) => (prev ? { ...prev, ...patch } : prev));
+  }, []);
+
+  // In settings/page.tsx — call it after every successful mutation
+  await updateUserSettings({ defaultPokVisibility: value });
+  updateUser({ defaultPokVisibility: value });
+  ```

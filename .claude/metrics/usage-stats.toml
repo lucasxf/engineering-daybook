@@ -2,7 +2,7 @@
 # Collected by pulse agent, analyzed by automation-sentinel agent
 
 [metadata]
-timestamp = "2026-02-27T16:58:04Z"
+timestamp = "2026-03-05T11:13:23Z"
 commit_sha = ""
 branch = "develop"
 schema_version = "1.0.0"
@@ -12,6 +12,10 @@ updated_by = "hook"
 [agent_usage.automation-sentinel]
 invocations = 0
 last_used = ""
+
+[agent_usage.general-purpose]
+invocations = 3
+last_used = "2026-03-04T14:41:01Z"
 
 [agent_usage.sous-chef]
 invocations = 0
@@ -51,14 +55,26 @@ last_used = ""
 
 # Command Usage Metrics
 [command_usage.start-session]
-invocations = 0
-last_used = ""
+invocations = 8
+last_used = "2026-03-05T11:13:23Z"
 
 [command_usage.finish-session]
 invocations = 0
 last_used = ""
 
+[command_usage.resume-session]
+invocations = 0
+last_used = ""
+
 [command_usage.create-pr]
+invocations = 0
+last_used = ""
+
+[command_usage.review-pr]
+invocations = 0
+last_used = ""
+
+[command_usage.fix-pr]
 invocations = 0
 last_used = ""
 
@@ -74,6 +90,14 @@ last_used = ""
 invocations = 0
 last_used = ""
 
+[command_usage.write-spec]
+invocations = 0
+last_used = ""
+
+[command_usage.implement-spec]
+invocations = 0
+last_used = ""
+
 [command_usage.quick-test]
 invocations = 0
 last_used = ""
@@ -83,6 +107,10 @@ invocations = 0
 last_used = ""
 
 [command_usage.verify-quiet]
+invocations = 0
+last_used = ""
+
+[command_usage.test-service]
 invocations = 0
 last_used = ""
 
@@ -98,24 +126,11 @@ last_used = ""
 invocations = 0
 last_used = ""
 
-[command_usage.resume-session]
-invocations = 0
-last_used = ""
-
 [command_usage.save-response]
 invocations = 0
 last_used = ""
 
-[command_usage.test-service]
-invocations = 0
-last_used = ""
-
 # Productivity Metrics
-
-[agent_usage.general-purpose]
-invocations = 1
-last_used = "2026-02-27T16:58:04Z"
-
 [productivity]
 current_total_locs = 0
 current_production_locs = 0
@@ -128,5 +143,5 @@ net_locs = 0
 # Health Metrics
 [health]
 schema_errors = 0
-total_agents = 12
-total_commands = 15
+total_agents = 11
+total_commands = 19

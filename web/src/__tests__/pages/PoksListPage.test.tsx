@@ -35,6 +35,7 @@ vi.mock('@/hooks/useAuth', () => ({
     logout: vi.fn(),
     googleLogin: vi.fn(),
     completeGoogleSignup: vi.fn(),
+    updateUser: vi.fn(),
   }),
 }));
 

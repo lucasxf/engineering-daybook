@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.dto.AuthResponse;
 import com.lucasxf.ed.dto.CompleteGoogleSignupRequest;
 import com.lucasxf.ed.dto.GoogleLoginRequest;
@@ -29,6 +30,7 @@ import com.lucasxf.ed.security.UserPrincipal;
 import com.lucasxf.ed.service.AuthResult;
 import com.lucasxf.ed.service.AuthService;
 import com.lucasxf.ed.service.GoogleLoginResult;
+import com.lucasxf.ed.service.UserService;
 
 import static java.util.Objects.requireNonNull;
 
@@ -50,10 +52,12 @@ public class AuthController {
 
     private final AuthService authService;
     private final CookieHelper cookieHelper;
+    private final UserService userService;
 
-    public AuthController(AuthService authService, CookieHelper cookieHelper) {
+    public AuthController(AuthService authService, CookieHelper cookieHelper, UserService userService) {
         this.authService = requireNonNull(authService);
         this.cookieHelper = requireNonNull(cookieHelper);
+        this.userService = requireNonNull(userService);
     }
 
     @PostMapping("/register")
@@ -68,7 +72,8 @@ public class AuthController {
                                                  HttpServletResponse httpResponse) {
         AuthResult result = authService.register(request);
         cookieHelper.setAuthCookies(httpResponse, result.accessToken(), result.refreshToken());
-        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email()));
+        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email(),
+            null, null, result.defaultPokVisibility(), result.profileVisibility()));
     }
 
     @PostMapping("/login")
@@ -81,7 +86,8 @@ public class AuthController {
                                               HttpServletResponse httpResponse) {
         AuthResult result = authService.login(request);
         cookieHelper.setAuthCookies(httpResponse, result.accessToken(), result.refreshToken());
-        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email()));
+        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email(),
+            null, null, result.defaultPokVisibility(), result.profileVisibility()));
     }
 
     @PostMapping("/refresh")
@@ -107,7 +113,8 @@ public class AuthController {
 
         AuthResult result = authService.refreshToken(refreshToken);
         cookieHelper.setAuthCookies(httpResponse, result.accessToken(), result.refreshToken());
-        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email()));
+        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email(),
+            null, null, result.defaultPokVisibility(), result.profileVisibility()));
     }
 
     @PostMapping("/logout")
@@ -129,6 +136,7 @@ public class AuthController {
     @Operation(summary = "Get current user identity",
         description = "Returns the identity of the authenticated user from the access_token cookie. "
             + "Used by the frontend to restore session state on page load. "
+            + "Includes defaultPokVisibility from the user's persisted settings. "
             + "Returns 401 if the cookie is absent or invalid.")
     @ApiResponse(responseCode = "200", description = "Session is valid — user identity returned")
     @ApiResponse(responseCode = "401", description = "No valid session (cookie absent or expired)")
@@ -137,8 +145,10 @@ public class AuthController {
             || !(authentication.getPrincipal() instanceof UserPrincipal principal)) {
             return ResponseEntity.status(401).build();
         }
+        User user = userService.findById(principal.userId());
         return ResponseEntity.ok(
-            new AuthResponse(principal.handle(), principal.userId(), principal.email())
+            new AuthResponse(principal.handle(), principal.userId(), principal.email(),
+                user.getDefaultPokVisibility(), user.getProfileVisibility())
         );
     }
 
@@ -184,7 +194,8 @@ public class AuthController {
         AuthResult result = authService.completeGoogleSignup(
             request.tempToken(), request.handle(), request.displayName());
         cookieHelper.setAuthCookies(httpResponse, result.accessToken(), result.refreshToken());
-        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email()));
+        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email(),
+            null, null, result.defaultPokVisibility(), result.profileVisibility()));
     }
 
     @GetMapping("/handle/available")

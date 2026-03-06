@@ -180,14 +180,46 @@
       "updated": "Aprendizado atualizado com sucesso",
       "deleted": "Aprendizado excluído com sucesso"
     },
+    "visibility": {
+      "private": "Privado",
+      "public": "Público",
+      "pickerLabel": "Visibilidade",
+      "publicWarning": "Aprendizados públicos não podem ser tornados privados novamente."
+    },
     "errors": {
       "notFound": "Aprendizado não encontrado",
       "forbidden": "Você não tem permissão para acessar este aprendizado",
       "contentRequired": "O conteúdo é obrigatório e não pode estar em branco",
       "titleTooLong": "O título deve ter no máximo 200 caracteres",
       "contentTooLong": "O conteúdo deve ter no máximo 50.000 caracteres",
-      "unexpected": "Algo deu errado. Tente novamente."
+      "unexpected": "Algo deu errado. Tente novamente.",
+      "visibilityImmutable": "Um aprendizado público não pode ser tornado privado."
     }
+  },
+  "settings": {
+    "title": "Configurações",
+    "privacy": {
+      "heading": "Privacidade",
+      "profileVisibility": "Visibilidade do perfil",
+      "profileVisibilityHint": "Controla quem pode ver seu perfil e aprendizados públicos.",
+      "defaultPokVisibility": "Visibilidade padrão dos aprendizados",
+      "defaultPokVisibilityHint": "Novos aprendizados usarão esta visibilidade por padrão.",
+      "private": "Privado",
+      "public": "Público",
+      "saveSuccess": "Configurações salvas",
+      "saveError": "Falha ao salvar configurações. Tente novamente.",
+      "viewProfile": "Ver meu perfil"
+    }
+  },
+  "learners": {
+    "privateProfile": "Este perfil é privado",
+    "privateProfileHint": "@{handle} optou por manter seu perfil privado.",
+    "noLearnings": "Nenhum aprendizado público ainda.",
+    "notFound": "Aprendiz não encontrado",
+    "notFoundHint": "Não existe um aprendiz com este identificador.",
+    "publicLearnings": "Aprendizados públicos",
+    "learningCount": "{count, plural, one {# aprendizado} other {# aprendizados}}",
+    "unexpectedError": "Algo deu errado."
   },
   "tags": {
     "addTag": "Adicionar etiqueta",
