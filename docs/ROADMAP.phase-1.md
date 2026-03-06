@@ -150,6 +150,17 @@ Automation/tooling chore: `track-usage.py` PostToolUse hook extended and usage s
 | Added `Skill` to PostToolUse hook matcher in `.claude/settings.json` | ✅ Done |
 | Reorganized `.claude/metrics/usage-stats.toml` — pre-seeded missing commands, cleaned up test entries | ✅ Done |
 
+### Cross-Session Metrics Safety (chore/cross-session-metrics, 2026-03-06) ✅
+
+Tooling fix: resolved a concurrency bug where parallel Claude Code sessions in separate worktrees would conflict on `usage-stats.toml` by writing to it simultaneously. (PR review: collision-safe encoding + --only flag fix)
+
+| Task | Status |
+|------|--------|
+| Modified `.claude/scripts/track-usage.py` to write per-session delta files to `.claude/metrics/sessions/{branch}.toml` instead of updating `usage-stats.toml` in-place | ✅ Done |
+| Created `.claude/commands/compile-metrics.md` — new `/compile-metrics` slash command that aggregates session delta files into the canonical `usage-stats.toml` on `develop` | ✅ Done |
+| Updated `.claude/commands/finish-session.md` and `.claude/commands/create-pr.md` to stage session delta files instead of the canonical file | ✅ Done |
+| Added 15 unit tests in `.claude/scripts/test_track_usage.py` (all passing) | ✅ Done |
+
 ---
 
 ## Active / Pending

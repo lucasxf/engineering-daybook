@@ -20,22 +20,29 @@ output, etc. containing a command name get miscounted as invocations).
 
 Unknown agents/commands are added automatically so the file self-heals
 as new agents and commands are introduced.
+
+Cross-session safety: each session writes to its own delta file at
+.claude/metrics/sessions/{sanitized-branch}.toml instead of updating
+usage-stats.toml directly. The canonical file is updated only by
+/compile-metrics after PRs merge to develop.
 """
 
 import json
-import sys
 import re
+import subprocess
+import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-TOML_PATH = Path(__file__).parent.parent / "metrics" / "usage-stats.toml"
+SESSIONS_DIR = Path(__file__).parent.parent / "metrics" / "sessions"
 
 KNOWN_COMMANDS = {
     "start-session", "finish-session", "create-pr", "directive",
     "update-roadmap", "review-code", "quick-test", "build-quiet",
     "verify-quiet", "docker-start", "docker-stop", "api-doc",
     "resume-session", "save-response", "test-service", "write-spec",
-    "implement-spec", "review-pr", "fix-pr",
+    "implement-spec", "review-pr", "fix-pr", "compile-metrics",
 }
 
 
@@ -43,14 +50,53 @@ def now_iso() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def get_session_branch() -> str:
+    """Return the current git branch name, or 'unknown' on failure."""
+    try:
+        result = subprocess.run(
+            ["git", "branch", "--show-current"],
+            capture_output=True,
+            text=True,
+            timeout=3,
+        )
+        branch = result.stdout.strip()
+        return branch if branch else "unknown"
+    except Exception:
+        return "unknown"
+
+
+def sanitize_branch_name(name: str) -> str:
+    """
+    Convert a branch name to a safe, collision-free filename.
+    Uses URL encoding for '/' so the mapping is injective:
+      feat/feature-a  → feat%2Ffeature-a
+      feat/a/b        → feat%2Fa%2Fb   (distinct from feat/a--b → feat%2Fa--b)
+    Remaining unsafe filename characters are replaced with '_'.
+    """
+    safe = name.replace("/", "%2F")
+    safe = re.sub(r"[^\w\-\.%]", "_", safe)
+    return safe or "unknown"
+
+
 def read_toml(path: Path) -> str:
     return path.read_text(encoding="utf-8") if path.exists() else ""
+
+
+def bootstrap_delta(branch: str, timestamp: str) -> str:
+    """Create minimal metadata for a new session delta file."""
+    return (
+        f'[metadata]\n'
+        f'session_branch = "{branch}"\n'
+        f'session_start = "{timestamp}"\n'
+        f'last_updated = "{timestamp}"\n'
+    )
 
 
 def increment_entry(content: str, section: str, key: str, timestamp: str) -> str:
     """
     Increment invocations and set last_used for [section.key].
     Adds the entry if it doesn't exist.
+    Delta files have no [productivity] section, so new entries are appended.
     """
     header = f"[{section}.{key}]"
     if header in content:
@@ -65,17 +111,14 @@ def increment_entry(content: str, section: str, key: str, timestamp: str) -> str
         content = pattern_date.sub(lambda m: f'{m.group(1)}"{timestamp}"', content)
     else:
         new_entry = f'\n[{section}.{key}]\ninvocations = 1\nlast_used = "{timestamp}"\n'
-        if "[productivity]" in content:
-            content = content.replace("[productivity]", new_entry + "\n[productivity]", 1)
-        else:
-            content += new_entry
+        content += new_entry
 
     return content
 
 
-def update_metadata(content: str, timestamp: str) -> str:
-    content = re.sub(r'timestamp = "[^"]*"', f'timestamp = "{timestamp}"', content)
-    content = re.sub(r'updated_by = "[^"]*"', 'updated_by = "hook"', content)
+def update_delta_metadata(content: str, timestamp: str) -> str:
+    """Update only last_updated in delta file metadata."""
+    content = re.sub(r'last_updated = "[^"]*"', f'last_updated = "{timestamp}"', content)
     return content
 
 
@@ -89,6 +132,23 @@ def detect_slash_command(prompt: str) -> str | None:
         if re.match(rf'^/{re.escape(cmd)}\b', prompt):
             return cmd
     return None
+
+
+def write_with_retry(path: Path, content: str, attempts: int = 3) -> None:
+    """
+    Write file content with retry on failure.
+    Covers the rare case of concurrent hook invocations on Windows
+    where two async hooks fire nearly simultaneously for the same session.
+    """
+    for attempt in range(attempts):
+        try:
+            path.write_text(content, encoding="utf-8")
+            return
+        except OSError:
+            if attempt < attempts - 1:
+                time.sleep(0.05)
+            else:
+                raise
 
 
 def main():
@@ -133,10 +193,18 @@ def main():
         if not section or not key:
             sys.exit(0)
 
-        content = read_toml(TOML_PATH)
+        # Resolve session delta file
+        branch = get_session_branch()
+        SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
+        delta_file = SESSIONS_DIR / f"{sanitize_branch_name(branch)}.toml"
+
+        content = read_toml(delta_file)
+        if not content:
+            content = bootstrap_delta(branch, timestamp)
+
         content = increment_entry(content, section, key, timestamp)
-        content = update_metadata(content, timestamp)
-        TOML_PATH.write_text(content, encoding="utf-8")
+        content = update_delta_metadata(content, timestamp)
+        write_with_retry(delta_file, content)
 
     except Exception:
         # Never block Claude — silently exit on any error
