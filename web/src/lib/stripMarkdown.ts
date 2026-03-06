@@ -4,7 +4,8 @@ export function stripMarkdown(md: string): string {
     .replace(/```[\s\S]*?```/g, '')              // fenced code blocks (before inline code)
     .replace(/^#{1,6}\s+/gm, '')                 // headings
     .replace(/(\*\*|__)(.*?)\1/g, '$2')          // bold
-    .replace(/(\*|_)(.*?)\1/g, '$2')             // italic
+    .replace(/\*([^*\n]+)\*/g, '$1')             // italic * (safe — * not used in identifiers)
+    .replace(/(?<!\w)_([^_\n]+)_(?!\w)/g, '$1') // italic _ (word-boundary safe — preserves snake_case)
     .replace(/~~(.*?)~~/g, '$1')                 // strikethrough
     .replace(/`([^`]*)`/g, '$1')                 // inline code
     .replace(/^\s*[-*+]\s+/gm, '')               // unordered lists
