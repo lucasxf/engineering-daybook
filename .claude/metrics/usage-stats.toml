@@ -59,8 +59,8 @@ invocations = 11
 last_used = "2026-03-06T13:44:58Z"
 
 [command_usage.finish-session]
-invocations = 3
-last_used = "2026-03-06T16:19:10Z"
+invocations = 1
+last_used = "2026-03-06T12:21:37Z"
 
 [command_usage.resume-session]
 invocations = 0
@@ -139,7 +139,7 @@ last_used = "2026-03-06T15:05:50Z"
 
 [agent_usage.Plan]
 invocations = 2
-last_used = "2026-03-06T14:22:25Z"
+last_used = "2026-03-06T14:41:50Z"
 
 [productivity]
 current_total_locs = 0
