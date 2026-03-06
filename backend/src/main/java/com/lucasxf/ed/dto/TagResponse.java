@@ -8,11 +8,12 @@ import com.lucasxf.ed.domain.UserTag;
 /**
  * Response DTO for a user's active tag subscription.
  *
- * @param id        the user-tag subscription ID
- * @param tagId     the global tag pool ID
- * @param name      the tag name
- * @param color     the user's assigned color for this tag
- * @param createdAt when the subscription was created
+ * @param id          the user-tag subscription ID
+ * @param tagId       the global tag pool ID
+ * @param name        the canonical tag name (lowercase, dashes)
+ * @param displayName the display tag name (original casing, dashes)
+ * @param color       the user's assigned color for this tag
+ * @param createdAt   when the subscription was created
  * @author Lucas Xavier Ferreira
  * @since 2026-02-25
  */
@@ -20,9 +21,10 @@ public record TagResponse(
     UUID id,
     UUID tagId,
     String name,
+    String displayName,
     String color,
-    Instant createdAt
-) {
+    Instant createdAt) {
+
     /**
      * Creates a {@link TagResponse} from a {@link UserTag} subscription.
      *
@@ -34,8 +36,8 @@ public record TagResponse(
             userTag.getId(),
             userTag.getTag().getId(),
             userTag.getTag().getName(),
+            userTag.getTag().getDisplayName(),
             userTag.getColor(),
-            userTag.getCreatedAt()
-        );
+            userTag.getCreatedAt());
     }
 }
