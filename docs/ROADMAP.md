@@ -50,7 +50,7 @@
 | 🔒 Privacy | All POKs have visibility controls; access enforcement confirmed |
 | 👥 Social | Author follows at least 3 learners; share feature in use |
 | 🏅 Gamification | First milestone badges awarded; AI tag suggestions in use |
-| 📝 Knowledge Enrichment | Markdown renders in all views; tag search works; Knowledge Paths spec approved |
+| 📝 Knowledge Enrichment | Markdown renders in all views; tag search works; Knowledge Paths deferred to after Phase 6 |
 | 🚀 Public Launch | 10 external learners; community principles published |
 
 ---
