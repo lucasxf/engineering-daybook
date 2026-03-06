@@ -46,12 +46,11 @@ echo "Base branch: $BASE_BRANCH"
 
 ## 3. Check for Uncommitted Changes
 
-First, auto-stage the session metrics file (updated live by the PostToolUse hook — expected to be dirty):
+First, commit the session metrics file if dirty (updated live by the PostToolUse hook — expected to be dirty).
+`--only` stages from the work tree and commits just this file, ignoring anything else in the index:
 ```bash
-git add .claude/metrics/usage-stats.toml
-# Commit metrics if not already committed
-git diff --cached --quiet -- .claude/metrics/usage-stats.toml || \
-  git commit -m "chore: update session metrics"
+git diff --quiet -- .claude/metrics/usage-stats.toml || \
+  git commit --only .claude/metrics/usage-stats.toml -m "chore: update session metrics"
 ```
 
 Then check for any remaining uncommitted changes:
