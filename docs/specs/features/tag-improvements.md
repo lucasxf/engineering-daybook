@@ -1,6 +1,6 @@
 # Tag Improvements
 
-> **Status:** Draft
+> **Status:** Approved
 > **Created:** 2026-03-06
 > **Implemented:** _pending_
 
