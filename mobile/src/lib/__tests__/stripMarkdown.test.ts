@@ -19,6 +19,7 @@ describe('stripMarkdown', () => {
   it('strips italic markers', () => {
     expect(stripMarkdown('*italic*')).toBe('italic');
     expect(stripMarkdown('_italic_')).toBe('italic');
+    expect(stripMarkdown('snake_case_variable')).toBe('snake_case_variable');
   });
 
   it('strips strikethrough markers', () => {

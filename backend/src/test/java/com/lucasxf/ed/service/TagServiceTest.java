@@ -57,6 +57,15 @@ class TagServiceTest {
 
     private final UUID userId = UUID.randomUUID();
 
+    // ===== normalise — whitespace edge cases =====
+
+    @Test
+    void normalise_shouldCollapseTabsAndMultipleSpacesToSingleDash() {
+        assertThat(TagService.normalise("spring\tboot")).containsExactly("spring-boot", "spring-boot");
+        assertThat(TagService.normalise("spring  boot")).containsExactly("spring-boot", "spring-boot");
+        assertThat(TagService.normalise("  hello   world  ")).containsExactly("hello-world", "hello-world");
+    }
+
     // ===== createOrReuse — normalisation =====
 
     @ParameterizedTest(name = "input=''{0}'' → name=''{1}'' displayName=''{2}''")
@@ -67,6 +76,7 @@ class TagServiceTest {
         "  spring boot  ,   spring-boot,  spring-boot",
         "spring-boot,       spring-boot,  spring-boot",
         "java,              java,          java",
+        "spring  boot,      spring-boot,  spring-boot",
     })
     void createOrReuse_shouldNormaliseNameAndPreserveDisplayName(
             String input, String expectedName, String expectedDisplayName) {

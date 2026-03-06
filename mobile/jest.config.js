@@ -19,7 +19,7 @@ module.exports = {
         '!src/lib/**/*.test.{ts,tsx}',
       ],
     },
-    // React Native component and hook tests — full jest-expo environment
+    // Screen-level integration tests — full jest-expo environment (lib, hooks, and components each have their own project)
     {
       displayName: 'rn',
       preset: 'jest-expo',

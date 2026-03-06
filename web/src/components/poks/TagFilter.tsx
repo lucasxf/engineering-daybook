@@ -12,7 +12,7 @@ interface TagFilterProps {
  * Horizontal chip list that lets users filter the feed by a single tag.
  *
  * Clicking a chip sets ?tagId=<uuid> in the URL; clicking the active chip
- * deselects it (clears the filter). Uses tagId as the stable key (not name),
+ * deselects it (clears the filter). Uses the subscription id as the stable key (not name),
  * and renders displayName so canonical names (with dashes) look human-friendly.
  */
 export function TagFilter({ selectedTagId, onTagSelect }: TagFilterProps) {

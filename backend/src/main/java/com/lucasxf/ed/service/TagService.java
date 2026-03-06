@@ -67,15 +67,15 @@ public class TagService {
      * Normalises a raw tag name input into canonical ({@code name}) and display ({@code displayName}) forms.
      *
      * <ul>
-     *   <li>{@code name} — trimmed, spaces replaced by dashes, lowercased (e.g. {@code "claude-code"})</li>
-     *   <li>{@code displayName} — trimmed, spaces replaced by dashes, casing preserved (e.g. {@code "Claude-Code"})</li>
+     *   <li>{@code name} — trimmed, whitespace runs replaced by a single dash, lowercased (e.g. {@code "claude-code"})</li>
+     *   <li>{@code displayName} — trimmed, whitespace runs replaced by a single dash, casing preserved (e.g. {@code "Claude-Code"})</li>
      * </ul>
      *
      * @param input raw user input
      * @return a two-element array: {@code [name, displayName]}
      */
     static String[] normalise(String input) {
-        String trimmed = input.trim().replace(' ', '-');
+        String trimmed = input.trim().replaceAll("\\s+", "-").replaceAll("-+", "-");
         return new String[] { trimmed.toLowerCase(), trimmed };
     }
 
