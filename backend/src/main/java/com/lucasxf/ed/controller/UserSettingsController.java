@@ -31,11 +31,11 @@ import static java.util.Objects.requireNonNull;
 @RestController
 @RequestMapping("/api/v1/users")
 @Tag(name = "Users", description = "User profile and settings")
-public class UserController {
+public class UserSettingsController {
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    public UserSettingsController(UserService userService) {
         this.userService = requireNonNull(userService);
     }
 
