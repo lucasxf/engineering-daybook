@@ -251,6 +251,11 @@ Show consolidated git diff for all modified files so I can review before committ
 
 ## 6. Commit
 
+Before creating the commit, stage the session metrics file (updated live by the PostToolUse hook throughout the session):
+```bash
+git add .claude/metrics/usage-stats.toml
+```
+
 After I approve the diff, create a commit with:
 - Proper semantic commit message (feat/fix/docs/refactor/test/chore)
 - Reference to what was implemented

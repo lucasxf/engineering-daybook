@@ -5,20 +5,24 @@
 
 > This file is the **roadmap index** — the single source of truth for the active phase.
 > Commands and agents read `CURRENT_PHASE` above to load the right phase file.
-> Per-phase files: `ROADMAP.phase-0.md` through `ROADMAP.phase-7.md`
+> Per-phase files: `ROADMAP.phase-0.md` through `ROADMAP.phase-8.md`
 
 ---
 
 ## Phase Overview
 
 ```
-  Phase 0        Phase 1        Phase 2        Phase 3        Phase 4
-  Foundation ──► MVP        ──► Evolution  ──► AI & Mobile ──► Growth
+  Phase 0        Phase 1        Phase 2        Phase 3        Phase 8
+  Foundation ──► MVP        ──► Evolution  ──► AI & Mobile ──► Knowledge Enrichment
   ✅ Done        🔄 Active       🔄 Started      🔄 In Progress  ⏳ Planned
 
-                              Phase 5        Phase 6        Phase 7
-                              Privacy    ──► Social     ──► Gamification
-                              🔄 In Progress ⏳ Planned      ⏳ Planned
+                              Phase 5        Phase 6
+                              Privacy    ──► Social
+                              🔄 In Progress ⏳ Planned
+
+  Phase 4        Phase 7
+  Growth         Gamification
+  ⏸️ Postponed    ⏸️ Postponed
 ```
 
 | Phase | File | Status |
@@ -27,10 +31,11 @@
 | 1 — MVP | `ROADMAP.phase-1.md` | 🔄 Active |
 | 2 — Evolution | `ROADMAP.phase-2.md` | 🔄 Started (2.1, 2.2, 2.3 done; 2.4 planned) |
 | 3 — AI & Mobile | `ROADMAP.phase-3.md` | 🔄 In Progress (3.1, 3.3 done) |
-| 4 — Growth | `ROADMAP.phase-4.md` | ⏳ Planned |
+| 4 — Growth | `ROADMAP.phase-4.md` | ⏸️ Postponed |
 | 5 — Privacy | `ROADMAP.phase-5.md` | 🔄 In Progress (5.1 done; 5.2 done) |
 | 6 — Social | `ROADMAP.phase-6.md` | ⏳ Planned |
-| 7 — Gamification | `ROADMAP.phase-7.md` | ⏳ Planned |
+| 7 — Gamification | `ROADMAP.phase-7.md` | ⏸️ Postponed |
+| 8 — Knowledge Enrichment | `ROADMAP.phase-8.md` | ⏳ Planned |
 
 ---
 
@@ -45,6 +50,7 @@
 | 🔒 Privacy | All POKs have visibility controls; access enforcement confirmed |
 | 👥 Social | Author follows at least 3 learners; share feature in use |
 | 🏅 Gamification | First milestone badges awarded; AI tag suggestions in use |
+| 📝 Knowledge Enrichment | Markdown renders in all views; tag search works; Knowledge Paths spec approved |
 | 🚀 Public Launch | 10 external learners; community principles published |
 
 ---

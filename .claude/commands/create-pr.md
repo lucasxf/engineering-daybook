@@ -46,6 +46,14 @@ echo "Base branch: $BASE_BRANCH"
 
 ## 3. Check for Uncommitted Changes
 
+First, commit the session metrics file if dirty (updated live by the PostToolUse hook — expected to be dirty).
+`--only` stages from the work tree and commits just this file, ignoring anything else in the index:
+```bash
+git diff --quiet -- .claude/metrics/usage-stats.toml || \
+  git commit --only .claude/metrics/usage-stats.toml -m "chore: update session metrics"
+```
+
+Then check for any remaining uncommitted changes:
 ```bash
 UNCOMMITTED=$(git status --porcelain | grep -v '.claude/settings.local.json' || true)
 
