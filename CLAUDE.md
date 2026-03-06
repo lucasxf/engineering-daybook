@@ -165,10 +165,10 @@ Active work:
 - [x] Milestone 5.1: POK Visibility Controls — private/public visibility on POKs and user default preference; irreversible PUBLIC→PRIVATE enforcement; access control; web + mobile UI indicators (2026-03-04)
 - [x] Milestone 5.2: Learner Profile Privacy — profileVisibility field, learner profile endpoint/page, settings page/screen, E2E tests (2026-03-04)
 
-**Phase 8: Knowledge Enrichment** — 🔄 In Progress (8.1 done)
+**Phase 8: Knowledge Enrichment** — 🔄 In Progress (8.1 done; 8.2 done)
 
 - [x] Milestone 8.1: Markdown Support — done (2026-03-06); react-markdown + rehype-sanitize (web), react-native-markdown-display (mobile); 8.1.8 (title rendering) deferred
-- [ ] Milestone 8.2: Tag Improvements — tag search/filter, display_name column, spaces→dashes normalization, backfill migration
+- [x] Milestone 8.2: Tag Improvements — display_name column + backfill migrations (V16/V17), TagService.normalise(), TagResponse.displayName, GET /api/v1/poks?tagId filter, TagFilter component wired into feed, mobile tag components updated, integration tests added (2026-03-06)
 - [ ] Milestone 8.3: Knowledge Paths — planning and spec only (graph visualization, grouped by topic)
 
 **Phase 4: Growth & Polish** — ⏸️ Postponed (deprioritized in favor of Phase 8, 2026-03-06)
@@ -186,4 +186,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-03-06 (session: feat/roadmap-update — Phase 8 added, Phases 4 & 7 postponed)*
+*Last updated: 2026-03-06 (session: feat/knowledge-enrichment — Milestone 8.2 Tag Improvements complete)*

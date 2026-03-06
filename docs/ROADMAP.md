@@ -14,7 +14,7 @@
 ```
   Phase 0        Phase 1        Phase 2        Phase 3        Phase 8
   Foundation ──► MVP        ──► Evolution  ──► AI & Mobile ──► Knowledge Enrichment
-  ✅ Done        🔄 Active       🔄 Started      🔄 In Progress  ⏳ Planned
+  ✅ Done        🔄 Active       🔄 Started      🔄 In Progress  🔄 In Progress
 
                               Phase 5        Phase 6
                               Privacy    ──► Social
@@ -35,7 +35,7 @@
 | 5 — Privacy | `ROADMAP.phase-5.md` | 🔄 In Progress (5.1 done; 5.2 done) |
 | 6 — Social | `ROADMAP.phase-6.md` | ⏳ Planned |
 | 7 — Gamification | `ROADMAP.phase-7.md` | ⏸️ Postponed |
-| 8 — Knowledge Enrichment | `ROADMAP.phase-8.md` | ⏳ Planned |
+| 8 — Knowledge Enrichment | `ROADMAP.phase-8.md` | 🔄 In Progress (8.1 done; 8.2 done) |
 
 ---
 
@@ -50,7 +50,7 @@
 | 🔒 Privacy | All POKs have visibility controls; access enforcement confirmed |
 | 👥 Social | Author follows at least 3 learners; share feature in use |
 | 🏅 Gamification | First milestone badges awarded; AI tag suggestions in use |
-| 📝 Knowledge Enrichment | Markdown renders in all views; tag search works; Knowledge Paths spec approved |
+| 📝 Knowledge Enrichment | Markdown renders in all views; tag search works; Knowledge Paths deferred to after Phase 6 |
 | 🚀 Public Launch | 10 external learners; community principles published |
 
 ---

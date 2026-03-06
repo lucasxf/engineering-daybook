@@ -36,17 +36,20 @@ public interface UserTagRepository extends JpaRepository<UserTag, UUID> {
     Optional<UserTag> findByUserIdAndTagIdAndDeletedAtIsNull(UUID userId, UUID tagId);
 
     /**
-     * Checks whether an active subscription exists for the given user and tag name (case-insensitive).
+     * Checks whether an active subscription exists for the given user and canonical tag name.
+     *
+     * <p>The {@code tagName} parameter must already be in canonical form (lowercase, dashes).
+     * No {@code LOWER()} wrapper is needed since {@code name} is pre-normalised.
      *
      * @param userId   the user's ID
-     * @param tagName  the tag name to check
+     * @param tagName  the canonical tag name (lowercase, dashes)
      * @return true if an active subscription with that name exists
      */
     @Query("SELECT COUNT(ut) > 0 FROM UserTag ut " +
            "WHERE ut.userId = :userId " +
-           "AND LOWER(ut.tag.name) = LOWER(:tagName) " +
+           "AND ut.tag.name = :tagName " +
            "AND ut.deletedAt IS NULL")
-    boolean existsByUserIdAndTagNameIgnoreCaseAndDeletedAtIsNull(
+    boolean existsByUserIdAndTagNameAndDeletedAtIsNull(
             @Param("userId") UUID userId,
             @Param("tagName") String tagName);
 

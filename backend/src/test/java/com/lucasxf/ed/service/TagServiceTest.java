@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -30,7 +32,6 @@ import com.lucasxf.ed.repository.UserTagRepository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -55,67 +56,73 @@ class TagServiceTest {
     private TagService tagService;
 
     private final UUID userId = UUID.randomUUID();
-    private final UUID tagId = UUID.randomUUID();
 
-    // ===== createOrReuse =====
+    // ===== createOrReuse — normalisation =====
 
-    @Test
-    void createOrReuse_withNewName_shouldCreateGlobalTagAndSubscription() {
+    @ParameterizedTest(name = "input=''{0}'' → name=''{1}'' displayName=''{2}''")
+    @CsvSource({
+        "spring boot,       spring-boot,  spring-boot",
+        "Spring Boot,       spring-boot,  Spring-Boot",
+        "CLAUDE CODE,       claude-code,  CLAUDE-CODE",
+        "  spring boot  ,   spring-boot,  spring-boot",
+        "spring-boot,       spring-boot,  spring-boot",
+        "java,              java,          java",
+    })
+    void createOrReuse_shouldNormaliseNameAndPreserveDisplayName(
+            String input, String expectedName, String expectedDisplayName) {
         // Given
-        CreateTagRequest request = new CreateTagRequest("spring-boot");
-        Tag savedTag = new Tag("spring-boot");
+        Tag savedTag = new Tag(expectedName, expectedDisplayName);
         UserTag savedUserTag = new UserTag(userId, savedTag, "blue");
 
-        when(userTagRepository.existsByUserIdAndTagNameIgnoreCaseAndDeletedAtIsNull(userId, "spring-boot"))
+        when(userTagRepository.existsByUserIdAndTagNameAndDeletedAtIsNull(eq(userId), eq(expectedName)))
                 .thenReturn(false);
-        when(tagRepository.findByNameIgnoreCase("spring-boot")).thenReturn(Optional.empty());
+        when(tagRepository.findByName(expectedName)).thenReturn(Optional.empty());
         when(tagRepository.save(any(Tag.class))).thenReturn(savedTag);
         when(userTagRepository.save(any(UserTag.class))).thenReturn(savedUserTag);
 
         // When
-        TagResponse response = tagService.createOrReuse(request, userId);
+        tagService.createOrReuse(new CreateTagRequest(input), userId);
 
-        // Then
-        assertThat(response.name()).isEqualTo("spring-boot");
-        verify(tagRepository).save(any(Tag.class));
-        verify(userTagRepository).save(any(UserTag.class));
+        // Then — Tag saved with canonical name and displayName
+        ArgumentCaptor<Tag> tagCaptor = ArgumentCaptor.forClass(Tag.class);
+        verify(tagRepository).save(tagCaptor.capture());
+        assertThat(tagCaptor.getValue().getName()).isEqualTo(expectedName);
+        assertThat(tagCaptor.getValue().getDisplayName()).isEqualTo(expectedDisplayName);
     }
 
     @Test
-    void createOrReuse_withExistingGlobalTag_shouldReusedGlobalAndCreateSubscription() {
-        // Given
-        CreateTagRequest request = new CreateTagRequest("Spring-Boot"); // different casing
-        Tag existingGlobal = new Tag("spring-boot");
+    void createOrReuse_withExistingCanonicalTag_shouldReuseGlobalAndCreateSubscription() {
+        // Given — user types "Spring Boot"; canonical is "spring-boot" which already exists
+        Tag existingGlobal = new Tag("spring-boot", "spring-boot");
         UserTag savedUserTag = new UserTag(userId, existingGlobal, "red");
 
-        when(userTagRepository.existsByUserIdAndTagNameIgnoreCaseAndDeletedAtIsNull(userId, "Spring-Boot"))
+        when(userTagRepository.existsByUserIdAndTagNameAndDeletedAtIsNull(userId, "spring-boot"))
                 .thenReturn(false);
-        when(tagRepository.findByNameIgnoreCase("Spring-Boot")).thenReturn(Optional.of(existingGlobal));
+        when(tagRepository.findByName("spring-boot")).thenReturn(Optional.of(existingGlobal));
         when(userTagRepository.save(any(UserTag.class))).thenReturn(savedUserTag);
 
         // When
-        TagResponse response = tagService.createOrReuse(request, userId);
+        TagResponse response = tagService.createOrReuse(new CreateTagRequest("Spring Boot"), userId);
 
-        // Then
+        // Then — no new global tag created; subscription created with existing global
         assertThat(response.name()).isEqualTo("spring-boot");
-        verify(tagRepository, never()).save(any()); // global already exists
+        verify(tagRepository, never()).save(any());
         verify(userTagRepository).save(any(UserTag.class));
     }
 
     @Test
     void createOrReuse_withDuplicateInUserActiveSet_shouldReturnExistingIdempotently() {
-        // Given
-        CreateTagRequest request = new CreateTagRequest("docker");
-        Tag globalTag = new Tag("docker");
+        // Given — canonical "docker" already subscribed
+        Tag globalTag = new Tag("docker", "docker");
         UserTag existingUserTag = new UserTag(userId, globalTag, "green");
 
-        when(userTagRepository.existsByUserIdAndTagNameIgnoreCaseAndDeletedAtIsNull(userId, "docker"))
+        when(userTagRepository.existsByUserIdAndTagNameAndDeletedAtIsNull(userId, "docker"))
                 .thenReturn(true);
         when(userTagRepository.findByUserIdAndDeletedAtIsNull(userId))
                 .thenReturn(List.of(existingUserTag));
 
         // When
-        TagResponse response = tagService.createOrReuse(request, userId);
+        TagResponse response = tagService.createOrReuse(new CreateTagRequest("docker"), userId);
 
         // Then — no new records created, existing tag returned
         assertThat(response.name()).isEqualTo("docker");
@@ -124,25 +131,23 @@ class TagServiceTest {
     }
 
     @Test
-    void createOrReuse_shouldTrimWhitespace() {
-        // Given
-        CreateTagRequest request = new CreateTagRequest("  spring boot  ");
-        Tag savedTag = new Tag("spring boot");
-        UserTag savedUserTag = new UserTag(userId, savedTag, "yellow");
+    void createOrReuse_withSpacedInputMatchingExistingSubscription_shouldReturnIdempotently() {
+        // Given — user types "Spring Boot"; canonical "spring-boot" already subscribed
+        Tag globalTag = new Tag("spring-boot", "spring-boot");
+        UserTag existingUserTag = new UserTag(userId, globalTag, "blue");
 
-        when(userTagRepository.existsByUserIdAndTagNameIgnoreCaseAndDeletedAtIsNull(userId, "spring boot"))
-                .thenReturn(false);
-        when(tagRepository.findByNameIgnoreCase("spring boot")).thenReturn(Optional.empty());
-        when(tagRepository.save(any(Tag.class))).thenReturn(savedTag);
-        when(userTagRepository.save(any(UserTag.class))).thenReturn(savedUserTag);
+        when(userTagRepository.existsByUserIdAndTagNameAndDeletedAtIsNull(userId, "spring-boot"))
+                .thenReturn(true);
+        when(userTagRepository.findByUserIdAndDeletedAtIsNull(userId))
+                .thenReturn(List.of(existingUserTag));
 
         // When
-        tagService.createOrReuse(request, userId);
+        TagResponse response = tagService.createOrReuse(new CreateTagRequest("Spring Boot"), userId);
 
-        // Then — saved tag has trimmed name
-        ArgumentCaptor<Tag> tagCaptor = ArgumentCaptor.forClass(Tag.class);
-        verify(tagRepository).save(tagCaptor.capture());
-        assertThat(tagCaptor.getValue().getName()).isEqualTo("spring boot");
+        // Then — idempotent, no new records
+        assertThat(response.name()).isEqualTo("spring-boot");
+        verify(tagRepository, never()).save(any());
+        verify(userTagRepository, never()).save(any());
     }
 
     // ===== getUserTags =====
@@ -150,7 +155,7 @@ class TagServiceTest {
     @Test
     void getUserTags_shouldReturnOnlyActiveSubscriptions() {
         // Given
-        Tag tag = new Tag("java");
+        Tag tag = new Tag("java", "java");
         UserTag activeTag = new UserTag(userId, tag, "blue");
         when(userTagRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(List.of(activeTag));
 
@@ -160,6 +165,7 @@ class TagServiceTest {
         // Then
         assertThat(result).hasSize(1);
         assertThat(result.get(0).name()).isEqualTo("java");
+        assertThat(result.get(0).displayName()).isEqualTo("java");
     }
 
     @Test
@@ -177,41 +183,43 @@ class TagServiceTest {
     // ===== renameTag =====
 
     @Test
-    void renameTag_shouldSoftDeleteOldAndCreateNewSubscription() {
-        // Given
-        Tag oldGlobalTag = new Tag("k8s");
+    void renameTag_shouldNormaliseNewNameAndCreateNewSubscription() {
+        // Given — rename to "Kube Tools" → canonical "kube-tools", displayName "Kube-Tools"
+        Tag oldGlobalTag = new Tag("k8s", "k8s");
         UserTag oldUserTag = new UserTag(userId, oldGlobalTag, "purple");
-        Tag newGlobalTag = new Tag("kubernetes");
+        Tag newGlobalTag = new Tag("kube-tools", "Kube-Tools");
         UserTag newUserTag = new UserTag(userId, newGlobalTag, "purple");
 
         when(userTagRepository.findById(any())).thenReturn(Optional.of(oldUserTag));
-        when(userTagRepository.existsByUserIdAndTagNameIgnoreCaseAndDeletedAtIsNull(userId, "kubernetes"))
+        when(userTagRepository.existsByUserIdAndTagNameAndDeletedAtIsNull(userId, "kube-tools"))
                 .thenReturn(false);
-        when(tagRepository.findByNameIgnoreCase("kubernetes")).thenReturn(Optional.of(newGlobalTag));
+        when(tagRepository.findByName("kube-tools")).thenReturn(Optional.of(newGlobalTag));
         when(userTagRepository.save(any(UserTag.class))).thenReturn(newUserTag);
         when(pokRepository.findIdsByUserId(userId)).thenReturn(List.of());
 
         // When
-        TagResponse response = tagService.renameTag(oldUserTag.getId(), new UpdateTagRequest("kubernetes"), userId);
+        TagResponse response = tagService.renameTag(
+                oldUserTag.getId(), new UpdateTagRequest("Kube Tools"), userId);
 
         // Then
-        assertThat(response.name()).isEqualTo("kubernetes");
-        assertThat(oldUserTag.isActive()).isFalse(); // soft-deleted
+        assertThat(response.name()).isEqualTo("kube-tools");
+        assertThat(response.displayName()).isEqualTo("Kube-Tools");
+        assertThat(oldUserTag.isActive()).isFalse();
     }
 
     @Test
-    void renameTag_withConflictingName_shouldThrowTagConflictException() {
-        // Given
-        Tag tag = new Tag("k8s");
+    void renameTag_withConflictingCanonicalName_shouldThrowTagConflictException() {
+        // Given — user already has "kube-tools"; trying to rename to "Kube Tools" → same canonical
+        Tag tag = new Tag("k8s", "k8s");
         UserTag userTag = new UserTag(userId, tag, "blue");
 
         when(userTagRepository.findById(any())).thenReturn(Optional.of(userTag));
-        when(userTagRepository.existsByUserIdAndTagNameIgnoreCaseAndDeletedAtIsNull(userId, "kubernetes"))
+        when(userTagRepository.existsByUserIdAndTagNameAndDeletedAtIsNull(userId, "kube-tools"))
                 .thenReturn(true);
 
         // When/Then
         assertThatThrownBy(() ->
-                tagService.renameTag(userTag.getId(), new UpdateTagRequest("kubernetes"), userId))
+                tagService.renameTag(userTag.getId(), new UpdateTagRequest("Kube Tools"), userId))
                 .isInstanceOf(TagConflictException.class);
     }
 
@@ -230,7 +238,7 @@ class TagServiceTest {
     void renameTag_withTagOwnedByAnotherUser_shouldThrowTagNotFoundException() {
         // Given
         UUID anotherUserId = UUID.randomUUID();
-        Tag tag = new Tag("java");
+        Tag tag = new Tag("java", "java");
         UserTag anotherUsersTag = new UserTag(anotherUserId, tag, "blue");
 
         when(userTagRepository.findById(any())).thenReturn(Optional.of(anotherUsersTag));
@@ -238,7 +246,7 @@ class TagServiceTest {
         // When/Then
         assertThatThrownBy(() ->
                 tagService.renameTag(anotherUsersTag.getId(), new UpdateTagRequest("java2"), userId))
-                .isInstanceOf(TagNotFoundException.class); // 403 masked as 404
+                .isInstanceOf(TagNotFoundException.class);
     }
 
     // ===== deleteTag =====
@@ -246,7 +254,7 @@ class TagServiceTest {
     @Test
     void deleteTag_shouldSoftDeleteSubscriptionAndRemovePokTagAssignments() {
         // Given
-        Tag tag = new Tag("legacy");
+        Tag tag = new Tag("legacy", "legacy");
         UserTag userTag = new UserTag(userId, tag, "red");
         List<UUID> userPokIds = List.of(UUID.randomUUID(), UUID.randomUUID());
 
@@ -257,7 +265,7 @@ class TagServiceTest {
         tagService.deleteTag(userTag.getId(), userId);
 
         // Then
-        assertThat(userTag.isActive()).isFalse(); // soft-deleted
+        assertThat(userTag.isActive()).isFalse();
         verify(pokTagRepository).deleteByTagIdAndPokIdIn(any(), any());
         verify(userTagRepository).save(userTag);
     }
@@ -266,7 +274,7 @@ class TagServiceTest {
     void deleteTag_withTagOwnedByAnotherUser_shouldThrowTagNotFoundException() {
         // Given
         UUID anotherUserId = UUID.randomUUID();
-        Tag tag = new Tag("shared");
+        Tag tag = new Tag("shared", "shared");
         UserTag anotherUsersTag = new UserTag(anotherUserId, tag, "green");
 
         when(userTagRepository.findById(any())).thenReturn(Optional.of(anotherUsersTag));
@@ -282,7 +290,7 @@ class TagServiceTest {
     void assignTag_shouldCreatePokTagWithManualSource() {
         // Given
         UUID pokId = UUID.randomUUID();
-        Tag tag = new Tag("java");
+        Tag tag = new Tag("java", "java");
         UserTag userTag = new UserTag(userId, tag, "blue");
         Pok pok = new Pok(userId, "title", "content");
 
@@ -304,7 +312,7 @@ class TagServiceTest {
     void assignTag_withAlreadyAssignedTag_shouldBeIdempotent() {
         // Given
         UUID pokId = UUID.randomUUID();
-        Tag tag = new Tag("java");
+        Tag tag = new Tag("java", "java");
         UserTag userTag = new UserTag(userId, tag, "blue");
         PokTag existing = new PokTag(pokId, tag.getId(), PokTag.Source.MANUAL);
         Pok pok = new Pok(userId, "title", "content");
@@ -326,7 +334,7 @@ class TagServiceTest {
     void removeTag_shouldDeletePokTagAssignment() {
         // Given
         UUID pokId = UUID.randomUUID();
-        Tag tag = new Tag("java");
+        Tag tag = new Tag("java", "java");
         UserTag userTag = new UserTag(userId, tag, "blue");
         PokTag pokTag = new PokTag(pokId, tag.getId(), PokTag.Source.MANUAL);
         Pok pok = new Pok(userId, "title", "content");
@@ -338,7 +346,7 @@ class TagServiceTest {
         // When
         tagService.removeTag(pokId, userTag.getId(), userId);
 
-        // Then — assignment removed, subscription intact
+        // Then
         verify(pokTagRepository).delete(pokTag);
     }
 
@@ -346,7 +354,7 @@ class TagServiceTest {
     void removeTag_withNonExistentAssignment_shouldDoNothingGracefully() {
         // Given
         UUID pokId = UUID.randomUUID();
-        Tag tag = new Tag("java");
+        Tag tag = new Tag("java", "java");
         UserTag userTag = new UserTag(userId, tag, "blue");
         Pok pok = new Pok(userId, "title", "content");
 
@@ -357,7 +365,7 @@ class TagServiceTest {
         // When
         tagService.removeTag(pokId, userTag.getId(), userId);
 
-        // Then — no delete called, no exception
+        // Then
         verify(pokTagRepository, never()).delete(any());
     }
 
@@ -367,8 +375,8 @@ class TagServiceTest {
     void assignTagsToNewPok_withValidTags_shouldSaveAllPokTags() {
         // Given
         UUID pokId = UUID.randomUUID();
-        Tag tag1 = new Tag("java");
-        Tag tag2 = new Tag("spring");
+        Tag tag1 = new Tag("java", "java");
+        Tag tag2 = new Tag("spring", "spring");
         ReflectionTestUtils.setField(tag1, "id", UUID.randomUUID());
         ReflectionTestUtils.setField(tag2, "id", UUID.randomUUID());
         UserTag userTag1 = new UserTag(userId, tag1, "blue");
@@ -386,26 +394,21 @@ class TagServiceTest {
 
         // Then
         @SuppressWarnings("unchecked")
-        ArgumentCaptor<Iterable<PokTag>> captor = ArgumentCaptor.forClass((Class<Iterable<PokTag>>) (Class<?>) Iterable.class);
+        ArgumentCaptor<Iterable<PokTag>> captor =
+                ArgumentCaptor.forClass((Class<Iterable<PokTag>>) (Class<?>) Iterable.class);
         verify(pokTagRepository).saveAll(captor.capture());
         assertThat(captor.getValue()).hasSize(2);
     }
 
     @Test
     void assignTagsToNewPok_withNullList_shouldDoNothing() {
-        // When
         tagService.assignTagsToNewPok(UUID.randomUUID(), null, userId);
-
-        // Then
         verify(pokTagRepository, never()).saveAll(any());
     }
 
     @Test
     void assignTagsToNewPok_withEmptyList_shouldDoNothing() {
-        // When
         tagService.assignTagsToNewPok(UUID.randomUUID(), List.of(), userId);
-
-        // Then
         verify(pokTagRepository, never()).saveAll(any());
     }
 
@@ -414,7 +417,7 @@ class TagServiceTest {
         // Given
         UUID pokId = UUID.randomUUID();
         UUID invalidTagId = UUID.randomUUID();
-        Tag tag = new Tag("java");
+        Tag tag = new Tag("java", "java");
         ReflectionTestUtils.setField(tag, "id", UUID.randomUUID());
         UserTag userTag = new UserTag(userId, tag, "blue");
         UUID validTagId = UUID.randomUUID();
@@ -423,12 +426,13 @@ class TagServiceTest {
         when(userTagRepository.findById(invalidTagId)).thenReturn(Optional.empty());
         when(userTagRepository.findById(validTagId)).thenReturn(Optional.of(userTag));
 
-        // When — no exception
+        // When
         tagService.assignTagsToNewPok(pokId, List.of(invalidTagId, validTagId), userId);
 
         // Then — only the valid tag is saved
         @SuppressWarnings("unchecked")
-        ArgumentCaptor<Iterable<PokTag>> captor = ArgumentCaptor.forClass((Class<Iterable<PokTag>>) (Class<?>) Iterable.class);
+        ArgumentCaptor<Iterable<PokTag>> captor =
+                ArgumentCaptor.forClass((Class<Iterable<PokTag>>) (Class<?>) Iterable.class);
         verify(pokTagRepository).saveAll(captor.capture());
         assertThat(captor.getValue()).hasSize(1);
     }
@@ -437,7 +441,7 @@ class TagServiceTest {
     void assignTagsToNewPok_withDuplicateTagIds_shouldDedup() {
         // Given
         UUID pokId = UUID.randomUUID();
-        Tag tag = new Tag("java");
+        Tag tag = new Tag("java", "java");
         ReflectionTestUtils.setField(tag, "id", UUID.randomUUID());
         UserTag userTag = new UserTag(userId, tag, "blue");
         UUID userTagId = UUID.randomUUID();
@@ -450,7 +454,8 @@ class TagServiceTest {
 
         // Then — only one PokTag saved
         @SuppressWarnings("unchecked")
-        ArgumentCaptor<Iterable<PokTag>> captor = ArgumentCaptor.forClass((Class<Iterable<PokTag>>) (Class<?>) Iterable.class);
+        ArgumentCaptor<Iterable<PokTag>> captor =
+                ArgumentCaptor.forClass((Class<Iterable<PokTag>>) (Class<?>) Iterable.class);
         verify(pokTagRepository).saveAll(captor.capture());
         assertThat(captor.getValue()).hasSize(1);
     }

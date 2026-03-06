@@ -16,7 +16,7 @@ vi.mock('@/lib/api', () => ({
 vi.mock('@/hooks/useTags', () => ({
   useTags: () => ({
     tags: [
-      { id: 'ut-1', tagId: 'tag-1', name: 'react', color: 'blue', createdAt: '2026-02-25T10:00:00Z' },
+      { id: 'ut-1', tagId: 'tag-1', name: 'react', displayName: 'react', color: 'blue', createdAt: '2026-02-25T10:00:00Z' },
     ],
     isLoading: false,
     error: null,

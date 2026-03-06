@@ -27,8 +27,8 @@ export function TagGroupedView({ poks }: TagGroupedViewProps) {
     return null;
   }
 
-  // Build a map of tagName → Pok[]
-  const tagMap = new Map<string, Pok[]>();
+  // Build a map of tagId → { displayName, poks[] }
+  const tagMap = new Map<string, { displayName: string; poks: Pok[] }>();
   const untagged: Pok[] = [];
 
   for (const pok of poks) {
@@ -36,25 +36,25 @@ export function TagGroupedView({ poks }: TagGroupedViewProps) {
       untagged.push(pok);
     } else {
       for (const tag of pok.tags) {
-        if (!tagMap.has(tag.name)) {
-          tagMap.set(tag.name, []);
+        if (!tagMap.has(tag.tagId)) {
+          tagMap.set(tag.tagId, { displayName: tag.displayName, poks: [] });
         }
-        tagMap.get(tag.name)!.push(pok);
+        tagMap.get(tag.tagId)!.poks.push(pok);
       }
     }
   }
 
-  // Sort tag sections alphabetically
-  const sortedEntries = Array.from(tagMap.entries()).sort(([a], [b]) =>
-    a.localeCompare(b, undefined, { sensitivity: 'base' })
+  // Sort tag sections alphabetically by displayName
+  const sortedEntries = Array.from(tagMap.entries()).sort(([, a], [, b]) =>
+    a.displayName.localeCompare(b.displayName, undefined, { sensitivity: 'base' })
   );
 
   const allUntagged = tagMap.size === 0 && untagged.length > 0;
 
   return (
     <div>
-      {sortedEntries.map(([tagName, tagPoks]) => (
-        <TagGroup key={tagName} label={tagName} poks={tagPoks} />
+      {sortedEntries.map(([tagId, { displayName, poks: tagPoks }]) => (
+        <TagGroup key={tagId} label={displayName} poks={tagPoks} />
       ))}
 
       {untagged.length > 0 && (

@@ -81,7 +81,7 @@ class PokServiceSemanticSearchTest {
 
         Page<PokResponse> result = pokService.search(
             userId, "java", "semantic",
-            null, null, null, null, null, null, 0, 20
+            null, null, null, null, null, null, null, 0, 20
         );
 
         assertThat(result.getContent()).hasSize(1);
@@ -104,7 +104,7 @@ class PokServiceSemanticSearchTest {
 
         Page<PokResponse> result = pokService.search(
             userId, "java", "hybrid",
-            null, null, null, null, null, null, 0, 20
+            null, null, null, null, null, null, null, 0, 20
         );
 
         // pok1 appears once (deduped), pok2 appended from keyword results
@@ -120,7 +120,7 @@ class PokServiceSemanticSearchTest {
 
         Page<PokResponse> result = pokService.search(
             userId, "java", "semantic",
-            null, null, null, null, null, null, 0, 20
+            null, null, null, null, null, null, null, 0, 20
         );
 
         assertThat(result.getContent()).hasSize(1);
@@ -136,7 +136,7 @@ class PokServiceSemanticSearchTest {
 
         pokService.search(
             userId, "java", null,
-            null, null, null, null, null, null, 0, 20
+            null, null, null, null, null, null, null, 0, 20
         );
 
         verify(embeddingService, never()).embed(anyString());
@@ -151,7 +151,7 @@ class PokServiceSemanticSearchTest {
 
         Page<PokResponse> result = pokService.search(
             userId, null, "hybrid",
-            null, null, null, null, null, null, 0, 20
+            null, null, null, null, null, null, null, 0, 20
         );
 
         assertThat(result.getContent()).hasSize(2);
@@ -174,7 +174,7 @@ class PokServiceSemanticSearchTest {
 
         Page<PokResponse> result = pokService.search(
             userId, "spring", "semantic",
-            null, null, null, null, null, null, 0, size
+            null, null, null, null, null, null, null, 0, size
         );
 
         // Approximate total: offset(0) + fetched(15) = 15, NOT page size (10)

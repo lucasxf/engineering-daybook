@@ -121,6 +121,7 @@ public class PokController {
      * <ul>
      *   <li>Keyword search (case-insensitive, searches title and content)</li>
      *   <li>Semantic / hybrid search via pgvector cosine distance ({@code searchMode})</li>
+     *   <li>Tag filtering by global tag ID ({@code tagId}) — bypasses semantic search</li>
      *   <li>Sorting by createdAt or updatedAt (ASC/DESC, default: updatedAt DESC)</li>
      *   <li>Date range filtering (creation and update dates)</li>
      *   <li>Pagination (default: page 0, size 20, max 100)</li>
@@ -128,6 +129,7 @@ public class PokController {
      *
      * @param keyword        optional keyword to search in title and content
      * @param searchMode     optional search mode: {@code keyword} (default), {@code semantic}, or {@code hybrid}
+     * @param tagId          optional global tag ID to filter by; when present, only POKs tagged with this tag are returned
      * @param sortBy         optional sort field (createdAt or updatedAt, default: updatedAt)
      * @param sortDirection  optional sort direction (ASC or DESC, default: DESC)
      * @param createdFrom    optional minimum creation date (ISO 8601)
@@ -145,7 +147,7 @@ public class PokController {
         description = "Retrieves and searches active POKs for the authenticated user. " +
                       "Supports keyword search, semantic search (pgvector cosine distance), and hybrid " +
                       "(keyword + semantic blended) search modes via the `searchMode` parameter. " +
-                      "Also supports sorting, date range filters, and pagination. " +
+                      "Also supports tag filtering (tagId), sorting, date range filters, and pagination. " +
                       "Default sort: most recently updated (updatedAt DESC)."
     )
     @ApiResponse(responseCode = "200", description = "POKs retrieved successfully")
@@ -159,6 +161,8 @@ public class PokController {
         @Parameter(description = "Search mode: 'keyword' (ILIKE only), 'semantic' (vector similarity only), " +
                                  "or 'hybrid' (keyword + semantic blended). Defaults to 'keyword' when omitted.")
         @RequestParam(required = false) String searchMode,
+        @Parameter(description = "Filter by global tag ID. When present, returns only POKs tagged with this tag.")
+        @RequestParam(required = false) UUID tagId,
         @Parameter(description = "Sort field: 'createdAt' or 'updatedAt'. Default: 'updatedAt'.")
         @RequestParam(required = false) String sortBy,
         @Parameter(description = "Sort direction: 'ASC' or 'DESC'. Default: 'DESC'.")
@@ -186,6 +190,7 @@ public class PokController {
             userId,
             keyword,
             searchMode,
+            tagId,
             sortBy,
             sortDirection,
             createdFrom,

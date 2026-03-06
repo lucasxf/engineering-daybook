@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.lucasxf.ed.domain.Pok;
+import com.lucasxf.ed.domain.PokTag;
 
 /**
  * Data access for {@link Pok} entities.
@@ -138,6 +139,25 @@ public interface PokRepository extends JpaRepository<Pok, UUID> {
         @Param("createdTo") Instant createdTo,
         @Param("updatedFrom") Instant updatedFrom,
         @Param("updatedTo") Instant updatedTo,
+        Pageable pageable
+    );
+
+    /**
+     * Returns active POKs for a user that are tagged with the given global tag ID.
+     *
+     * <p>Uses a subquery against {@code PokTag} (no JPA relationship declared) to
+     * leverage the existing {@code idx_pok_tags_tag_id} index.
+     *
+     * @param userId   the user's ID
+     * @param tagId    the global tag's ID to filter by
+     * @param pageable pagination and sorting parameters
+     * @return a page of matching active POKs
+     */
+    @Query("SELECT p FROM Pok p WHERE p.userId = :userId AND p.deletedAt IS NULL " +
+           "AND p.id IN (SELECT pt.pokId FROM PokTag pt WHERE pt.tagId = :tagId)")
+    Page<Pok> findByUserIdAndTagId(
+        @Param("userId") UUID userId,
+        @Param("tagId") UUID tagId,
         Pageable pageable
     );
 }
