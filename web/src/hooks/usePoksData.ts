@@ -26,9 +26,13 @@ export interface UsePoksDataReturn {
   sortOption: SortOption;
   /** Current page derived from URL search params. Default: 0. */
   page: number;
+  /** Currently active tag filter (tagId UUID string), or null if not filtering by tag. */
+  selectedTagId: string | null;
   handleSearch: (keyword: string) => void;
   handleSortChange: (sortOption: SortOption) => void;
   handleClearSearch: () => void;
+  /** Filters the feed by tag. Pass null to clear the filter. Clears keyword. */
+  handleTagFilter: (tagId: string | null) => void;
   /** Optimistically prepends a newly created pok to the list without a full reload. */
   handleQuickSave: (pok: Pok) => void;
 }
@@ -62,6 +66,7 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
   const sortOption: SortOption = useMemo(() => ({ sortBy, sortDirection }), [sortBy, sortDirection]);
   const page = parseInt(searchParams.get('page') || '0', 10);
   const view = searchParams.get('view') || '';
+  const selectedTagId = searchParams.get('tagId') || null;
 
   const [poks, setPoks] = useState<Pok[]>([]);
   const [totalElements, setTotalElements] = useState(0);
@@ -70,12 +75,14 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
 
   const isReady = !authLoading && isAuthenticated;
 
-  // Update URL, staying on the current path and preserving the view param
+  // Update URL, staying on the current path and preserving the view param.
+  // newTagId defaults to the current tagId so sort/search changes preserve the active filter.
   const updateURL = useCallback(
-    (newKeyword: string, newSortOption: SortOption) => {
+    (newKeyword: string, newSortOption: SortOption, newTagId: string | null = selectedTagId) => {
       const newParams = new URLSearchParams();
 
       if (newKeyword) newParams.set('keyword', newKeyword);
+      if (newTagId) newParams.set('tagId', newTagId);
 
       // Omit sort params when they match the default (createdAt DESC) so the
       // URL stays clean for the most common case
@@ -95,7 +102,7 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
       const qs = newParams.toString();
       router.push(`${pathname}${qs ? `?${qs}` : ''}` as never, { scroll: false });
     },
-    [pathname, router, view]
+    [pathname, router, view, selectedTagId]
   );
 
   // Redirect unauthenticated users to login
@@ -112,8 +119,9 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
 
     try {
       const result = await pokApi.getAll({
-        keyword: keyword || undefined,
-        searchMode: 'hybrid',
+        keyword: selectedTagId ? undefined : (keyword || undefined),
+        searchMode: selectedTagId ? undefined : 'hybrid',
+        tagId: selectedTagId || undefined,
         sortBy,
         sortDirection,
         page,
@@ -130,7 +138,7 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
     } finally {
       setLoading(false);
     }
-  }, [keyword, sortBy, sortDirection, page, fetchSize, t]);
+  }, [keyword, selectedTagId, sortBy, sortDirection, page, fetchSize, t]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -140,7 +148,16 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
 
   const handleSearch = useCallback(
     (newKeyword: string) => {
-      updateURL(newKeyword, sortOption);
+      // Searching clears the tag filter (keyword and tag filter are mutually exclusive)
+      updateURL(newKeyword, sortOption, null);
+    },
+    [sortOption, updateURL]
+  );
+
+  const handleTagFilter = useCallback(
+    (tagId: string | null) => {
+      // Tag filter clears keyword (tag filter and keyword search are mutually exclusive)
+      updateURL('', sortOption, tagId);
     },
     [sortOption, updateURL]
   );
@@ -170,9 +187,11 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
     keyword,
     sortOption,
     page,
+    selectedTagId,
     handleSearch,
     handleSortChange,
     handleClearSearch,
+    handleTagFilter,
     handleQuickSave,
   };
 }
