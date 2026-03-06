@@ -169,3 +169,15 @@ Report:
 - How many session files were compiled
 - Which agents/commands had their counts updated
 - New total counts for the top 5 most-used agents and commands
+
+## 8. Trigger Automation Sentinel
+
+After compilation, automatically run the automation-sentinel agent to analyze the freshly updated metrics. Use the Task tool with `subagent_type: general-purpose` and the full automation-sentinel prompt from `.claude/agents/automation-sentinel.md`.
+
+The agent should:
+1. Read `.claude/metrics/usage-stats.toml`
+2. Read all agent files in `.claude/agents/` (skip `archive/` subdirectory)
+3. Read all command files in `.claude/commands/`
+4. Generate a health report covering: overall status, usage tables, zero-usage analysis, redundancy analysis, gaps, and top 3-5 prioritized recommendations
+
+Display the sentinel's report as the final output of `/compile-metrics`.

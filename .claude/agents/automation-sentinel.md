@@ -126,11 +126,12 @@ color: cyan
 
 ## Integration with Other Agents
 
-### pulse (Primary Integration)
-- **Relationship:** pulse collects metrics → sentinel analyzes metrics
+### /compile-metrics (Primary Integration)
+- **Relationship:** `/compile-metrics` aggregates session deltas → sentinel analyzes metrics
 - **Workflow:**
-  1. `pulse` → Scans git history, updates `.claude/metrics/usage-stats.toml`
+  1. `/compile-metrics` → Merges per-session delta files into `.claude/metrics/usage-stats.toml`, then auto-triggers this agent
   2. `automation-sentinel` → Reads TOML file, performs analysis
+- **Note:** `pulse` agent (git-history scanner) was archived in favour of this delta-file approach (2026-03-06)
 
 ### tech-writer
 - **Relationship:** Sentinel identifies doc gaps → tech-writer fills them

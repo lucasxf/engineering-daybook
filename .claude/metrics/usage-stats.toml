@@ -41,10 +41,6 @@ last_used = ""
 invocations = 0
 last_used = ""
 
-[agent_usage.pulse]
-invocations = 0
-last_used = ""
-
 [agent_usage.session-optimizer]
 invocations = 0
 last_used = ""
@@ -158,5 +154,5 @@ net_locs = 0
 # Health Metrics
 [health]
 schema_errors = 0
-total_agents = 13
+total_agents = 12
 total_commands = 20

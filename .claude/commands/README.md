@@ -25,6 +25,7 @@
 | `/save-response` | Save Claude's response to file | `/save-response notes.md` |
 | `/write-spec` | Write feature spec from template | `/write-spec "POK CRUD"` |
 | `/implement-spec` | Implement feature from spec with TDD | `/implement-spec docs/specs/features/pok-crud.md` |
+| `/compile-metrics` | Aggregate session metrics into usage-stats.toml | `/compile-metrics` |
 
 ## Session Workflow
 
