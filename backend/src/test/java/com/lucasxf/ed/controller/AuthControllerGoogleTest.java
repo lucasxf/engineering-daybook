@@ -55,7 +55,8 @@ class AuthControllerGoogleTest {
 
     private static final UUID USER_ID = UUID.randomUUID();
     private static final AuthResult AUTH_RESULT = new AuthResult(
-        "access-token", "refresh-token", "alice", USER_ID, "alice@example.com"
+        "access-token", "refresh-token", "alice", USER_ID, "alice@example.com",
+        com.lucasxf.ed.domain.Pok.Visibility.PRIVATE, com.lucasxf.ed.domain.User.ProfileVisibility.PRIVATE
     );
 
     @Nested
@@ -145,7 +146,8 @@ class AuthControllerGoogleTest {
         @DisplayName("should return 200 with user info + cookies on successful signup")
         void complete_success() throws Exception {
             AuthResult result = new AuthResult(
-                "access-token", "refresh-token", "bobsmith", USER_ID, "bob@example.com"
+                "access-token", "refresh-token", "bobsmith", USER_ID, "bob@example.com",
+                com.lucasxf.ed.domain.Pok.Visibility.PRIVATE, com.lucasxf.ed.domain.User.ProfileVisibility.PRIVATE
             );
             when(authService.completeGoogleSignup("temp-token", "bobsmith", "Bob Smith"))
                 .thenReturn(result);

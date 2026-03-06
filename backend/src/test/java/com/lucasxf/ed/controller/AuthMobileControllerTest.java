@@ -57,7 +57,8 @@ class AuthMobileControllerTest {
     private static final String EMAIL = "test@example.com";
     private static final String HANDLE = "testuser";
     private static final AuthResult AUTH_RESULT = new AuthResult(
-        "access-token", "refresh-token", HANDLE, USER_ID, EMAIL
+        "access-token", "refresh-token", HANDLE, USER_ID, EMAIL,
+        com.lucasxf.ed.domain.Pok.Visibility.PRIVATE, com.lucasxf.ed.domain.User.ProfileVisibility.PRIVATE
     );
 
     @Nested

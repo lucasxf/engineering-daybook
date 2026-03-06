@@ -34,7 +34,7 @@
 - `PokVisibilityImmutableException` (409 Conflict on PUBLIC → PRIVATE attempt)
 - `UserService` + `UserController` (PATCH `/api/v1/users/me/settings`) for default visibility preference
 - `PokService.verifyAccess()` — PUBLIC POKs accessible to any authenticated user; PRIVATE to owner only
-- Web: `VisibilityPicker` and `VisibilityBadge` components; integrated into QuickEntry, PokForm, PokCard, detail page, and settings
+- Web: `VisibilityPicker` and `VisibilityBadge` components; integrated into QuickEntry, PokForm, PokCard, and detail page
 - Mobile: `PokVisibility` type, visibility picker in create screen, visibility badge + toggle in detail screen
 - E2E: 4 new visibility scenarios in `web/e2e/poks.spec.ts`
 - [x] Code review feedback addressed (PR #118 review pass: style fixes, mobile stale-state privacy bug, web default visibility initialised from auth context)

@@ -217,7 +217,9 @@
     "noLearnings": "No public learnings yet.",
     "notFound": "Learner not found",
     "notFoundHint": "There is no learner with this handle.",
-    "publicLearnings": "Public learnings"
+    "publicLearnings": "Public learnings",
+    "learningCount": "{count, plural, one {# learning} other {# learnings}}",
+    "unexpectedError": "Something went wrong."
   },
   "tags": {
     "addTag": "Add tag",

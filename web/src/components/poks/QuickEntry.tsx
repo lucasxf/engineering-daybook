@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback, KeyboardEvent } from 'react';
+import { useState, useRef, useCallback, useEffect, KeyboardEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { pokApi, type Pok, type PokVisibility } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
@@ -9,7 +9,6 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { TagPicker } from './TagPicker';
 import { VisibilityPicker } from './VisibilityPicker';
-import type { Visibility } from './VisibilityBadge';
 
 interface QuickEntryProps {
   onSaved: (pok: Pok) => void;
@@ -33,7 +32,11 @@ export function QuickEntry({ onSaved, defaultVisibility = 'PRIVATE' }: QuickEntr
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
-  const [visibility, setVisibility] = useState<Visibility>(defaultVisibility);
+  const [visibility, setVisibility] = useState<PokVisibility>(defaultVisibility);
+
+  useEffect(() => {
+    setVisibility(defaultVisibility);
+  }, [defaultVisibility]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);

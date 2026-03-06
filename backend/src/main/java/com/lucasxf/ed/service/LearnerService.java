@@ -9,11 +9,17 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.lucasxf.ed.domain.Pok;
+import com.lucasxf.ed.domain.PokTag;
 import com.lucasxf.ed.domain.User;
+import com.lucasxf.ed.domain.UserTag;
 import com.lucasxf.ed.dto.LearnerProfileResponse;
+import com.lucasxf.ed.dto.PokResponse;
+import com.lucasxf.ed.dto.TagResponse;
 import com.lucasxf.ed.exception.LearnerAccessDeniedException;
 import com.lucasxf.ed.exception.LearnerNotFoundException;
 import com.lucasxf.ed.repository.PokRepository;
+import com.lucasxf.ed.repository.PokTagRepository;
+import com.lucasxf.ed.repository.UserTagRepository;
 
 import static java.util.Objects.requireNonNull;
 
@@ -38,10 +44,15 @@ public class LearnerService {
 
     private final UserService userService;
     private final PokRepository pokRepository;
+    private final PokTagRepository pokTagRepository;
+    private final UserTagRepository userTagRepository;
 
-    public LearnerService(UserService userService, PokRepository pokRepository) {
+    public LearnerService(UserService userService, PokRepository pokRepository,
+                          PokTagRepository pokTagRepository, UserTagRepository userTagRepository) {
         this.userService = requireNonNull(userService);
         this.pokRepository = requireNonNull(pokRepository);
+        this.pokTagRepository = requireNonNull(pokTagRepository);
+        this.userTagRepository = requireNonNull(userTagRepository);
     }
 
     /**
@@ -88,20 +99,21 @@ public class LearnerService {
     }
 
     /**
-     * Returns a paginated page of PUBLIC learnings for the given learner handle.
+     * Returns a paginated page of learnings for the given learner handle, mapped to DTOs.
      *
      * <p>The owner always sees all their own learnings (public + private).
      * Non-owners see only PUBLIC learnings; returns 403 if the profile is PRIVATE.
+     * Tags are always built from the owner's tag set, not the requester's.
      *
      * @param handle      the target learner's handle
      * @param requesterId the UUID of the requesting user
      * @param page        zero-based page number
      * @param size        page size
-     * @return a page of learnings
-     * @throws LearnerNotFoundException    if no learner with that handle exists
+     * @return a page of {@link PokResponse} DTOs
+     * @throws LearnerNotFoundException     if no learner with that handle exists
      * @throws LearnerAccessDeniedException if the profile is PRIVATE and requester is not the owner
      */
-    public Page<Pok> getLearnerPoks(String handle, UUID requesterId, int page, int size) {
+    public Page<PokResponse> getLearnerPoks(String handle, UUID requesterId, int page, int size) {
         User target = userService.findByHandle(handle)
             .orElseThrow(() -> new LearnerNotFoundException("Learner not found: @" + handle));
 
@@ -114,10 +126,30 @@ public class LearnerService {
 
         PageRequest pageable = PageRequest.of(page, size, DEFAULT_SORT);
 
-        if (isOwner) {
-            return pokRepository.findByUserIdAndDeletedAtIsNull(target.getId(), pageable);
-        }
-        return pokRepository.findByUserIdAndVisibilityAndDeletedAtIsNull(
-            target.getId(), Pok.Visibility.PUBLIC, pageable);
+        // Pre-fetch the owner's tags once to avoid N+1 queries across the page
+        List<UserTag> ownerTags = userTagRepository.findByUserIdAndDeletedAtIsNull(target.getId());
+
+        Page<Pok> poks = isOwner
+            ? pokRepository.findByUserIdAndDeletedAtIsNull(target.getId(), pageable)
+            : pokRepository.findByUserIdAndVisibilityAndDeletedAtIsNull(
+                target.getId(), Pok.Visibility.PUBLIC, pageable);
+
+        return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), ownerTags), List.of()));
+    }
+
+    /**
+     * Builds the tag response list for a single POK from a pre-fetched list of the owner's tags.
+     *
+     * @param pokId     the POK's ID
+     * @param ownerTags the pre-fetched active tags belonging to the POK owner
+     * @return list of {@link TagResponse} for the POK's assigned tags
+     */
+    private List<TagResponse> buildTagResponses(UUID pokId, List<UserTag> ownerTags) {
+        return pokTagRepository.findByPokId(pokId).stream()
+            .map(PokTag::getTagId)
+            .flatMap(tagId -> ownerTags.stream()
+                .filter(ut -> ut.getTag().getId() != null && ut.getTag().getId().equals(tagId)))
+            .map(TagResponse::from)
+            .toList();
     }
 }

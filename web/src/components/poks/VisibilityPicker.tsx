@@ -2,23 +2,24 @@
 
 import { useTranslations } from 'next-intl';
 import { Select } from '@/components/ui/Select';
-import type { Visibility } from './VisibilityBadge';
+import type { PokVisibility } from '@/lib/pokApi';
 
 interface VisibilityPickerProps {
-  value: Visibility;
-  onChange: (visibility: Visibility) => void;
+  value: PokVisibility;
+  onChange: (visibility: PokVisibility) => void;
+  locked?: boolean;
 }
 
 /**
  * Dropdown control for selecting a learning's visibility (private or public).
  * Warns users that making a learning public is irreversible.
  */
-export function VisibilityPicker({ value, onChange }: VisibilityPickerProps) {
+export function VisibilityPicker({ value, onChange, locked = false }: VisibilityPickerProps) {
   const t = useTranslations('poks.visibility');
 
   const options = [
-    { value: 'PRIVATE' as Visibility, label: `🔒 ${t('private')}` },
-    { value: 'PUBLIC' as Visibility, label: `🌐 ${t('public')}` },
+    { value: 'PRIVATE' as PokVisibility, label: `🔒 ${t('private')}` },
+    { value: 'PUBLIC' as PokVisibility, label: `🌐 ${t('public')}` },
   ];
 
   return (
@@ -26,8 +27,9 @@ export function VisibilityPicker({ value, onChange }: VisibilityPickerProps) {
       <Select
         options={options}
         value={value}
-        onChange={(v) => onChange(v as Visibility)}
+        onChange={locked ? () => {} : (v) => onChange(v as PokVisibility)}
         label={t('pickerLabel')}
+        disabled={locked}
       />
       {value === 'PUBLIC' && (
         <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">

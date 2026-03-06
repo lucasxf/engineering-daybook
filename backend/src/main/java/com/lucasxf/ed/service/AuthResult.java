@@ -2,6 +2,9 @@ package com.lucasxf.ed.service;
 
 import java.util.UUID;
 
+import com.lucasxf.ed.domain.Pok;
+import com.lucasxf.ed.domain.User;
+
 /**
  * Internal result of a successful authentication operation, carrying both the issued
  * tokens and the user identity. Produced by {@link AuthService} and consumed by
@@ -19,6 +22,8 @@ public record AuthResult(
     String refreshToken,
     String handle,
     UUID userId,
-    String email
+    String email,
+    Pok.Visibility defaultPokVisibility,
+    User.ProfileVisibility profileVisibility
 ) {
 }

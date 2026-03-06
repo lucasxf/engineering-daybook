@@ -16,9 +16,12 @@ import org.springframework.data.domain.Pageable;
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.dto.LearnerProfileResponse;
+import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.exception.LearnerAccessDeniedException;
 import com.lucasxf.ed.exception.LearnerNotFoundException;
 import com.lucasxf.ed.repository.PokRepository;
+import com.lucasxf.ed.repository.PokTagRepository;
+import com.lucasxf.ed.repository.UserTagRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -35,6 +38,12 @@ class LearnerServiceTest {
 
     @Mock
     private PokRepository pokRepository;
+
+    @Mock
+    private PokTagRepository pokTagRepository;
+
+    @Mock
+    private UserTagRepository userTagRepository;
 
     @InjectMocks
     private LearnerService learnerService;
@@ -171,8 +180,10 @@ class LearnerServiceTest {
         when(pokRepository.findByUserIdAndVisibilityAndDeletedAtIsNull(
             eq(aliceId), eq(Pok.Visibility.PUBLIC), any(Pageable.class)))
             .thenReturn(pageResult);
+        when(userTagRepository.findByUserIdAndDeletedAtIsNull(aliceId)).thenReturn(List.of());
+        when(pokTagRepository.findByPokId(any(UUID.class))).thenReturn(List.of());
 
-        Page<Pok> result = learnerService.getLearnerPoks("alice", bobId, 0, 20);
+        Page<PokResponse> result = learnerService.getLearnerPoks("alice", bobId, 0, 20);
 
         assertThat(result.getContent()).hasSize(1);
     }

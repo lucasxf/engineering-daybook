@@ -34,7 +34,7 @@ export default function LearnerProfilePage() {
         if (err instanceof ApiRequestError && err.status === 404) {
           setNotFound(true);
         } else {
-          setError('Something went wrong. Please try again.');
+          setError(t('unexpectedError'));
         }
       } finally {
         setLoading(false);
@@ -65,7 +65,7 @@ export default function LearnerProfilePage() {
   if (error !== null || profile === null) {
     return (
       <main className="container mx-auto max-w-2xl px-4 py-8">
-        <Alert variant="error">{error ?? 'Something went wrong.'}</Alert>
+        <Alert variant="error">{error ?? t('unexpectedError')}</Alert>
       </main>
     );
   }
@@ -97,7 +97,7 @@ export default function LearnerProfilePage() {
         </div>
         {isOwner && profile.learningCount !== undefined && (
           <span className="text-sm text-slate-500 dark:text-slate-400">
-            {profile.learningCount} {profile.learningCount === 1 ? 'learning' : 'learnings'}
+            {t('learningCount', { count: profile.learningCount })}
           </span>
         )}
       </div>

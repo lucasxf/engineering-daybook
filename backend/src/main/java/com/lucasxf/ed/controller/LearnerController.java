@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.dto.LearnerProfileResponse;
+import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.service.LearnerService;
 
 import static java.util.Objects.requireNonNull;
@@ -87,20 +87,20 @@ public class LearnerController {
     @GetMapping("/{handle}/poks")
     @Operation(
         summary = "Get learner's public learnings",
-        description = "Returns a paginated list of PUBLIC learnings for the given learner. "
+        description = "Returns a paginated list of learnings for the given learner as PokResponse DTOs. "
             + "Returns 403 if the profile is PRIVATE and the requester is not the owner. "
             + "The owner always sees all their learnings (public + private).")
     @ApiResponse(responseCode = "200", description = "Learnings returned")
     @ApiResponse(responseCode = "401", description = "Not authenticated")
     @ApiResponse(responseCode = "403", description = "Profile is private")
     @ApiResponse(responseCode = "404", description = "Learner not found")
-    public ResponseEntity<Page<Pok>> getLearnerPoks(
+    public ResponseEntity<Page<PokResponse>> getLearnerPoks(
             @PathVariable String handle,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             Authentication authentication) {
         UUID requesterId = UUID.fromString(authentication.getName());
-        Page<Pok> result = learnerService.getLearnerPoks(handle, requesterId, page, size);
+        Page<PokResponse> result = learnerService.getLearnerPoks(handle, requesterId, page, size);
         return ResponseEntity.ok(result);
     }
 }

@@ -217,7 +217,9 @@
     "noLearnings": "Nenhum aprendizado público ainda.",
     "notFound": "Aprendiz não encontrado",
     "notFoundHint": "Não existe um aprendiz com este identificador.",
-    "publicLearnings": "Aprendizados públicos"
+    "publicLearnings": "Aprendizados públicos",
+    "learningCount": "{count, plural, one {# aprendizado} other {# aprendizados}}",
+    "unexpectedError": "Algo deu errado."
   },
   "tags": {
     "addTag": "Adicionar etiqueta",

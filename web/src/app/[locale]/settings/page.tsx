@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -24,6 +24,13 @@ export default function SettingsPage() {
     user?.defaultPokVisibility ?? 'PRIVATE'
   );
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      setProfileVisibility(user.profileVisibility ?? 'PRIVATE');
+      setDefaultPokVisibility(user.defaultPokVisibility ?? 'PRIVATE');
+    }
+  }, [user]);
 
   async function handleProfileVisibilityChange(value: ProfileVisibility) {
     setProfileVisibility(value);
@@ -89,6 +96,7 @@ export default function SettingsPage() {
               options={visibilityOptions}
               value={profileVisibility}
               onChange={(v) => handleProfileVisibilityChange(v as ProfileVisibility)}
+              label={t('privacy.profileVisibility')}
             />
           </div>
 
@@ -103,6 +111,7 @@ export default function SettingsPage() {
               options={visibilityOptions}
               value={defaultPokVisibility}
               onChange={(v) => handleDefaultPokVisibilityChange(v as PokVisibility)}
+              label={t('privacy.defaultPokVisibility')}
             />
           </div>
 

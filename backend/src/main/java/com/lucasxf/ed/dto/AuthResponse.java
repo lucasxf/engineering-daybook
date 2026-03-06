@@ -16,8 +16,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * instead. Both fields are omitted from the JSON body when no tokens are issued (e.g. the
  * {@code /me} endpoint).
  *
- * <p>{@code defaultPokVisibility} is populated only on the {@code /me} endpoint, where a
- * DB lookup is available. It is omitted from login/register/refresh responses (null).
+ * <p>{@code defaultPokVisibility} and {@code profileVisibility} are populated on all auth
+ * operations (login, register, refresh, Google sign-in, and {@code /me}) since the {@code User}
+ * entity is already loaded during token issuance. The separate {@code /me} endpoint remains
+ * useful for restoring session state on page load without re-issuing tokens.
  *
  * @author Lucas Xavier Ferreira
  * @since 2026-02-11
@@ -43,11 +45,11 @@ public record AuthResponse(
     String refreshToken,
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @Schema(description = "User's default visibility for new learnings — populated on /me only")
+    @Schema(description = "User's default visibility for new learnings")
     Pok.Visibility defaultPokVisibility,
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @Schema(description = "User's profile visibility — populated on /me only")
+    @Schema(description = "User's profile visibility")
     User.ProfileVisibility profileVisibility) {
 
     /** Identity-only constructor — for web login/register/refresh (cookie-based, no tokens, no settings). */
@@ -60,7 +62,7 @@ public record AuthResponse(
         this(handle, userId, email, accessToken, refreshToken, null, null);
     }
 
-    /** /me constructor — includes settings from a DB-fetched User. */
+    /** /me constructor — includes settings from a DB-fetched User, no tokens in body. */
     public AuthResponse(String handle, UUID userId, String email,
             Pok.Visibility defaultPokVisibility, User.ProfileVisibility profileVisibility) {
         this(handle, userId, email, null, null, defaultPokVisibility, profileVisibility);

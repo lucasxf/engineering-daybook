@@ -130,7 +130,7 @@ public class PokService {
      * Retrieves a POK by ID.
      *
      * @param id     the POK ID
-     * @param userId the ID of the user requesting the POK
+     * @param userId the ID of the requesting user (used for access check only — not the owner)
      * @return the POK
      * @throws PokNotFoundException       if the POK is not found or soft-deleted
      * @throws PokAccessDeniedException   if the POK belongs to another user
@@ -144,7 +144,7 @@ public class PokService {
 
         verifyAccess(pok, userId);
 
-        List<TagResponse> tags = buildTagResponses(pok.getId(), userId);
+        List<TagResponse> tags = buildTagResponses(pok.getId(), pok.getUserId());
         List<TagSuggestionResponse> suggestions = buildSuggestionResponses(pok.getId());
 
         return PokResponse.from(pok, tags, suggestions);

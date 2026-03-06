@@ -1,11 +1,10 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-
-export type Visibility = 'PRIVATE' | 'PUBLIC';
+import type { PokVisibility } from '@/lib/pokApi';
 
 interface VisibilityBadgeProps {
-  visibility: Visibility;
+  visibility: PokVisibility;
 }
 
 /**

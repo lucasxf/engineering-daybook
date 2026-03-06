@@ -7,6 +7,7 @@ import com.lucasxf.ed.config.CorsProperties;
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.dto.LearnerProfileResponse;
+import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.exception.LearnerAccessDeniedException;
 import com.lucasxf.ed.exception.LearnerNotFoundException;
 import com.lucasxf.ed.security.SecurityConfig;
@@ -132,8 +133,8 @@ class LearnerControllerTest {
 
     @Test
     void getLearnerPoks_publicProfile_returns200WithOnlyPublicPoks() throws Exception {
-        Pok pub = makePublicPok();
-        Page<Pok> page = new PageImpl<>(List.of(pub));
+        PokResponse pubResponse = PokResponse.from(makePublicPok());
+        Page<PokResponse> page = new PageImpl<>(List.of(pubResponse));
         when(learnerService.getLearnerPoks(eq("alice"), any(UUID.class), eq(0), eq(20)))
             .thenReturn(page);
 
