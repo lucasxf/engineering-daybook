@@ -67,12 +67,14 @@ def get_session_branch() -> str:
 
 def sanitize_branch_name(name: str) -> str:
     """
-    Convert a branch name to a safe filename.
-    feat/feature-a → feat--feature-a
-    Strips characters that are unsafe in filenames.
+    Convert a branch name to a safe, collision-free filename.
+    Uses URL encoding for '/' so the mapping is injective:
+      feat/feature-a  → feat%2Ffeature-a
+      feat/a/b        → feat%2Fa%2Fb   (distinct from feat/a--b → feat%2Fa--b)
+    Remaining unsafe filename characters are replaced with '_'.
     """
-    safe = name.replace("/", "--")
-    safe = re.sub(r"[^\w\-.]", "_", safe)
+    safe = name.replace("/", "%2F")
+    safe = re.sub(r"[^\w\-\.%]", "_", safe)
     return safe or "unknown"
 
 

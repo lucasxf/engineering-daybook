@@ -55,7 +55,7 @@ SESSIONS_UNTRACKED=$(git ls-files --others --exclude-standard .claude/metrics/se
 
 if [[ -n "$SESSIONS_MODIFIED" || -n "$SESSIONS_UNTRACKED" ]]; then
   git add .claude/metrics/sessions/
-  git commit -m "chore: update session metrics delta"
+  git commit --only .claude/metrics/sessions/ -m "chore: update session metrics delta"
 fi
 ```
 

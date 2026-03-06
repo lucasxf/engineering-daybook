@@ -29,24 +29,31 @@ SESSIONS_DIR = _mod.SESSIONS_DIR
 
 class TestSanitizeBranchName(unittest.TestCase):
 
-    def test_slash_replaced_with_double_dash(self):
-        self.assertEqual(sanitize_branch_name("feat/feature-a"), "feat--feature-a")
+    def test_slash_encoded_with_percent2F(self):
+        self.assertEqual(sanitize_branch_name("feat/feature-a"), "feat%2Ffeature-a")
 
     def test_main_unchanged(self):
         self.assertEqual(sanitize_branch_name("main"), "main")
 
     def test_nested_slashes(self):
-        self.assertEqual(sanitize_branch_name("feat/deep/nested"), "feat--deep--nested")
+        self.assertEqual(sanitize_branch_name("feat/deep/nested"), "feat%2Fdeep%2Fnested")
 
     def test_empty_string_fallback(self):
         self.assertEqual(sanitize_branch_name(""), "unknown")
 
     def test_chore_branch(self):
-        self.assertEqual(sanitize_branch_name("chore/cross-session-metrics"), "chore--cross-session-metrics")
+        self.assertEqual(sanitize_branch_name("chore/cross-session-metrics"), "chore%2Fcross-session-metrics")
 
     def test_special_chars_stripped(self):
         result = sanitize_branch_name("feat/foo bar")
         self.assertNotIn(" ", result)
+
+    def test_collision_safety(self):
+        """feat/a/b and feat/a--b must produce distinct filenames."""
+        self.assertNotEqual(
+            sanitize_branch_name("feat/a/b"),
+            sanitize_branch_name("feat/a--b"),
+        )
 
 
 class TestDeltaFileCreation(unittest.TestCase):
