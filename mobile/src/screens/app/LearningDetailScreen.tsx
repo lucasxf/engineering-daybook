@@ -198,7 +198,7 @@ export function LearningDetailScreen() {
                     paddingVertical: theme.spacing.xs,
                   }}
                 >
-                  <Text variant="bodySm">{tag.name}</Text>
+                  <Text variant="bodySm">{tag.displayName}</Text>
                 </View>
               ))}
             </View>

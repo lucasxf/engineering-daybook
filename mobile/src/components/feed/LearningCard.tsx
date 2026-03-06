@@ -62,7 +62,7 @@ export function LearningCard({ pok, onPress }: Props) {
                   paddingVertical: 2,
                 }}
               >
-                <Text variant="caption">{tag.name}</Text>
+                <Text variant="caption">{tag.displayName}</Text>
               </View>
             ))}
             {pok.tags.length > 3 && (
