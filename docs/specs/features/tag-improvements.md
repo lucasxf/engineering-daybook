@@ -1,8 +1,8 @@
 # Tag Improvements
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-03-06
-> **Implemented:** _pending_
+> **Implemented:** 2026-03-06
 
 ---
 
@@ -210,17 +210,33 @@ The `pok_tags.tag_id` index (`idx_pok_tags_tag_id`, from V10) already exists —
 
 ## Post-Implementation Notes
 
-> _This section is filled AFTER implementation._
-
 ### Commits
-- _(pending)_
+- `bf80caf` — chore: add V16+V17 Flyway migrations for tag display_name
+- `e0806cf` — feat: add displayName to Tag entity, normalise() to TagService, update repositories
+- `abb3ab1` — feat: add tagId filter to GET /poks endpoint (PokController + PokService)
+- `879cf40` — feat: add displayName to Tag TypeScript interfaces and tagId to PokSearchParams
+- `f970d7e` — feat: render displayName in web tag components and add spaces-to-dashes input mask
+- `b5e5966` — feat: render displayName in mobile tag components (LearningDetailScreen + LearningCard)
+- `d6a36db` — feat: add TagFilter component and wire into feed page
+- `467e432` — test: add integration tests for tagId filter + displayName, fix mock signatures
 
 ### Architectural Decisions
 
-_(pending)_
+1. **`TagService.normalise()` is `static` package-private** — Used by both `TagService` and `TagSuggestionService`. Kept package-private (no `public`) to prevent calls from outside the service package. `TagSuggestionService` calls it as `TagService.normalise(...)` directly.
+
+2. **TagGroupedView uses `tag.tagId` as Map key (not `tag.name`)** — After normalization all names are canonical, but using the global `tagId` UUID as the map key is more robust and avoids any edge-case collisions from tag renames.
+
+3. **TagFilter is self-contained (`useTags()` called internally)** — Rather than passing the tags list as a prop, the `TagFilter` component calls `useTags()` itself. This keeps the feed page simpler and is consistent with how `TagSection` and `TagPicker` work.
+
+4. **Tag filter and keyword search are mutually exclusive** — When `?tagId` is set in the URL, `usePoksData` clears `keyword` and omits `searchMode` from the API call. When `handleSearch` is called, it clears `?tagId`. This matches the backend: `PokService.search()` bypasses semantic search when `tagId != null`.
+
+5. **`handleSearch` explicitly passes `null` as tagId** — Rather than relying on `updateURL`'s default (preserve current tagId), `handleSearch` passes `null` so searching always clears the tag filter. This makes the exclusivity contract explicit.
 
 ### Deviations from Spec
-- _(none yet)_
+
+- **`TagSection.tsx` also updated** (not listed in spec's File Changes) — The dropdown in `TagSection` (used on the POK view/edit pages) also rendered `tag.name` and had the same tag creation input without the spaces→dashes mask. Updated both to stay consistent.
 
 ### Lessons Learned
-- _(pending)_
+
+- When adding a new parameter to a widely-used service method (`PokService.search()`), expect many `@WebMvcTest` mock calls to need updating. A Python mass-replacement script is faster and safer than manual edits for 10+ occurrences.
+- `replace_all` chained replacements can interact — inserting a null in one place and then another replacement running on the same block can result in double-insertion. Always verify with a count check after the script runs.
