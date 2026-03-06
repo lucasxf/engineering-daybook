@@ -220,13 +220,16 @@ public class PokService {
         List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
 
         // Tag filter takes precedence — bypass semantic search when a tag filter is active.
-        // TODO: date-range filters (createdFrom/createdTo/updatedFrom/updatedTo) are currently
-        //  ignored when tagId is provided. Add a combined repository query before exposing date
-        //  filter controls in the UI.
+        // Date-range filters are supported alongside tagId via the combined repository query.
         if (tagId != null) {
+            Instant createdFromInstant = parseInstant(createdFrom);
+            Instant createdToInstant = parseInstant(createdTo);
+            Instant updatedFromInstant = parseInstant(updatedFrom);
+            Instant updatedToInstant = parseInstant(updatedTo);
             Sort sort = buildSort(sortBy, sortDirection);
             Pageable pageable = PageRequest.of(page, size, sort);
-            Page<Pok> poks = pokRepository.findByUserIdAndTagId(userId, tagId, pageable);
+            Page<Pok> poks = pokRepository.findByUserIdAndTagId(userId, tagId,
+                createdFromInstant, createdToInstant, updatedFromInstant, updatedToInstant, pageable);
             return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()));
         }
 

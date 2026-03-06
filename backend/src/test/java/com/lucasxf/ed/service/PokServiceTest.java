@@ -836,6 +836,57 @@ class PokServiceTest {
             .isInstanceOf(PokAccessDeniedException.class);
     }
 
+    // ===== SEARCH — TAG ID FILTER TESTS =====
+
+    @Test
+    void search_withTagId_shouldCallFindByUserIdAndTagId() {
+        // Given
+        UUID tagId = UUID.randomUUID();
+        int page = 0;
+        int size = 20;
+        Pok pok = new Pok(userId, "Tagged POK", "Content");
+        Page<Pok> pokPage = new PageImpl<>(List.of(pok), PageRequest.of(page, size), 1);
+
+        when(pokRepository.findByUserIdAndTagId(
+            eq(userId), eq(tagId), eq(null), eq(null), eq(null), eq(null), any(Pageable.class)
+        )).thenReturn(pokPage);
+
+        // When
+        Page<PokResponse> result = pokService.search(userId, null, null, tagId, null, null, null, null, null, null, page, size);
+
+        // Then
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).title()).isEqualTo("Tagged POK");
+        verify(pokRepository).findByUserIdAndTagId(eq(userId), eq(tagId), eq(null), eq(null), eq(null), eq(null), any(Pageable.class));
+        verify(pokRepository, never()).searchPoks(any(), any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void search_withTagIdAndDateFilters_shouldApplyBothFilters() {
+        // Given
+        UUID tagId = UUID.randomUUID();
+        String createdFrom = "2026-01-01T00:00:00Z";
+        String createdTo = "2026-01-31T23:59:59Z";
+        int page = 0;
+        int size = 20;
+        Pok pok = new Pok(userId, "Tagged POK", "About spring");
+        Page<Pok> pokPage = new PageImpl<>(List.of(pok), PageRequest.of(page, size), 1);
+
+        when(pokRepository.findByUserIdAndTagId(
+            eq(userId), eq(tagId), any(Instant.class), any(Instant.class), eq(null), eq(null), any(Pageable.class)
+        )).thenReturn(pokPage);
+
+        // When
+        Page<PokResponse> result = pokService.search(userId, null, null, tagId, null, null,
+            createdFrom, createdTo, null, null, page, size);
+
+        // Then: both tagId filter and date filters are applied
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).title()).isEqualTo("Tagged POK");
+        verify(pokRepository).findByUserIdAndTagId(
+            eq(userId), eq(tagId), any(Instant.class), any(Instant.class), eq(null), eq(null), any(Pageable.class));
+    }
+
     // ===== SEARCH — UPDATED DATE FILTERS TESTS =====
 
     @Test
