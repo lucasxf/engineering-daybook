@@ -2,10 +2,14 @@
 """
 PostToolUse hook — tracks agent and slash-command invocations in real-time.
 
-Fires after Task, Bash, and Skill tool calls:
+Fires after Task and Skill tool calls:
 - Task: reads subagent_type → increments [agent_usage.<name>]
 - Skill: reads skill name → increments [command_usage.<name>]
-- Bash: fallback detection for known slash-command patterns
+
+Bash tool calls are intentionally NOT tracked here — pattern-matching free text
+in Bash command strings produces false positives (e.g. commit messages that
+mention a command name get counted as an invocation). Slash commands are already
+tracked reliably via the Skill tool.
 
 Unknown agents/commands are added automatically so the file self-heals
 as new agents are introduced.
@@ -13,20 +17,11 @@ as new agents are introduced.
 
 import json
 import sys
-import os
-import re
 from datetime import datetime, timezone
 from pathlib import Path
+import re
 
 TOML_PATH = Path(__file__).parent.parent / "metrics" / "usage-stats.toml"
-
-KNOWN_COMMANDS = {
-    "start-session", "finish-session", "create-pr", "directive",
-    "update-roadmap", "review-code", "quick-test", "build-quiet",
-    "verify-quiet", "docker-start", "docker-stop", "api-doc",
-    "resume-session", "save-response", "test-service", "write-spec",
-    "implement-spec", "review-pr", "fix-pr",
-}
 
 
 def now_iso() -> str:
@@ -45,8 +40,6 @@ def increment_entry(content: str, section: str, key: str, timestamp: str) -> str
     header = f"[{section}.{key}]"
     if header in content:
         # Increment invocations
-        def bump(m):
-            return f"invocations = {int(m.group(1)) + 1}"
         # Only replace within this section — find the block and patch it
         pattern = re.compile(
             rf"(\[{re.escape(section)}.{re.escape(key)}\]\s*\n"
@@ -75,16 +68,6 @@ def update_metadata(content: str, timestamp: str) -> str:
     return content
 
 
-def detect_command(tool_input: dict) -> str | None:
-    """Extract slash command name from a Bash tool_input, if any."""
-    command = tool_input.get("command", "")
-    for cmd in KNOWN_COMMANDS:
-        # Matches patterns like: /finish-session, start-session, etc.
-        if re.search(rf'\b{re.escape(cmd)}\b', command):
-            return cmd
-    return None
-
-
 def main():
     try:
         raw = sys.stdin.read()
@@ -111,11 +94,9 @@ def main():
                 section = "command_usage"
                 key = skill_name
 
-        elif tool_name == "Bash":
-            cmd = detect_command(tool_input)
-            if cmd:
-                section = "command_usage"
-                key = cmd
+        # Bash tool calls are NOT tracked — free-text pattern matching produces
+        # false positives (commit messages, echo statements, etc. containing
+        # command names would be miscounted as invocations).
 
         if not section or not key:
             sys.exit(0)
