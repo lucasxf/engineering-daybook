@@ -1,5 +1,5 @@
 # Automation Usage Metrics
-# Collected by pulse agent, analyzed by automation-sentinel agent
+# Compiled by /compile-metrics, analyzed by automation-sentinel agent
 
 [metadata]
 timestamp = "2026-03-06T17:26:39Z"
@@ -46,6 +46,14 @@ invocations = 0
 last_used = ""
 
 [agent_usage.tech-writer]
+invocations = 0
+last_used = ""
+
+[agent_usage.steward]
+invocations = 0
+last_used = ""
+
+[agent_usage.nexus]
 invocations = 0
 last_used = ""
 
@@ -154,5 +162,5 @@ net_locs = 0
 # Health Metrics
 [health]
 schema_errors = 0
-total_agents = 12
+total_agents = 14
 total_commands = 20
