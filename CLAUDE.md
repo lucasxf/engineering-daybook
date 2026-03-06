@@ -165,9 +165,9 @@ Active work:
 - [x] Milestone 5.1: POK Visibility Controls — private/public visibility on POKs and user default preference; irreversible PUBLIC→PRIVATE enforcement; access control; web + mobile UI indicators (2026-03-04)
 - [x] Milestone 5.2: Learner Profile Privacy — profileVisibility field, learner profile endpoint/page, settings page/screen, E2E tests (2026-03-04)
 
-**Phase 8: Knowledge Enrichment** — ⏳ Planned
+**Phase 8: Knowledge Enrichment** — 🔄 In Progress (8.1 done)
 
-- [ ] Milestone 8.1: Markdown Support — POK content rendering (web + mobile); react-markdown, rehype-sanitize, react-native-markdown-display
+- [x] Milestone 8.1: Markdown Support — done (2026-03-06); react-markdown + rehype-sanitize (web), react-native-markdown-display (mobile); 8.1.8 (title rendering) deferred
 - [ ] Milestone 8.2: Tag Improvements — tag search/filter, display_name column, spaces→dashes normalization, backfill migration
 - [ ] Milestone 8.3: Knowledge Paths — planning and spec only (graph visualization, grouped by topic)
 

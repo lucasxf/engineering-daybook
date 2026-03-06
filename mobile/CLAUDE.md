@@ -144,6 +144,22 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
 - **`silentRefresh()` must be guarded by a promise mutex when called from `apiFetch`:** Multiple in-flight API calls that simultaneously receive a 401 will each invoke `silentRefresh()` concurrently. The first rotation invalidates the refresh token, causing all subsequent refresh calls to fail and triggering `authFailureListener()` — a spurious logout. Use a module-scoped `let refreshPromise: Promise<boolean> | null = null` to deduplicate: `if (!refreshPromise) refreshPromise = silentRefresh(); const result = await refreshPromise; refreshPromise = null;`
 - **Screen in a tab navigator must use `BottomTabNavigationProp<TabParamList>`, not `NativeStackNavigationProp<StackParamList>`:** Even when a tab screen is nested inside a stack navigator, `useNavigation()` returns the navigation object of the closest parent navigator (the tab). Typing it as the stack's navigation prop makes TypeScript accept incorrect route names. A screen inside `AppTabs` should import `BottomTabNavigationProp` from `@react-navigation/bottom-tabs` and type the hook with `AppTabsParamList` — routes like `'Feed'` are then checked at compile time. Attempting to navigate to a tab route (`'Feed'`) through a stack nav type (`AppStackParamList`) silently succeeds at runtime but TypeScript cannot catch renames.
 
+- **Component unit tests that cannot run under `jest-expo` on Node 22 require a 3rd jest project with `testEnvironment: 'node'`:** The existing two-project setup (`lib` + `rn`) covers pure TypeScript logic (node env) and full React Native rendering (jest-expo). However, `jest-expo`'s setup calls `Object.defineProperty` on RN internals that fail under Node 22 + RN 0.76, which means any component test importing native modules (e.g., `react-native-markdown-display`) cannot run in the `rn` project either. The workaround is to add a 3rd jest project (`components`) with `testEnvironment: 'node'`, a `moduleNameMapper` that stubs out native modules, and manual mocks placed in `src/__mocks__/`. This project covers `src/components/**/__tests__/` files. The `rn` project remains for full-integration screen tests that need the Expo runtime setup. See `jest.config.js` for the configuration. (Added 2026-03-06)
+
+  ```js
+  // jest.config.js — third project entry
+  {
+    displayName: 'components',
+    testEnvironment: 'node',
+    testRegex: 'src/components/.*/__tests__/.*\\.test\\.[jt]sx?$',
+    moduleNameMapper: {
+      '^react-native-markdown-display$': '<rootDir>/src/__mocks__/react-native-markdown-display.tsx',
+      // ... other native module stubs
+    },
+    preset: 'ts-jest',
+  }
+  ```
+
 ---
 
-*Last updated: 2026-02-27 (session: fix/pr-94-review)*
+*Last updated: 2026-03-06 (session: feat/markdown-support — Milestone 8.1 done)*
