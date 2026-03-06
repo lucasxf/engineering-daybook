@@ -2,7 +2,19 @@
   "hooks": {
     "PostToolUse": [
       {
-        "matcher": "Task|Bash|Skill",
+        "matcher": "Task|Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \".claude/scripts/run-track-usage.sh\"",
+            "timeout": 5,
+            "async": true
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
         "hooks": [
           {
             "type": "command",

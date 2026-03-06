@@ -1,27 +1,42 @@
 #!/usr/bin/env python3
 """
-PostToolUse hook — tracks agent and slash-command invocations in real-time.
+Hook script — tracks agent and slash-command invocations in real-time.
 
-Fires after Task and Skill tool calls:
-- Task: reads subagent_type → increments [agent_usage.<name>]
-- Skill: reads skill name → increments [command_usage.<name>]
+Wired to two hook events in settings.json:
 
-Bash tool calls are intentionally NOT tracked here — pattern-matching free text
-in Bash command strings produces false positives (e.g. commit messages that
-mention a command name get counted as an invocation). Slash commands are already
-tracked reliably via the Skill tool.
+1. PostToolUse (Task | Skill):
+   - Task: reads subagent_type → increments [agent_usage.<name>]
+   - Skill: reads skill name → increments [command_usage.<name>]
+     (fires when Claude programmatically invokes a slash command)
+
+2. UserPromptSubmit:
+   - Detects /command-name at the start of the user's prompt
+   - Increments [command_usage.<name>]
+     (fires when the user types a slash command directly in the CLI)
+
+Bash tool calls are intentionally NOT scanned — free-text pattern matching
+on Bash command strings produces false positives (commit messages, echo
+output, etc. containing a command name get miscounted as invocations).
 
 Unknown agents/commands are added automatically so the file self-heals
-as new agents are introduced.
+as new agents and commands are introduced.
 """
 
 import json
 import sys
+import re
 from datetime import datetime, timezone
 from pathlib import Path
-import re
 
 TOML_PATH = Path(__file__).parent.parent / "metrics" / "usage-stats.toml"
+
+KNOWN_COMMANDS = {
+    "start-session", "finish-session", "create-pr", "directive",
+    "update-roadmap", "review-code", "quick-test", "build-quiet",
+    "verify-quiet", "docker-start", "docker-stop", "api-doc",
+    "resume-session", "save-response", "test-service", "write-spec",
+    "implement-spec", "review-pr", "fix-pr",
+}
 
 
 def now_iso() -> str:
@@ -39,20 +54,16 @@ def increment_entry(content: str, section: str, key: str, timestamp: str) -> str
     """
     header = f"[{section}.{key}]"
     if header in content:
-        # Increment invocations
-        # Only replace within this section — find the block and patch it
         pattern = re.compile(
             rf"(\[{re.escape(section)}.{re.escape(key)}\]\s*\n"
             rf"invocations = )(\d+)",
         )
         content = pattern.sub(lambda m: m.group(1) + str(int(m.group(2)) + 1), content)
-        # Update last_used
         pattern_date = re.compile(
             rf"(\[{re.escape(section)}.{re.escape(key)}\][^\[]*last_used = )\"[^\"]*\""
         )
         content = pattern_date.sub(lambda m: f'{m.group(1)}"{timestamp}"', content)
     else:
-        # Append new entry before [productivity] or at end
         new_entry = f'\n[{section}.{key}]\ninvocations = 1\nlast_used = "{timestamp}"\n'
         if "[productivity]" in content:
             content = content.replace("[productivity]", new_entry + "\n[productivity]", 1)
@@ -68,6 +79,18 @@ def update_metadata(content: str, timestamp: str) -> str:
     return content
 
 
+def detect_slash_command(prompt: str) -> str | None:
+    """
+    Detect a /command-name at the very start of a user prompt.
+    Anchored to start — no free-text scanning, no false positives.
+    """
+    prompt = prompt.strip()
+    for cmd in KNOWN_COMMANDS:
+        if re.match(rf'^/{re.escape(cmd)}\b', prompt):
+            return cmd
+    return None
+
+
 def main():
     try:
         raw = sys.stdin.read()
@@ -75,6 +98,7 @@ def main():
             sys.exit(0)
 
         data = json.loads(raw)
+        hook_event = data.get("hook_event_name", "")
         tool_name = data.get("tool_name", "")
         tool_input = data.get("tool_input", {})
         timestamp = now_iso()
@@ -82,21 +106,29 @@ def main():
         section = None
         key = None
 
-        if tool_name == "Task":
+        if hook_event == "UserPromptSubmit":
+            # User typed a slash command directly in the CLI
+            prompt = data.get("prompt", "")
+            cmd = detect_slash_command(prompt)
+            if cmd:
+                section = "command_usage"
+                key = cmd
+
+        elif tool_name == "Task":
+            # Claude spawned a subagent
             subagent_type = tool_input.get("subagent_type", "").strip()
             if subagent_type:
                 section = "agent_usage"
                 key = subagent_type
 
         elif tool_name == "Skill":
+            # Claude programmatically invoked a slash command
             skill_name = tool_input.get("skill", "").strip()
             if skill_name:
                 section = "command_usage"
                 key = skill_name
 
-        # Bash tool calls are NOT tracked — free-text pattern matching produces
-        # false positives (commit messages, echo statements, etc. containing
-        # command names would be miscounted as invocations).
+        # Bash tool calls are intentionally not tracked here.
 
         if not section or not key:
             sys.exit(0)
