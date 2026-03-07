@@ -161,9 +161,9 @@ Tooling fix: resolved a concurrency bug where parallel Claude Code sessions in s
 | Updated `.claude/commands/finish-session.md` and `.claude/commands/create-pr.md` to stage session delta files instead of the canonical file | ✅ Done |
 | Added 15 unit tests in `.claude/scripts/test_track_usage.py` (all passing) | ✅ Done |
 
-### v0.dev Prompt Generation (chore/generate-v0-prompt-command, 2026-03-07) ✅
+### v0.dev Prompt Generation + Spec-to-Screen Workflow (chore/generate-v0-prompt-command, 2026-03-07) ✅
 
-Tooling enhancement: added `/generate-v0-prompt` slash command to convert spec files into self-contained v0.dev prompts, enabling screen redesigns via Vercel v0.
+Tooling enhancement: added `/generate-v0-prompt` slash command and redesigned the spec-to-screen workflow so UI/UX is a first-class, structured section in specs rather than re-extracted each time.
 
 | Task | Status |
 |------|--------|
@@ -171,6 +171,10 @@ Tooling enhancement: added `/generate-v0-prompt` slash command to convert spec f
 | Registered in `KNOWN_COMMANDS` (track-usage.py) via sync script | ✅ Done |
 | Added entry to `usage-stats.toml`, bumped `total_commands` to 21 | ✅ Done |
 | Updated `commands/README.md` table | ✅ Done |
+| Added `## Screens` section to `docs/specs/template.md` (tool-agnostic, self-contained screen blocks) | ✅ Done |
+| Updated `/write-spec` to delegate to `pixl` agent for screen definition (Phase 2.1); removed phantom `frontend-ux-specialist` reference | ✅ Done |
+| Simplified `/generate-v0-prompt` Rule 2 to read `## Screens` directly; added legacy fallback for old specs; removed hard-coded screen mapping table | ✅ Done |
+| Updated `/implement-spec` to recognize `## Screens` as optional section for component planning | ✅ Done |
 
 ### Automation Registry Sync (chore/tooling, 2026-03-06) ✅
 

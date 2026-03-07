@@ -1,19 +1,19 @@
 [metadata]
 session_branch = "generate-v0-prompt-command"
 session_start = "2026-03-07T10:29:19Z"
-last_updated = "2026-03-07T10:46:24Z"
+last_updated = "2026-03-07T12:44:42Z"
 
 [command_usage.start-session]
 invocations = 1
 last_used = "2026-03-07T10:29:19Z"
 
 [agent_usage.Explore]
-invocations = 1
-last_used = "2026-03-07T10:30:44Z"
+invocations = 3
+last_used = "2026-03-07T12:31:25Z"
 
 [command_usage.finish-session]
-invocations = 1
-last_used = "2026-03-07T10:42:16Z"
+invocations = 2
+last_used = "2026-03-07T12:44:42Z"
 
 [agent_usage.general-purpose]
 invocations = 1
@@ -22,3 +22,7 @@ last_used = "2026-03-07T10:45:26Z"
 [command_usage.create-pr]
 invocations = 1
 last_used = "2026-03-07T10:46:24Z"
+
+[agent_usage.Plan]
+invocations = 1
+last_used = "2026-03-07T12:34:18Z"

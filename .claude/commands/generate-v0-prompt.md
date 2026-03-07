@@ -26,6 +26,7 @@ The user provides a path to a spec file (`.md`). These specs contain:
 - Acceptance criteria in Gherkin format
 - Implementation approach with component trees, API contracts, file paths
 - i18n keys and messages
+- **`## Screens` section** (new specs) — self-contained, tool-agnostic screen blocks with purpose, layout, components, states, i18n, interactions, and accessibility. When present, use this as the primary source for UI content.
 
 ## Your Task
 
@@ -63,7 +64,18 @@ Import from Google Fonts: `Bricolage+Grotesque:wght@400;700&DM+Sans:wght@400;500
 **Tone:** Professional and sharp — like Linear or Raycast. Not playful, not corporate. Engineers and knowledge workers use this daily.
 ```
 
-### 2. Extract UI-relevant content from the spec
+### 2. Read UI content from the spec
+
+**For specs with a `## Screens` section (new format):**
+Read the `## Screens` section directly. Each `### Screen:` block is self-contained and maps 1:1 to the output template fields:
+- `**Purpose:**` → `**Purpose:**`
+- `**Layout:**` → `**Layout (top → bottom):**`
+- `**States:**` → `**States to design:**`
+- `**i18n:**` table → include as example text
+- `**Interactions:**` → include as behavioral notes
+- `**Accessibility:**` → include as requirements
+
+**For legacy specs without a `## Screens` section:**
 
 **INCLUDE:**
 - Screen purpose and user problem (from Context section)
@@ -147,10 +159,13 @@ I'm redesigning the **[Screen Name]** screen for **learnimo**, a personal learni
 
 ### 6. Handling multi-screen specs
 
-Some spec files describe multiple screens (e.g., `pok-crud.md` covers create form, edit form, view page, card layout, delete dialog). In this case:
+Some spec files describe multiple screens. Detect screens as follows:
+- **New format:** List all `### Screen:` headings found in the `## Screens` section
+- **Legacy format:** Infer screens from Implementation → Web section component/route descriptions
 
+If multiple screens are found:
 - Ask the user which screen they want to generate a prompt for
-- List the screens found in the spec
+- List the detected screens by name
 - Generate one prompt per screen (not one mega-prompt)
 
 ### 7. Quality checks before outputting
@@ -165,20 +180,6 @@ Before producing the prompt, verify:
 - [ ] The prompt mentions shadcn/ui + Tailwind CSS
 - [ ] The prompt asks for responsive design
 - [ ] The prompt asks for both dark and light mode previews
-
-## Reference: Spec File → Screen Mapping
-
-| Spec File | Screens |
-|-----------|---------|
-| `pok-crud.md` | Create POK form, Edit POK form, View single POK, POK card component, Delete confirmation dialog, Empty state |
-| `pok-listing-search.md` | Learning Feed (home), Search results, Sort controls, Pagination, Loading/error states |
-| `pok-editing-and-deletion.md` | Edit page (with visual diff), Delete flow, Audit trail view |
-| `pok-visibility-controls.md` | Visibility toggle, Public POK view, Visibility badge component |
-| `tagging-system.md` | Tag picker, Tag section on POK view, AI tag suggestion UI |
-| `tag-improvements.md` | Tag filter component, Tag display normalization |
-| `tags-visualization.md` | Tag-grouped view, Timeline view, Sort options |
-| `dark-mode-i18n.md` | Theme toggle, Language selector, Global CSS variables |
-| `mobile-app.md` | All mobile screens (reference only — v0 doesn't generate React Native) |
 
 ## Example Output
 
