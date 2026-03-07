@@ -166,6 +166,15 @@ Active work:
 - [x] Milestone 5.1: POK Visibility Controls — private/public visibility on POKs and user default preference; irreversible PUBLIC→PRIVATE enforcement; access control; web + mobile UI indicators (2026-03-04)
 - [x] Milestone 5.2: Learner Profile Privacy — profileVisibility field, learner profile endpoint/page, settings page/screen, E2E tests (2026-03-04)
 
+**Phase 6: Social Capabilities** — 🔄 In Progress (6.1 done)
+
+- [x] Milestone 6.1: Following & Colleagues — follow/unfollow endpoints, colleague auto-detection (mutual follow), FOLLOWERS_ONLY/COLLEAGUES_ONLY visibility tiers, private social counts (anti-vanity), RelationshipStatus on profiles, FollowButton component, 4-tier visibility selectors on Settings page; 115 backend + 347 frontend + 8 E2E tests (2026-03-07)
+- [ ] Milestone 6.2: Classes & Study Groups
+- [ ] Milestone 6.3: Learner Profiles (avatar, bio)
+- [ ] Milestone 6.4: Share (Re-Learning)
+- [ ] Milestone 6.5: Discovery Feed
+- [ ] Milestone 6.6: Community Principles & Content Moderation
+
 **Phase 8: Knowledge Enrichment** — 🔄 In Progress (8.1 done; 8.2 done)
 
 - [x] Milestone 8.1: Markdown Support — done (2026-03-06); react-markdown + rehype-sanitize (web), react-native-markdown-display (mobile); 8.1.8 (title rendering) deferred
@@ -187,4 +196,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-03-06 (session: feat/knowledge-enrichment — Milestone 8.2 Tag Improvements complete)*
+*Last updated: 2026-03-07 (session: feat/social-capabilities — Milestone 6.1 Following & Colleagues complete)*

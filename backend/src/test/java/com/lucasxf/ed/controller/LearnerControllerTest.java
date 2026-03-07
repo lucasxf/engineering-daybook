@@ -1,6 +1,7 @@
 package com.lucasxf.ed.controller;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.lucasxf.ed.config.CorsProperties;
@@ -8,11 +9,16 @@ import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.dto.LearnerProfileResponse;
 import com.lucasxf.ed.dto.PokResponse;
+import com.lucasxf.ed.exception.AlreadyFollowingException;
 import com.lucasxf.ed.exception.LearnerAccessDeniedException;
 import com.lucasxf.ed.exception.LearnerNotFoundException;
+import com.lucasxf.ed.exception.NotFollowingException;
+import com.lucasxf.ed.exception.SelfFollowException;
 import com.lucasxf.ed.security.SecurityConfig;
+import com.lucasxf.ed.service.FollowService;
 import com.lucasxf.ed.service.JwtService;
 import com.lucasxf.ed.service.LearnerService;
+import com.lucasxf.ed.service.UserService;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +32,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
@@ -49,6 +59,12 @@ class LearnerControllerTest {
 
     @MockitoBean
     private LearnerService learnerService;
+
+    @MockitoBean
+    private FollowService followService;
+
+    @MockitoBean
+    private UserService userService;
 
     @MockitoBean
     private JwtService jwtService;
@@ -74,7 +90,8 @@ class LearnerControllerTest {
     @Test
     void getProfile_publicProfile_returns200WithFullProfile() throws Exception {
         User alice = makeAlice(User.ProfileVisibility.PUBLIC);
-        LearnerProfileResponse fullProfile = LearnerProfileResponse.full(alice, List.of(makePublicPok()), false, null);
+        LearnerProfileResponse fullProfile = LearnerProfileResponse.full(
+            alice, List.of(makePublicPok()), false, null, null, null, null, null);
         when(learnerService.getProfile(eq("alice"), any(UUID.class))).thenReturn(fullProfile);
 
         mockMvc.perform(get("/api/v1/learners/alice")
@@ -104,13 +121,17 @@ class LearnerControllerTest {
     void getProfile_owner_privateProfile_returns200WithFullProfileAndCount() throws Exception {
         User alice = makeAlice(User.ProfileVisibility.PRIVATE);
         List<Pok> poks = List.of(makePublicPok(), makePublicPok());
-        LearnerProfileResponse ownerProfile = LearnerProfileResponse.full(alice, poks, true, poks.size());
+        LearnerProfileResponse ownerProfile = LearnerProfileResponse.full(
+            alice, poks, true, poks.size(), null, 5L, 3L, 2L);
         when(learnerService.getProfile(eq("alice"), any(UUID.class))).thenReturn(ownerProfile);
 
         mockMvc.perform(get("/api/v1/learners/alice")
                 .with(user(aliceId.toString())))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.learningCount").value(2)); // owner sees count (AC5b)
+            .andExpect(jsonPath("$.learningCount").value(2))
+            .andExpect(jsonPath("$.followerCount").value(5))
+            .andExpect(jsonPath("$.followingCount").value(3))
+            .andExpect(jsonPath("$.colleagueCount").value(2));
     }
 
     @Test
@@ -163,5 +184,71 @@ class LearnerControllerTest {
         mockMvc.perform(get("/api/v1/learners/ghost/poks")
                 .with(user(requesterId.toString())))
             .andExpect(status().isNotFound());
+    }
+
+    // ===== POST /api/v1/learners/{handle}/follow =====
+
+    @Test
+    void follow_success_returns204() throws Exception {
+        when(userService.findByHandle("alice")).thenReturn(Optional.of(makeAlice(User.ProfileVisibility.PUBLIC)));
+        doNothing().when(followService).follow(any(UUID.class), eq(aliceId));
+
+        mockMvc.perform(post("/api/v1/learners/alice/follow")
+                .with(user(requesterId.toString())))
+            .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void follow_selfFollow_returns400() throws Exception {
+        when(userService.findByHandle("alice")).thenReturn(Optional.of(makeAlice(User.ProfileVisibility.PUBLIC)));
+        doThrow(new SelfFollowException("You cannot follow yourself"))
+            .when(followService).follow(any(UUID.class), eq(aliceId));
+
+        mockMvc.perform(post("/api/v1/learners/alice/follow")
+                .with(user(requesterId.toString())))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void follow_alreadyFollowing_returns409() throws Exception {
+        when(userService.findByHandle("alice")).thenReturn(Optional.of(makeAlice(User.ProfileVisibility.PUBLIC)));
+        doThrow(new AlreadyFollowingException("Already following"))
+            .when(followService).follow(any(UUID.class), eq(aliceId));
+
+        mockMvc.perform(post("/api/v1/learners/alice/follow")
+                .with(user(requesterId.toString())))
+            .andExpect(status().isConflict());
+    }
+
+    @Test
+    void follow_unknownHandle_returns404() throws Exception {
+        when(userService.findByHandle("ghost")).thenReturn(Optional.empty());
+
+        mockMvc.perform(post("/api/v1/learners/ghost/follow")
+                .with(user(requesterId.toString())))
+            .andExpect(status().isNotFound());
+    }
+
+    // ===== DELETE /api/v1/learners/{handle}/follow =====
+
+    @Test
+    void unfollow_success_returns204() throws Exception {
+        when(userService.findByHandle("alice")).thenReturn(Optional.of(makeAlice(User.ProfileVisibility.PUBLIC)));
+        doNothing().when(followService).unfollow(any(UUID.class), eq(aliceId));
+
+        mockMvc.perform(delete("/api/v1/learners/alice/follow")
+                .with(user(requesterId.toString())))
+            .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void unfollow_notFollowing_returns409() throws Exception {
+        when(userService.findByHandle("alice")).thenReturn(Optional.of(makeAlice(User.ProfileVisibility.PUBLIC)));
+        doThrow(new NotFollowingException("Not following"))
+            .when(followService).unfollow(any(UUID.class), eq(aliceId));
+
+        mockMvc.perform(delete("/api/v1/learners/alice/follow")
+                .with(user(requesterId.toString())))
+            .andExpect(status().isConflict());
     }
 }

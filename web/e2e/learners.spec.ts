@@ -74,4 +74,94 @@ test.describe('Learner profile page', () => {
 
     await expect(page.getByText(/learner not found/i)).toBeVisible();
   });
+
+  test('AC6: non-owner sees Follow button for public profile', async ({ page }) => {
+    await setupApiMocks(page, {
+      authenticated: true,
+      user: MOCK_USER,
+      learnerProfiles: {
+        alice: {
+          handle: 'alice',
+          displayName: 'Alice Example',
+          learnings: [],
+          relationshipStatus: 'NONE',
+        },
+      },
+    });
+
+    await page.goto('/en/learners/alice');
+
+    await expect(page.getByRole('button', { name: /follow/i })).toBeVisible();
+  });
+
+  test('AC6: clicking Follow sends POST and shows Following', async ({ page }) => {
+    await setupApiMocks(page, {
+      authenticated: true,
+      user: MOCK_USER,
+      followEnabled: true,
+      learnerProfiles: {
+        alice: {
+          handle: 'alice',
+          displayName: 'Alice Example',
+          learnings: [],
+          relationshipStatus: 'NONE',
+        },
+      },
+    });
+
+    await page.goto('/en/learners/alice');
+    await page.getByRole('button', { name: /^follow$/i }).click();
+
+    // After successful follow, button shows "Following" and aria-label changes to "Unfollow @alice"
+    await expect(page.getByRole('button', { name: /unfollow @alice/i })).toBeVisible();
+  });
+
+  test('AC7: clicking Following sends DELETE and reverts to Follow', async ({ page }) => {
+    await setupApiMocks(page, {
+      authenticated: true,
+      user: MOCK_USER,
+      followEnabled: true,
+      learnerProfiles: {
+        alice: {
+          handle: 'alice',
+          displayName: 'Alice Example',
+          learnings: [],
+          relationshipStatus: 'FOLLOWING',
+        },
+      },
+    });
+
+    await page.goto('/en/learners/alice');
+    // Button shows "Following" visually but aria-label is "Unfollow @alice"
+    await page.getByRole('button', { name: /unfollow @alice/i }).click();
+
+    // After successful unfollow, button reverts to "Follow"
+    await expect(page.getByRole('button', { name: /^follow$/i })).toBeVisible();
+  });
+
+  test('AC5: owner does not see Follow button on their own profile', async ({ page }) => {
+    const ownerUser = { ...MOCK_USER, handle: 'testuser' };
+    await setupApiMocks(page, {
+      authenticated: true,
+      user: ownerUser,
+      learnerProfiles: {
+        testuser: {
+          handle: 'testuser',
+          displayName: 'Test User',
+          learnings: [],
+          learningCount: 0,
+          followerCount: 3,
+          followingCount: 2,
+          colleagueCount: 1,
+        },
+      },
+    });
+
+    await page.goto('/en/learners/testuser');
+
+    // No follow button for owner
+    await expect(page.getByRole('button', { name: /^follow$/i })).not.toBeVisible();
+    // Owner sees social counts
+    await expect(page.getByText(/3 follower/i)).toBeVisible();
+  });
 });

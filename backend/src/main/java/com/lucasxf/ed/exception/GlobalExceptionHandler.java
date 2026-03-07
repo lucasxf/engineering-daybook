@@ -259,6 +259,48 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
+    @ExceptionHandler(SelfFollowException.class)
+    public ResponseEntity<ApiError> handleSelfFollow(
+            SelfFollowException ex,
+            HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+            HttpStatus.BAD_REQUEST.value(),
+            HttpStatus.BAD_REQUEST.getReasonPhrase(),
+            ex.getMessage(),
+            request.getRequestURI());
+
+        return ResponseEntity.badRequest().body(error);
+    }
+
+    @ExceptionHandler(AlreadyFollowingException.class)
+    public ResponseEntity<ApiError> handleAlreadyFollowing(
+            AlreadyFollowingException ex,
+            HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+            HttpStatus.CONFLICT.value(),
+            HttpStatus.CONFLICT.getReasonPhrase(),
+            ex.getMessage(),
+            request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(NotFollowingException.class)
+    public ResponseEntity<ApiError> handleNotFollowing(
+            NotFollowingException ex,
+            HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+            HttpStatus.CONFLICT.value(),
+            HttpStatus.CONFLICT.getReasonPhrase(),
+            ex.getMessage(),
+            request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiError> handleDataIntegrityViolation(
             DataIntegrityViolationException ex,

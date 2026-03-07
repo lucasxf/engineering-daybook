@@ -150,7 +150,22 @@ public class User {
         return updatedAt;
     }
 
+    /**
+     * Visibility level for a learner's public profile.
+     *
+     * <p>Ordered from most restrictive to most open — mirrors {@link Pok.Visibility} ordering.
+     *
+     * <ul>
+     *   <li>{@code PRIVATE} — only the owner sees the full profile.</li>
+     *   <li>{@code COLLEAGUES_ONLY} — mutual follows (colleagues) see the full profile.</li>
+     *   <li>{@code FOLLOWERS_ONLY} — anyone who follows the learner sees the full profile.</li>
+     *   <li>{@code PUBLIC} — any authenticated user sees the full profile.</li>
+     * </ul>
+     */
     public enum ProfileVisibility {
-        PUBLIC, PRIVATE
+        PRIVATE,
+        COLLEAGUES_ONLY,
+        FOLLOWERS_ONLY,
+        PUBLIC
     }
 }
