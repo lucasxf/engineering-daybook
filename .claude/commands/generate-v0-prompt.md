@@ -30,9 +30,29 @@ The user provides a path to a spec file (`.md`). These specs contain:
 
 ## Your Task
 
+### Step 0 — Duplicate check (ALWAYS run first, before reading the spec)
+
+Read `.claude/v0-prompts/INDEX.md` and check whether any row matching the given spec file already has status `✅`.
+
+- **Determine the screen(s) to generate:** If the user passed a specific screen name as a second argument (e.g. `/generate-v0-prompt docs/specs/features/pok-crud.md "Create Learning"`), use that. Otherwise you'll need to infer the screen(s) from the spec — but do NOT read the spec yet. Instead, look up the spec filename in the Source Spec column of INDEX.md to find associated screens.
+- **If a matching row is already ✅:** STOP immediately. Do not read the spec. Output:
+
+  ```
+  ⚠️ Skipping — a v0 prompt for "[Screen Name]" already exists:
+     .claude/v0-prompts/<existing-filename>.md
+
+  To regenerate it anyway, delete or rename that file and re-run the command.
+  ```
+
+  Then output the finish banner and exit. No further steps.
+
+- **If the screen is ⬜ (or not in the index at all):** proceed to the next step.
+
+### Step 1 — Generate and save
+
 Read the spec file and produce a **single, self-contained v0.dev prompt**, then **write it to a file** the user can open directly in their editor or browser.
 
-## Output Format
+## Output Format (Step 1)
 
 1. **Write the prompt to a file** using the Write tool:
    - Output directory: `.claude/v0-prompts/`
