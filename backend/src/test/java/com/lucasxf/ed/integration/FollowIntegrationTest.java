@@ -2,9 +2,7 @@ package com.lucasxf.ed.integration;
 
 import java.util.UUID;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucasxf.ed.domain.User;
-import com.lucasxf.ed.dto.RelationshipStatus;
 import com.lucasxf.ed.repository.FollowRepository;
 import com.lucasxf.ed.repository.UserRepository;
 import com.lucasxf.ed.service.JwtService;
