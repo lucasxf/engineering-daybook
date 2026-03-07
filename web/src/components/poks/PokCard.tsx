@@ -16,7 +16,6 @@ interface PokCardProps {
 
 /**
  * Card component for displaying a POK in list view.
- * Uses Library at Dusk design system tokens.
  *
  * Features:
  * - Title as header if present, otherwise first 50 chars of content
@@ -47,7 +46,7 @@ export function PokCard({ pok, dateField = 'updatedAt' }: PokCardProps) {
   });
 
   return (
-    <div className="group relative rounded-lg border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-md">
+    <div className="group relative rounded-lg border border-slate-200 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600">
       <button
         type="button"
         aria-label={t('view.editButton')}
@@ -55,7 +54,7 @@ export function PokCard({ pok, dateField = 'updatedAt' }: PokCardProps) {
           e.stopPropagation();
           router.push(`/${params.locale}/poks/${pok.id}/edit` as never);
         }}
-        className="absolute right-2 top-2 rounded-md p-1 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 hover:bg-muted hover:text-foreground"
+        className="absolute right-2 top-2 rounded-md p-1 text-slate-400 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-slate-200"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4" aria-hidden="true">
           <path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" />
@@ -66,10 +65,10 @@ export function PokCard({ pok, dateField = 'updatedAt' }: PokCardProps) {
         className="block p-4"
       >
         <article>
-          <h3 className="mb-2 font-heading text-lg font-semibold text-foreground transition-colors group-hover:text-primary">
+          <h3 className="mb-2 text-lg font-semibold text-slate-900 transition-colors group-hover:text-primary-600 dark:text-slate-100 dark:group-hover:text-primary-400">
             {header}
           </h3>
-          <p className="mb-3 text-sm text-muted-foreground">
+          <p className="mb-3 text-sm text-slate-600 dark:text-slate-400">
             {contentPreview}
           </p>
           {pok.tags && pok.tags.length > 0 && (
@@ -78,7 +77,7 @@ export function PokCard({ pok, dateField = 'updatedAt' }: PokCardProps) {
                 <TagBadge key={tag.id} tag={tag} />
               ))}
               {pok.tags.length > 3 && (
-                <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-muted-foreground">
+                <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs text-slate-500 dark:text-slate-400">
                   +{pok.tags.length - 3}
                 </span>
               )}
@@ -87,7 +86,7 @@ export function PokCard({ pok, dateField = 'updatedAt' }: PokCardProps) {
           <div className="flex items-center gap-2">
             <time
               dateTime={dateValue}
-              className="text-xs text-muted-foreground"
+              className="text-xs text-slate-500 dark:text-slate-500"
             >
               {formattedDate}
             </time>

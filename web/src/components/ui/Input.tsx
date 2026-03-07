@@ -7,7 +7,6 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 /**
  * Reusable text input with error state styling.
- * Uses Library at Dusk design system tokens.
  */
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ className, hasError, ...props }, ref) => {
@@ -16,14 +15,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         className={cn(
           'block w-full rounded-md border px-3 py-2 text-sm transition-colors',
-          'bg-card',
-          'text-foreground',
-          'placeholder:text-muted-foreground',
-          'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background',
+          'bg-white dark:bg-slate-800',
+          'text-slate-900 dark:text-slate-50',
+          'placeholder:text-slate-400 dark:placeholder:text-slate-500',
+          'focus:outline-none focus:ring-2 focus:ring-primary-500',
           'disabled:cursor-not-allowed disabled:opacity-50',
           hasError
-            ? 'border-destructive focus:ring-destructive'
-            : 'border-border',
+            ? 'border-red-500 focus:ring-red-500'
+            : 'border-slate-300 dark:border-slate-600',
           className
         )}
         {...props}
