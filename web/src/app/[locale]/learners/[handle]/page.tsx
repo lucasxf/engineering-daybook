@@ -45,7 +45,7 @@ export default function LearnerProfilePage() {
       }
     }
     load();
-  }, [handle]);
+  }, [handle, t]);
 
   if (loading) {
     return (
@@ -98,7 +98,7 @@ export default function LearnerProfilePage() {
             {profile.displayName}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">@{handle}</p>
-          {isOwner && (profile.followerCount !== undefined || profile.followingCount !== undefined) && (
+          {isOwner && (profile.followerCount !== undefined || profile.followingCount !== undefined || profile.colleagueCount !== undefined) && (
             <div className="mt-1 flex gap-3 text-sm text-slate-500 dark:text-slate-400">
               {profile.followerCount !== undefined && (
                 <span>{t('social.followerCount', { count: profile.followerCount })}</span>
