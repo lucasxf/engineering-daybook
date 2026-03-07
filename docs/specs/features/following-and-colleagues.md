@@ -1,8 +1,8 @@
 # Following & Colleagues
 
-> **Status:** Draft
+> **Status:** Implemented
 > **Created:** 2026-03-06
-> **Implemented:** _pending_
+> **Implemented:** 2026-03-07
 
 ---
 
@@ -309,16 +309,32 @@ Errors: 404 (handle not found), 409 (already/not following), 400 (self-follow)
 
 ## Post-Implementation Notes
 
-> _This section is filled AFTER implementation._
-
 ### Commits
-- `hash`: message
+- `e74439c` feat: add V18 follows table migration
+- `45b4aec` feat: add Follow entity, FollowId composite key, and FollowRepository
+- `5cb66bf` feat: add RelationshipStatus enum and FollowService with TDD tests
+- `6395ff0` feat: extend Pok.Visibility and User.ProfileVisibility with FOLLOWERS_ONLY and COLLEAGUES_ONLY
+- `b244d9c` feat: extend PokService and LearnerService with 4-tier access control
+- `682751a` feat: add follow/unfollow endpoints, extend LearnerProfileResponse with social fields
+- `316b758` test: extend backend tests for 4-tier visibility and follow endpoints
+- `7896ddd` feat: extend frontend with follow/unfollow, 4-tier visibility, social counts
 
 ### Architectural Decisions
-_(to be filled)_
+
+- **Composite PK over surrogate ID on `follows`**: The (follower_id, followed_id) pair is naturally unique and the primary access pattern — using it directly as the PK avoids an extra index and simplifies duplicate detection at the DB level.
+- **`@IdClass(FollowId)` over `@EmbeddedId`**: `@IdClass` with a record type results in less boilerplate and cleaner field access in JPQL queries.
+- **Ordinal-based widening-only rule for visibility**: `PRIVATE(0) < COLLEAGUES_ONLY(1) < FOLLOWERS_ONLY(2) < PUBLIC(3)` allows a single `ordinal()` comparison to enforce the widening rule across all 4 tiers.
+- **`FollowService` injected into `PokService` (no circular dependency)**: Both services only depend in one direction, so no `@Lazy` was needed.
+- **Anti-vanity enforced in DTO factory**: `followerCount/followingCount/colleagueCount` are null for non-owners in `LearnerProfileResponse.full()`, preventing accidental exposure.
+- **`useState` at top of component for `relationshipStatus`**: React's rules of hooks require `useState` before any conditional return; state is updated in the `useEffect` load callback after the profile is fetched.
 
 ### Deviations from Spec
-_(to be filled)_
+
+- **Mobile app not updated**: The spec mentions mobile as out of scope for this milestone. Mobile app types and UI for follow/unfollow were not implemented.
+- **No pagination on followers/following lists**: Spec deferred list endpoints to a future milestone. Only counts are exposed.
 
 ### Lessons Learned
-_(to be filled)_
+
+- `PokServiceSemanticSearchTest` manually constructs `PokService` — every constructor parameter change requires updating that test's `setUp()`. Added to known pitfalls checklist.
+- Cookie name must match exactly: using `auth_token` instead of `access_token` caused all integration test requests to get 401s. Always verify against `CookieHelper.ACCESS_TOKEN_COOKIE`.
+- E2E: `aria-label` on a button overrides the accessible name used by `getByRole({ name: ... })`. Tests expecting visible text should use `getByText()`, not `getByRole()` with the visible label.
