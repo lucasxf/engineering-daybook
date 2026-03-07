@@ -200,6 +200,26 @@
   },
   "settings": {
     "title": "Settings",
+    "profile": {
+      "heading": "Profile",
+      "avatar": "Avatar",
+      "uploadAvatar": "Upload photo",
+      "removeAvatar": "Remove photo",
+      "uploading": "Uploading...",
+      "avatarHint": "JPG, PNG, or WebP · max 2 MB",
+      "avatarTooLarge": "File too large. Maximum size is 2 MB.",
+      "avatarInvalidType": "Unsupported format. Use JPG, PNG, or WebP.",
+      "displayName": "Display name",
+      "displayNamePlaceholder": "Your name",
+      "displayNameSave": "Save",
+      "displayNameSaving": "Saving...",
+      "bio": "Bio",
+      "bioPlaceholder": "Tell others about yourself (no URLs allowed)",
+      "bioSave": "Save",
+      "bioSaving": "Saving...",
+      "saveSuccess": "Changes saved",
+      "saveError": "Failed to save. Please try again."
+    },
     "privacy": {
       "heading": "Privacy",
       "profileVisibility": "Profile visibility",

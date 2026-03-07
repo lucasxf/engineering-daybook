@@ -200,6 +200,26 @@
   },
   "settings": {
     "title": "Configurações",
+    "profile": {
+      "heading": "Perfil",
+      "avatar": "Avatar",
+      "uploadAvatar": "Carregar foto",
+      "removeAvatar": "Remover foto",
+      "uploading": "Carregando...",
+      "avatarHint": "JPG, PNG ou WebP · máx 2 MB",
+      "avatarTooLarge": "Arquivo muito grande. O tamanho máximo é 2 MB.",
+      "avatarInvalidType": "Formato não suportado. Use JPG, PNG ou WebP.",
+      "displayName": "Nome de exibição",
+      "displayNamePlaceholder": "Seu nome",
+      "displayNameSave": "Salvar",
+      "displayNameSaving": "Salvando...",
+      "bio": "Bio",
+      "bioPlaceholder": "Conte sobre você (URLs não são permitidas)",
+      "bioSave": "Salvar",
+      "bioSaving": "Salvando...",
+      "saveSuccess": "Alterações salvas",
+      "saveError": "Falha ao salvar. Tente novamente."
+    },
     "privacy": {
       "heading": "Privacidade",
       "profileVisibility": "Visibilidade do perfil",
