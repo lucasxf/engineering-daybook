@@ -3,95 +3,17 @@
 @tailwind utilities;
 
 @layer base {
-  /* Library at Dusk - Design System */
-  
   :root {
-    /* Core semantic tokens */
-    --background: 251 249 244; /* parchment #FBF9F4 */
-    --foreground: 30 41 59; /* slate-800 */
-    
-    /* Card surfaces */
-    --card: 255 255 255;
-    --card-foreground: 30 41 59;
-    
-    /* Muted elements */
-    --muted: 241 245 249; /* slate-100 */
-    --muted-foreground: 100 116 139; /* slate-500 */
-    
-    /* Border colors */
-    --border: 226 232 240; /* slate-200 */
-    
-    /* Ring/focus colors */
-    --ring: 70 130 180; /* primary-blue */
-    
-    /* Primary accent - primary-blue #4682B4 */
-    --primary: 70 130 180;
-    --primary-foreground: 255 255 255;
-    
-    /* Secondary - warm grays */
-    --secondary: 241 245 249;
-    --secondary-foreground: 30 41 59;
-    
-    /* Destructive/danger */
-    --destructive: 239 68 68;
-    --destructive-foreground: 255 255 255;
-    
-    /* CTA - ember #D97706 */
-    --accent: 217 119 6;
-    --accent-foreground: 255 255 255;
-    
-    /* Input styling */
-    --input: 226 232 240;
-    
-    /* Radius */
-    --radius: 0.5rem;
+    --background: 255 255 255;
+    --foreground: 15 23 42;
   }
 
   .dark {
-    /* Core semantic tokens */
-    --background: 15 23 42; /* deep-navy #0F172A */
-    --foreground: 248 250 252; /* slate-50 */
-    
-    /* Card surfaces */
-    --card: 30 41 59; /* slate-800 */
-    --card-foreground: 248 250 252;
-    
-    /* Muted elements */
-    --muted: 51 65 85; /* slate-700 */
-    --muted-foreground: 148 163 184; /* slate-400 */
-    
-    /* Border colors */
-    --border: 51 65 85; /* slate-700 */
-    
-    /* Ring/focus colors */
-    --ring: 70 130 180; /* primary-blue */
-    
-    /* Primary accent - primary-blue #4682B4 */
-    --primary: 70 130 180;
-    --primary-foreground: 255 255 255;
-    
-    /* Secondary */
-    --secondary: 51 65 85;
-    --secondary-foreground: 248 250 252;
-    
-    /* Destructive/danger */
-    --destructive: 239 68 68;
-    --destructive-foreground: 255 255 255;
-    
-    /* CTA - ember #D97706 */
-    --accent: 217 119 6;
-    --accent-foreground: 255 255 255;
-    
-    /* Input styling */
-    --input: 51 65 85;
+    --background: 15 23 42;
+    --foreground: 248 250 252;
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
-  }
-  
-  /* Focus visible styling for accessibility */
-  *:focus-visible {
-    @apply outline-none ring-2 ring-primary/50 ring-offset-2 ring-offset-background;
+    @apply bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-50;
   }
 }

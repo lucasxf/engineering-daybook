@@ -84,7 +84,7 @@ function PoksContent() {
     <div className="mx-auto max-w-3xl">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="font-heading text-3xl font-bold text-foreground">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
           {t('list.title')}
         </h1>
       </div>
@@ -134,7 +134,7 @@ function PoksContent() {
 
       {/* Results count (when not loading and has results) */}
       {!loading && poks.length > 0 && !isTagsView && (
-        <div className="mt-4 text-center text-sm text-muted-foreground">
+        <div className="mt-4 text-center text-sm text-slate-600 dark:text-slate-400">
           {t('list.resultsCount', { count: totalElements })}
         </div>
       )}

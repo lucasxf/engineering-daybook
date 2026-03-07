@@ -10,12 +10,11 @@ interface TagBadgeProps {
 
 /**
  * Displays a colored tag badge. Optionally shows a remove button.
- * Uses Library at Dusk design system tokens.
  */
 export function TagBadge({ tag, onRemove }: TagBadgeProps) {
   return (
     <span
-      className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-muted text-muted-foreground"
+      className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300"
       style={{ borderLeft: `3px solid ${resolveTagColor(tag.color)}` }}
     >
       {tag.displayName}
@@ -27,7 +26,7 @@ export function TagBadge({ tag, onRemove }: TagBadgeProps) {
             e.stopPropagation();
             onRemove(tag.id);
           }}
-          className="ml-0.5 rounded-full text-muted-foreground transition-colors hover:text-foreground"
+          className="ml-0.5 rounded-full text-slate-400 transition-colors hover:text-slate-600 dark:hover:text-slate-200"
           aria-label={`Remove tag ${tag.displayName}`}
         >
           ×
@@ -36,3 +35,4 @@ export function TagBadge({ tag, onRemove }: TagBadgeProps) {
     </span>
   );
 }
+

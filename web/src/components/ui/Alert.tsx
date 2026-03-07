@@ -9,7 +9,6 @@ interface AlertProps {
 
 /**
  * Styled alert box for error, success, and info messages.
- * Uses Library at Dusk design system tokens.
  */
 export function Alert({ variant, children, className, role = 'alert' }: AlertProps) {
   return (
@@ -18,11 +17,11 @@ export function Alert({ variant, children, className, role = 'alert' }: AlertPro
       className={cn(
         'rounded-md border p-3 text-sm',
         variant === 'error' &&
-          'border-destructive/30 bg-destructive/10 text-destructive',
+          'border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-400',
         variant === 'success' &&
           'border-green-300 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-400',
         variant === 'info' &&
-          'border-border bg-muted text-muted-foreground',
+          'border-slate-300 bg-slate-50 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300',
         className
       )}
     >
