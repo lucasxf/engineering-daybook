@@ -2,14 +2,14 @@ package com.lucasxf.ed.service.impl;
 
 import java.util.UUID;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import com.lucasxf.ed.config.StorageProperties;
 import com.lucasxf.ed.service.StorageService;
+
+import lombok.extern.slf4j.Slf4j;
 
 import static java.util.Objects.requireNonNull;
 
@@ -24,10 +24,9 @@ import static java.util.Objects.requireNonNull;
  * @author Lucas Xavier Ferreira
  * @since 2026-03-07
  */
+@Slf4j
 @Service
 public class SupabaseStorageService implements StorageService {
-
-    private static final Logger log = LoggerFactory.getLogger(SupabaseStorageService.class);
 
     private final RestClient restClient;
     private final StorageProperties.Supabase props;
