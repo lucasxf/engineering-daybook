@@ -17,6 +17,10 @@ export interface LearnerProfileResponse {
   handle: string;
   /** Present only for full (non-private) profiles. */
   displayName?: string;
+  /** Present only for full (non-private) profiles. */
+  avatarUrl?: string;
+  /** Present only for full (non-private) profiles. */
+  bio?: string;
   /** Present only in private shell responses. */
   profileVisibility?: ProfileVisibility;
   /** Present only for full (non-private) profiles. */
