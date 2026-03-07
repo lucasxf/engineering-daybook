@@ -1,6 +1,6 @@
 # Learner Profiles (Milestone 6.3)
 
-> **Status:** Draft
+> **Status:** In Progress
 > **Created:** 2026-03-07
 > **Implemented:** _pending_
 
