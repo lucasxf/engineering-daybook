@@ -107,6 +107,14 @@ public class LearnerController {
      *
      * <p>Self-follow is rejected (400). Duplicate follow is rejected (409).
      *
+     * <p><strong>Content-Type requirement:</strong> This endpoint declares
+     * {@code consumes = application/json} as a CSRF mitigation measure. Even though the request
+     * has no body, callers <em>must</em> include the header
+     * {@code Content-Type: application/json}; requests without it are rejected with
+     * {@code 415 Unsupported Media Type}. Browser HTML form posts cannot set this header,
+     * which blocks cross-site request forgery without requiring a CSRF token.
+     * The official web client ({@code apiFetch}) sends this header on every request automatically.
+     *
      * @param handle         the handle of the learner to follow
      * @param authentication the authenticated user
      * @return 204 No Content on success
@@ -115,7 +123,11 @@ public class LearnerController {
     @Operation(
         summary = "Follow a learner",
         description = "Creates a follow relationship from the authenticated user to the learner with "
-            + "the given handle. Self-follow returns 400; duplicate returns 409.")
+            + "the given handle. Self-follow returns 400; duplicate returns 409. "
+            + "**Note for API integrators:** This endpoint requires `Content-Type: application/json` "
+            + "even though the request body is empty. This is intentional — it acts as a lightweight "
+            + "CSRF mitigation (browser form POSTs cannot spoof this header). "
+            + "Always include `-H 'Content-Type: application/json'` in curl/script calls.")
     @ApiResponse(responseCode = "204", description = "Followed successfully")
     @ApiResponse(responseCode = "400", description = "Cannot follow yourself")
     @ApiResponse(responseCode = "401", description = "Not authenticated")
@@ -138,6 +150,10 @@ public class LearnerController {
      *
      * <p>Attempting to unfollow a learner not currently followed returns 409.
      *
+     * <p><strong>Content-Type requirement:</strong> Same CSRF mitigation as {@link #follow} —
+     * include {@code Content-Type: application/json} even though the request has no body.
+     * Requests without it are rejected with {@code 415 Unsupported Media Type}.
+     *
      * @param handle         the handle of the learner to unfollow
      * @param authentication the authenticated user
      * @return 204 No Content on success
@@ -146,7 +162,8 @@ public class LearnerController {
     @Operation(
         summary = "Unfollow a learner",
         description = "Removes the follow relationship from the authenticated user to the learner with "
-            + "the given handle. Returns 409 if not currently following.")
+            + "the given handle. Returns 409 if not currently following. "
+            + "**Note for API integrators:** Requires `Content-Type: application/json` (see follow endpoint for details).")
     @ApiResponse(responseCode = "204", description = "Unfollowed successfully")
     @ApiResponse(responseCode = "401", description = "Not authenticated")
     @ApiResponse(responseCode = "404", description = "Learner not found")

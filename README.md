@@ -249,8 +249,8 @@ Key endpoints:
 - `GET /api/v1/poks/{id}/history` - Get POK change history (audit log)
 - `GET /api/v1/learners/{handle}` - Get learner profile (visibility-gated)
 - `GET /api/v1/learners/{handle}/poks` - Get learner's learnings visible to the requester (4-tier access control)
-- `POST /api/v1/learners/{handle}/follow` - Follow a learner
-- `DELETE /api/v1/learners/{handle}/follow` - Unfollow a learner
+- `POST /api/v1/learners/{handle}/follow` - Follow a learner (**requires `Content-Type: application/json`**)
+- `DELETE /api/v1/learners/{handle}/follow` - Unfollow a learner (**requires `Content-Type: application/json`**)
 - `PATCH /api/v1/users/me/settings` - Update user settings (bio, displayName, visibility, etc.)
 - `POST /api/v1/users/me/avatar` - Upload or replace user avatar (multipart/form-data)
 - `DELETE /api/v1/users/me/avatar` - Remove user avatar
