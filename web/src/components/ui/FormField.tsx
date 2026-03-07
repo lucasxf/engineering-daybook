@@ -11,9 +11,8 @@ interface FormFieldProps {
 
 /**
  * Form field wrapper with label, input slot, error message, and optional hint.
+ * Uses Library at Dusk design tokens for consistent styling.
  * Provides error/hint element IDs; consumers should wire up aria-describedby on their inputs.
- * When htmlFor is omitted (e.g. when the child wires its own aria-labelledby), the label
- * is rendered without a for attribute — purely as a visible group heading.
  */
 export function FormField({
   label,
@@ -30,7 +29,7 @@ export function FormField({
       <Label htmlFor={htmlFor}>{label}</Label>
       <div>{children}</div>
       {hint && !error && (
-        <p id={hintId ?? undefined} className="text-xs text-slate-500 dark:text-slate-400">
+        <p id={hintId ?? undefined} className="text-xs text-muted-foreground">
           {hint}
         </p>
       )}
@@ -38,7 +37,8 @@ export function FormField({
         <p
           id={errorId ?? undefined}
           role="alert"
-          className="text-xs text-red-600 dark:text-red-400"
+          aria-live="polite"
+          className="text-xs text-[#C0392B] dark:text-[#FF8A8A]"
         >
           {error}
         </p>

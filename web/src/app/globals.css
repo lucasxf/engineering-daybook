@@ -4,16 +4,61 @@
 
 @layer base {
   :root {
-    --background: 255 255 255;
-    --foreground: 15 23 42;
+    /* Library at Dusk - Light Mode */
+    --background: 245 240 232; /* parchment #F5F0E8 */
+    --foreground: 26 26 46; /* ink #1A1A2E */
+    
+    --card: 255 255 255;
+    --card-foreground: 26 26 46;
+    --card-border: 232 228 223; /* #E8E4DF */
+    
+    --primary: 212 133 74; /* ember-cta #D4854A */
+    --primary-foreground: 255 255 255;
+    --primary-hover: 192 115 64; /* #C07340 */
+    
+    --muted: 102 102 102; /* #666666 */
+    --muted-foreground: 102 102 102;
+    
+    --input: 255 255 255;
+    --input-border: 204 204 204; /* #CCC */
+    --input-placeholder: 153 153 153; /* #999 */
+    
+    --destructive: 192 57 43; /* #C0392B */
+    --destructive-background: 255 240 240; /* #FFF0F0 */
+    --destructive-border: 245 198 198; /* #F5C6C6 */
+    
+    --ring: 212 133 74;
+    --radius: 0.5rem;
   }
 
   .dark {
-    --background: 15 23 42;
-    --foreground: 248 250 252;
+    /* Library at Dusk - Dark Mode (Primary) */
+    --background: 15 27 45; /* deep-navy #0F1B2D */
+    --foreground: 245 240 232; /* parchment #F5F0E8 */
+    
+    --card: 26 54 93; /* primary-blue #1A365D */
+    --card-foreground: 245 240 232;
+    --card-border: 43 74 120; /* mid-blue #2B4A78 */
+    
+    --primary: 212 133 74; /* ember-cta #D4854A */
+    --primary-foreground: 255 255 255;
+    --primary-hover: 192 115 64; /* #C07340 */
+    
+    --muted: 136 153 170; /* #8899AA */
+    --muted-foreground: 136 153 170;
+    
+    --input: 15 27 45; /* deep-navy */
+    --input-border: 43 74 120; /* mid-blue */
+    --input-placeholder: 74 90 106; /* #4A5A6A */
+    
+    --destructive: 255 138 138; /* #FF8A8A */
+    --destructive-background: 45 26 26; /* #2D1A1A */
+    --destructive-border: 90 42 42; /* #5A2A2A */
+    
+    --ring: 212 133 74;
   }
 
   body {
-    @apply bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-50;
+    @apply bg-background text-foreground antialiased;
   }
 }

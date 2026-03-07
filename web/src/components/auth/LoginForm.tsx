@@ -30,12 +30,19 @@ export function LoginForm({ locale, redirectTo }: LoginFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
     resetField,
+    watch,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
+    mode: 'onChange',
   });
+
+  // Watch fields to determine if form is filled
+  const email = watch('email');
+  const password = watch('password');
+  const isFormFilled = email.length > 0 && password.length > 0;
 
   const resolveError = (key: string): string => {
     try {
@@ -74,8 +81,6 @@ export function LoginForm({ locale, redirectTo }: LoginFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-      {serverError && <Alert variant="error">{serverError}</Alert>}
-
       <FormField
         label={t('email')}
         htmlFor="login-email"
@@ -85,6 +90,7 @@ export function LoginForm({ locale, redirectTo }: LoginFormProps) {
           id="login-email"
           type="email"
           autoComplete="email"
+          placeholder="you@example.com"
           hasError={!!errors.email}
           aria-describedby={errors.email ? 'login-email-error' : undefined}
           {...register('email')}
@@ -103,6 +109,7 @@ export function LoginForm({ locale, redirectTo }: LoginFormProps) {
         <PasswordInput
           id="login-password"
           autoComplete="current-password"
+          placeholder="••••••••"
           hasError={!!errors.password}
           aria-describedby={
             errors.password ? 'login-password-error' : undefined
@@ -114,16 +121,23 @@ export function LoginForm({ locale, redirectTo }: LoginFormProps) {
       <div className="text-right">
         <Link
           href={`/${locale}/forgot-password` as never}
-          className="text-sm font-medium text-primary-600 hover:text-primary-500"
+          className="text-sm font-medium text-primary hover:text-primary-hover transition-colors"
         >
           {t('forgotPassword')}
         </Link>
       </div>
 
+      {/* Server error banner - shown below button area per spec */}
+      {serverError && (
+        <Alert variant="error" className="mt-2">
+          {serverError}
+        </Alert>
+      )}
+
       <Button
         type="submit"
         className="w-full"
-        disabled={isSubmitting}
+        disabled={!isFormFilled || isSubmitting}
       >
         {isSubmitting ? (
           <>

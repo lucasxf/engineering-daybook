@@ -8,20 +8,57 @@ const config: Config = {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-dm-sans)'],
+        heading: ['var(--font-sora)'],
+        wordmark: ['var(--font-bricolage)'],
+      },
       colors: {
-        // Engineering Daybook brand colors
+        /* Library at Dusk palette */
+        background: 'rgb(var(--background) / <alpha-value>)',
+        foreground: 'rgb(var(--foreground) / <alpha-value>)',
+        card: {
+          DEFAULT: 'rgb(var(--card) / <alpha-value>)',
+          foreground: 'rgb(var(--card-foreground) / <alpha-value>)',
+          border: 'rgb(var(--card-border) / <alpha-value>)',
+        },
         primary: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
-          950: '#082f49',
+          DEFAULT: 'rgb(var(--primary) / <alpha-value>)',
+          foreground: 'rgb(var(--primary-foreground) / <alpha-value>)',
+          hover: 'rgb(var(--primary-hover) / <alpha-value>)',
+        },
+        muted: {
+          DEFAULT: 'rgb(var(--muted) / <alpha-value>)',
+          foreground: 'rgb(var(--muted-foreground) / <alpha-value>)',
+        },
+        input: {
+          DEFAULT: 'rgb(var(--input) / <alpha-value>)',
+          border: 'rgb(var(--input-border) / <alpha-value>)',
+          placeholder: 'rgb(var(--input-placeholder) / <alpha-value>)',
+        },
+        destructive: {
+          DEFAULT: 'rgb(var(--destructive) / <alpha-value>)',
+          background: 'rgb(var(--destructive-background) / <alpha-value>)',
+          border: 'rgb(var(--destructive-border) / <alpha-value>)',
+        },
+        ring: 'rgb(var(--ring) / <alpha-value>)',
+        /* Brand accents */
+        'deep-navy': '#0F1B2D',
+        'primary-blue': '#1A365D',
+        'mid-blue': '#2B4A78',
+        'branch-brown': '#8B5E3C',
+        'dark-leather': '#6B4226',
+        'ember-cta': '#D4854A',
+        parchment: '#F5F0E8',
+        ink: '#1A1A2E',
+        /* Disabled button colors */
+        'btn-disabled': {
+          DEFAULT: '#E0D8D0',
+          dark: '#3A4A5A',
+        },
+        'btn-disabled-text': {
+          DEFAULT: '#999999',
+          dark: '#6A7A8A',
         },
       },
       keyframes: {

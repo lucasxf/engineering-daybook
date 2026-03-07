@@ -49,7 +49,7 @@ export const homeMessages = {
 export const authMessages = {
   auth: {
     loginTitle: 'Welcome back',
-    loginSubtitle: 'Sign in to your learnimo',
+    loginSubtitle: 'Log in to your account',
     registerTitle: 'Create your account',
     registerSubtitle: 'Capture what you learn',
     orContinueWith: 'or continue with',

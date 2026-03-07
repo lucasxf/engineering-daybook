@@ -7,14 +7,18 @@ interface CardProps {
 }
 
 /**
- * Surface wrapper: consistent rounded border + white/dark-slate background.
- * Use `className` to add padding, margin, or shadow overrides.
+ * Surface wrapper using Library at Dusk design tokens.
+ * Light: white card with subtle border. Dark: primary-blue card with mid-blue border.
  */
 export function Card({ children, className, as: As = 'div' }: CardProps) {
   return (
     <As
       className={cn(
-        'rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800',
+        'rounded-lg border shadow-sm',
+        /* Light mode */
+        'bg-white border-[#E8E4DF]',
+        /* Dark mode */
+        'dark:bg-primary-blue dark:border-mid-blue',
         className
       )}
     >

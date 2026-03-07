@@ -8,26 +8,34 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 /**
  * Reusable button component with variants and sizes.
+ * Uses Library at Dusk design tokens with ember-cta as primary.
  */
 export function Button({
   className,
   variant = 'primary',
   size = 'md',
+  disabled,
   ...props
 }: ButtonProps) {
   return (
     <button
+      disabled={disabled}
       className={cn(
         'inline-flex items-center justify-center rounded-md font-medium transition-all',
         'active:scale-[0.98]',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
-        'disabled:pointer-events-none disabled:opacity-50',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         {
-          'bg-primary-600 text-white hover:bg-primary-700': variant === 'primary',
-          'bg-slate-200 text-slate-900 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600':
+          /* Primary: ember-cta with proper disabled state */
+          'bg-primary text-primary-foreground hover:bg-primary-hover': variant === 'primary' && !disabled,
+          'bg-btn-disabled text-btn-disabled-text dark:bg-btn-disabled-dark dark:text-btn-disabled-text-dark cursor-not-allowed':
+            variant === 'primary' && disabled,
+          /* Secondary */
+          'bg-card text-card-foreground border border-card-border hover:bg-muted/10':
             variant === 'secondary',
-          'hover:bg-slate-100 dark:hover:bg-slate-800': variant === 'ghost',
-          'bg-red-600 text-white hover:bg-red-700': variant === 'danger',
+          /* Ghost */
+          'hover:bg-muted/10 text-muted-foreground': variant === 'ghost',
+          /* Danger */
+          'bg-destructive text-white hover:bg-destructive/90': variant === 'danger',
         },
         {
           'h-8 px-3 text-sm': size === 'sm',
