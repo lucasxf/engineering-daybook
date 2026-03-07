@@ -30,11 +30,41 @@ The user provides a path to a spec file (`.md`). These specs contain:
 
 ## Your Task
 
-Read the spec file and produce a **single, self-contained v0.dev prompt** that can be copy-pasted directly into a v0 chat. The prompt must include the brand context AND the screen requirements extracted from the spec.
+### Step 0 — Duplicate check (ALWAYS run first, before reading the spec)
 
-## Output Format
+Read `.claude/v0-prompts/INDEX.md` and check whether any row matching the given spec file already has status `✅`.
 
-Output a single markdown code block containing the v0 prompt. The user will copy the contents and paste into v0.app.
+- **Determine the screen(s) to generate:** If the user passed a specific screen name as a second argument (e.g. `/generate-v0-prompt docs/specs/features/pok-crud.md "Create Learning"`), use that. Otherwise you'll need to infer the screen(s) from the spec — but do NOT read the spec yet. Instead, look up the spec filename in the Source Spec column of INDEX.md to find associated screens.
+- **If a matching row is already ✅:** STOP immediately. Do not read the spec. Output:
+
+  ```
+  ⚠️ Skipping — a v0 prompt for "[Screen Name]" already exists:
+     .claude/v0-prompts/<existing-filename>.md
+
+  To regenerate it anyway, delete or rename that file and re-run the command.
+  ```
+
+  Then output the finish banner and exit. No further steps.
+
+- **If the screen is ⬜ (or not in the index at all):** proceed to the next step.
+
+### Step 1 — Generate and save
+
+Read the spec file and produce a **single, self-contained v0.dev prompt**, then **write it to a file** the user can open directly in their editor or browser.
+
+## Output Format (Step 1)
+
+1. **Write the prompt to a file** using the Write tool:
+   - Output directory: `.claude/v0-prompts/`
+   - Filename: derive from the spec filename + screen name slug, e.g. `pok-listing-search--learning-feed.md`
+   - The file must contain **only the raw prompt text** (no wrapping code block, no frontmatter) so the user can open it, select all, and paste directly into v0.app
+2. **Update the index table** at `.claude/v0-prompts/INDEX.md`:
+   - Find the row whose **Screen** matches the screen you just generated (case-insensitive, fuzzy match on the name)
+   - Update its **Prompt File** column to the filename you wrote
+   - Update its **Status** column from `⬜` to `✅`
+   - If the screen is not in the table yet, append a new row with the spec path, filename, and `✅`
+   - Use the Edit tool for this (targeted replacement of the matching row only)
+3. **Tell the user the file path** so they can open it immediately.
 
 ## Conversion Rules
 
@@ -193,3 +223,13 @@ For a spec like `pok-listing-search.md`, targeting the Learning Feed screen, the
 - Is approximately 80-120 lines long (enough detail for v0, not overwhelming)
 
 The user should be able to copy-paste the output directly into v0.app and get a meaningful first generation.
+
+## Finish Banner
+
+After writing the file and reporting the path, output this exact closing banner:
+
+```
+---
+✅ /generate-v0-prompt complete — prompt saved to .claude/v0-prompts/<filename>.md
+---
+```
