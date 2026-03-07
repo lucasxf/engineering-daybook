@@ -1,0 +1,24 @@
+[metadata]
+session_branch = "re-learning"
+session_start = "2026-03-07T13:33:11Z"
+last_updated = "2026-03-07T19:02:41Z"
+
+[command_usage.write-spec]
+invocations = 2
+last_used = "2026-03-07T13:34:27Z"
+
+[agent_usage.Explore]
+invocations = 5
+last_used = "2026-03-07T15:55:57Z"
+
+[command_usage.implement-spec]
+invocations = 1
+last_used = "2026-03-07T14:07:02Z"
+
+[command_usage.finish-session]
+invocations = 1
+last_used = "2026-03-07T18:43:37Z"
+
+[agent_usage.general-purpose]
+invocations = 1
+last_used = "2026-03-07T19:02:41Z"

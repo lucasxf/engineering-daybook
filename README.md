@@ -221,6 +221,7 @@ See [ROADMAP.phase-5.md](./docs/ROADMAP.phase-5.md)
 See [ROADMAP.phase-6.md](./docs/ROADMAP.phase-6.md)
 - [x] Following & Colleagues — follow/unfollow, automatic colleague detection (mutual follow), FOLLOWERS_ONLY and COLLEAGUES_ONLY visibility tiers, private social counts (anti-vanity), RelationshipStatus on profiles, FollowButton component, 4-tier visibility selectors on Settings page
 - [x] Learner Profiles — avatar upload (Supabase Storage, Thumbnailator resize), bio and display name editing, public profile page, header avatar thumbnail + handle link, visibility enforcement, no public vanity metrics
+- [x] Share (Re-Learning) — share any public learning to your own feed with attribution to original author; visibility cascade enforced (shared visibility ≤ original); original going private removes downstream shares; Re-learn button on learner profiles for non-owner visitors; ReLearningModal component
 
 ### Phase 8: Knowledge Enrichment — 🔄 In Progress
 See [ROADMAP.phase-8.md](./docs/ROADMAP.phase-8.md)
@@ -254,6 +255,9 @@ Key endpoints:
 - `PATCH /api/v1/users/me/settings` - Update user settings (bio, displayName, visibility, etc.)
 - `POST /api/v1/users/me/avatar` - Upload or replace user avatar (multipart/form-data)
 - `DELETE /api/v1/users/me/avatar` - Remove user avatar
+- `POST /api/v1/poks/{id}/share` - Share a public learning to your own feed
+- `DELETE /api/v1/poks/{id}/share` - Remove a re-learning share
+- `GET /api/v1/poks/{id}/share/{shareId}` - Get a specific share record
 
 ---
 
