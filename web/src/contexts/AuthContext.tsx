@@ -31,6 +31,9 @@ export interface AuthUser {
   handle: string;
   defaultPokVisibility: PokVisibility;
   profileVisibility: ProfileVisibility;
+  avatarUrl?: string;
+  bio?: string;
+  displayName?: string;
 }
 
 export interface AuthContextValue {
@@ -58,6 +61,9 @@ function toAuthUser(response: AuthResponse): AuthUser {
     handle: response.handle,
     defaultPokVisibility: response.defaultPokVisibility ?? 'PRIVATE',
     profileVisibility: response.profileVisibility ?? 'PRIVATE',
+    avatarUrl: response.avatarUrl,
+    bio: response.bio,
+    displayName: response.displayName,
   };
 }
 

@@ -18,7 +18,7 @@
 
                               Phase 5        Phase 6
                               Privacy    ──► Social
-                              🔄 In Progress ⏳ Planned
+                              🔄 In Progress 🔄 In Progress
 
   Phase 4        Phase 7
   Growth         Gamification
@@ -33,7 +33,7 @@
 | 3 — AI & Mobile | `ROADMAP.phase-3.md` | 🔄 In Progress (3.1, 3.3 done) |
 | 4 — Growth | `ROADMAP.phase-4.md` | ⏸️ Postponed |
 | 5 — Privacy | `ROADMAP.phase-5.md` | 🔄 In Progress (5.1 done; 5.2 done) |
-| 6 — Social | `ROADMAP.phase-6.md` | ⏳ Planned |
+| 6 — Social | `ROADMAP.phase-6.md` | 🔄 In Progress (6.1 done; 6.3 done) |
 | 7 — Gamification | `ROADMAP.phase-7.md` | ⏸️ Postponed |
 | 8 — Knowledge Enrichment | `ROADMAP.phase-8.md` | 🔄 In Progress (8.1 done; 8.2 done) |
 

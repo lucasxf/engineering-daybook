@@ -84,6 +84,7 @@ git log HEAD..origin/develop --oneline
 1. Read the spec file at `$ARGUMENTS`
 2. Verify it has required sections: Context, Requirements, Technical Constraints, Acceptance Criteria, Implementation Approach
 3. **If sections are missing:** STOP. Tell the user which sections are missing and ask them to complete the spec before proceeding.
+4. Note whether an optional `## Screens` section is present (web/full-stack specs). When present, use it in Phase 2.2 to inform component hierarchy and file planning — it is the authoritative source for UI structure.
 
 ### 1.2 Check Status
 

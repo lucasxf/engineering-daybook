@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { Avatar } from '@/components/ui/Avatar';
 import { updateUserSettings } from '@/lib/userApi';
 import type { ProfileVisibility, PokVisibility } from '@/lib/auth';
 import type { Locale } from '@/i18n/i18n';
@@ -82,9 +83,25 @@ export function ProfileScreen() {
         <Text variant="heading">{t('profile.title')}</Text>
 
         {user && (
-          <Card style={{ gap: theme.spacing.xs }}>
-            <Text variant="label">{user.handle}</Text>
-            <Text variant="bodySm">{user.email}</Text>
+          <Card style={{ gap: theme.spacing.sm }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
+              <Avatar
+                avatarUrl={user.avatarUrl}
+                displayName={user.displayName ?? user.handle}
+                handle={user.handle}
+                size={56}
+              />
+              <View style={{ flex: 1 }}>
+                {user.displayName ? (
+                  <Text variant="label">{user.displayName}</Text>
+                ) : null}
+                <Text variant="bodySm">@{user.handle}</Text>
+                <Text variant="caption">{user.email}</Text>
+              </View>
+            </View>
+            {user.bio ? (
+              <Text variant="bodySm">{user.bio}</Text>
+            ) : null}
           </Card>
         )}
 

@@ -80,4 +80,59 @@ public class UserService {
         user.setProfileVisibility(visibility);
         userRepository.save(user);
     }
+
+    /**
+     * Updates the bio for a user.
+     *
+     * <p>A {@code null} bio clears the existing value. Non-null bios are validated to
+     * contain no URLs ({@code http://}, {@code https://}, or {@code www.}).
+     *
+     * @param userId the user's UUID
+     * @param bio    the new bio text, or {@code null} to clear
+     * @throws IllegalArgumentException if the bio contains a URL
+     * @throws UserNotFoundException    if no user exists with that ID
+     */
+    @Transactional
+    public void updateBio(UUID userId, String bio) {
+        if (bio != null && (bio.contains("http://") || bio.contains("https://") || bio.contains("www."))) {
+            throw new IllegalArgumentException("Bio must not contain URLs");
+        }
+        User user = findById(userId);
+        user.setBio(bio);
+        userRepository.save(user);
+    }
+
+    /**
+     * Updates the display name for a user.
+     *
+     * @param userId      the user's UUID
+     * @param displayName the new display name (must not be blank)
+     * @throws IllegalArgumentException if the display name is blank
+     * @throws UserNotFoundException    if no user exists with that ID
+     */
+    @Transactional
+    public void updateDisplayName(UUID userId, String displayName) {
+        if (displayName == null || displayName.isBlank()) {
+            throw new IllegalArgumentException("Display name must not be blank");
+        }
+        User user = findById(userId);
+        user.setDisplayName(displayName);
+        userRepository.save(user);
+    }
+
+    /**
+     * Updates the avatar URL for a user.
+     *
+     * <p>A {@code null} URL clears the existing avatar.
+     *
+     * @param userId    the user's UUID
+     * @param avatarUrl the new avatar URL, or {@code null} to clear
+     * @throws UserNotFoundException if no user exists with that ID
+     */
+    @Transactional
+    public void updateAvatarUrl(UUID userId, String avatarUrl) {
+        User user = findById(userId);
+        user.setAvatarUrl(avatarUrl);
+        userRepository.save(user);
+    }
 }

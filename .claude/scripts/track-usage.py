@@ -53,9 +53,9 @@ KNOWN_AGENTS = {
 KNOWN_COMMANDS = {
     "api-doc", "build-quiet", "compile-metrics", "create-pr", "directive",
     "docker-start", "docker-stop", "finish-session", "fix-pr",
-    "implement-spec", "quick-test", "resume-session", "review-code",
-    "review-pr", "save-response", "start-session", "test-service",
-    "update-roadmap", "verify-quiet", "write-spec",
+    "generate-v0-prompt", "implement-spec", "quick-test", "resume-session",
+    "review-code", "review-pr", "save-response", "start-session",
+    "test-service", "update-roadmap", "verify-quiet", "write-spec",
 }
 # --- END AUTO-GENERATED: KNOWN_COMMANDS ---
 

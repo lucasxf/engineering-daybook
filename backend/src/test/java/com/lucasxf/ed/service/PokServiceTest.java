@@ -85,6 +85,9 @@ class PokServiceTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private FollowService followService;
+
     @InjectMocks
     private PokService pokService;
 
@@ -1057,7 +1060,7 @@ class PokServiceTest {
 
         assertThatThrownBy(() -> pokService.update(pokId, request, userId))
             .isInstanceOf(PokVisibilityImmutableException.class)
-            .hasMessageContaining("public learning cannot be reverted");
+            .hasMessageContaining("widened");
     }
 
     @Test
@@ -1132,5 +1135,111 @@ class PokServiceTest {
             eq(null), eq(null), eq(null), eq(null),
             any(Pageable.class));
         verify(pokRepository, never()).searchPoks(any(), any(), any(), any(), any(), any(), any());
+    }
+
+    // ===== VISIBILITY ACCESS CONTROL TESTS =====
+
+    @Test
+    void getById_followersOnlyPok_follower_returnsContent() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(otherUserId, "Title", "Content", Pok.Visibility.FOLLOWERS_ONLY);
+        ReflectionTestUtils.setField(pok, "id", pokId);
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+        when(followService.isFollowing(userId, otherUserId)).thenReturn(true);
+        when(pokTagRepository.findByPokId(pokId)).thenReturn(List.of());
+        when(pokTagSuggestionRepository.findByPokIdAndStatus(any(), any())).thenReturn(List.of());
+
+        // When
+        PokResponse response = pokService.getById(pokId, userId);
+
+        // Then
+        assertThat(response.content()).isEqualTo("Content");
+    }
+
+    @Test
+    void getById_followersOnlyPok_nonFollower_throwsAccessDenied() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(otherUserId, "Title", "Content", Pok.Visibility.FOLLOWERS_ONLY);
+        ReflectionTestUtils.setField(pok, "id", pokId);
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+        when(followService.isFollowing(userId, otherUserId)).thenReturn(false);
+
+        // When/Then
+        assertThatThrownBy(() -> pokService.getById(pokId, userId))
+            .isInstanceOf(PokAccessDeniedException.class);
+    }
+
+    @Test
+    void getById_colleaguesOnlyPok_colleague_returnsContent() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(otherUserId, "Title", "Content", Pok.Visibility.COLLEAGUES_ONLY);
+        ReflectionTestUtils.setField(pok, "id", pokId);
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+        when(followService.areColleagues(userId, otherUserId)).thenReturn(true);
+        when(pokTagRepository.findByPokId(pokId)).thenReturn(List.of());
+        when(pokTagSuggestionRepository.findByPokIdAndStatus(any(), any())).thenReturn(List.of());
+
+        // When
+        PokResponse response = pokService.getById(pokId, userId);
+
+        // Then
+        assertThat(response.content()).isEqualTo("Content");
+    }
+
+    @Test
+    void getById_colleaguesOnlyPok_followerNotColleague_throwsAccessDenied() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(otherUserId, "Title", "Content", Pok.Visibility.COLLEAGUES_ONLY);
+        ReflectionTestUtils.setField(pok, "id", pokId);
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+        when(followService.areColleagues(userId, otherUserId)).thenReturn(false);
+
+        // When/Then
+        assertThatThrownBy(() -> pokService.getById(pokId, userId))
+            .isInstanceOf(PokAccessDeniedException.class);
+    }
+
+    @Test
+    void update_narrowingVisibility_throwsImmutableException() {
+        // Given: POK is FOLLOWERS_ONLY, request tries to narrow to PRIVATE
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(userId, "Title", "Content", Pok.Visibility.FOLLOWERS_ONLY);
+        ReflectionTestUtils.setField(pok, "id", pokId);
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+        UpdatePokRequest request = new UpdatePokRequest("Title", "Content", Pok.Visibility.PRIVATE);
+
+        // When/Then
+        assertThatThrownBy(() -> pokService.update(pokId, request, userId))
+            .isInstanceOf(PokVisibilityImmutableException.class);
+    }
+
+    @Test
+    void update_wideningVisibility_succeeds() {
+        // Given: POK is PRIVATE, request widens to FOLLOWERS_ONLY
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(userId, "Title", "Content", Pok.Visibility.PRIVATE);
+        ReflectionTestUtils.setField(pok, "id", pokId);
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+        when(pokRepository.save(any(Pok.class))).thenReturn(pok);
+        when(pokTagRepository.findByPokId(any())).thenReturn(List.of());
+        when(pokTagSuggestionRepository.findByPokIdAndStatus(any(), any())).thenReturn(List.of());
+        UpdatePokRequest request = new UpdatePokRequest("Title", "Content", Pok.Visibility.FOLLOWERS_ONLY);
+
+        // When
+        PokResponse response = pokService.update(pokId, request, userId);
+
+        // Then: no exception, pok was saved
+        assertThat(response).isNotNull();
+        verify(pokRepository).save(any(Pok.class));
     }
 }

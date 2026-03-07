@@ -182,6 +182,8 @@
     },
     "visibility": {
       "private": "Privado",
+      "colleaguesOnly": "Somente colegas",
+      "followersOnly": "Somente seguidores",
       "public": "Público",
       "pickerLabel": "Visibilidade",
       "publicWarning": "Aprendizados públicos não podem ser tornados privados novamente."
@@ -198,6 +200,26 @@
   },
   "settings": {
     "title": "Configurações",
+    "profile": {
+      "heading": "Perfil",
+      "avatar": "Avatar",
+      "uploadAvatar": "Carregar foto",
+      "removeAvatar": "Remover foto",
+      "uploading": "Carregando...",
+      "avatarHint": "JPG, PNG ou WebP · máx 2 MB",
+      "avatarTooLarge": "Arquivo muito grande. O tamanho máximo é 2 MB.",
+      "avatarInvalidType": "Formato não suportado. Use JPG, PNG ou WebP.",
+      "displayName": "Nome de exibição",
+      "displayNamePlaceholder": "Seu nome",
+      "displayNameSave": "Salvar",
+      "displayNameSaving": "Salvando...",
+      "bio": "Bio",
+      "bioPlaceholder": "Conte sobre você (URLs não são permitidas)",
+      "bioSave": "Salvar",
+      "bioSaving": "Salvando...",
+      "saveSuccess": "Alterações salvas",
+      "saveError": "Falha ao salvar. Tente novamente."
+    },
     "privacy": {
       "heading": "Privacidade",
       "profileVisibility": "Visibilidade do perfil",
@@ -205,6 +227,8 @@
       "defaultPokVisibility": "Visibilidade padrão dos aprendizados",
       "defaultPokVisibilityHint": "Novos aprendizados usarão esta visibilidade por padrão.",
       "private": "Privado",
+      "colleaguesOnly": "Somente colegas",
+      "followersOnly": "Somente seguidores",
       "public": "Público",
       "saveSuccess": "Configurações salvas",
       "saveError": "Falha ao salvar configurações. Tente novamente.",
@@ -219,7 +243,17 @@
     "notFoundHint": "Não existe um aprendiz com este identificador.",
     "publicLearnings": "Aprendizados públicos",
     "learningCount": "{count, plural, one {# aprendizado} other {# aprendizados}}",
-    "unexpectedError": "Algo deu errado."
+    "unexpectedError": "Algo deu errado.",
+    "social": {
+      "follow": "Seguir",
+      "following": "Seguindo",
+      "followBack": "Seguir de volta",
+      "colleague": "Colega",
+      "unfollow": "Deixar de seguir @{handle}",
+      "followerCount": "{count, plural, one {# seguidor} other {# seguidores}}",
+      "followingCount": "{count, plural, one {# seguindo} other {# seguindo}}",
+      "colleagueCount": "{count, plural, one {# colega} other {# colegas}}"
+    }
   },
   "tags": {
     "addTag": "Adicionar etiqueta",

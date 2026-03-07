@@ -56,6 +56,12 @@ public class User {
     @Column(name = "profile_visibility", nullable = false, length = 20)
     private ProfileVisibility profileVisibility = ProfileVisibility.PRIVATE;
 
+    @Column(name = "avatar_url", length = 500)
+    private String avatarUrl;
+
+    @Column(name = "bio", length = 200)
+    private String bio;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
@@ -96,6 +102,10 @@ public class User {
 
     public String getDisplayName() {
         return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public String getHandle() {
@@ -142,6 +152,22 @@ public class User {
         this.profileVisibility = profileVisibility;
     }
 
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -150,7 +176,22 @@ public class User {
         return updatedAt;
     }
 
+    /**
+     * Visibility level for a learner's public profile.
+     *
+     * <p>Ordered from most restrictive to most open — mirrors {@link Pok.Visibility} ordering.
+     *
+     * <ul>
+     *   <li>{@code PRIVATE} — only the owner sees the full profile.</li>
+     *   <li>{@code COLLEAGUES_ONLY} — mutual follows (colleagues) see the full profile.</li>
+     *   <li>{@code FOLLOWERS_ONLY} — anyone who follows the learner sees the full profile.</li>
+     *   <li>{@code PUBLIC} — any authenticated user sees the full profile.</li>
+     * </ul>
+     */
     public enum ProfileVisibility {
-        PUBLIC, PRIVATE
+        PRIVATE,
+        COLLEAGUES_ONLY,
+        FOLLOWERS_ONLY,
+        PUBLIC
     }
 }

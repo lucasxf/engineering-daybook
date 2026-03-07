@@ -58,9 +58,13 @@ function makePokPage(poks: MockPok[]) {
 export interface MockLearnerProfile {
   handle: string;
   displayName?: string;
-  profileVisibility?: 'PRIVATE' | 'PUBLIC';
+  profileVisibility?: 'PRIVATE' | 'COLLEAGUES_ONLY' | 'FOLLOWERS_ONLY' | 'PUBLIC';
   learnings?: MockPok[];
   learningCount?: number;
+  relationshipStatus?: 'NONE' | 'FOLLOWING' | 'FOLLOWED_BY' | 'COLLEAGUE';
+  followerCount?: number;
+  followingCount?: number;
+  colleagueCount?: number;
 }
 
 export interface ApiMockConfig {
@@ -80,6 +84,12 @@ export interface ApiMockConfig {
   createdPok?: MockPok;
   /** POK returned by PUT /poks/{id} (update). Defaults to pok. */
   updatedPok?: MockPok;
+  /**
+   * If true, follow/unfollow endpoints return 204.
+   * If false, follow returns 409, unfollow returns 409.
+   * Defaults to true.
+   */
+  followEnabled?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -106,6 +116,7 @@ export async function setupApiMocks(page: Page, config: ApiMockConfig = {}) {
     createdPok = MOCK_POK,
     updatedPok,
     learnerProfiles = {},
+    followEnabled = true,
   } = config;
 
   await page.route(`${API}/**`, async (route) => {
@@ -204,6 +215,20 @@ export async function setupApiMocks(page: Page, config: ApiMockConfig = {}) {
         await route.fulfill({ status: 403, json: { message: 'Forbidden' } });
       }
       return;
+    }
+
+    // --- Follow / unfollow ---
+
+    const learnerFollowMatch = path.match(/^\/learners\/([^/]+)\/follow$/);
+    if (learnerFollowMatch) {
+      if (method === 'POST' || method === 'DELETE') {
+        if (followEnabled) {
+          await route.fulfill({ status: 204 });
+        } else {
+          await route.fulfill({ status: 409, json: { message: 'Conflict' } });
+        }
+        return;
+      }
     }
 
     // Unrecognized route — abort to avoid connection errors to localhost:8080

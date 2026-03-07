@@ -8,7 +8,7 @@ argument-hint: <feature-name-or-description>
 Feature: $ARGUMENTS
 
 **Anti-Cyclic Dependency Note:**
-This command delegates to `virgil` agent (and optionally `frontend-ux-specialist`). These agents MUST NEVER call `/write-spec` back.
+This command delegates to `virgil`, `nexus`, `sous-chef`, and `pixl` agents. These agents MUST NEVER call `/write-spec` back.
 
 @CLAUDE.md
 
@@ -123,7 +123,57 @@ ls docs/specs/features/
 > - Reference the Engineering Daybook domain model: User, POK, Tag, PokTag, PokAuditLog
 > - Mark deferred/out-of-scope items explicitly"
 
-Review the agent's output for completeness and consistency. Extract the **Scope** field — you will need it in Phase 3.
+Review the agent's output for completeness and consistency. Extract the **Scope** field — you will need it in Phases 2.1 and 3.
+
+### 2.1 Screen Definition (web or full-stack only)
+
+If the Scope includes `web` or `full-stack`, delegate to the `pixl` agent:
+
+> "Define the UI screens for the following feature in Engineering Daybook: **[feature name]**.
+>
+> Functional requirements: [paste FR list]
+> UI-related acceptance criteria: [paste ACs that describe visual/interactive behavior]
+>
+> For each screen introduced or significantly modified by this feature, produce a `### Screen:` block following this exact format:
+>
+> ```
+> ### Screen: [Screen Name]
+>
+> **Purpose:** [What the user accomplishes on this screen]
+>
+> **Route:** `/[locale]/path/to/page`
+>
+> **Layout:**
+> 1. [Section] — [description]
+> 2. [Section] — [description]
+>
+> **Components:**
+> - `<PageComponent>` → `<ChildA />`, `<ChildB>` → `<Grandchild />`
+>
+> **States:**
+> - Empty: [description]
+> - Loading: [description]
+> - Error: [description]
+> - Populated: [description]
+>
+> **i18n:**
+> | Key | EN | PT-BR |
+> |-----|-----|-------|
+> | `namespace.key` | English text | Portuguese text |
+>
+> **Interactions:**
+> - [click/tap target] → [what happens]
+>
+> **Accessibility:**
+> - [requirement]
+> ```
+>
+> Rules:
+> - Do NOT include brand colors, design tokens, or tool-specific directives. Keep it tool-agnostic.
+> - Do NOT duplicate business rules that belong in FR/NFR — reference them (e.g., 'validation per FR3')
+> - Cover every screen that has visible user-facing changes; skip screens with backend-only changes"
+
+Include the `pixl` agent's output as the `## Screens` section of the spec.
 
 ---
 
@@ -155,7 +205,7 @@ Delegate to specialists in parallel based on the **Scope** from Phase 2. Each sp
 >
 > Provide: API endpoint design (method, path, request/response shape), service layer changes, repository queries, Flyway migration needs, and a list of files to create or modify. Call out any data model decisions that affect the frontend."
 
-**Web features with new screens:** Optionally delegate to `frontend-ux-specialist` for screen layout and interaction patterns.
+**Web features with new screens:** Screen layout and interaction patterns are handled by the `pixl` delegation in Phase 2.1.
 
 ### 3.3 Assemble and Reconcile (main session)
 
@@ -197,6 +247,9 @@ Combine all sections into the template format from `docs/specs/template.md`:
 
 ## Acceptance Criteria
 [From Phase 2]
+
+## Screens
+[From Phase 2.1 — omit this section for backend-only specs]
 
 ## Implementation Approach
 [From Phase 3]

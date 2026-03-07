@@ -161,11 +161,19 @@ See `backend/src/main/resources/application.yml` for configuration details.
   - Password reset via email
   - E2E tested with Playwright (auth redirect, login, create/edit/delete learnings)
 
+- **Learner Profiles**
+  - Public profile page at `/learners/{handle}` with avatar, display name, and bio
+  - Avatar upload with automatic resize to 200×200 JPEG (Supabase Storage, 2 MB limit, JPEG/PNG/WebP)
+  - Short bio editing; external links blocked by design
+  - Clickable handle and avatar thumbnail in navigation header
+  - Profile respects visibility settings; no vanity metrics on public view
+
 - **Mobile Application (Expo/React Native)**
   - Auth: login, register, password reset, Google OAuth
   - Learning feed with search (hybrid keyword + semantic)
   - Create, edit, and delete learnings
   - Visibility picker at creation; visibility badge and toggle on detail screen
+  - Avatar and bio display on ProfileScreen; avatar upload/remove via settings
   - Dark mode / light mode / system theme
   - Internationalization (EN/PT-BR)
 
@@ -209,6 +217,11 @@ See [ROADMAP.phase-5.md](./docs/ROADMAP.phase-5.md)
 - [x] POK Visibility Controls — private by default, per-learning public toggle (irreversible), default visibility preference, access control enforcement, UI indicators on web and mobile
 - [x] Learner Profile Privacy — profileVisibility field, public learner profile page, settings page/screen, E2E tests
 
+### Phase 6: Social Capabilities — 🔄 In Progress
+See [ROADMAP.phase-6.md](./docs/ROADMAP.phase-6.md)
+- [x] Following & Colleagues — follow/unfollow, automatic colleague detection (mutual follow), FOLLOWERS_ONLY and COLLEAGUES_ONLY visibility tiers, private social counts (anti-vanity), RelationshipStatus on profiles, FollowButton component, 4-tier visibility selectors on Settings page
+- [x] Learner Profiles — avatar upload (Supabase Storage, Thumbnailator resize), bio and display name editing, public profile page, header avatar thumbnail + handle link, visibility enforcement, no public vanity metrics
+
 ### Phase 8: Knowledge Enrichment — 🔄 In Progress
 See [ROADMAP.phase-8.md](./docs/ROADMAP.phase-8.md)
 - [x] Markdown Support — react-markdown + rehype-sanitize (web), react-native-markdown-display (mobile); renders in all views
@@ -234,6 +247,13 @@ Key endpoints:
 - `PUT /api/v1/poks/{id}` - Update POK
 - `DELETE /api/v1/poks/{id}` - Delete POK
 - `GET /api/v1/poks/{id}/history` - Get POK change history (audit log)
+- `GET /api/v1/learners/{handle}` - Get learner profile (visibility-gated)
+- `GET /api/v1/learners/{handle}/poks` - Get learner's learnings visible to the requester (4-tier access control)
+- `POST /api/v1/learners/{handle}/follow` - Follow a learner (**requires `Content-Type: application/json`**)
+- `DELETE /api/v1/learners/{handle}/follow` - Unfollow a learner (**requires `Content-Type: application/json`**)
+- `PATCH /api/v1/users/me/settings` - Update user settings (bio, displayName, visibility, etc.)
+- `POST /api/v1/users/me/avatar` - Upload or replace user avatar (multipart/form-data)
+- `DELETE /api/v1/users/me/avatar` - Remove user avatar
 
 ---
 

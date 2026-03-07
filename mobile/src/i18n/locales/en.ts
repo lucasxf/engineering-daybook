@@ -137,6 +137,8 @@ export default {
       en: 'English',
       ptBR: 'Português (BR)',
     },
+    displayName: 'Display name',
+    bio: 'Bio',
     logoutButton: 'Sign out',
     logoutConfirmTitle: 'Sign out?',
     logoutConfirmOk: 'Sign out',

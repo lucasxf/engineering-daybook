@@ -14,6 +14,7 @@ import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.domain.UserTag;
 import com.lucasxf.ed.dto.LearnerProfileResponse;
 import com.lucasxf.ed.dto.PokResponse;
+import com.lucasxf.ed.dto.RelationshipStatus;
 import com.lucasxf.ed.dto.TagResponse;
 import com.lucasxf.ed.exception.LearnerAccessDeniedException;
 import com.lucasxf.ed.exception.LearnerNotFoundException;
@@ -26,11 +27,13 @@ import static java.util.Objects.requireNonNull;
 /**
  * Service for public learner profile operations.
  *
- * <p>Enforces the access rules for Milestone 5.2 (Learner Profile Privacy):
+ * <p>Enforces access rules for Milestones 5.2 and 6.1:
  * <ul>
  *   <li>Unknown handles → 404</li>
- *   <li>Private profile visited by non-owner → minimal shell (no personal info)</li>
- *   <li>Public profile or owner's own profile → full profile</li>
+ *   <li>Profile visibility gated by follow tier: PRIVATE, COLLEAGUES_ONLY, FOLLOWERS_ONLY, PUBLIC</li>
+ *   <li>POK listing filtered by viewer's relationship level</li>
+ *   <li>Social counts (followers, following, colleagues) exposed to owner only (anti-vanity rule)</li>
+ *   <li>Relationship status (NONE/FOLLOWING/FOLLOWED_BY/COLLEAGUE) exposed to non-owners only</li>
  * </ul>
  *
  * @author Lucas Xavier Ferreira
@@ -46,13 +49,16 @@ public class LearnerService {
     private final PokRepository pokRepository;
     private final PokTagRepository pokTagRepository;
     private final UserTagRepository userTagRepository;
+    private final FollowService followService;
 
     public LearnerService(UserService userService, PokRepository pokRepository,
-                          PokTagRepository pokTagRepository, UserTagRepository userTagRepository) {
+                          PokTagRepository pokTagRepository, UserTagRepository userTagRepository,
+                          FollowService followService) {
         this.userService = requireNonNull(userService);
         this.pokRepository = requireNonNull(pokRepository);
         this.pokTagRepository = requireNonNull(pokTagRepository);
         this.userTagRepository = requireNonNull(userTagRepository);
+        this.followService = requireNonNull(followService);
     }
 
     /**
@@ -60,9 +66,14 @@ public class LearnerService {
      *
      * <ul>
      *   <li>Unknown handle → throws {@link LearnerNotFoundException}</li>
-     *   <li>Private profile, non-owner → returns private shell</li>
-     *   <li>Public profile or owner → returns full profile (owner sees all learnings + learningCount)</li>
+     *   <li>Profile visibility does not permit access → private shell</li>
+     *   <li>Owner → full profile with all learnings, learningCount, and social counts</li>
+     *   <li>Non-owner with access → full profile with relationship status; no social counts</li>
      * </ul>
+     *
+     * <p>For non-owners, the follow relationship is computed exactly once via
+     * {@link FollowService#getRelationship} and reused for both access gating and
+     * POK visibility-tier filtering — avoiding redundant DB round-trips.
      *
      * @param handle      the target learner's handle
      * @param requesterId the UUID of the requesting user
@@ -75,35 +86,54 @@ public class LearnerService {
 
         boolean isOwner = target.getId().equals(requesterId);
 
-        if (!isOwner && target.getProfileVisibility() == User.ProfileVisibility.PRIVATE) {
-            return LearnerProfileResponse.privateShell(target.getHandle());
-        }
-
-        List<Pok> learnings;
-        Integer totalCount;
         if (isOwner) {
-            learnings = pokRepository
+            List<Pok> learnings = pokRepository
                 .findByUserIdAndDeletedAtIsNull(target.getId(),
                     PageRequest.of(0, PROFILE_PAGE_SIZE, DEFAULT_SORT))
                 .getContent();
-            totalCount = (int) pokRepository.countByUserIdAndDeletedAtIsNull(target.getId());
-        } else {
-            learnings = pokRepository
-                .findByUserIdAndVisibilityAndDeletedAtIsNull(target.getId(),
-                    Pok.Visibility.PUBLIC, PageRequest.of(0, PROFILE_PAGE_SIZE, DEFAULT_SORT))
-                .getContent();
-            totalCount = null;
+            int totalCount = (int) pokRepository.countByUserIdAndDeletedAtIsNull(target.getId());
+
+            Long followerCount = followService.countFollowers(target.getId());
+            Long followingCount = followService.countFollowing(target.getId());
+            Long colleagueCount = followService.countColleagues(target.getId());
+
+            return LearnerProfileResponse.full(
+                target, learnings, true, totalCount,
+                null, followerCount, followingCount, colleagueCount);
         }
 
-        return LearnerProfileResponse.full(target, learnings, isOwner, totalCount);
+        // Non-owner: PRIVATE profiles short-circuit before any follow DB query
+        if (target.getProfileVisibility() == User.ProfileVisibility.PRIVATE) {
+            return LearnerProfileResponse.privateShell(target.getHandle());
+        }
+
+        // Compute relationship once — reused for access check, tier filtering, and DTO field
+        RelationshipStatus relationship = followService.getRelationship(requesterId, target.getId());
+
+        if (!hasProfileAccess(target, relationship)) {
+            return LearnerProfileResponse.privateShell(target.getHandle());
+        }
+
+        List<Pok.Visibility> visibleTiers = getVisiblePokTiers(relationship);
+        List<Pok> learnings = pokRepository
+            .findByUserIdAndVisibilityInAndDeletedAtIsNull(target.getId(),
+                visibleTiers, PageRequest.of(0, PROFILE_PAGE_SIZE, DEFAULT_SORT))
+            .getContent();
+
+        return LearnerProfileResponse.full(
+            target, learnings, false, null,
+            relationship, null, null, null);
     }
 
     /**
      * Returns a paginated page of learnings for the given learner handle, mapped to DTOs.
      *
-     * <p>The owner always sees all their own learnings (public + private).
-     * Non-owners see only PUBLIC learnings; returns 403 if the profile is PRIVATE.
-     * Tags are always built from the owner's tag set, not the requester's.
+     * <p>The owner always sees all their own learnings. Non-owners see only the learnings
+     * whose visibility tier permits access (PUBLIC, FOLLOWERS_ONLY for followers, etc.).
+     * Tags are always built from the owner's tag set.
+     *
+     * <p>For non-owners, the follow relationship is computed exactly once and reused for
+     * both access gating and POK visibility-tier filtering.
      *
      * @param handle      the target learner's handle
      * @param requesterId the UUID of the requesting user
@@ -111,7 +141,7 @@ public class LearnerService {
      * @param size        page size
      * @return a page of {@link PokResponse} DTOs
      * @throws LearnerNotFoundException     if no learner with that handle exists
-     * @throws LearnerAccessDeniedException if the profile is PRIVATE and requester is not the owner
+     * @throws LearnerAccessDeniedException if the profile visibility denies access
      */
     public Page<PokResponse> getLearnerPoks(String handle, UUID requesterId, int page, int size) {
         User target = userService.findByHandle(handle)
@@ -119,22 +149,76 @@ public class LearnerService {
 
         boolean isOwner = target.getId().equals(requesterId);
 
-        if (!isOwner && target.getProfileVisibility() == User.ProfileVisibility.PRIVATE) {
-            throw new LearnerAccessDeniedException(
-                "Profile @" + handle + " is private");
-        }
-
         PageRequest pageable = PageRequest.of(page, size, DEFAULT_SORT);
+
+        Page<Pok> poks;
+        if (isOwner) {
+            poks = pokRepository.findByUserIdAndDeletedAtIsNull(target.getId(), pageable);
+        } else {
+            // Non-owner: PRIVATE profiles short-circuit before any follow DB query
+            if (target.getProfileVisibility() == User.ProfileVisibility.PRIVATE) {
+                throw new LearnerAccessDeniedException("Profile @" + handle + " is private");
+            }
+
+            // Compute relationship once — reused for access check and tier filtering
+            RelationshipStatus relationship = followService.getRelationship(requesterId, target.getId());
+            if (!hasProfileAccess(target, relationship)) {
+                throw new LearnerAccessDeniedException("Profile @" + handle + " is private");
+            }
+
+            List<Pok.Visibility> visibleTiers = getVisiblePokTiers(relationship);
+            poks = pokRepository.findByUserIdAndVisibilityInAndDeletedAtIsNull(
+                target.getId(), visibleTiers, pageable);
+        }
 
         // Pre-fetch the owner's tags once to avoid N+1 queries across the page
         List<UserTag> ownerTags = userTagRepository.findByUserIdAndDeletedAtIsNull(target.getId());
-
-        Page<Pok> poks = isOwner
-            ? pokRepository.findByUserIdAndDeletedAtIsNull(target.getId(), pageable)
-            : pokRepository.findByUserIdAndVisibilityAndDeletedAtIsNull(
-                target.getId(), Pok.Visibility.PUBLIC, pageable);
-
         return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), ownerTags), List.of()));
+    }
+
+    /**
+     * Returns whether the requester (identified by their pre-computed {@code relationship}) has
+     * access to view the given learner's full profile.
+     *
+     * <p>PRIVATE profiles should be short-circuited before calling this method — they never
+     * reach here. The PRIVATE branch is kept as a safe default for completeness.
+     *
+     * @param target       the target learner
+     * @param relationship the pre-computed relationship from requester to target
+     * @return true if the requester is allowed to see the full profile
+     */
+    private boolean hasProfileAccess(User target, RelationshipStatus relationship) {
+        return switch (target.getProfileVisibility()) {
+            case PUBLIC -> true;
+            case FOLLOWERS_ONLY ->
+                relationship == RelationshipStatus.FOLLOWING || relationship == RelationshipStatus.COLLEAGUE;
+            case COLLEAGUES_ONLY -> relationship == RelationshipStatus.COLLEAGUE;
+            case PRIVATE -> false;
+        };
+    }
+
+    /**
+     * Returns the list of POK visibility tiers that a requester with the given
+     * {@code relationship} can see on a non-owner profile.
+     *
+     * <p>Access levels:
+     * <ul>
+     *   <li>COLLEAGUE (mutual follow) → PUBLIC + FOLLOWERS_ONLY + COLLEAGUES_ONLY</li>
+     *   <li>FOLLOWING (follows but not followed back) → PUBLIC + FOLLOWERS_ONLY</li>
+     *   <li>FOLLOWED_BY or NONE → PUBLIC only</li>
+     * </ul>
+     *
+     * @param relationship the pre-computed relationship from requester to target
+     * @return list of visibility tiers the requester can access
+     */
+    private List<Pok.Visibility> getVisiblePokTiers(RelationshipStatus relationship) {
+        return switch (relationship) {
+            case COLLEAGUE ->
+                List.of(Pok.Visibility.PUBLIC, Pok.Visibility.FOLLOWERS_ONLY, Pok.Visibility.COLLEAGUES_ONLY);
+            case FOLLOWING ->
+                List.of(Pok.Visibility.PUBLIC, Pok.Visibility.FOLLOWERS_ONLY);
+            default -> List.of(Pok.Visibility.PUBLIC);
+        };
     }
 
     /**

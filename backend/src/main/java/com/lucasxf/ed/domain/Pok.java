@@ -35,12 +35,22 @@ public class Pok {
     /**
      * Visibility level for a learning entry.
      *
-     * <p>{@code PRIVATE} — accessible only to the owner (default).
-     * {@code PUBLIC} — accessible to any authenticated user who knows the ID.
-     * Transitioning from {@code PUBLIC} back to {@code PRIVATE} is forbidden once shared.
+     * <p>Ordered from most restrictive to most open — ordinal comparison enforces the
+     * widening-only rule: a transition is allowed only if the new ordinal ≥ the current ordinal.
+     *
+     * <ul>
+     *   <li>{@code PRIVATE} (0) — accessible only to the owner (default).</li>
+     *   <li>{@code COLLEAGUES_ONLY} (1) — accessible to mutual follows (colleagues) and owner.</li>
+     *   <li>{@code FOLLOWERS_ONLY} (2) — accessible to anyone who follows the owner.</li>
+     *   <li>{@code PUBLIC} (3) — accessible to any authenticated user who knows the ID.</li>
+     * </ul>
+     *
+     * <p>Transitioning to a lower ordinal (narrowing) is forbidden once a learning has been shared.
      */
     public enum Visibility {
         PRIVATE,
+        COLLEAGUES_ONLY,
+        FOLLOWERS_ONLY,
         PUBLIC
     }
 
@@ -229,8 +239,24 @@ public class Pok {
      *
      * <p>This transition is <strong>irreversible</strong> — once public, a POK cannot
      * be reverted to private. Callers must enforce this constraint before invoking.
+     *
+     * @deprecated Use {@link #widenVisibility(Visibility)} instead.
      */
+    @Deprecated
     public void makePublic() {
         this.visibility = Visibility.PUBLIC;
+    }
+
+    /**
+     * Widens this POK's visibility to the given level.
+     *
+     * <p>Visibility can only increase (widening-only rule). The new level must have an ordinal
+     * greater than or equal to the current level. Callers must validate this before invoking
+     * (the service layer enforces {@link com.lucasxf.ed.exception.PokVisibilityImmutableException}).
+     *
+     * @param newVisibility the new visibility level (must be ≥ current)
+     */
+    public void widenVisibility(Visibility newVisibility) {
+        this.visibility = newVisibility;
     }
 }

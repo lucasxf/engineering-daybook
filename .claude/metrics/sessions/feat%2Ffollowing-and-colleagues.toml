@@ -1,0 +1,20 @@
+[metadata]
+session_branch = "feat/following-and-colleagues"
+session_start = "2026-03-06T20:36:31Z"
+last_updated = "2026-03-07T08:24:49Z"
+
+[command_usage.implement-spec]
+invocations = 1
+last_used = "2026-03-06T20:36:31Z"
+
+[agent_usage.Explore]
+invocations = 2
+last_used = "2026-03-06T20:40:20Z"
+
+[command_usage.finish-session]
+invocations = 1
+last_used = "2026-03-07T07:53:50Z"
+
+[command_usage.create-pr]
+invocations = 1
+last_used = "2026-03-07T08:24:49Z"
