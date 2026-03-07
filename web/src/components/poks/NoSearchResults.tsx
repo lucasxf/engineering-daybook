@@ -9,6 +9,7 @@ interface NoSearchResultsProps {
 
 /**
  * Empty state component displayed when search returns no results.
+ * Uses Library at Dusk design system tokens.
  *
  * Features:
  * - Informative message with hint
@@ -25,7 +26,7 @@ export function NoSearchResults({ onClearSearch }: NoSearchResultsProps) {
     >
       {/* Icon */}
       <svg
-        className="mb-4 h-16 w-16 text-slate-400 dark:text-slate-600"
+        className="mb-4 h-16 w-16 text-muted-foreground"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -39,12 +40,12 @@ export function NoSearchResults({ onClearSearch }: NoSearchResultsProps) {
       </svg>
 
       {/* Message */}
-      <h3 className="mb-2 text-lg font-medium text-slate-900 dark:text-slate-100">
+      <h3 className="mb-2 font-heading text-lg font-medium text-foreground">
         {t('noResults')}
       </h3>
 
       {/* Hint */}
-      <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
+      <p className="mb-6 text-sm text-muted-foreground">
         {t('noResultsSemanticHint')}
       </p>
 
