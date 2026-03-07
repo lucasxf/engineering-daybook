@@ -13,14 +13,14 @@ learnimo is a personal learning journal with social capabilities (Phase 6). Mile
 The feature is deliberately named **Re-Learning** in the UI (not "Share"), keeping language aligned with the learning domain. Internally, the entity is `PokShare`.
 
 **Why this exists:**
-- Learners discover good learnings from colleagues and want to surface them to their own followers
-- Attribution protects original authors from content theft
-- Visibility cascade ensures original authors retain control — if they make a POK private, all downstream shares disappear
+- Learners discover great learnings from others and want to celebrate them with their own followers
+- Attribution gives credit visibly — not to guard against theft, but to honour the original learner
+- Visibility cascade respects the original author's intent — if they make a learning private, downstream re-learnings disappear
 
 **Design constraints:**
-- Anti-vanity: no share counts on public profiles
-- Kindness-first: sharer cannot annotate in ways that humiliate the original author
-- Visibility invariant: a share can never be wider than the original
+- Anti-vanity: no re-learning counts on public profiles
+- Kindness-first: the personal note is the sharer's own voice — not a platform for humiliating or undermining the original author
+- Visibility invariant: a re-learning can never reach a wider audience than the original
 
 **Related:**
 - `docs/ROADMAP.phase-6.md` — Milestone 6.4
