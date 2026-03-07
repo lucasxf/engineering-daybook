@@ -182,6 +182,8 @@
     },
     "visibility": {
       "private": "Private",
+      "colleaguesOnly": "Colleagues only",
+      "followersOnly": "Followers only",
       "public": "Public",
       "pickerLabel": "Visibility",
       "publicWarning": "Public learnings cannot be made private again."
@@ -205,6 +207,8 @@
       "defaultPokVisibility": "Default learning visibility",
       "defaultPokVisibilityHint": "New learnings will use this visibility by default.",
       "private": "Private",
+      "colleaguesOnly": "Colleagues only",
+      "followersOnly": "Followers only",
       "public": "Public",
       "saveSuccess": "Settings saved",
       "saveError": "Failed to save settings. Please try again.",
@@ -219,7 +223,17 @@
     "notFoundHint": "There is no learner with this handle.",
     "publicLearnings": "Public learnings",
     "learningCount": "{count, plural, one {# learning} other {# learnings}}",
-    "unexpectedError": "Something went wrong."
+    "unexpectedError": "Something went wrong.",
+    "social": {
+      "follow": "Follow",
+      "following": "Following",
+      "followBack": "Follow back",
+      "colleague": "Colleague",
+      "unfollow": "Unfollow @{handle}",
+      "followerCount": "{count, plural, one {# follower} other {# followers}}",
+      "followingCount": "{count, plural, one {# following} other {# following}}",
+      "colleagueCount": "{count, plural, one {# colleague} other {# colleagues}}"
+    }
   },
   "tags": {
     "addTag": "Add tag",

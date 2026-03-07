@@ -60,6 +60,8 @@ export default function SettingsPage() {
 
   const visibilityOptions = [
     { value: 'PRIVATE', label: t('privacy.private') },
+    { value: 'COLLEAGUES_ONLY', label: t('privacy.colleaguesOnly') },
+    { value: 'FOLLOWERS_ONLY', label: t('privacy.followersOnly') },
     { value: 'PUBLIC', label: t('privacy.public') },
   ];
 

@@ -4,7 +4,7 @@ import type { Tag, TagSuggestion } from './tagApi';
 /**
  * POK (Piece of Knowledge) data types.
  */
-export type PokVisibility = 'PRIVATE' | 'PUBLIC';
+export type PokVisibility = 'PRIVATE' | 'COLLEAGUES_ONLY' | 'FOLLOWERS_ONLY' | 'PUBLIC';
 
 export interface Pok {
   id: string;

@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { getLearnerProfile, type LearnerProfileResponse } from '@/lib/learnerApi';
+import { getLearnerProfile, type LearnerProfileResponse, type RelationshipStatus } from '@/lib/learnerApi';
 import { ApiRequestError } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { Alert } from '@/components/ui/Alert';
 import { MarkdownContent } from '@/components/ui/MarkdownContent';
+import { FollowButton } from '@/components/FollowButton';
 
 export default function LearnerProfilePage() {
   const t = useTranslations('learners');
@@ -22,6 +23,7 @@ export default function LearnerProfilePage() {
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [relationshipStatus, setRelationshipStatus] = useState<RelationshipStatus>('NONE');
 
   useEffect(() => {
     async function load() {
@@ -31,6 +33,7 @@ export default function LearnerProfilePage() {
       try {
         const data = await getLearnerProfile(handle);
         setProfile(data);
+        setRelationshipStatus(data.relationshipStatus ?? 'NONE');
       } catch (err) {
         if (err instanceof ApiRequestError && err.status === 404) {
           setNotFound(true);
@@ -72,7 +75,7 @@ export default function LearnerProfilePage() {
   }
 
   const isOwner = user?.handle === handle;
-  const isPrivateShell = profile.profileVisibility === 'PRIVATE' && !isOwner;
+  const isPrivateShell = profile.profileVisibility != null && !isOwner;
 
   if (isPrivateShell) {
     return (
@@ -89,18 +92,40 @@ export default function LearnerProfilePage() {
 
   return (
     <main className="container mx-auto max-w-2xl px-4 py-8">
-      <div className="mb-6 flex items-baseline justify-between">
+      <div className="mb-6 flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
             {profile.displayName}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">@{handle}</p>
+          {isOwner && (profile.followerCount !== undefined || profile.followingCount !== undefined) && (
+            <div className="mt-1 flex gap-3 text-sm text-slate-500 dark:text-slate-400">
+              {profile.followerCount !== undefined && (
+                <span>{t('social.followerCount', { count: profile.followerCount })}</span>
+              )}
+              {profile.followingCount !== undefined && (
+                <span>{t('social.followingCount', { count: profile.followingCount })}</span>
+              )}
+              {profile.colleagueCount !== undefined && (
+                <span>{t('social.colleagueCount', { count: profile.colleagueCount })}</span>
+              )}
+            </div>
+          )}
         </div>
-        {isOwner && profile.learningCount !== undefined && (
-          <span className="text-sm text-slate-500 dark:text-slate-400">
-            {t('learningCount', { count: profile.learningCount })}
-          </span>
-        )}
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          {isOwner && profile.learningCount !== undefined && (
+            <span className="text-sm text-slate-500 dark:text-slate-400">
+              {t('learningCount', { count: profile.learningCount })}
+            </span>
+          )}
+          {!isOwner && (
+            <FollowButton
+              handle={handle}
+              relationshipStatus={relationshipStatus}
+              onRelationshipChange={setRelationshipStatus}
+            />
+          )}
+        </div>
       </div>
 
       {(!profile.learnings || profile.learnings.length === 0) ? (
@@ -121,8 +146,9 @@ export default function LearnerProfilePage() {
                 {isOwner && pok.visibility && (
                   <span className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium
                     bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">
-                    {pok.visibility === 'PUBLIC'
-                      ? tPoks('visibility.public')
+                    {pok.visibility === 'PUBLIC' ? tPoks('visibility.public')
+                      : pok.visibility === 'FOLLOWERS_ONLY' ? tPoks('visibility.followersOnly')
+                      : pok.visibility === 'COLLEAGUES_ONLY' ? tPoks('visibility.colleaguesOnly')
                       : tPoks('visibility.private')}
                   </span>
                 )}
