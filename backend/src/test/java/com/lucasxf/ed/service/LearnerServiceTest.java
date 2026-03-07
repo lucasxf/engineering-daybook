@@ -104,7 +104,7 @@ class LearnerServiceTest {
     void getProfile_followersOnlyProfile_nonFollower_returnsPrivateShell() {
         User alice = makeUser("alice", User.ProfileVisibility.FOLLOWERS_ONLY);
         when(userService.findByHandle("alice")).thenReturn(Optional.of(alice));
-        when(followService.isFollowing(bobId, aliceId)).thenReturn(false);
+        when(followService.getRelationship(bobId, aliceId)).thenReturn(RelationshipStatus.NONE);
 
         LearnerProfileResponse response = learnerService.getProfile("alice", bobId);
 
@@ -116,8 +116,6 @@ class LearnerServiceTest {
     void getProfile_followersOnlyProfile_follower_returnsFullProfile() {
         User alice = makeUser("alice", User.ProfileVisibility.FOLLOWERS_ONLY);
         when(userService.findByHandle("alice")).thenReturn(Optional.of(alice));
-        when(followService.isFollowing(bobId, aliceId)).thenReturn(true);
-        when(followService.areColleagues(bobId, aliceId)).thenReturn(false);
         when(followService.getRelationship(bobId, aliceId)).thenReturn(RelationshipStatus.FOLLOWING);
         Pok pub = makePok(Pok.Visibility.PUBLIC);
         Pok fol = makePok(Pok.Visibility.FOLLOWERS_ONLY);
@@ -136,7 +134,6 @@ class LearnerServiceTest {
     void getProfile_colleaguesOnlyProfile_colleague_returnsFullProfile() {
         User alice = makeUser("alice", User.ProfileVisibility.COLLEAGUES_ONLY);
         when(userService.findByHandle("alice")).thenReturn(Optional.of(alice));
-        when(followService.areColleagues(bobId, aliceId)).thenReturn(true);
         when(followService.getRelationship(bobId, aliceId)).thenReturn(RelationshipStatus.COLLEAGUE);
         when(pokRepository.findByUserIdAndVisibilityInAndDeletedAtIsNull(
             eq(aliceId), any(Collection.class), any(Pageable.class)))
@@ -152,7 +149,7 @@ class LearnerServiceTest {
     void getProfile_colleaguesOnlyProfile_followerNotColleague_returnsPrivateShell() {
         User alice = makeUser("alice", User.ProfileVisibility.COLLEAGUES_ONLY);
         when(userService.findByHandle("alice")).thenReturn(Optional.of(alice));
-        when(followService.areColleagues(bobId, aliceId)).thenReturn(false);
+        when(followService.getRelationship(bobId, aliceId)).thenReturn(RelationshipStatus.FOLLOWING);
 
         LearnerProfileResponse response = learnerService.getProfile("alice", bobId);
 
@@ -163,8 +160,6 @@ class LearnerServiceTest {
     void getProfile_publicProfile_nonOwner_returnsFullProfileWithRelationship() {
         User alice = makeUser("alice", User.ProfileVisibility.PUBLIC);
         when(userService.findByHandle("alice")).thenReturn(Optional.of(alice));
-        when(followService.areColleagues(bobId, aliceId)).thenReturn(false);
-        when(followService.isFollowing(bobId, aliceId)).thenReturn(false);
         when(followService.getRelationship(bobId, aliceId)).thenReturn(RelationshipStatus.NONE);
         Pok pub = makePok(Pok.Visibility.PUBLIC);
         when(pokRepository.findByUserIdAndVisibilityInAndDeletedAtIsNull(
@@ -226,8 +221,6 @@ class LearnerServiceTest {
     void getProfile_publicProfile_nonOwner_learningsHaveNoVisibilityField() {
         User alice = makeUser("alice", User.ProfileVisibility.PUBLIC);
         when(userService.findByHandle("alice")).thenReturn(Optional.of(alice));
-        when(followService.areColleagues(bobId, aliceId)).thenReturn(false);
-        when(followService.isFollowing(bobId, aliceId)).thenReturn(false);
         when(followService.getRelationship(bobId, aliceId)).thenReturn(RelationshipStatus.NONE);
         Pok pub = makePok(Pok.Visibility.PUBLIC);
         when(pokRepository.findByUserIdAndVisibilityInAndDeletedAtIsNull(
@@ -262,7 +255,7 @@ class LearnerServiceTest {
     void getLearnerPoks_followersOnlyProfile_nonFollower_throws403() {
         User alice = makeUser("alice", User.ProfileVisibility.FOLLOWERS_ONLY);
         when(userService.findByHandle("alice")).thenReturn(Optional.of(alice));
-        when(followService.isFollowing(bobId, aliceId)).thenReturn(false);
+        when(followService.getRelationship(bobId, aliceId)).thenReturn(RelationshipStatus.NONE);
 
         assertThatThrownBy(() -> learnerService.getLearnerPoks("alice", bobId, 0, 20))
             .isInstanceOf(LearnerAccessDeniedException.class);
@@ -272,8 +265,7 @@ class LearnerServiceTest {
     void getLearnerPoks_publicProfile_follower_returnsFollowersOnlyAndPublic() {
         User alice = makeUser("alice", User.ProfileVisibility.PUBLIC);
         when(userService.findByHandle("alice")).thenReturn(Optional.of(alice));
-        when(followService.areColleagues(bobId, aliceId)).thenReturn(false);
-        when(followService.isFollowing(bobId, aliceId)).thenReturn(true);
+        when(followService.getRelationship(bobId, aliceId)).thenReturn(RelationshipStatus.FOLLOWING);
         Pok pub = makePok(Pok.Visibility.PUBLIC);
         Pok fol = makePok(Pok.Visibility.FOLLOWERS_ONLY);
         when(pokRepository.findByUserIdAndVisibilityInAndDeletedAtIsNull(
@@ -291,8 +283,7 @@ class LearnerServiceTest {
     void getLearnerPoks_publicProfile_nonFollower_returnsOnlyPublicPoks() {
         User alice = makeUser("alice", User.ProfileVisibility.PUBLIC);
         when(userService.findByHandle("alice")).thenReturn(Optional.of(alice));
-        when(followService.areColleagues(bobId, aliceId)).thenReturn(false);
-        when(followService.isFollowing(bobId, aliceId)).thenReturn(false);
+        when(followService.getRelationship(bobId, aliceId)).thenReturn(RelationshipStatus.NONE);
         Pok pub = makePok(Pok.Visibility.PUBLIC);
         when(pokRepository.findByUserIdAndVisibilityInAndDeletedAtIsNull(
             eq(aliceId), any(Collection.class), any(Pageable.class)))

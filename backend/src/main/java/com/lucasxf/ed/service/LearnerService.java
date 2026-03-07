@@ -71,6 +71,10 @@ public class LearnerService {
      *   <li>Non-owner with access → full profile with relationship status; no social counts</li>
      * </ul>
      *
+     * <p>For non-owners, the follow relationship is computed exactly once via
+     * {@link FollowService#getRelationship} and reused for both access gating and
+     * POK visibility-tier filtering — avoiding redundant DB round-trips.
+     *
      * @param handle      the target learner's handle
      * @param requesterId the UUID of the requesting user
      * @return the profile response appropriate for the requester
@@ -82,43 +86,43 @@ public class LearnerService {
 
         boolean isOwner = target.getId().equals(requesterId);
 
-        if (!isOwner && !hasProfileAccess(requesterId, target)) {
-            return LearnerProfileResponse.privateShell(target.getHandle());
-        }
-
-        List<Pok> learnings;
-        Integer totalCount;
         if (isOwner) {
-            learnings = pokRepository
+            List<Pok> learnings = pokRepository
                 .findByUserIdAndDeletedAtIsNull(target.getId(),
                     PageRequest.of(0, PROFILE_PAGE_SIZE, DEFAULT_SORT))
                 .getContent();
-            totalCount = (int) pokRepository.countByUserIdAndDeletedAtIsNull(target.getId());
-        } else {
-            List<Pok.Visibility> visibleTiers = getVisiblePoktiers(requesterId, target.getId());
-            learnings = pokRepository
-                .findByUserIdAndVisibilityInAndDeletedAtIsNull(target.getId(),
-                    visibleTiers, PageRequest.of(0, PROFILE_PAGE_SIZE, DEFAULT_SORT))
-                .getContent();
-            totalCount = null;
+            int totalCount = (int) pokRepository.countByUserIdAndDeletedAtIsNull(target.getId());
+
+            Long followerCount = followService.countFollowers(target.getId());
+            Long followingCount = followService.countFollowing(target.getId());
+            Long colleagueCount = followService.countColleagues(target.getId());
+
+            return LearnerProfileResponse.full(
+                target, learnings, true, totalCount,
+                null, followerCount, followingCount, colleagueCount);
         }
 
-        Long followerCount = null;
-        Long followingCount = null;
-        Long colleagueCount = null;
-        RelationshipStatus relationship = null;
-
-        if (isOwner) {
-            followerCount = followService.countFollowers(target.getId());
-            followingCount = followService.countFollowing(target.getId());
-            colleagueCount = followService.countColleagues(target.getId());
-        } else {
-            relationship = followService.getRelationship(requesterId, target.getId());
+        // Non-owner: PRIVATE profiles short-circuit before any follow DB query
+        if (target.getProfileVisibility() == User.ProfileVisibility.PRIVATE) {
+            return LearnerProfileResponse.privateShell(target.getHandle());
         }
+
+        // Compute relationship once — reused for access check, tier filtering, and DTO field
+        RelationshipStatus relationship = followService.getRelationship(requesterId, target.getId());
+
+        if (!hasProfileAccess(target, relationship)) {
+            return LearnerProfileResponse.privateShell(target.getHandle());
+        }
+
+        List<Pok.Visibility> visibleTiers = getVisiblePokTiers(relationship);
+        List<Pok> learnings = pokRepository
+            .findByUserIdAndVisibilityInAndDeletedAtIsNull(target.getId(),
+                visibleTiers, PageRequest.of(0, PROFILE_PAGE_SIZE, DEFAULT_SORT))
+            .getContent();
 
         return LearnerProfileResponse.full(
-            target, learnings, isOwner, totalCount,
-            relationship, followerCount, followingCount, colleagueCount);
+            target, learnings, false, null,
+            relationship, null, null, null);
     }
 
     /**
@@ -127,6 +131,9 @@ public class LearnerService {
      * <p>The owner always sees all their own learnings. Non-owners see only the learnings
      * whose visibility tier permits access (PUBLIC, FOLLOWERS_ONLY for followers, etc.).
      * Tags are always built from the owner's tag set.
+     *
+     * <p>For non-owners, the follow relationship is computed exactly once and reused for
+     * both access gating and POK visibility-tier filtering.
      *
      * @param handle      the target learner's handle
      * @param requesterId the UUID of the requesting user
@@ -142,10 +149,6 @@ public class LearnerService {
 
         boolean isOwner = target.getId().equals(requesterId);
 
-        if (!isOwner && !hasProfileAccess(requesterId, target)) {
-            throw new LearnerAccessDeniedException("Profile @" + handle + " is private");
-        }
-
         PageRequest pageable = PageRequest.of(page, size, DEFAULT_SORT);
 
         // Pre-fetch the owner's tags once to avoid N+1 queries across the page
@@ -155,7 +158,18 @@ public class LearnerService {
         if (isOwner) {
             poks = pokRepository.findByUserIdAndDeletedAtIsNull(target.getId(), pageable);
         } else {
-            List<Pok.Visibility> visibleTiers = getVisiblePoktiers(requesterId, target.getId());
+            // Non-owner: PRIVATE profiles short-circuit before any follow DB query
+            if (target.getProfileVisibility() == User.ProfileVisibility.PRIVATE) {
+                throw new LearnerAccessDeniedException("Profile @" + handle + " is private");
+            }
+
+            // Compute relationship once — reused for access check and tier filtering
+            RelationshipStatus relationship = followService.getRelationship(requesterId, target.getId());
+            if (!hasProfileAccess(target, relationship)) {
+                throw new LearnerAccessDeniedException("Profile @" + handle + " is private");
+            }
+
+            List<Pok.Visibility> visibleTiers = getVisiblePokTiers(relationship);
             poks = pokRepository.findByUserIdAndVisibilityInAndDeletedAtIsNull(
                 target.getId(), visibleTiers, pageable);
         }
@@ -164,45 +178,48 @@ public class LearnerService {
     }
 
     /**
-     * Returns whether {@code requesterId} has access to view the given learner's full profile,
-     * based on the learner's profile visibility setting and the requester's follow relationship.
+     * Returns whether the requester (identified by their pre-computed {@code relationship}) has
+     * access to view the given learner's full profile.
      *
-     * @param requesterId the requesting user's ID
-     * @param target      the target learner
+     * <p>PRIVATE profiles should be short-circuited before calling this method — they never
+     * reach here. The PRIVATE branch is kept as a safe default for completeness.
+     *
+     * @param target       the target learner
+     * @param relationship the pre-computed relationship from requester to target
      * @return true if the requester is allowed to see the full profile
      */
-    private boolean hasProfileAccess(UUID requesterId, User target) {
+    private boolean hasProfileAccess(User target, RelationshipStatus relationship) {
         return switch (target.getProfileVisibility()) {
             case PUBLIC -> true;
-            case FOLLOWERS_ONLY -> followService.isFollowing(requesterId, target.getId());
-            case COLLEAGUES_ONLY -> followService.areColleagues(requesterId, target.getId());
+            case FOLLOWERS_ONLY ->
+                relationship == RelationshipStatus.FOLLOWING || relationship == RelationshipStatus.COLLEAGUE;
+            case COLLEAGUES_ONLY -> relationship == RelationshipStatus.COLLEAGUE;
             case PRIVATE -> false;
         };
     }
 
     /**
-     * Returns the list of POK visibility tiers that {@code requesterId} can see on a profile
-     * belonging to {@code ownerId}.
+     * Returns the list of POK visibility tiers that a requester with the given
+     * {@code relationship} can see on a non-owner profile.
      *
      * <p>Access levels:
      * <ul>
-     *   <li>Colleague (mutual follow) → PUBLIC + FOLLOWERS_ONLY + COLLEAGUES_ONLY</li>
-     *   <li>Follower (follows but not followed back) → PUBLIC + FOLLOWERS_ONLY</li>
-     *   <li>Non-follower → PUBLIC only</li>
+     *   <li>COLLEAGUE (mutual follow) → PUBLIC + FOLLOWERS_ONLY + COLLEAGUES_ONLY</li>
+     *   <li>FOLLOWING (follows but not followed back) → PUBLIC + FOLLOWERS_ONLY</li>
+     *   <li>FOLLOWED_BY or NONE → PUBLIC only</li>
      * </ul>
      *
-     * @param requesterId the requesting user's ID
-     * @param ownerId     the profile owner's ID
+     * @param relationship the pre-computed relationship from requester to target
      * @return list of visibility tiers the requester can access
      */
-    private List<Pok.Visibility> getVisiblePokTiers(UUID requesterId, UUID ownerId) {
-        if (followService.areColleagues(requesterId, ownerId)) {
-            return List.of(Pok.Visibility.PUBLIC, Pok.Visibility.FOLLOWERS_ONLY, Pok.Visibility.COLLEAGUES_ONLY);
-        }
-        if (followService.isFollowing(requesterId, ownerId)) {
-            return List.of(Pok.Visibility.PUBLIC, Pok.Visibility.FOLLOWERS_ONLY);
-        }
-        return List.of(Pok.Visibility.PUBLIC);
+    private List<Pok.Visibility> getVisiblePokTiers(RelationshipStatus relationship) {
+        return switch (relationship) {
+            case COLLEAGUE ->
+                List.of(Pok.Visibility.PUBLIC, Pok.Visibility.FOLLOWERS_ONLY, Pok.Visibility.COLLEAGUES_ONLY);
+            case FOLLOWING ->
+                List.of(Pok.Visibility.PUBLIC, Pok.Visibility.FOLLOWERS_ONLY);
+            default -> List.of(Pok.Visibility.PUBLIC);
+        };
     }
 
     /**
