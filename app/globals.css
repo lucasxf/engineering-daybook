@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+/*
+  Design System: "Library at Dusk"
+  Palette: blue-dominant (60%), brown accent (30%), warm CTA (10%)
+*/
+
+@theme inline {
+  /* Dark mode colors (primary) */
+  --color-deep-navy: #0F1B2D;
+  --color-primary-blue: #1A365D;
+  --color-mid-blue: #2B4A78;
+  --color-branch-brown: #8B5E3C;
+  --color-dark-leather: #6B4226;
+  --color-ember-cta: #D4854A;
+  --color-parchment: #F5F0E8;
+  --color-ink: #1A1A2E;
+
+  /* Semantic tokens */
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-sora), ui-sans-serif, system-ui, sans-serif;
+  --font-brand: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+}
+
+:root {
+  /* Light mode */
+  --background: #F5F0E8;
+  --foreground: #1A1A2E;
+  --card: #FFFFFF;
+  --card-foreground: #1A1A2E;
+  --card-border: #E8E4DF;
+  --nav-bg: #FFFFFF;
+  --nav-border: #E8E4DF;
+  --muted: #555555;
+  --muted-foreground: #999999;
+  --accent: #D4854A;
+  --accent-foreground: #FFFFFF;
+  --primary: #1A365D;
+  --primary-foreground: #F5F0E8;
+  --secondary: #2B4A78;
+  --secondary-foreground: #8B9EC2;
+  --input-bg: #FFFFFF;
+  --input-border: #CCCCCC;
+  --input-placeholder: #AAAAAA;
+  --tag-bg: #E0E8F2;
+  --tag-text: #1A365D;
+  --badge-bg: #E0E8F2;
+  --badge-text: #1A365D;
+  --disabled-bg: #F0EDE8;
+  --disabled-text: #AAAAAA;
+  --skeleton: #E8E4DF;
+}
+
+.dark {
+  /* Dark mode */
+  --background: #0F1B2D;
+  --foreground: #F5F0E8;
+  --card: #1A365D;
+  --card-foreground: #F5F0E8;
+  --card-border: #2B4A78;
+  --nav-bg: #1A365D;
+  --nav-border: #2B4A78;
+  --muted: #8899AA;
+  --muted-foreground: #6B7A8A;
+  --accent: #D4854A;
+  --accent-foreground: #FFFFFF;
+  --primary: #1A365D;
+  --primary-foreground: #F5F0E8;
+  --secondary: #2B4A78;
+  --secondary-foreground: #8B9EC2;
+  --input-bg: #0F1B2D;
+  --input-border: #2B4A78;
+  --input-placeholder: #4A5A6A;
+  --tag-bg: #2B4A78;
+  --tag-text: #8B9EC2;
+  --badge-bg: #2B4A78;
+  --badge-text: #8B9EC2;
+  --disabled-bg: #0F1B2D;
+  --disabled-text: #3A4A5A;
+  --skeleton: #1A365D;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
