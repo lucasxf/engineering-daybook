@@ -128,8 +128,6 @@ class UserServiceTest {
 
     @Test
     void updateBio_withHttpUrl_throwsIllegalArgumentException() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(makeUser()));
-
         assertThatThrownBy(() -> userService.updateBio(userId, "Visit http://example.com"))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("URL");
@@ -137,8 +135,6 @@ class UserServiceTest {
 
     @Test
     void updateBio_withHttpsUrl_throwsIllegalArgumentException() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(makeUser()));
-
         assertThatThrownBy(() -> userService.updateBio(userId, "See https://example.com"))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("URL");
@@ -146,8 +142,6 @@ class UserServiceTest {
 
     @Test
     void updateBio_withWwwUrl_throwsIllegalArgumentException() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(makeUser()));
-
         assertThatThrownBy(() -> userService.updateBio(userId, "Check www.example.com"))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("URL");
@@ -177,8 +171,6 @@ class UserServiceTest {
 
     @Test
     void updateDisplayName_blankName_throwsIllegalArgumentException() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(makeUser()));
-
         assertThatThrownBy(() -> userService.updateDisplayName(userId, "  "))
             .isInstanceOf(IllegalArgumentException.class);
     }
