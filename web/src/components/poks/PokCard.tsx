@@ -12,6 +12,8 @@ interface PokCardProps {
   pok: Pok;
   /** Which date to display on the card. Defaults to 'updatedAt'. */
   dateField?: 'createdAt' | 'updatedAt';
+  /** When provided, shows a Re-learn button for PUBLIC learnings. */
+  onShare?: () => void;
 }
 
 /**
@@ -25,7 +27,7 @@ interface PokCardProps {
  *
  * @param pok the POK to display
  */
-export function PokCard({ pok, dateField = 'updatedAt' }: PokCardProps) {
+export function PokCard({ pok, dateField = 'updatedAt', onShare }: PokCardProps) {
   const params = useParams<{ locale: string }>();
   const router = useRouter();
   const t = useTranslations('poks');
@@ -60,6 +62,21 @@ export function PokCard({ pok, dateField = 'updatedAt' }: PokCardProps) {
           <path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" />
         </svg>
       </button>
+      {onShare && pok.visibility === 'PUBLIC' && (
+        <button
+          type="button"
+          aria-label={t('share.button')}
+          onClick={(e) => {
+            e.stopPropagation();
+            onShare();
+          }}
+          className="absolute right-2 top-2 rounded-md p-1 text-slate-400 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-slate-700 dark:hover:text-blue-400"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4" aria-hidden="true">
+            <path d="M13 4.5a2.5 2.5 0 11.702 1.737L6.97 9.604a2.518 2.518 0 010 .792l6.733 3.367a2.5 2.5 0 11-.671 1.341l-6.733-3.367a2.5 2.5 0 110-3.474l6.733-3.366A2.52 2.52 0 0113 4.5z" />
+          </svg>
+        </button>
+      )}
       <Link
         href={`/${params.locale}/poks/${pok.id}` as never}
         className="block p-4"

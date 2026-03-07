@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/Button';
 import { pokApi, type Pok, type PokShare, type PokVisibility } from '@/lib/pokApi';
 
 interface ReLearningModalProps {
-  /** The original public learning to re-learn. */
-  pok: Pok;
+  /** The original public learning to re-learn. Only id and title are needed. */
+  pok: Pick<Pok, 'id' | 'title'>;
   onClose: () => void;
   onSuccess: (share: PokShare) => void;
 }
