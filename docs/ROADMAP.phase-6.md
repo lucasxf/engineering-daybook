@@ -34,7 +34,7 @@
 - `FollowService`: `follow()`, `unfollow()`, `getRelationshipStatus()`, `isColleague()` — self-follow and duplicate-follow guarded
 - `Pok.Visibility` and `User.ProfileVisibility` extended with `FOLLOWERS_ONLY` and `COLLEAGUES_ONLY`
 - `PokService` and `LearnerService` enforce 4-tier access control on every read path
-- `LearnerProfileResponse` extended: `relationshipStatus`, `followersCount`, `followingCount`, `colleaguesCount`, `learningsCount` (counts visible to profile owner only — anti-vanity)
+- `LearnerProfileResponse` extended: `relationshipStatus`, `followerCount`, `followingCount`, `colleagueCount`, `learningCount` (counts visible to profile owner only — anti-vanity)
 - `POST /api/v1/learners/{handle}/follow` and `DELETE /api/v1/learners/{handle}/follow` endpoints (204 / 400 / 401 / 404 / 409)
 - Frontend: `FollowButton` component, 4-tier visibility selectors on Settings page, social counts on own profile
 - Test coverage: 115 backend tests + 347 frontend unit tests + 8 E2E tests
