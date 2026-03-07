@@ -196,6 +196,31 @@
       "contentTooLong": "Content must be 50,000 characters or less",
       "unexpected": "Something went wrong. Please try again.",
       "visibilityImmutable": "A public learning cannot be made private."
+    },
+    "share": {
+      "button": "Re-learn",
+      "modalTitle": "Re-learn this learning",
+      "noteLabel": "Your note",
+      "notePlaceholder": "Why did this learning resonate with you? (optional)",
+      "noteHint": "Add context or personal reflection. Max 500 characters.",
+      "visibilityLabel": "Visibility",
+      "submitButton": "Re-learn",
+      "submitting": "Saving...",
+      "success": "Re-learning saved",
+      "remove": "Remove re-learning",
+      "removeConfirmTitle": "Remove re-learning?",
+      "removeConfirmMessage": "This will remove your re-learning. The original learning is not affected.",
+      "removeConfirmButton": "Remove",
+      "cancelButton": "Cancel",
+      "removing": "Removing...",
+      "removeSuccess": "Re-learning removed",
+      "errors": {
+        "selfShare": "You cannot re-learn your own learning",
+        "duplicate": "You have already re-learned this learning",
+        "notPublic": "Only public learnings can be re-learned",
+        "notFound": "Learning not found",
+        "unexpected": "Something went wrong. Please try again."
+      }
     }
   },
   "settings": {
