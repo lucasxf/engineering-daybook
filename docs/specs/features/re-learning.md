@@ -20,7 +20,7 @@ The feature is deliberately named **Re-Learning** in the UI (not "Share"), keepi
 **Design constraints:**
 - Anti-vanity: no re-learning counts on public profiles
 - Kindness-first: the personal note is the sharer's own voice — not a platform for humiliating or undermining the original author
-- Visibility invariant: a re-learning can never reach a wider audience than the original
+- Visibility invariant: the re-learning's visibility **tier** cannot be looser than the original's tier — but the actual audience can (and will) be wider. A FOLLOWERS_ONLY re-learning is seen by the sharer's followers, who may not follow the original author at all. That spread of knowledge is the point.
 
 **Related:**
 - `docs/ROADMAP.phase-6.md` — Milestone 6.4
@@ -39,7 +39,7 @@ The feature is deliberately named **Re-Learning** in the UI (not "Share"), keepi
 - [ ] FR1: **Re-learn a public learning** — authenticated learner can share any PUBLIC POK not authored by themselves. Creates a `PokShare` record linked to the original. _(Must Have)_
 - [ ] FR2: **Attribution** — shared learning in the feed and on profiles displays original author handle and links to original learning. _(Must Have)_
 - [ ] FR3: **Re-learn appears in sharer's feed and profile** — `GET /api/v1/poks` and `GET /api/v1/learners/{handle}/poks` return a union of owned POKs and shared POKs, ordered by `createdAt DESC`. _(Must Have)_
-- [ ] FR4: **Shared visibility ≤ original visibility** — when sharing, the learner selects a visibility (PRIVATE, COLLEAGUES_ONLY, FOLLOWERS_ONLY, PUBLIC), but the selection is capped at the original POK's visibility. _(Must Have)_
+- [ ] FR4: **Shared visibility tier ≤ original visibility tier** — when re-learning, the learner selects a visibility tier (PRIVATE, COLLEAGUES_ONLY, FOLLOWERS_ONLY, PUBLIC). The selected tier cannot be looser than the original's tier (e.g., cannot be PUBLIC if the original is FOLLOWERS_ONLY). The actual audience for the re-learning is the sharer's followers/colleagues — distinct from the original author's audience — and can be larger. _(Must Have)_
 - [ ] FR5: **Original going private removes all downstream shares** — when the original author narrows visibility to PRIVATE (or deletes the POK), all `PokShare` records referencing that POK are hard-deleted. _(Must Have)_
 - [ ] FR6: **Unshare (remove re-learning)** — sharer can remove their re-learning at any time. Hard-delete of `PokShare` record. _(Must Have)_
 - [ ] FR7: **One re-learning per learner per POK** — duplicate shares of the same original POK by the same learner are rejected (409 Conflict). _(Must Have)_
@@ -47,7 +47,7 @@ The feature is deliberately named **Re-Learning** in the UI (not "Share"), keepi
 - [ ] FR9: **Notification to original author** — original author receives a notification when their learning is re-learned. _(Should Have — deferred: requires notification infrastructure not yet built; tracked in 6.4.3)_
 - [ ] FR10: **Optional personal note** — when re-learning, the sharer may add a short personal note (max 500 chars) visible on the shared card alongside the original. This note is the sharer's voice, not a modification of the original. _(Could Have)_
 - [ ] FR11: **Type discriminator in feed** — every item returned in feed/profile listing includes a `type` field (`owned` or `shared`) so the frontend can render the correct card variant. _(Must Have)_
-- [ ] FR12: **Re-learned POK access control** — viewers of a re-learned card can access it only if they have access to both the share record (based on `PokShare.visibility`) AND the original POK (based on `Pok.visibility`). _(Must Have)_
+- [ ] FR12: **Re-learned card access control** — access to a re-learned card is governed by `PokShare.visibility` and the viewer's relationship with the **sharer** (not the original author). A viewer does not need to follow the original author to see a re-learned card — they only need to follow the sharer. Example: if Alice re-learns Bob's PUBLIC learning with FOLLOWERS_ONLY visibility, Charlie (Alice's follower, not Bob's) can see it. _(Must Have)_
 
 **Deferred / Out of Scope:**
 - FR9 notification — delivery deferred pending notification system (Phase 6.4.3 separate track)
@@ -102,12 +102,12 @@ The feature is deliberately named **Re-Learning** in the UI (not "Share"), keepi
 **WHEN** any viewer with access to Alice's feed/profile sees the card
 **THEN** the card displays Bob's handle, links to Bob's original, and is visually distinguishable from Alice's own learnings
 
-### AC3: Visibility cap
+### AC3: Visibility tier cap
 **GIVEN** Bob's original learning is FOLLOWERS_ONLY
-**WHEN** Alice tries to re-learn it with PUBLIC visibility
-**THEN** the operation is rejected (or the visibility is auto-capped to FOLLOWERS_ONLY — choose one: reject with clear error message is preferred for spec clarity)
+**WHEN** Alice tries to re-learn it with PUBLIC visibility tier
+**THEN** the operation is rejected with a clear error (the tier label cannot be looser than the original's)
 
-**Note:** MVP scope limits FR1 to PUBLIC originals only, so AC3 is a forward-compatibility guard; in practice the UI only offers re-learn on PUBLIC learnings.
+**Note:** Alice's FOLLOWERS_ONLY re-learning would still reach Alice's own followers — a potentially wider set of people than Bob's followers. That is expected and by design. The constraint is only on the tier label. MVP scope limits FR1 to PUBLIC originals, so this AC is a forward-compatibility guard.
 
 ### AC4: Original going private cascades
 **GIVEN** Alice has re-learned Bob's PUBLIC learning
@@ -236,7 +236,7 @@ The feature is deliberately named **Re-Learning** in the UI (not "Share"), keepi
 1. Header — "Re-learn this learning"
 2. Original preview — read-only card preview (title or content excerpt, author handle)
 3. Personal note field (optional, max 500 chars)
-4. Visibility selector (options capped by original visibility)
+4. Visibility selector (tier options capped at original's tier — e.g., if original is FOLLOWERS_ONLY, PUBLIC is not offered)
 5. Confirm / Cancel buttons
 
 **Components:**
