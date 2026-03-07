@@ -91,7 +91,7 @@ describe('FollowButton', () => {
     render(
       <FollowButton handle="alice" relationshipStatus="FOLLOWED_BY" onRelationshipChange={onChange} />
     );
-    fireEvent.click(screen.getByRole('button', { name: /^follow$/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^follow back$/i }));
 
     await waitFor(() => {
       expect(mockFollowLearner).toHaveBeenCalledWith('alice');

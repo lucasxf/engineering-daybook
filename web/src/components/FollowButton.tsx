@@ -57,7 +57,9 @@ export function FollowButton({ handle, relationshipStatus, onRelationshipChange 
         size="sm"
         disabled={loading}
         onClick={handleClick}
-        aria-label={isFollowing ? t('social.unfollow', { handle }) : t('social.follow')}
+        aria-label={isFollowing
+          ? t('social.unfollow', { handle })
+          : (relationshipStatus === 'FOLLOWED_BY' ? t('social.followBack') : t('social.follow'))}
       >
         {label}
       </Button>
