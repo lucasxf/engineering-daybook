@@ -2,12 +2,13 @@ import { cn } from '@/lib/utils';
 import { type ButtonHTMLAttributes } from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'cta';
   size?: 'sm' | 'md' | 'lg';
 }
 
 /**
  * Reusable button component with variants and sizes.
+ * Uses Library at Dusk design system tokens.
  */
 export function Button({
   className,
@@ -20,14 +21,20 @@ export function Button({
       className={cn(
         'inline-flex items-center justify-center rounded-md font-medium transition-all',
         'active:scale-[0.98]',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         'disabled:pointer-events-none disabled:opacity-50',
         {
-          'bg-primary-600 text-white hover:bg-primary-700': variant === 'primary',
-          'bg-slate-200 text-slate-900 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600':
+          // Primary - primary-blue
+          'bg-primary text-primary-foreground hover:bg-primary-600': variant === 'primary',
+          // Secondary - muted background
+          'bg-secondary text-secondary-foreground hover:bg-muted':
             variant === 'secondary',
-          'hover:bg-slate-100 dark:hover:bg-slate-800': variant === 'ghost',
-          'bg-red-600 text-white hover:bg-red-700': variant === 'danger',
+          // Ghost - transparent with hover
+          'hover:bg-muted': variant === 'ghost',
+          // Danger - destructive red
+          'bg-destructive text-destructive-foreground hover:bg-destructive/90': variant === 'danger',
+          // CTA - ember orange for primary actions
+          'bg-accent text-accent-foreground hover:bg-accent-700': variant === 'cta',
         },
         {
           'h-8 px-3 text-sm': size === 'sm',

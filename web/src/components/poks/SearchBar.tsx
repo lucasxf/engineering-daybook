@@ -12,6 +12,7 @@ interface SearchBarProps {
 
 /**
  * Search bar component with debounced input.
+ * Uses Library at Dusk design system tokens.
  *
  * Features:
  * - Debounced search input (300ms delay)
@@ -40,7 +41,7 @@ export function SearchBar({ onSearch, initialValue = '', placeholder }: SearchBa
   };
 
   return (
-    <div className="relative w-full focus-within:ring-1 focus-within:ring-primary-500 rounded-md">
+    <div className="relative w-full focus-within:ring-1 focus-within:ring-ring rounded-md">
       <input
         type="text"
         value={value}
@@ -48,13 +49,13 @@ export function SearchBar({ onSearch, initialValue = '', placeholder }: SearchBa
         onKeyDown={handleKeyDown}
         placeholder={placeholder || t('placeholder')}
         aria-label={t('placeholder')}
-        className="w-full rounded-md border border-slate-300 bg-white px-4 py-2 pr-10 text-sm text-slate-900 placeholder-slate-500 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-400"
+        className="w-full rounded-md border border-border bg-card px-4 py-2 pr-10 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-ring"
       />
       <button
         type="button"
         onClick={handleSearchClick}
         aria-label={t('button')}
-        className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+        className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
       >
         <svg
           className="h-5 w-5"
