@@ -67,6 +67,28 @@ export interface MockLearnerProfile {
   colleagueCount?: number;
 }
 
+export interface MockPokShare {
+  type: 'shared';
+  id: string;
+  originalPokId: string;
+  originalPok: MockPok | null;
+  sharedByHandle: string;
+  note: string | null;
+  visibility: string;
+  createdAt: string;
+}
+
+export const MOCK_POK_SHARE: MockPokShare = {
+  type: 'shared',
+  id: 'share-1',
+  originalPokId: 'pok-1',
+  originalPok: MOCK_POK,
+  sharedByHandle: MOCK_USER.handle,
+  note: null,
+  visibility: 'PUBLIC',
+  createdAt: '2026-03-07T12:00:00Z',
+};
+
 export interface ApiMockConfig {
   /** Whether GET /auth/me succeeds. Defaults to true. */
   authenticated?: boolean;
@@ -90,6 +112,8 @@ export interface ApiMockConfig {
    * Defaults to true.
    */
   followEnabled?: boolean;
+  /** Response returned by POST /poks/{id}/share. Defaults to MOCK_POK_SHARE. */
+  createdShare?: MockPokShare;
 }
 
 // ---------------------------------------------------------------------------
@@ -117,6 +141,7 @@ export async function setupApiMocks(page: Page, config: ApiMockConfig = {}) {
     updatedPok,
     learnerProfiles = {},
     followEnabled = true,
+    createdShare = MOCK_POK_SHARE,
   } = config;
 
   await page.route(`${API}/**`, async (route) => {
@@ -227,6 +252,26 @@ export async function setupApiMocks(page: Page, config: ApiMockConfig = {}) {
         } else {
           await route.fulfill({ status: 409, json: { message: 'Conflict' } });
         }
+        return;
+      }
+    }
+
+    // --- Re-learning (PokShare) endpoints ---
+
+    const pokShareCreateMatch = path.match(/^\/poks\/([^/]+)\/share$/);
+    if (pokShareCreateMatch && method === 'POST') {
+      await route.fulfill({ status: 201, json: createdShare });
+      return;
+    }
+
+    const pokSharedItemMatch = path.match(/^\/poks\/shared\/([^/]+)$/);
+    if (pokSharedItemMatch) {
+      if (method === 'GET') {
+        await route.fulfill({ json: createdShare });
+        return;
+      }
+      if (method === 'DELETE') {
+        await route.fulfill({ status: 204 });
         return;
       }
     }
