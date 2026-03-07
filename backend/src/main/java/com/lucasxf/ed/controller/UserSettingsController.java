@@ -66,6 +66,12 @@ public class UserSettingsController {
         if (request.profileVisibility() != null) {
             userService.updateProfileVisibility(userId, request.profileVisibility());
         }
+        if (request.bio() != null) {
+            userService.updateBio(userId, request.bio());
+        }
+        if (request.displayName() != null) {
+            userService.updateDisplayName(userId, request.displayName());
+        }
         return ResponseEntity.noContent().build();
     }
 }
