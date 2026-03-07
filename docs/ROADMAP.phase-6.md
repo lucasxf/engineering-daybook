@@ -1,6 +1,6 @@
 # Phase 6: Social Capabilities (TBD)
 
-> Status: **⏳ Planned**
+> Status: **🔄 In Progress** (6.1 done — 2026-03-07)
 
 ---
 
@@ -15,17 +15,30 @@
 
 ---
 
-## Milestone 6.1: Following & Colleagues
+## Milestone 6.1: Following & Colleagues ✅ Done (2026-03-07)
 
-| # | Feature | Priority |
-|---|---------|----------|
-| 6.1.1 | Follow a learner | Must Have |
-| 6.1.2 | Unfollow a learner | Must Have |
-| 6.1.3 | Mutual follow = colleague (automatic) | Must Have |
-| 6.1.4 | Followers-only and colleagues-only visibility tiers (from Phase 5 model) | Must Have |
-| 6.1.5 | Learner can privately see own counts: learnings, followers, following, colleagues | Must Have |
-| 6.1.6 | Follow notification copy | Should Have |
-| 6.1.7 | Unfollow notification | Could Have |
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 6.1.1 | Follow a learner | Must Have | ✅ Done |
+| 6.1.2 | Unfollow a learner | Must Have | ✅ Done |
+| 6.1.3 | Mutual follow = colleague (automatic) | Must Have | ✅ Done |
+| 6.1.4 | Followers-only and colleagues-only visibility tiers (from Phase 5 model) | Must Have | ✅ Done |
+| 6.1.5 | Learner can privately see own counts: learnings, followers, following, colleagues | Must Have | ✅ Done |
+| 6.1.6 | Follow notification copy | Should Have | ⏳ Deferred |
+| 6.1.7 | Unfollow notification | Could Have | ⏳ Deferred |
+
+**Implementation notes (2026-03-07):**
+- V18 Flyway migration adds `follows` table with composite PK (`follower_id`, `followed_id`)
+- `Follow` entity + `FollowId` composite key + `FollowRepository` (Spring Data JPA)
+- `RelationshipStatus` enum: `NONE`, `FOLLOWING`, `FOLLOWED_BY`, `COLLEAGUE`
+- `FollowService`: `follow()`, `unfollow()`, `getRelationshipStatus()`, `isColleague()` — self-follow and duplicate-follow guarded
+- `Pok.Visibility` and `User.ProfileVisibility` extended with `FOLLOWERS_ONLY` and `COLLEAGUES_ONLY`
+- `PokService` and `LearnerService` enforce 4-tier access control on every read path
+- `LearnerProfileResponse` extended: `relationshipStatus`, `followersCount`, `followingCount`, `colleaguesCount`, `learningsCount` (counts visible to profile owner only — anti-vanity)
+- `POST /api/v1/learners/{handle}/follow` and `DELETE /api/v1/learners/{handle}/follow` endpoints (204 / 400 / 401 / 404 / 409)
+- Frontend: `FollowButton` component, 4-tier visibility selectors on Settings page, social counts on own profile
+- Test coverage: 115 backend tests + 347 frontend unit tests + 8 E2E tests
+- Items 6.1.6 and 6.1.7 (notification copy/mechanics) deferred — do not block 6.2+
 
 ## Milestone 6.2: Classes & Study Groups
 

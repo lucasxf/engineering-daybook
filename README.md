@@ -209,6 +209,10 @@ See [ROADMAP.phase-5.md](./docs/ROADMAP.phase-5.md)
 - [x] POK Visibility Controls — private by default, per-learning public toggle (irreversible), default visibility preference, access control enforcement, UI indicators on web and mobile
 - [x] Learner Profile Privacy — profileVisibility field, public learner profile page, settings page/screen, E2E tests
 
+### Phase 6: Social Capabilities — 🔄 In Progress
+See [ROADMAP.phase-6.md](./docs/ROADMAP.phase-6.md)
+- [x] Following & Colleagues — follow/unfollow, automatic colleague detection (mutual follow), FOLLOWERS_ONLY and COLLEAGUES_ONLY visibility tiers, private social counts (anti-vanity), RelationshipStatus on profiles, FollowButton component, 4-tier visibility selectors on Settings page
+
 ### Phase 8: Knowledge Enrichment — 🔄 In Progress
 See [ROADMAP.phase-8.md](./docs/ROADMAP.phase-8.md)
 - [x] Markdown Support — react-markdown + rehype-sanitize (web), react-native-markdown-display (mobile); renders in all views
@@ -234,6 +238,10 @@ Key endpoints:
 - `PUT /api/v1/poks/{id}` - Update POK
 - `DELETE /api/v1/poks/{id}` - Delete POK
 - `GET /api/v1/poks/{id}/history` - Get POK change history (audit log)
+- `GET /api/v1/learners/{handle}` - Get learner profile (visibility-gated)
+- `GET /api/v1/learners/{handle}/poks` - Get learner's public learnings (4-tier access control)
+- `POST /api/v1/learners/{handle}/follow` - Follow a learner
+- `DELETE /api/v1/learners/{handle}/follow` - Unfollow a learner
 
 ---
 
