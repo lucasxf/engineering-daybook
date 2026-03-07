@@ -134,6 +134,8 @@ The `Bash(export *)` permission in `.claude/settings.json` covers this. (Added 2
 
 **Never add machine-specific absolute paths to `settings.json`:** `.claude/settings.json` is version-controlled and committed to the remote repository. Machine-specific paths (e.g. `/c/repo/apache-maven-3.9.11/bin/mvn`, `/c/Users/lucas/AppData/Roaming/npm/npm.cmd`) must go in `.claude/settings.local.json`, which is gitignored. Only portable, tool-name-based patterns (e.g. `Bash(mvn *)`, `Bash(npm run *)`) belong in `settings.json`. (Added 2026-03-01)
 
+**`node_modules` is not shared between worktrees — run `npm install` in each worktree:** `.gitignore` excludes `node_modules`, so a new worktree has no installed packages. Running lint or tests without installing first produces errors like `node_modules/.bin/eslint: No such file or directory`. Fix: run `npm install --legacy-peer-deps` in both `web/` and `mobile/` directories of any new worktree before running lint or tests. (Added 2026-03-07)
+
 **Claude Code "allow always" dialog saves wrong permission format:** The "don't ask again" dialog writes permissions to `settings.local.json` using a colon-separated format (e.g. `Bash(export:*)`) instead of the correct space-separated format (`Bash(export *)`). The colon format never matches actual shell commands, so the permission is silently ignored and the dialog reappears. Fix: add correct patterns directly to `.claude/settings.json` using space-separated syntax. Do NOT rely on the "allow always" dialog to persist permissions correctly. (Added 2026-03-01)
 
 ---
@@ -166,11 +168,11 @@ Active work:
 - [x] Milestone 5.1: POK Visibility Controls — private/public visibility on POKs and user default preference; irreversible PUBLIC→PRIVATE enforcement; access control; web + mobile UI indicators (2026-03-04)
 - [x] Milestone 5.2: Learner Profile Privacy — profileVisibility field, learner profile endpoint/page, settings page/screen, E2E tests (2026-03-04)
 
-**Phase 6: Social Capabilities** — 🔄 In Progress (6.1 done)
+**Phase 6: Social Capabilities** — 🔄 In Progress (6.1 done; 6.3 done)
 
 - [x] Milestone 6.1: Following & Colleagues — follow/unfollow endpoints, colleague auto-detection (mutual follow), FOLLOWERS_ONLY/COLLEAGUES_ONLY visibility tiers, private social counts (anti-vanity), RelationshipStatus on profiles, FollowButton component, 4-tier visibility selectors on Settings page; 115 backend + 347 frontend + 8 E2E tests (2026-03-07)
+- [x] Milestone 6.3: Learner Profiles — avatar upload/remove (Supabase Storage, Thumbnailator resize to 200×200), bio + displayName editing, Avatar component (web + mobile), learner profile page, settings page, header UserMenu with avatar; 415 backend + 357 web + 55 mobile tests (2026-03-07)
 - [ ] Milestone 6.2: Classes & Study Groups
-- [ ] Milestone 6.3: Learner Profiles (avatar, bio)
 - [ ] Milestone 6.4: Share (Re-Learning)
 - [ ] Milestone 6.5: Discovery Feed
 - [ ] Milestone 6.6: Community Principles & Content Moderation
@@ -196,4 +198,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-03-07 (session: feat/social-capabilities — Milestone 6.1 Following & Colleagues complete)*
+*Last updated: 2026-03-07 (session: feat/learner-profiles — Milestone 6.3 Learner Profiles complete)*

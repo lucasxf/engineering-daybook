@@ -1,0 +1,24 @@
+[metadata]
+session_branch = "learner-profiles"
+session_start = "2026-03-07T08:43:31Z"
+last_updated = "2026-03-07T11:28:08Z"
+
+[command_usage.write-spec]
+invocations = 1
+last_used = "2026-03-07T08:43:31Z"
+
+[agent_usage.Explore]
+invocations = 3
+last_used = "2026-03-07T10:17:24Z"
+
+[agent_usage.Plan]
+invocations = 1
+last_used = "2026-03-07T08:50:59Z"
+
+[command_usage.implement-spec]
+invocations = 1
+last_used = "2026-03-07T09:00:51Z"
+
+[command_usage.finish-session]
+invocations = 2
+last_used = "2026-03-07T11:28:08Z"

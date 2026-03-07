@@ -1,6 +1,6 @@
 # Phase 6: Social Capabilities (TBD)
 
-> Status: **🔄 In Progress** (6.1 done — 2026-03-07)
+> Status: **🔄 In Progress** (6.1 done — 2026-03-07; 6.3 done — 2026-03-07)
 
 ---
 
@@ -48,17 +48,29 @@
 | 6.2.2 | Groups are never auto-created — always deliberate | Must Have (constraint) |
 | 6.2.3 | Group visibility and membership rules respect individual privacy settings | Must Have |
 
-## Milestone 6.3: Learner Profiles
+## Milestone 6.3: Learner Profiles ✅ Done (2026-03-07)
 
-| # | Feature | Priority |
-|---|---------|----------|
-| 6.3.1 | Public profile page at `/learners/{handle}` | Must Have |
-| 6.3.2 | Profile shows avatar and display name | Must Have |
-| 6.3.3 | Optional short bio (no external links or social media redirects) | Should Have |
-| 6.3.4 | Avatar upload (Supabase Storage, size limits, format validation, resizing) | Must Have |
-| 6.3.5 | Profile respects visibility settings | Must Have |
-| 6.3.6 | No vanity metrics on public profiles | Must Have |
-| 6.3.7 | Clickable `@handle` in header links to own profile; avatar thumbnail displayed | Should Have |
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 6.3.1 | Public profile page at `/learners/{handle}` | Must Have | ✅ Done |
+| 6.3.2 | Profile shows avatar and display name | Must Have | ✅ Done |
+| 6.3.3 | Optional short bio (no external links or social media redirects) | Should Have | ✅ Done |
+| 6.3.4 | Avatar upload (Supabase Storage, size limits, format validation, resizing) | Must Have | ✅ Done |
+| 6.3.5 | Profile respects visibility settings | Must Have | ✅ Done |
+| 6.3.6 | No vanity metrics on public profiles | Must Have | ✅ Done |
+| 6.3.7 | Clickable `@handle` in header links to own profile; avatar thumbnail displayed | Should Have | ✅ Done |
+
+**Implementation notes (2026-03-07):**
+- V19 Flyway migration adds `bio` and `avatar_url` columns to `users` table, plus indexes on `follows`
+- `UserService`: `updateBio()`, `updateDisplayName()`, `updateAvatarUrl()`, `findByHandle()`
+- `AvatarService`: validates size (≤ 2 MB), validates MIME type (JPEG/PNG/WebP), resizes to 200×200 JPEG via Thumbnailator
+- `StorageService` interface + `SupabaseStorageService` implementation: Supabase Storage REST API (PUT upsert, DELETE)
+- `AuthController`: `/auth/me` now returns `avatarUrl`, `bio`, `displayName` fields
+- `UserSettingsController`: `POST /api/v1/users/me/avatar` (upload), `DELETE /api/v1/users/me/avatar` (remove); both with full OpenAPI annotations
+- `PATCH /api/v1/users/me/settings` extended to handle `bio` and `displayName` fields
+- Web: `Avatar` component, learner profile page (avatar + bio display), settings page (avatar upload/remove, display name, bio editing), header `UserMenu` (avatar display + link to profile)
+- Mobile: `Avatar` component, `ProfileScreen` updates (avatar + bio display), `userApi` (`uploadAvatar`, `deleteAvatar`)
+- Test coverage: 415 backend tests, 357 web tests, 55 mobile tests — all passing
 
 ## Milestone 6.4: Share (Re-Learning)
 
