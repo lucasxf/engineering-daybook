@@ -30,11 +30,15 @@ The user provides a path to a spec file (`.md`). These specs contain:
 
 ## Your Task
 
-Read the spec file and produce a **single, self-contained v0.dev prompt** that can be copy-pasted directly into a v0 chat. The prompt must include the brand context AND the screen requirements extracted from the spec.
+Read the spec file and produce a **single, self-contained v0.dev prompt**, then **write it to a file** the user can open directly in their editor or browser.
 
 ## Output Format
 
-Output a single markdown code block containing the v0 prompt. The user will copy the contents and paste into v0.app.
+1. **Write the prompt to a file** using the Write tool:
+   - Output directory: `.claude/v0-prompts/`
+   - Filename: derive from the spec filename + screen name slug, e.g. `pok-listing-search--learning-feed.md`
+   - The file must contain **only the raw prompt text** (no wrapping code block, no frontmatter) so the user can open it, select all, and paste directly into v0.app
+2. **Tell the user the file path** so they can open it immediately.
 
 ## Conversion Rules
 
@@ -193,3 +197,13 @@ For a spec like `pok-listing-search.md`, targeting the Learning Feed screen, the
 - Is approximately 80-120 lines long (enough detail for v0, not overwhelming)
 
 The user should be able to copy-paste the output directly into v0.app and get a meaningful first generation.
+
+## Finish Banner
+
+After writing the file and reporting the path, output this exact closing banner:
+
+```
+---
+✅ /generate-v0-prompt complete — prompt saved to .claude/v0-prompts/<filename>.md
+---
+```

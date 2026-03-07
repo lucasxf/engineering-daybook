@@ -1,0 +1,12 @@
+[metadata]
+session_branch = "rebuilding-screens"
+session_start = "2026-03-07T14:56:29Z"
+last_updated = "2026-03-07T15:35:04Z"
+
+[command_usage.generate-v0-prompt]
+invocations = 1
+last_used = "2026-03-07T14:56:29Z"
+
+[command_usage.finish-session]
+invocations = 1
+last_used = "2026-03-07T15:35:04Z"
