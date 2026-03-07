@@ -151,9 +151,6 @@ public class LearnerService {
 
         PageRequest pageable = PageRequest.of(page, size, DEFAULT_SORT);
 
-        // Pre-fetch the owner's tags once to avoid N+1 queries across the page
-        List<UserTag> ownerTags = userTagRepository.findByUserIdAndDeletedAtIsNull(target.getId());
-
         Page<Pok> poks;
         if (isOwner) {
             poks = pokRepository.findByUserIdAndDeletedAtIsNull(target.getId(), pageable);
@@ -174,6 +171,8 @@ public class LearnerService {
                 target.getId(), visibleTiers, pageable);
         }
 
+        // Pre-fetch the owner's tags once to avoid N+1 queries across the page
+        List<UserTag> ownerTags = userTagRepository.findByUserIdAndDeletedAtIsNull(target.getId());
         return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), ownerTags), List.of()));
     }
 
