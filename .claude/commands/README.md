@@ -16,6 +16,7 @@
 | `/docker-stop` | Stop Docker development environment | `/docker-stop <optional: service-name>` |
 | `/finish-session` | Finish session with build, lint, tests, docs update, and commit | `/finish-session <optional-commit-message-context>` |
 | `/fix-pr` | Implement approved items from a /review-pr triage report — fix CI/CD failures, apply review feedback, commit, push | `/fix-pr <pr-number>` |
+| `/generate-v0-prompt` | Convert a spec file into a self-contained v0.dev prompt | `/generate-v0-prompt <spec-file-path>` |
 | `/implement-spec` | Implement a feature from a specification file with TDD and approval gates | `/implement-spec <path-to-spec-file>` |
 | `/quick-test` | Run tests quickly in quiet mode | `/quick-test <optional: backend|web|mobile|all>` |
 | `/resume-session` | Resume a previous development session | `/resume-session <optional: context or last-task>` |

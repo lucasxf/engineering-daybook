@@ -161,6 +161,17 @@ Tooling fix: resolved a concurrency bug where parallel Claude Code sessions in s
 | Updated `.claude/commands/finish-session.md` and `.claude/commands/create-pr.md` to stage session delta files instead of the canonical file | ✅ Done |
 | Added 15 unit tests in `.claude/scripts/test_track_usage.py` (all passing) | ✅ Done |
 
+### v0.dev Prompt Generation (chore/generate-v0-prompt-command, 2026-03-07) ✅
+
+Tooling enhancement: added `/generate-v0-prompt` slash command to convert spec files into self-contained v0.dev prompts, enabling screen redesigns via Vercel v0.
+
+| Task | Status |
+|------|--------|
+| Created `.claude/commands/generate-v0-prompt.md` with YAML frontmatter | ✅ Done |
+| Registered in `KNOWN_COMMANDS` (track-usage.py) via sync script | ✅ Done |
+| Added entry to `usage-stats.toml`, bumped `total_commands` to 21 | ✅ Done |
+| Updated `commands/README.md` table | ✅ Done |
+
 ### Automation Registry Sync (chore/tooling, 2026-03-06) ✅
 
 Tooling chore: improved custom-agent tracking accuracy and automated registry maintenance for `.claude/` commands and agents.

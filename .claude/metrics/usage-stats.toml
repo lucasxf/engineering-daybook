@@ -150,6 +150,10 @@ last_used = "2026-03-06T14:41:50Z"
 invocations = 1
 last_used = "2026-03-06T17:25:45Z"
 
+[command_usage.generate-v0-prompt]
+invocations = 0
+last_used = ""
+
 [productivity]
 current_total_locs = 0
 current_production_locs = 0
@@ -163,4 +167,4 @@ net_locs = 0
 [health]
 schema_errors = 0
 total_agents = 14
-total_commands = 20
+total_commands = 21

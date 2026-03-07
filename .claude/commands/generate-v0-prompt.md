@@ -1,0 +1,194 @@
+---
+description: Convert a spec file into a self-contained v0.dev prompt
+argument-hint: <spec-file-path>
+---
+
+# Generate v0 Prompt from Spec
+
+Convert a learnimo spec file into a self-contained, copy-pasteable v0.dev prompt.
+
+## Usage
+
+```
+/generate-v0-prompt <spec-file-path>
+```
+
+Example:
+```
+/generate-v0-prompt docs/specs/pok-crud.md
+```
+
+## Input
+
+The user provides a path to a spec file (`.md`). These specs contain:
+- Functional requirements (FR) with priority levels
+- Non-functional requirements (NFR)
+- Acceptance criteria in Gherkin format
+- Implementation approach with component trees, API contracts, file paths
+- i18n keys and messages
+
+## Your Task
+
+Read the spec file and produce a **single, self-contained v0.dev prompt** that can be copy-pasted directly into a v0 chat. The prompt must include the brand context AND the screen requirements extracted from the spec.
+
+## Output Format
+
+Output a single markdown code block containing the v0 prompt. The user will copy the contents and paste into v0.app.
+
+## Conversion Rules
+
+### 1. Always include this brand header (copy verbatim)
+
+```
+### Design System
+
+**Palette — "Library at Dusk" (blue-dominant 60%, brown accent 30%, warm CTA 10%):**
+
+--deep-navy: #0F1B2D     /* dark mode bg */
+--primary-blue: #1A365D  /* primary brand, dark cards */
+--mid-blue: #2B4A78      /* secondary, hovers */
+--branch-brown: #8B5E3C  /* accent, warmth */
+--dark-leather: #6B4226  /* secondary accent */
+--ember-cta: #D4854A     /* CTAs, buttons, "+" */
+--parchment: #F5F0E8     /* light mode bg */
+--ink: #1A1A2E           /* text */
+
+**Typography:**
+- Headings: `Sora` weight 600
+- Body/UI: `DM Sans` weight 400/500
+- Wordmark only: `Bricolage Grotesque` ("learn" regular + "imo" bold)
+
+Import from Google Fonts: `Bricolage+Grotesque:wght@400;700&DM+Sans:wght@400;500&Sora:wght@600`
+
+**Tone:** Professional and sharp — like Linear or Raycast. Not playful, not corporate. Engineers and knowledge workers use this daily.
+```
+
+### 2. Extract UI-relevant content from the spec
+
+**INCLUDE:**
+- Screen purpose and user problem (from Context section)
+- Layout structure and component hierarchy (from Implementation → Web → Components)
+- All UI states: empty, loading, error, success, populated
+- i18n text strings (from i18n keys sections — include both EN and PT-BR examples)
+- Interaction behaviors: click targets, navigation, debounce, keyboard shortcuts
+- Validation feedback: inline errors, success messages
+- Accessibility requirements (from NFR section)
+- Any specific UI acceptance criteria (Gherkin scenarios starting with "Web UI" or describing visual behavior)
+
+**EXCLUDE:**
+- Backend implementation details (Java code, SQL queries, Spring Boot layers, repository methods)
+- API endpoint contracts (the v0 component won't call real APIs)
+- Database schema and migrations
+- Test file paths and test implementation details
+- Security implementation details (JWT extraction, SQL injection prevention)
+- Performance benchmarks and infrastructure concerns
+- Git workflow and CI/CD references
+
+### 3. Always include dark and light mode specs
+
+For every screen, provide explicit hex values for both modes. Use this template and adapt the specifics:
+
+```
+**Dark mode** (primary):
+- Background: #0F1B2D
+- Card bg: #1A365D with 1px border #2B4A78
+- Title text: #F5F0E8
+- Body text: #8899AA (muted blue-gray)
+- Tags: #2B4A78 bg with #8B9EC2 text
+- Input bg: #0F1B2D border #1A365D
+- CTA button: #D4854A with white text
+
+**Light mode:**
+- Background: #F5F0E8
+- Card bg: #FFFFFF with 1px border #E8E4DF, subtle shadow
+- Title text: #1A1A2E
+- Body text: #666666
+- Tags: #E0E8F2 bg with #1A365D text
+- Input bg: #FFFFFF border #CCC
+- CTA button: #D4854A with white text
+```
+
+Adapt the component-specific colors (e.g., tags, inputs, cards) based on what the screen actually contains. Don't include colors for components that aren't on the screen.
+
+### 4. Always end with this footer
+
+```
+**Component framework:** Use shadcn/ui components (adapt this list to the screen). Style with Tailwind CSS utility classes. Make it fully responsive — single column on mobile, max-width ~720px centered on desktop.
+
+Generate both dark and light mode previews side by side.
+```
+
+### 5. Structure the prompt as
+
+```
+I'm redesigning the **[Screen Name]** screen for **learnimo**, a personal learning journal app.
+
+### Design System
+[brand header from rule 1]
+
+### Screen: [Screen Name]
+
+**Purpose:** [1-2 sentences from the spec's Context/User Problem]
+
+**Layout (top → bottom):**
+[numbered list of UI sections, from nav to footer]
+
+**States to design:**
+[bullet list of all states: empty, loading, error, success, etc.]
+
+**Dark mode** (primary):
+[hex values]
+
+**Light mode:**
+[hex values]
+
+**Component framework:** [footer from rule 4]
+```
+
+### 6. Handling multi-screen specs
+
+Some spec files describe multiple screens (e.g., `pok-crud.md` covers create form, edit form, view page, card layout, delete dialog). In this case:
+
+- Ask the user which screen they want to generate a prompt for
+- List the screens found in the spec
+- Generate one prompt per screen (not one mega-prompt)
+
+### 7. Quality checks before outputting
+
+Before producing the prompt, verify:
+- [ ] Brand header is included verbatim
+- [ ] No Java/Spring Boot code leaked into the prompt
+- [ ] No API endpoint URLs in the prompt
+- [ ] Dark AND light mode hex values are present
+- [ ] All UI states are covered (empty, loading, error at minimum)
+- [ ] i18n examples are included (at least placeholder text in EN and PT-BR)
+- [ ] The prompt mentions shadcn/ui + Tailwind CSS
+- [ ] The prompt asks for responsive design
+- [ ] The prompt asks for both dark and light mode previews
+
+## Reference: Spec File → Screen Mapping
+
+| Spec File | Screens |
+|-----------|---------|
+| `pok-crud.md` | Create POK form, Edit POK form, View single POK, POK card component, Delete confirmation dialog, Empty state |
+| `pok-listing-search.md` | Learning Feed (home), Search results, Sort controls, Pagination, Loading/error states |
+| `pok-editing-and-deletion.md` | Edit page (with visual diff), Delete flow, Audit trail view |
+| `pok-visibility-controls.md` | Visibility toggle, Public POK view, Visibility badge component |
+| `tagging-system.md` | Tag picker, Tag section on POK view, AI tag suggestion UI |
+| `tag-improvements.md` | Tag filter component, Tag display normalization |
+| `tags-visualization.md` | Tag-grouped view, Timeline view, Sort options |
+| `dark-mode-i18n.md` | Theme toggle, Language selector, Global CSS variables |
+| `mobile-app.md` | All mobile screens (reference only — v0 doesn't generate React Native) |
+
+## Example Output
+
+For a spec like `pok-listing-search.md`, targeting the Learning Feed screen, the output would be a prompt that:
+- Opens with "I'm redesigning the Learning Feed..."
+- Includes the full brand header
+- Describes the nav bar, page header, quick-entry bar, search bar, POK feed, and pagination
+- Lists all 4 states (empty, no results, loading, error)
+- Provides dark/light mode hex values
+- Ends with the shadcn/ui + responsive footer
+- Is approximately 80-120 lines long (enough detail for v0, not overwhelming)
+
+The user should be able to copy-paste the output directly into v0.app and get a meaningful first generation.
