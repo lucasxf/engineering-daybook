@@ -38,7 +38,13 @@ Read the spec file and produce a **single, self-contained v0.dev prompt**, then 
    - Output directory: `.claude/v0-prompts/`
    - Filename: derive from the spec filename + screen name slug, e.g. `pok-listing-search--learning-feed.md`
    - The file must contain **only the raw prompt text** (no wrapping code block, no frontmatter) so the user can open it, select all, and paste directly into v0.app
-2. **Tell the user the file path** so they can open it immediately.
+2. **Update the index table** at `.claude/v0-prompts/INDEX.md`:
+   - Find the row whose **Screen** matches the screen you just generated (case-insensitive, fuzzy match on the name)
+   - Update its **Prompt File** column to the filename you wrote
+   - Update its **Status** column from `⬜` to `✅`
+   - If the screen is not in the table yet, append a new row with the spec path, filename, and `✅`
+   - Use the Edit tool for this (targeted replacement of the matching row only)
+3. **Tell the user the file path** so they can open it immediately.
 
 ## Conversion Rules
 
