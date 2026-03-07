@@ -27,6 +27,7 @@ export function FollowButton({ handle, relationshipStatus, onRelationshipChange 
   const isFollowing = relationshipStatus === 'FOLLOWING' || relationshipStatus === 'COLLEAGUE';
 
   async function handleClick() {
+    if (loading) return;
     setLoading(true);
     setError(null);
     try {

@@ -132,6 +132,26 @@ describe('FollowButton', () => {
     });
   });
 
+  it('ignores rapid double-clicks and calls followLearner only once', async () => {
+    let resolveFollow!: () => void;
+    mockFollowLearner.mockImplementationOnce(
+      () => new Promise<void>((res) => { resolveFollow = res; })
+    );
+    const onChange = vi.fn();
+    render(<FollowButton handle="alice" relationshipStatus="NONE" onRelationshipChange={onChange} />);
+    const button = screen.getByRole('button', { name: /^follow$/i });
+
+    fireEvent.click(button);
+    fireEvent.click(button); // rapid second click while loading
+
+    resolveFollow();
+
+    await waitFor(() => {
+      expect(mockFollowLearner).toHaveBeenCalledTimes(1);
+      expect(onChange).toHaveBeenCalledWith('FOLLOWING');
+    });
+  });
+
   it('clears error on next successful click', async () => {
     mockFollowLearner.mockRejectedValueOnce(new Error('Network error'));
     const onChange = vi.fn();

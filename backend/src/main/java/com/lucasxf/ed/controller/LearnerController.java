@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -110,7 +111,7 @@ public class LearnerController {
      * @param authentication the authenticated user
      * @return 204 No Content on success
      */
-    @PostMapping("/{handle}/follow")
+    @PostMapping(value = "/{handle}/follow", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(
         summary = "Follow a learner",
         description = "Creates a follow relationship from the authenticated user to the learner with "
@@ -141,7 +142,7 @@ public class LearnerController {
      * @param authentication the authenticated user
      * @return 204 No Content on success
      */
-    @DeleteMapping("/{handle}/follow")
+    @DeleteMapping(value = "/{handle}/follow", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(
         summary = "Unfollow a learner",
         description = "Removes the follow relationship from the authenticated user to the learner with "

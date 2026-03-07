@@ -30,6 +30,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import org.springframework.http.MediaType;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -194,6 +196,7 @@ class LearnerControllerTest {
         doNothing().when(followService).follow(any(UUID.class), eq(aliceId));
 
         mockMvc.perform(post("/api/v1/learners/alice/follow")
+                .contentType(MediaType.APPLICATION_JSON)
                 .with(user(requesterId.toString())))
             .andExpect(status().isNoContent());
     }
@@ -205,6 +208,7 @@ class LearnerControllerTest {
             .when(followService).follow(any(UUID.class), eq(aliceId));
 
         mockMvc.perform(post("/api/v1/learners/alice/follow")
+                .contentType(MediaType.APPLICATION_JSON)
                 .with(user(requesterId.toString())))
             .andExpect(status().isBadRequest());
     }
@@ -216,6 +220,7 @@ class LearnerControllerTest {
             .when(followService).follow(any(UUID.class), eq(aliceId));
 
         mockMvc.perform(post("/api/v1/learners/alice/follow")
+                .contentType(MediaType.APPLICATION_JSON)
                 .with(user(requesterId.toString())))
             .andExpect(status().isConflict());
     }
@@ -225,6 +230,7 @@ class LearnerControllerTest {
         when(userService.findByHandle("ghost")).thenReturn(Optional.empty());
 
         mockMvc.perform(post("/api/v1/learners/ghost/follow")
+                .contentType(MediaType.APPLICATION_JSON)
                 .with(user(requesterId.toString())))
             .andExpect(status().isNotFound());
     }
@@ -237,6 +243,7 @@ class LearnerControllerTest {
         doNothing().when(followService).unfollow(any(UUID.class), eq(aliceId));
 
         mockMvc.perform(delete("/api/v1/learners/alice/follow")
+                .contentType(MediaType.APPLICATION_JSON)
                 .with(user(requesterId.toString())))
             .andExpect(status().isNoContent());
     }
@@ -248,6 +255,7 @@ class LearnerControllerTest {
             .when(followService).unfollow(any(UUID.class), eq(aliceId));
 
         mockMvc.perform(delete("/api/v1/learners/alice/follow")
+                .contentType(MediaType.APPLICATION_JSON)
                 .with(user(requesterId.toString())))
             .andExpect(status().isConflict());
     }
