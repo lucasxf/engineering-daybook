@@ -329,6 +329,27 @@ class AuthControllerTest {
         }
 
         @Test
+        @DisplayName("AC11: should return avatarUrl, bio, and displayName in /me response when set")
+        void me_returnsAvatarUrlBioAndDisplayName() throws Exception {
+            UserPrincipal principal = new UserPrincipal(USER_ID, EMAIL, HANDLE);
+            Authentication auth = new UsernamePasswordAuthenticationToken(
+                principal, null, List.of());
+
+            User mockUser = new User(EMAIL, null, "Alice Smith", HANDLE);
+            ReflectionTestUtils.setField(mockUser, "id", USER_ID);
+            mockUser.setAvatarUrl("https://storage.example.com/avatars/alice.jpg");
+            mockUser.setBio("I love learning!");
+            when(userService.findById(USER_ID)).thenReturn(mockUser);
+
+            mockMvc.perform(get("/api/v1/auth/me")
+                    .with(authentication(auth)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.displayName").value("Alice Smith"))
+                .andExpect(jsonPath("$.avatarUrl").value("https://storage.example.com/avatars/alice.jpg"))
+                .andExpect(jsonPath("$.bio").value("I love learning!"));
+        }
+
+        @Test
         @DisplayName("should return 401 when not authenticated")
         void me_unauthenticated() throws Exception {
             mockMvc.perform(get("/api/v1/auth/me"))

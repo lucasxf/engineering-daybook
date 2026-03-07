@@ -137,6 +137,22 @@ class LearnerControllerTest {
     }
 
     @Test
+    void getProfile_publicProfile_showsAvatarUrlAndBio() throws Exception {
+        User alice = makeAlice(User.ProfileVisibility.PUBLIC);
+        alice.setAvatarUrl("https://storage.example.com/avatars/alice.jpg");
+        alice.setBio("I love learning!");
+        LearnerProfileResponse profile = LearnerProfileResponse.full(
+            alice, List.of(), false, null, null, null, null, null);
+        when(learnerService.getProfile(eq("alice"), any(UUID.class))).thenReturn(profile);
+
+        mockMvc.perform(get("/api/v1/learners/alice")
+                .with(user(requesterId.toString())))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.avatarUrl").value("https://storage.example.com/avatars/alice.jpg"))
+            .andExpect(jsonPath("$.bio").value("I love learning!"));
+    }
+
+    @Test
     void getProfile_unknownHandle_returns404() throws Exception {
         when(learnerService.getProfile(eq("ghost"), any(UUID.class)))
             .thenThrow(new LearnerNotFoundException("Learner not found: @ghost"));

@@ -9,6 +9,7 @@ import { ApiRequestError } from '@/lib/api';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { Alert } from '@/components/ui/Alert';
+import { Avatar } from '@/components/ui/Avatar';
 import { MarkdownContent } from '@/components/ui/MarkdownContent';
 import { FollowButton } from '@/components/FollowButton';
 
@@ -93,24 +94,35 @@ export default function LearnerProfilePage() {
   return (
     <main className="container mx-auto max-w-2xl px-4 py-8">
       <div className="mb-6 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-            {profile.displayName}
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">@{handle}</p>
-          {isOwner && (profile.followerCount !== undefined || profile.followingCount !== undefined || profile.colleagueCount !== undefined) && (
-            <div className="mt-1 flex gap-3 text-sm text-slate-500 dark:text-slate-400">
-              {profile.followerCount !== undefined && (
-                <span>{t('social.followerCount', { count: profile.followerCount })}</span>
-              )}
-              {profile.followingCount !== undefined && (
-                <span>{t('social.followingCount', { count: profile.followingCount })}</span>
-              )}
-              {profile.colleagueCount !== undefined && (
-                <span>{t('social.colleagueCount', { count: profile.colleagueCount })}</span>
-              )}
-            </div>
-          )}
+        <div className="flex items-start gap-4">
+          <Avatar
+            avatarUrl={profile.avatarUrl}
+            displayName={profile.displayName ?? handle}
+            handle={handle}
+            size={64}
+          />
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+              {profile.displayName}
+            </h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400">@{handle}</p>
+            {profile.bio && (
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{profile.bio}</p>
+            )}
+            {isOwner && (profile.followerCount !== undefined || profile.followingCount !== undefined || profile.colleagueCount !== undefined) && (
+              <div className="mt-1 flex gap-3 text-sm text-slate-500 dark:text-slate-400">
+                {profile.followerCount !== undefined && (
+                  <span>{t('social.followerCount', { count: profile.followerCount })}</span>
+                )}
+                {profile.followingCount !== undefined && (
+                  <span>{t('social.followingCount', { count: profile.followingCount })}</span>
+                )}
+                {profile.colleagueCount !== undefined && (
+                  <span>{t('social.colleagueCount', { count: profile.colleagueCount })}</span>
+                )}
+              </div>
+            )}
+          </div>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
           {isOwner && profile.learningCount !== undefined && (

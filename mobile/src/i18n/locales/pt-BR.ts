@@ -134,6 +134,8 @@ export default {
       en: 'English',
       ptBR: 'Português (BR)',
     },
+    displayName: 'Nome de exibição',
+    bio: 'Bio',
     logoutButton: 'Sair',
     logoutConfirmTitle: 'Sair?',
     logoutConfirmOk: 'Sair',

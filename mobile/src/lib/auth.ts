@@ -17,6 +17,12 @@ export interface AuthResponse {
   defaultPokVisibility?: PokVisibility;
   /** Present on /auth/me responses; absent on login/register. */
   profileVisibility?: ProfileVisibility;
+  /** Present on /auth/me responses. */
+  avatarUrl?: string;
+  /** Present on /auth/me responses. */
+  bio?: string;
+  /** Present on /auth/me responses. */
+  displayName?: string;
 }
 
 /** Backend response shape — includes tokens in body (RISK-1, mobile support). */

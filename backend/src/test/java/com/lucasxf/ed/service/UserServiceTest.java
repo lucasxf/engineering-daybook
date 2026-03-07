@@ -100,6 +100,116 @@ class UserServiceTest {
             .isInstanceOf(UserNotFoundException.class);
     }
 
+    // ===== updateBio =====
+
+    @Test
+    void updateBio_validText_updatesAndSaves() {
+        User user = makeUser();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        userService.updateBio(userId, "I love learning!");
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertThat(captor.getValue().getBio()).isEqualTo("I love learning!");
+    }
+
+    @Test
+    void updateBio_nullBio_clearsAndSaves() {
+        User user = makeUser();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        userService.updateBio(userId, null);
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertThat(captor.getValue().getBio()).isNull();
+    }
+
+    @Test
+    void updateBio_withHttpUrl_throwsIllegalArgumentException() {
+        assertThatThrownBy(() -> userService.updateBio(userId, "Visit http://example.com"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("URL");
+    }
+
+    @Test
+    void updateBio_withHttpsUrl_throwsIllegalArgumentException() {
+        assertThatThrownBy(() -> userService.updateBio(userId, "See https://example.com"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("URL");
+    }
+
+    @Test
+    void updateBio_withWwwUrl_throwsIllegalArgumentException() {
+        assertThatThrownBy(() -> userService.updateBio(userId, "Check www.example.com"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("URL");
+    }
+
+    @Test
+    void updateBio_unknownUser_throwsUserNotFoundException() {
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.updateBio(userId, "text"))
+            .isInstanceOf(UserNotFoundException.class);
+    }
+
+    // ===== updateDisplayName =====
+
+    @Test
+    void updateDisplayName_validName_updatesAndSaves() {
+        User user = makeUser();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        userService.updateDisplayName(userId, "Alice Smith");
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertThat(captor.getValue().getDisplayName()).isEqualTo("Alice Smith");
+    }
+
+    @Test
+    void updateDisplayName_blankName_throwsIllegalArgumentException() {
+        assertThatThrownBy(() -> userService.updateDisplayName(userId, "  "))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void updateDisplayName_unknownUser_throwsUserNotFoundException() {
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.updateDisplayName(userId, "Alice Smith"))
+            .isInstanceOf(UserNotFoundException.class);
+    }
+
+    // ===== updateAvatarUrl =====
+
+    @Test
+    void updateAvatarUrl_withUrl_updatesAndSaves() {
+        User user = makeUser();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        userService.updateAvatarUrl(userId, "https://storage.example.com/avatars/abc.jpg");
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertThat(captor.getValue().getAvatarUrl())
+            .isEqualTo("https://storage.example.com/avatars/abc.jpg");
+    }
+
+    @Test
+    void updateAvatarUrl_withNull_clearsAvatar() {
+        User user = makeUser();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        userService.updateAvatarUrl(userId, null);
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertThat(captor.getValue().getAvatarUrl()).isNull();
+    }
+
     // ===== findByHandle =====
 
     @Test

@@ -17,8 +17,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
  *   <li><b>Private shell</b> (non-owner, profile access denied): only {@code handle} and
  *       {@code profileVisibility}. All other fields are null and omitted from JSON.</li>
  *   <li><b>Full profile</b> (owner or non-owner with access): {@code handle}, {@code displayName},
- *       and {@code learnings}. Social counts appear for the owner only (anti-vanity rule).
- *       {@code relationshipStatus} appears for non-owners only.</li>
+ *       {@code avatarUrl}, {@code bio}, and {@code learnings}. Social counts appear for the
+ *       owner only (anti-vanity rule). {@code relationshipStatus} appears for non-owners only.</li>
  * </ul>
  *
  * @author lucasxf
@@ -60,7 +60,15 @@ public record LearnerProfileResponse(
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Schema(description = "Number of colleagues (mutual follows) — owner only (anti-vanity rule)")
-    Long colleagueCount) {
+    Long colleagueCount,
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "Avatar URL — null in private shell responses and when no avatar is set")
+    String avatarUrl,
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "Short bio — null in private shell responses and when no bio is set")
+    String bio) {
 
     /**
      * Creates a minimal private shell — confirms the handle exists, reveals nothing else.
@@ -70,7 +78,7 @@ public record LearnerProfileResponse(
      */
     public static LearnerProfileResponse privateShell(String handle) {
         return new LearnerProfileResponse(
-            handle, null, User.ProfileVisibility.PRIVATE, null, null, null, null, null, null);
+            handle, null, User.ProfileVisibility.PRIVATE, null, null, null, null, null, null, null, null);
     }
 
     /**
@@ -106,7 +114,9 @@ public record LearnerProfileResponse(
             isOwner ? null : relationship,
             isOwner ? followerCount : null,
             isOwner ? followingCount : null,
-            isOwner ? colleagueCount : null);
+            isOwner ? colleagueCount : null,
+            user.getAvatarUrl(),
+            user.getBio());
     }
 
     /**

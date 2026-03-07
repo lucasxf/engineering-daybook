@@ -23,6 +23,10 @@ spring:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   mail:
     host: ${MAIL_HOST:smtp.resend.com}
     port: ${MAIL_PORT:465}
@@ -58,6 +62,12 @@ search:
     api-key: ${HUGGINGFACE_API_KEY:hf-placeholder-configure-in-env}
     model-url: ${HUGGINGFACE_MODEL_URL:https://router.huggingface.co/hf-inference/models/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2/pipeline/feature-extraction}
     max-retries: 3
+
+storage:
+  supabase:
+    url: ${SUPABASE_URL:https://placeholder.supabase.co}
+    service-key: ${SUPABASE_SERVICE_KEY:placeholder-configure-in-env}
+    bucket: ${SUPABASE_AVATAR_BUCKET:avatars}
 
 admin:
   internal-key: ${ADMIN_INTERNAL_KEY}

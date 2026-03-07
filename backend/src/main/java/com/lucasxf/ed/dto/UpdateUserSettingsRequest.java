@@ -11,4 +11,8 @@ import com.lucasxf.ed.domain.User;
  * @author Lucas Xavier Ferreira
  * @since 2026-03-04
  */
-public record UpdateUserSettingsRequest(Pok.Visibility defaultPokVisibility, User.ProfileVisibility profileVisibility) {}
+public record UpdateUserSettingsRequest(
+        Pok.Visibility defaultPokVisibility,
+        User.ProfileVisibility profileVisibility,
+        String bio,
+        String displayName) {}

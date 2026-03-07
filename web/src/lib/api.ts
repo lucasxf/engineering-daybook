@@ -45,12 +45,16 @@ export async function apiFetch<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const url = `${API_BASE_URL}${path}`;
+  const headers: Record<string, string> = {
+    ...((options.headers as Record<string, string>) || {}),
+  };
+  // Skip Content-Type for FormData — the browser sets it with the correct boundary
+  if (!(options.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
   const requestInit: RequestInit = {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...((options.headers as Record<string, string>) || {}),
-    },
+    headers,
     credentials: 'include',
   };
 

@@ -21,6 +21,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * entity is already loaded during token issuance. The separate {@code /me} endpoint remains
  * useful for restoring session state on page load without re-issuing tokens.
  *
+ * <p>{@code avatarUrl}, {@code bio}, and {@code displayName} are populated only on the
+ * {@code /me} endpoint, where the full User entity is already fetched.
+ *
  * @author Lucas Xavier Ferreira
  * @since 2026-02-11
  */
@@ -50,21 +53,46 @@ public record AuthResponse(
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Schema(description = "User's profile visibility")
-    User.ProfileVisibility profileVisibility) {
+    User.ProfileVisibility profileVisibility,
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "Avatar URL — populated on /me only; null means no avatar set")
+    String avatarUrl,
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "Short bio — populated on /me only")
+    String bio,
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "Display name — populated on /me only", example = "Lucas Xavier")
+    String displayName) {
 
     /** Identity-only constructor — for web login/register/refresh (cookie-based, no tokens, no settings). */
     public AuthResponse(String handle, UUID userId, String email) {
-        this(handle, userId, email, null, null, null, null);
+        this(handle, userId, email, null, null, null, null, null, null, null);
     }
 
     /** Mobile login/refresh constructor — includes tokens in body but no settings. */
     public AuthResponse(String handle, UUID userId, String email, String accessToken, String refreshToken) {
-        this(handle, userId, email, accessToken, refreshToken, null, null);
+        this(handle, userId, email, accessToken, refreshToken, null, null, null, null, null);
     }
 
-    /** /me constructor — includes settings from a DB-fetched User, no tokens in body. */
+    /**
+     * Web login/register/refresh/google constructor — includes settings (no tokens, no profile fields).
+     * avatarUrl, bio, displayName are omitted here to keep the login response minimal.
+     */
     public AuthResponse(String handle, UUID userId, String email,
+            String accessToken, String refreshToken,
             Pok.Visibility defaultPokVisibility, User.ProfileVisibility profileVisibility) {
-        this(handle, userId, email, null, null, defaultPokVisibility, profileVisibility);
+        this(handle, userId, email, accessToken, refreshToken, defaultPokVisibility, profileVisibility,
+            null, null, null);
+    }
+
+    /** /me constructor — includes full settings and profile fields from a DB-fetched User. */
+    public AuthResponse(String handle, UUID userId, String email,
+            Pok.Visibility defaultPokVisibility, User.ProfileVisibility profileVisibility,
+            String avatarUrl, String bio, String displayName) {
+        this(handle, userId, email, null, null, defaultPokVisibility, profileVisibility,
+            avatarUrl, bio, displayName);
     }
 }
