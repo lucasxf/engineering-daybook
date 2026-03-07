@@ -195,7 +195,7 @@ public class LearnerService {
      * @param ownerId     the profile owner's ID
      * @return list of visibility tiers the requester can access
      */
-    private List<Pok.Visibility> getVisiblePoktiers(UUID requesterId, UUID ownerId) {
+    private List<Pok.Visibility> getVisiblePokTiers(UUID requesterId, UUID ownerId) {
         if (followService.areColleagues(requesterId, ownerId)) {
             return List.of(Pok.Visibility.PUBLIC, Pok.Visibility.FOLLOWERS_ONLY, Pok.Visibility.COLLEAGUES_ONLY);
         }
