@@ -111,4 +111,42 @@ describe('FollowButton', () => {
       expect(onChange).toHaveBeenCalledWith('FOLLOWED_BY');
     });
   });
+
+  it('shows error alert when follow fails', async () => {
+    mockFollowLearner.mockRejectedValueOnce(new Error('Network error'));
+    render(<FollowButton handle="alice" relationshipStatus="NONE" />);
+    fireEvent.click(screen.getByRole('button', { name: /^follow$/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+    });
+  });
+
+  it('shows error alert when unfollow fails', async () => {
+    mockUnfollowLearner.mockRejectedValueOnce(new Error('Network error'));
+    render(<FollowButton handle="alice" relationshipStatus="FOLLOWING" />);
+    fireEvent.click(screen.getByRole('button', { name: /unfollow @alice/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+    });
+  });
+
+  it('clears error on next successful click', async () => {
+    mockFollowLearner.mockRejectedValueOnce(new Error('Network error'));
+    const onChange = vi.fn();
+    render(<FollowButton handle="alice" relationshipStatus="NONE" onRelationshipChange={onChange} />);
+    const button = screen.getByRole('button', { name: /^follow$/i });
+    fireEvent.click(button);
+
+    await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument());
+
+    mockFollowLearner.mockResolvedValueOnce(undefined);
+    fireEvent.click(screen.getByRole('button', { name: /^follow$/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      expect(onChange).toHaveBeenCalledWith('FOLLOWING');
+    });
+  });
 });
