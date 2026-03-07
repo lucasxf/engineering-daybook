@@ -239,7 +239,7 @@ Key endpoints:
 - `DELETE /api/v1/poks/{id}` - Delete POK
 - `GET /api/v1/poks/{id}/history` - Get POK change history (audit log)
 - `GET /api/v1/learners/{handle}` - Get learner profile (visibility-gated)
-- `GET /api/v1/learners/{handle}/poks` - Get learner's public learnings (4-tier access control)
+- `GET /api/v1/learners/{handle}/poks` - Get learner's learnings visible to the requester (4-tier access control)
 - `POST /api/v1/learners/{handle}/follow` - Follow a learner
 - `DELETE /api/v1/learners/{handle}/follow` - Unfollow a learner
 
