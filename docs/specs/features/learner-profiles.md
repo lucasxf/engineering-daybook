@@ -1,8 +1,8 @@
 # Learner Profiles (Milestone 6.3)
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-03-07
-> **Implemented:** _pending_
+> **Implemented:** 2026-03-07
 
 ---
 
@@ -328,4 +328,34 @@ Builds on the existing 5.2 infrastructure (LearnerController, LearnerService, Us
 
 ## Post-Implementation Notes
 
-> _This section is filled AFTER implementation._
+### Architectural Decisions
+
+1. **V19 (not V18) migration:** Spec incorrectly referenced V18; V18 is already the `follows` table (Milestone 6.1). Migration was created as V19.
+
+2. **AuthResponse constructor strategy:** Added a new 8-arg `/me` constructor and a 10-arg canonical constructor with null defaults for new fields; existing 7-arg constructor delegates to preserve backward compatibility for login/register flows that don't populate avatarUrl/bio/displayName.
+
+3. **AvatarServiceTest: dynamic JPEG generation:** The hand-crafted JPEG byte array in the initial test wasn't decodable by Java's ImageIO. Fixed by generating a real 1×1 JPEG via `BufferedImage` + `ImageIO.write()` at test init time.
+
+4. **Mobile avatar upload deferred:** expo-image-picker is not installed; avatar upload on mobile is not included. Avatar is displayed from `AuthUser.avatarUrl`; editing is done via the web settings page.
+
+5. **Unnecessary Mockito stubs fixed:** URL-rejection and blank-displayName validation in `UserService` throws before calling `findById`, making `when(userRepository.findById(...))` stubs in those tests flagged as `UnnecessaryStubbing` by Mockito's strict mode. Fixed by removing them.
+
+### Commits
+
+| # | Hash | Description |
+|---|------|-------------|
+| spec | `a465ab6` | docs: add spec for Milestone 6.3 Learner Profiles |
+| spec | `b2512c2` | docs: mark spec learner-profiles as in progress |
+| 1 | `c253d21` | feat: V19 migration + User entity adds avatarUrl, bio, displayName setter |
+| 2 | `0e95c21` | feat: add bio and displayName update to UserService and settings endpoint |
+| 3 | `9697950` | feat: extend AuthResponse and LearnerProfileResponse with avatarUrl, bio, displayName |
+| 4 | `2de80ef` | feat: add Supabase storage layer and Thumbnailator dep |
+| 5 | `38dfbfa` | feat: add AvatarService and avatar upload/delete endpoints |
+| 6 | `1cb2225` | feat: add Avatar component to web with image/initials modes |
+| 7 | `b332241` | feat: extend web API clients and AuthContext with avatar, bio, displayName |
+| 8 | `bccc964` | feat: show avatar and bio on learner profile page |
+| 9 | `47808a4` | feat: extend settings page with avatar upload, display name, and bio |
+| 10 | `20da4c3` | feat: show avatar thumbnail and @handle link in web header |
+| 11 | `3712083` | feat: extend mobile auth/userApi types and add Avatar component |
+| 12 | `7b9c5e8` | feat: extend ProfileScreen with avatar, display name, and bio (mobile) |
+| fix | `95f1b74` | test: fix backend test compilation and unnecessary stub issues |
