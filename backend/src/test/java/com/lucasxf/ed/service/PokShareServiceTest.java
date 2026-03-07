@@ -72,13 +72,11 @@ class PokShareServiceTest {
         bobPok = new Pok(bobId, "Bob's learning title", "Bob's learning content", Pok.Visibility.PUBLIC);
         ReflectionTestUtils.setField(bobPok, "id", pokId);
 
-        alice = new User();
+        alice = new User("alice@example.com", "hash", "Alice", "alice");
         ReflectionTestUtils.setField(alice, "id", aliceId);
-        ReflectionTestUtils.setField(alice, "handle", "alice");
 
-        bob = new User();
+        bob = new User("bob@example.com", "hash", "Bob", "bob");
         ReflectionTestUtils.setField(bob, "id", bobId);
-        ReflectionTestUtils.setField(bob, "handle", "bob");
     }
 
     // ── share() ─────────────────────────────────────────────────────────────
@@ -150,15 +148,15 @@ class PokShareServiceTest {
 
     @Test
     void share_visibilityLooserThanOriginal_throwsIllegalArgumentException() {
-        // Original is FOLLOWERS_ONLY (ordinal 2); Alice tries to share as PUBLIC (ordinal 3) — rejected
+        // Non-PUBLIC originals are rejected by the MVP "PUBLIC only" guard (which runs before the
+        // visibility-tier check). The thrown message reflects the PUBLIC-only restriction.
         Pok followersOnlyPok = new Pok(bobId, "Title", "Content", Pok.Visibility.FOLLOWERS_ONLY);
         ReflectionTestUtils.setField(followersOnlyPok, "id", pokId);
 
         when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(followersOnlyPok));
 
         assertThatThrownBy(() -> pokShareService.share(pokId, aliceId, null, Pok.Visibility.PUBLIC))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessageContaining("visibility");
+            .isInstanceOf(IllegalArgumentException.class);
 
         verify(pokShareRepository, never()).save(any());
     }

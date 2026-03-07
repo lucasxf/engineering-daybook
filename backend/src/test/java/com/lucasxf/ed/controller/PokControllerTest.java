@@ -2,6 +2,7 @@ package com.lucasxf.ed.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucasxf.ed.dto.CreatePokRequest;
+import com.lucasxf.ed.dto.FeedItemResponse;
 import com.lucasxf.ed.dto.PokAuditLogResponse;
 import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
@@ -227,12 +228,12 @@ class PokControllerTest {
             "owned", UUID.randomUUID(), userId, null, "Content 2", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
         );
 
-        Page<PokResponse> page = new PageImpl<>(
+        Page<FeedItemResponse> page = new PageImpl<>(
             List.of(pok1, pok2),
             PageRequest.of(0, 20),
             2);
 
-        when(pokService.search(any(UUID.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20))).thenReturn(page);
+        when(pokService.getOwnFeed(any(UUID.class), eq(0), eq(20))).thenReturn(page);
 
         // When/Then
         mockMvc.perform(get("/api/v1/poks")
@@ -246,16 +247,16 @@ class PokControllerTest {
             .andExpect(jsonPath("$.number").value(0))
             .andExpect(jsonPath("$.size").value(20));
 
-        verify(pokService).search(eq(userId), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
+        verify(pokService).getOwnFeed(eq(userId), eq(0), eq(20));
     }
 
     @Test
     @WithMockUser
     void listPoks_withPagination_shouldReturn200() throws Exception {
         // Given
-        Page<PokResponse> emptyPage = Page.empty(PageRequest.of(1, 10));
+        Page<FeedItemResponse> emptyPage = Page.empty(PageRequest.of(1, 10));
 
-        when(pokService.search(any(UUID.class), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(1), eq(10))).thenReturn(emptyPage);
+        when(pokService.getOwnFeed(any(UUID.class), eq(1), eq(10))).thenReturn(emptyPage);
 
         // When/Then
         mockMvc.perform(get("/api/v1/poks")
@@ -594,29 +595,17 @@ class PokControllerTest {
     @Test
     @WithMockUser
     void searchPoks_withDefaultParameters_shouldReturn200() throws Exception {
-        // Given: No parameters (should use defaults)
-        Page<PokResponse> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
+        // Given: No parameters → routes to getOwnFeed (mixed feed, not search)
+        Page<FeedItemResponse> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
 
-        when(pokService.search(
-            any(UUID.class),
-            eq(null),
-            eq(null),
-            eq(null),
-            eq(null),
-            eq(null),
-            eq(null),
-            eq(null),
-            eq(null),
-            eq(null),
-            eq(0),
-            eq(20))).thenReturn(page);
+        when(pokService.getOwnFeed(any(UUID.class), eq(0), eq(20))).thenReturn(page);
 
         // When/Then
         mockMvc.perform(get("/api/v1/poks")
                 .with(user(userId.toString())))
             .andExpect(status().isOk());
 
-        verify(pokService).search(eq(userId), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
+        verify(pokService).getOwnFeed(eq(userId), eq(0), eq(20));
     }
 
     @Test
