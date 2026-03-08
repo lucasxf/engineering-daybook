@@ -210,13 +210,17 @@ public class PokService {
         // Fetching top (page+1)*size per source (sorted DESC) guarantees the merged
         // result is accurate for all positions up to (page+1)*size in the full union.
         int fetchLimit = Math.max((page + 1) * size, size);
-        Pageable bounded = PageRequest.of(0, fetchLimit, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Sort.Direction direction = "ASC".equalsIgnoreCase(sortDirection) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        String pokSortField = "updatedAt".equals(sortBy) ? "updatedAt" : "createdAt";
+        Pageable poksBounded = PageRequest.of(0, fetchLimit, Sort.by(direction, pokSortField));
+        // PokShare has no updatedAt — always sort shares by createdAt
+        Pageable sharesBounded = PageRequest.of(0, fetchLimit, Sort.by(direction, "createdAt"));
 
         // Fetch owned (non-deleted) POKs for this user with bounded pagination
-        List<Pok> ownedPoks = pokRepository.findByUserIdAndDeletedAtIsNull(userId, bounded).getContent();
+        List<Pok> ownedPoks = pokRepository.findByUserIdAndDeletedAtIsNull(userId, poksBounded).getContent();
 
         // Fetch re-learnings created by this user with bounded pagination
-        List<PokShare> shares = pokShareRepository.findBySharedByUserId(userId, bounded).getContent();
+        List<PokShare> shares = pokShareRepository.findBySharedByUserId(userId, sharesBounded).getContent();
 
         // Accurate totals from COUNT queries (no full table scan)
         long total = pokRepository.countByUserIdAndDeletedAtIsNull(userId)
