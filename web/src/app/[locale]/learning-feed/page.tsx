@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter, useParams } from 'next/navigation';
-import TopNav from '@/components/learning-feed/TopNav';
 import PageHeader from '@/components/learning-feed/PageHeader';
 import SearchSortToolbar from '@/components/learning-feed/SearchSortToolbar';
 import LearningCardList from '@/components/learning-feed/LearningCardList';
@@ -123,21 +122,11 @@ function LearningFeedContent() {
 
   // Show loading while auth is initializing
   if (authLoading) {
-    return (
-      <div className="min-h-screen bg-background dark:bg-deep-navy">
-        <TopNav />
-        <main className="mx-auto max-w-3xl px-4 py-8">
-          <LoadingState />
-        </main>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   return (
-    <div className="min-h-screen bg-background dark:bg-deep-navy">
-      <TopNav />
-
-      <main className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto max-w-3xl">
         <PageHeader
           totalCount={totalItems}
           onNewLearning={handleNewLearning}
@@ -181,7 +170,6 @@ function LearningFeedContent() {
             )}
           </>
         )}
-      </main>
     </div>
   );
 }
