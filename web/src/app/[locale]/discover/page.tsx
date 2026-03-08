@@ -20,7 +20,7 @@ function DiscoverContent() {
   const router = useRouter();
   const params = useParams<{ locale: string }>();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const { query, results, isLoading, setQuery } = useLearnerSearch();
+  const { query, results, isLoading, error, setQuery } = useLearnerSearch();
 
   // Redirect unauthenticated users to login
   useEffect(() => {
@@ -43,7 +43,11 @@ function DiscoverContent() {
         </div>
       )}
 
-      {!isLoading && (
+      {!isLoading && error && (
+        <p className="text-center text-sm text-red-600 dark:text-red-400">{t('errors.searchFailed')}</p>
+      )}
+
+      {!isLoading && !error && (
         <LearnerResultsList results={results} query={query} />
       )}
     </div>
