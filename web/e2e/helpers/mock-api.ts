@@ -76,6 +76,9 @@ export interface MockPokShare {
   note: string | null;
   visibility: string;
   createdAt: string;
+  originalAuthorHandle: string | null;
+  originalAuthorDisplayName: string | null;
+  originalAuthorAvatarUrl: string | null;
 }
 
 export const MOCK_POK_SHARE: MockPokShare = {
@@ -87,6 +90,9 @@ export const MOCK_POK_SHARE: MockPokShare = {
   note: null,
   visibility: 'PUBLIC',
   createdAt: '2026-03-07T12:00:00Z',
+  originalAuthorHandle: null,
+  originalAuthorDisplayName: null,
+  originalAuthorAvatarUrl: null,
 };
 
 export interface ApiMockConfig {

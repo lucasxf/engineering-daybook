@@ -57,6 +57,12 @@ export interface PokShare {
   note: string | null;
   visibility: PokVisibility;
   createdAt: string;
+  /** Original author's handle — populated in the discovery feed context; null on single-share detail. */
+  originalAuthorHandle: string | null;
+  /** Original author's display name — populated in the discovery feed context; null on single-share detail. */
+  originalAuthorDisplayName: string | null;
+  /** Original author's avatar URL — populated in the discovery feed context; null on single-share detail. */
+  originalAuthorAvatarUrl: string | null;
 }
 
 /** Union type for feed items — an owned POK or a re-learning. */
