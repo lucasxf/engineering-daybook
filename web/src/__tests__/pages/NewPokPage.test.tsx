@@ -70,10 +70,12 @@ describe('NewPokPage', () => {
   describe('on successful submit', () => {
     beforeEach(() => {
       mockCreate.mockResolvedValue({
+        type: 'owned',
         id: 'new-pok',
         userId: 'user-1',
         title: 'Test title',
         content: 'Test content',
+        visibility: 'PRIVATE',
         deletedAt: null,
         createdAt: '2026-02-14T10:00:00Z',
         updatedAt: '2026-02-14T10:00:00Z',

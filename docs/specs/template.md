@@ -119,6 +119,26 @@
 
 ---
 
+## Implementation Plan
+
+> _Ordered list of atomic tasks for subagent execution.
+> Optional for simple specs; recommended for multi-commit features.
+> `/implement-spec` uses this as the execution contract when present._
+
+### Task 1: [Brief description]
+- **Files:** `path/to/file1`, `path/to/file2`
+- **Depends on:** _none_ | Task N
+- **Commit:** `type: commit message`
+- **Stack:** backend | web | mobile | infra
+
+### Task 2: [Brief description]
+- **Files:** `path/to/file3`
+- **Depends on:** Task 1
+- **Commit:** `type: commit message`
+- **Stack:** backend | web | mobile | infra
+
+---
+
 ## Dependencies
 
 **Blocked by:** [Specs or features that must complete first, or "None"]

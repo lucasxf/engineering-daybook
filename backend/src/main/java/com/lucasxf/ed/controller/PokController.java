@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 import com.lucasxf.ed.dto.CreatePokRequest;
+import com.lucasxf.ed.dto.FeedItemResponse;
 import com.lucasxf.ed.dto.PokAuditLogResponse;
 import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
@@ -153,7 +154,7 @@ public class PokController {
     @ApiResponse(responseCode = "200", description = "POKs retrieved successfully")
     @ApiResponse(responseCode = "400", description = "Invalid query parameters (e.g., malformed dates)")
     @ApiResponse(responseCode = "401", description = "Unauthorized")
-    public ResponseEntity<Page<PokResponse>> list(
+    public ResponseEntity<Page<FeedItemResponse>> list(
         @Parameter(description = "Keyword to search in title and content (case-insensitive). " +
                                  "When combined with searchMode=hybrid or searchMode=semantic, " +
                                  "also drives vector similarity ranking.")
@@ -186,22 +187,23 @@ public class PokController {
         // Enforce max page size
         int pageSize = Math.min(size, 100);
 
-        Page<PokResponse> response = pokService.search(
-            userId,
-            keyword,
-            searchMode,
-            tagId,
-            sortBy,
-            sortDirection,
-            createdFrom,
-            createdTo,
-            updatedFrom,
-            updatedTo,
-            page,
-            pageSize
-        );
+        // No content filters → return mixed feed (owned POKs + re-learnings).
+        // sortBy/sortDirection and searchMode are not content filters — they control ordering and
+        // search mode, not which items are included. Only keyword, tagId, and date ranges trigger
+        // the search path (owned POKs only). Sort params are forwarded to getOwnFeed() so the
+        // user can order their mixed feed.
+        boolean hasFilters = (keyword != null && !keyword.isBlank()) || tagId != null
+            || createdFrom != null || createdTo != null || updatedFrom != null || updatedTo != null;
 
-        return ResponseEntity.ok(response);
+        if (!hasFilters) {
+            return ResponseEntity.ok(pokService.getOwnFeed(userId, page, pageSize, sortBy, sortDirection));
+        }
+
+        // Filters present → keyword/tag/semantic search over owned POKs only
+        Page<PokResponse> searchResult = pokService.search(
+            userId, keyword, searchMode, tagId, sortBy, sortDirection,
+            createdFrom, createdTo, updatedFrom, updatedTo, page, pageSize);
+        return ResponseEntity.ok(searchResult.map(r -> (FeedItemResponse) r));
     }
 
     /**

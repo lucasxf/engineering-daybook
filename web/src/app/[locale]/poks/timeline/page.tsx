@@ -11,6 +11,7 @@ import { EmptyState } from '@/components/poks/EmptyState';
 import { Alert } from '@/components/ui/Alert';
 import { Spinner } from '@/components/ui/Spinner';
 import { usePoksData } from '@/hooks/usePoksData';
+import type { OwnedPok } from '@/lib/pokApi';
 
 /**
  * Timeline view: learnings grouped by month/year, newest group first.
@@ -43,6 +44,9 @@ function TimelineContent() {
       </div>
     );
   }
+
+  // Timeline groups by date — filter to owned POKs only (re-learnings aren't authored by user)
+  const ownedPoks = poks.filter((item): item is OwnedPok => !('originalPokId' in item));
 
   const hasSearchOrFilter = !!keyword;
   const isEmptyResults = !loading && poks.length === 0;
@@ -85,7 +89,7 @@ function TimelineContent() {
       ) : showEmptyState ? (
         <EmptyState />
       ) : (
-        <TimelineView poks={poks} />
+        <TimelineView poks={ownedPoks} />
       )}
     </div>
   );

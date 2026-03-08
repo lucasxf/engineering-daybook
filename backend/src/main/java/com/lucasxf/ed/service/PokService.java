@@ -2,10 +2,14 @@ package com.lucasxf.ed.service;
 
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -19,11 +23,15 @@ import org.springframework.transaction.annotation.Transactional;
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.PokAuditLog;
 import com.lucasxf.ed.domain.PokAuditLog.Action;
+import com.lucasxf.ed.domain.PokShare;
 import com.lucasxf.ed.domain.PokTag;
+import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.domain.UserTag;
 import com.lucasxf.ed.dto.CreatePokRequest;
+import com.lucasxf.ed.dto.FeedItemResponse;
 import com.lucasxf.ed.dto.PokAuditLogResponse;
 import com.lucasxf.ed.dto.PokResponse;
+import com.lucasxf.ed.dto.PokShareResponse;
 import com.lucasxf.ed.dto.TagResponse;
 import com.lucasxf.ed.dto.TagSuggestionResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
@@ -33,6 +41,7 @@ import com.lucasxf.ed.exception.PokNotFoundException;
 import com.lucasxf.ed.exception.PokVisibilityImmutableException;
 import com.lucasxf.ed.repository.PokAuditLogRepository;
 import com.lucasxf.ed.repository.PokRepository;
+import com.lucasxf.ed.repository.PokShareRepository;
 import com.lucasxf.ed.repository.PokTagRepository;
 import com.lucasxf.ed.repository.PokTagSuggestionRepository;
 import com.lucasxf.ed.repository.UserTagRepository;
@@ -68,6 +77,8 @@ public class PokService {
     private final TagService tagService;
     private final UserService userService;
     private final FollowService followService;
+    private final PokShareRepository pokShareRepository;
+    private final PokShareService pokShareService;
 
     public PokService(PokRepository pokRepository,
                       PokAuditLogRepository pokAuditLogRepository,
@@ -79,7 +90,9 @@ public class PokService {
                       EmbeddingService embeddingService,
                       TagService tagService,
                       UserService userService,
-                      FollowService followService) {
+                      FollowService followService,
+                      PokShareRepository pokShareRepository,
+                      @Lazy PokShareService pokShareService) {
         this.pokRepository = requireNonNull(pokRepository);
         this.pokAuditLogRepository = requireNonNull(pokAuditLogRepository);
         this.pokTagRepository = requireNonNull(pokTagRepository);
@@ -91,6 +104,8 @@ public class PokService {
         this.tagService = requireNonNull(tagService);
         this.userService = requireNonNull(userService);
         this.followService = requireNonNull(followService);
+        this.pokShareRepository = requireNonNull(pokShareRepository);
+        this.pokShareService = requireNonNull(pokShareService);
     }
 
     /**
@@ -171,6 +186,90 @@ public class PokService {
 
         List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
         return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()));
+    }
+
+    /**
+     * Returns a mixed feed of the authenticated user's own learnings and re-learnings.
+     *
+     * <p>Owned POKs and re-learnings are merged in memory and paginated. This method
+     * is used for the no-filter case of {@code GET /api/v1/poks} (no keyword, tagId, or
+     * date filters). Optional sort params are respected; default is {@code createdAt DESC}.
+     *
+     * @param userId        the authenticated user's ID
+     * @param page          zero-based page number
+     * @param size          page size
+     * @param sortBy        optional sort field ({@code "createdAt"} or {@code "updatedAt"}); defaults to createdAt
+     * @param sortDirection optional sort direction ({@code "ASC"} or {@code "DESC"}); defaults to DESC
+     * @return a page of {@link FeedItemResponse} items (mix of owned and shared)
+     */
+    @Transactional(readOnly = true)
+    public Page<FeedItemResponse> getOwnFeed(UUID userId, int page, int size, String sortBy, String sortDirection) {
+        List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
+
+        // Bounded fetch: load only enough rows to satisfy this page.
+        // Fetching top (page+1)*size per source (sorted DESC) guarantees the merged
+        // result is accurate for all positions up to (page+1)*size in the full union.
+        int fetchLimit = Math.max((page + 1) * size, size);
+        Sort.Direction direction = "ASC".equalsIgnoreCase(sortDirection) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        String pokSortField = "updatedAt".equals(sortBy) ? "updatedAt" : "createdAt";
+        Pageable poksBounded = PageRequest.of(0, fetchLimit, Sort.by(direction, pokSortField));
+        // PokShare has no updatedAt — always sort shares by createdAt
+        Pageable sharesBounded = PageRequest.of(0, fetchLimit, Sort.by(direction, "createdAt"));
+
+        // Fetch owned (non-deleted) POKs for this user with bounded pagination
+        List<Pok> ownedPoks = pokRepository.findByUserIdAndDeletedAtIsNull(userId, poksBounded).getContent();
+
+        // Fetch re-learnings created by this user with bounded pagination
+        List<PokShare> shares = pokShareRepository.findBySharedByUserId(userId, sharesBounded).getContent();
+
+        // Accurate totals from COUNT queries (no full table scan)
+        long total = pokRepository.countByUserIdAndDeletedAtIsNull(userId)
+            + pokShareRepository.countBySharedByUserId(userId);
+
+        // Build feed items — owned POKs first
+        List<FeedItemResponse> feedItems = new ArrayList<>();
+        for (Pok pok : ownedPoks) {
+            feedItems.add(PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()));
+        }
+
+        // Append re-learnings (batch-fetch originals to avoid N+1)
+        if (!shares.isEmpty()) {
+            Set<UUID> originalPokIds = shares.stream()
+                .map(PokShare::getOriginalPokId)
+                .collect(Collectors.toSet());
+            Map<UUID, Pok> originalsById = pokRepository.findAllById(originalPokIds).stream()
+                .collect(Collectors.toMap(Pok::getId, p -> p));
+
+            User sharer = userService.findById(userId);
+            String sharerHandle = sharer.getHandle();
+
+            for (PokShare share : shares) {
+                Pok original = originalsById.get(share.getOriginalPokId());
+                if (original != null) {
+                    feedItems.add(PokShareResponse.from(share, PokResponse.from(original), sharerHandle));
+                }
+            }
+        }
+
+        // Sort by the requested field/direction (default: createdAt DESC)
+        boolean byUpdatedAt = "updatedAt".equals(sortBy);
+        boolean asc = "ASC".equalsIgnoreCase(sortDirection);
+        Comparator<FeedItemResponse> comparator = byUpdatedAt
+            ? Comparator.comparing(item -> {
+                // PokShareResponse has no updatedAt — fall back to createdAt for consistent ordering
+                if (item instanceof PokResponse pr) return pr.updatedAt();
+                return item.createdAt();
+              })
+            : Comparator.comparing(FeedItemResponse::createdAt);
+        feedItems.sort(asc ? comparator : comparator.reversed());
+
+        int fromIndex = page * size;
+        int toIndex = Math.min(fromIndex + size, feedItems.size());
+        List<FeedItemResponse> pageContent = fromIndex >= feedItems.size()
+            ? List.of()
+            : feedItems.subList(fromIndex, toIndex);
+
+        return new PageImpl<>(pageContent, PageRequest.of(page, size), total);
     }
 
     /**
@@ -466,6 +565,10 @@ public class PokService {
         pokRepository.save(pok);
 
         log.info("POK soft deleted: id={}, userId={}", id, userId);
+
+        // FR5: cascade-delete all re-learnings referencing this POK (soft-delete means ON DELETE CASCADE
+        // won't fire, so we do it explicitly within this transaction)
+        pokShareService.cascadeDeleteByOriginalPok(id);
 
         logDelete(pok, userId, oldTitle, oldContent);
     }

@@ -26,10 +26,10 @@ CURRENT_BRANCH=$(git branch --show-current)
 echo "Current branch: $CURRENT_BRANCH"
 ```
 
-If not on `develop`, warn the user:
-> "⚠️ You are on `$CURRENT_BRANCH`, not `develop`. /compile-metrics is intended to run on `develop` after PRs have been merged. Proceed anyway? (y/n)"
+If not on `develop`, **stop immediately** with:
+> "⚠️ You are on `$CURRENT_BRANCH`, not `develop`. /compile-metrics must run on `develop`. Switch branches and try again."
 
-If user says no, stop here.
+Do not proceed.
 
 ## 2. Check for Session Files
 
@@ -173,14 +173,20 @@ git rm .claude/metrics/sessions/*.toml 2>/dev/null || true
 git commit -m "chore: compile session metrics"
 ```
 
-## 7. Summary
+## 7. Push to Remote
+
+```bash
+git push origin develop
+```
+
+## 8. Summary
 
 Report:
 - How many session files were compiled
 - Which agents/commands had their counts updated
 - New total counts for the top 5 most-used agents and commands
 
-## 8. Trigger Automation Sentinel
+## 9. Trigger Automation Sentinel
 
 After compilation, automatically run the automation-sentinel agent to analyze the freshly updated metrics. Use the Task tool with `subagent_type: general-purpose` and the full automation-sentinel prompt from `.claude/agents/automation-sentinel.md`.
 

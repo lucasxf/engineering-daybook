@@ -76,6 +76,14 @@ export default {
       searchPlaceholder: 'Buscar aprendizados…',
       searchModeLabel: 'Modo de busca',
     },
+    socialFeed: {
+      title: 'Feed',
+      empty: 'Seu feed está vazio',
+      emptyHint: 'Siga outros aprendizes para ver as atualizações deles aqui.',
+      relearning: 're-aprendido por',
+      by: 'por',
+      loadError: 'Falha ao carregar o feed',
+    },
     new: {
       title: 'Salvar Aprendizado',
       titleLabel: 'Título',
