@@ -75,7 +75,7 @@ function PoksContent() {
 
   // TagGroupedView and TimelineView operate on owned POKs only (grouping by tag/date
   // is not meaningful for re-learnings which inherit the original's tags).
-  const ownedPoks = poks.filter((item): item is Pok => !('originalPokId' in item));
+  const ownedPoks = poks.filter((item): item is Pok & { type: 'owned' } => !('originalPokId' in item));
 
   // Determine which content to display
   const hasSearchOrFilter = !!keyword || !!selectedTagId;

@@ -46,7 +46,7 @@ function TimelineContent() {
   }
 
   // Timeline groups by date — filter to owned POKs only (re-learnings aren't authored by user)
-  const ownedPoks = poks.filter((item): item is Pok => !('originalPokId' in item));
+  const ownedPoks = poks.filter((item): item is Pok & { type: 'owned' } => !('originalPokId' in item));
 
   const hasSearchOrFilter = !!keyword;
   const isEmptyResults = !loading && poks.length === 0;
