@@ -16,8 +16,16 @@ export interface PokShare {
   originalAuthorAvatarUrl: string | null;
 }
 
+/** An owned POK returned as part of the social feed (includes author identity fields). */
+export interface OwnedFeedItem extends Pok {
+  type: 'owned';
+  authorHandle: string | null;
+  authorDisplayName: string | null;
+  authorAvatarUrl: string | null;
+}
+
 /** Union type for feed items — an owned POK or a re-learning. */
-export type FeedItem = (Pok & { type: 'owned' }) | PokShare;
+export type FeedItem = OwnedFeedItem | PokShare;
 
 /** Page of feed items (owned POKs mixed with re-learnings). */
 export interface FeedPage {
