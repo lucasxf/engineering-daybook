@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/hooks/useAuth';
 import { getFeed } from '@/lib/learnerApi';
 import type { FeedItem, FeedPage } from '@/lib/pokApi';
@@ -31,6 +32,7 @@ export function useFeedData(): UseFeedDataResult {
   const router = useRouter();
   const params = useParams<{ locale: string }>();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const t = useTranslations('feed');
 
   const [state, setState] = useState<UseFeedDataState>({
     items: [],
@@ -65,7 +67,7 @@ export function useFeedData(): UseFeedDataResult {
         setState((prev) => ({
           ...prev,
           isLoading: false,
-          error: 'Failed to load feed',
+          error: t('errors.loadFailed'),
         }));
       });
   }, []);

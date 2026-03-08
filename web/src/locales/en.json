@@ -309,6 +309,9 @@
       "title": "Your feed is empty",
       "description": "Follow learners to see their knowledge in your feed.",
       "discoverCta": "Find learners to follow"
+    },
+    "errors": {
+      "loadFailed": "Failed to load feed. Please try again."
     }
   },
   "discover": {
