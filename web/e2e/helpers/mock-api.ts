@@ -19,12 +19,15 @@ export interface MockPok {
   userId: string;
   title: string | null;
   content: string;
-  visibility: 'PRIVATE' | 'PUBLIC';
+  visibility: 'PRIVATE' | 'PUBLIC' | 'FOLLOWERS_ONLY' | 'COLLEAGUES_ONLY';
   deletedAt: string | null;
   createdAt: string;
   updatedAt: string;
   tags: unknown[];
   pendingSuggestions: unknown[];
+  authorHandle: string | null;
+  authorDisplayName: string | null;
+  authorAvatarUrl: string | null;
 }
 
 export const MOCK_POK: MockPok = {
@@ -38,6 +41,9 @@ export const MOCK_POK: MockPok = {
   updatedAt: '2026-01-01T10:00:00Z',
   tags: [],
   pendingSuggestions: [],
+  authorHandle: null,
+  authorDisplayName: null,
+  authorAvatarUrl: null,
 };
 
 function makePokPage(poks: MockPok[]) {

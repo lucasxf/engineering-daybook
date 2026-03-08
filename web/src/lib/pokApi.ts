@@ -17,6 +17,12 @@ export interface Pok {
   updatedAt: string;
   tags: Tag[];
   pendingSuggestions: TagSuggestion[];
+  /** Author's handle — populated in discovery feed context; null in My Learnings. */
+  authorHandle: string | null;
+  /** Author's display name — populated in discovery feed context; null in My Learnings. */
+  authorDisplayName: string | null;
+  /** Author's avatar URL — populated in discovery feed context; null in My Learnings. */
+  authorAvatarUrl: string | null;
 }
 
 export interface CreatePokDto {
