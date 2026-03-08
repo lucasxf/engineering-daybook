@@ -196,6 +196,41 @@
       "contentTooLong": "O conteúdo deve ter no máximo 50.000 caracteres",
       "unexpected": "Algo deu errado. Tente novamente.",
       "visibilityImmutable": "Um aprendizado público não pode ser tornado privado."
+    },
+    "feed": {
+      "empty": {
+        "title": "Sua jornada de conhecimento começa aqui",
+        "hint": "Salve seu primeiro aprendizado para começar a construir seu diário pessoal.",
+        "button": "Salvar primeiro aprendizado"
+      },
+      "error": {
+        "title": "Falha ao carregar seus aprendizados",
+        "hint": "Tente novamente em alguns momentos.",
+        "retry": "Tentar novamente"
+      },
+      "noResults": {
+        "title": "Nenhum aprendizado encontrado",
+        "hint": "Nenhum resultado para \"{query}\". Tente ajustar seus termos de busca.",
+        "clearSearch": "Limpar busca",
+        "newLearning": "Novo aprendizado"
+      },
+      "sortOptions": {
+        "newestFirst": "Mais recentes",
+        "oldestFirst": "Mais antigos",
+        "recentlyUpdated": "Atualizados recentemente",
+        "updatedOldestFirst": "Atualizados primeiro"
+      },
+      "pagination": {
+        "previous": "Anterior",
+        "next": "Próxima",
+        "page": "Página",
+        "of": "de"
+      },
+      "card": {
+        "createdAt": "Criado {date}",
+        "updatedAt": "Atualizado {relativeTime}"
+      },
+      "count": "{count, plural, =1 {1 aprendizado} other {# aprendizados}}"
     }
   },
   "settings": {

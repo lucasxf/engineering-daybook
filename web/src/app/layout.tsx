@@ -1,9 +1,15 @@
 import type { Metadata } from 'next';
-import { DM_Sans, Sora } from 'next/font/google';
+import { Bricolage_Grotesque, DM_Sans, Sora } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { GoogleOAuthWrapper } from '@/components/providers/GoogleOAuthWrapper';
+
+const bricolageGrotesque = Bricolage_Grotesque({
+  variable: '--font-bricolage',
+  subsets: ['latin'],
+  weight: ['400', '700'],
+});
 
 const dmSans = DM_Sans({
   variable: '--font-dm-sans',
@@ -34,8 +40,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
-      <body className={`${dmSans.variable} ${sora.variable} font-sans antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${bricolageGrotesque.variable} ${dmSans.variable} ${sora.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <GoogleOAuthWrapper>
             <AuthProvider>{children}</AuthProvider>

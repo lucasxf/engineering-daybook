@@ -2,6 +2,8 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { Search, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Select } from '@/components/ui/Select';
 
 interface SearchSortToolbarProps {
   keyword: string;
@@ -13,13 +15,6 @@ interface SearchSortToolbarProps {
   isSearching: boolean;
 }
 
-const SORT_OPTIONS = [
-  { value: 'createdAt:DESC', label: 'Mais Recentes' },
-  { value: 'createdAt:ASC', label: 'Mais Antigos' },
-  { value: 'updatedAt:DESC', label: 'Recentemente Atualizados' },
-  { value: 'updatedAt:ASC', label: 'Atualizados Primeiro' },
-];
-
 export default function SearchSortToolbar({
   keyword,
   sortBy,
@@ -29,13 +24,19 @@ export default function SearchSortToolbar({
   onClearSearch,
   isSearching,
 }: SearchSortToolbarProps) {
+  const t = useTranslations('poks');
   const [searchInput, setSearchInput] = useState(keyword);
-  const [debouncedSearch, setDebouncedSearch] = useState(keyword);
+
+  const sortOptions = [
+    { value: 'createdAt:DESC', label: t('feed.sortOptions.newestFirst') },
+    { value: 'createdAt:ASC', label: t('feed.sortOptions.oldestFirst') },
+    { value: 'updatedAt:DESC', label: t('feed.sortOptions.recentlyUpdated') },
+    { value: 'updatedAt:ASC', label: t('feed.sortOptions.updatedOldestFirst') },
+  ];
 
   // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearch(searchInput);
       if (searchInput !== keyword) {
         onSearch(searchInput);
       }
@@ -45,8 +46,7 @@ export default function SearchSortToolbar({
   }, [searchInput, keyword, onSearch]);
 
   const handleSortChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const value = e.target.value;
+    (value: string) => {
       const [newSortBy, newSortDirection] = value.split(':') as [string, 'ASC' | 'DESC'];
       onSort(newSortBy, newSortDirection);
     },
@@ -68,27 +68,21 @@ export default function SearchSortToolbar({
         </div>
         <input
           type="text"
-          placeholder="Pesquisar seus aprendizados..."
+          placeholder={t('search.placeholder')}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           className="w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent focus:outline-none dark:border-mid-blue dark:bg-deep-navy dark:text-parchment dark:focus:border-ember-cta"
-          aria-label="Pesquisar aprendizados"
+          aria-label={t('search.placeholder')}
         />
       </div>
 
       {/* Sort Dropdown */}
-      <select
+      <Select
+        options={sortOptions}
         value={currentSortValue}
         onChange={handleSortChange}
-        className="rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground transition-colors focus:border-accent focus:outline-none dark:border-mid-blue dark:bg-deep-navy dark:text-parchment dark:focus:border-ember-cta"
-        aria-label="Ordenar aprendizados"
-      >
-        {SORT_OPTIONS.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+        label={t('sort.label')}
+      />
 
       {/* Clear Search Button */}
       {keyword && (
@@ -96,7 +90,7 @@ export default function SearchSortToolbar({
           onClick={onClearSearch}
           className="rounded-md border border-accent bg-transparent px-3 py-2 text-sm font-medium text-accent transition-colors hover:bg-accent/10 dark:border-ember-cta dark:text-ember-cta dark:hover:bg-ember-cta/10"
         >
-          Limpar
+          {t('search.clearButton')}
         </button>
       )}
     </div>

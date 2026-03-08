@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;700&DM+Sans:wght@400;500&Sora:wght@600&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -72,7 +70,7 @@
 }
 
 .wordmark {
-  font-family: 'Bricolage Grotesque', sans-serif;
+  font-family: var(--font-bricolage), 'Bricolage Grotesque', sans-serif;
 }
 
 .wordmark-regular {

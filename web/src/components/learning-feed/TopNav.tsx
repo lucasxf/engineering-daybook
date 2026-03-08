@@ -1,9 +1,10 @@
 'use client';
 
-import { useUser } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
+import { Avatar } from '@/components/ui/Avatar';
 
 export default function TopNav() {
-  const { user } = useUser();
+  const { user } = useAuth();
 
   return (
     <nav className="border-b border-border bg-card/50 backdrop-blur-sm dark:border-mid-blue dark:bg-primary-blue/30">
@@ -15,22 +16,15 @@ export default function TopNav() {
             <span className="wordmark-bold text-accent">imo</span>
           </div>
 
-          {/* User Avatar/Menu */}
-          <div className="flex items-center gap-3">
-            {user?.avatar ? (
-              <img
-                src={user.avatar}
-                alt={user.name || 'User'}
-                className="h-9 w-9 rounded-full border border-border dark:border-mid-blue"
-              />
-            ) : (
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent/20 dark:bg-accent/30">
-                <span className="text-sm font-semibold text-accent">
-                  {user?.name?.charAt(0).toUpperCase() || '?'}
-                </span>
-              </div>
-            )}
-          </div>
+          {/* User Avatar */}
+          {user && (
+            <Avatar
+              avatarUrl={user.avatarUrl}
+              displayName={user.displayName ?? user.handle}
+              handle={user.handle}
+              size={36}
+            />
+          )}
         </div>
       </div>
     </nav>

@@ -13,7 +13,20 @@ const config: Config = {
         foreground: 'hsl(var(--foreground))',
         card: 'hsl(var(--card))',
         'card-foreground': 'hsl(var(--card-foreground))',
-        primary: 'hsl(var(--primary))',
+        primary: {
+          DEFAULT: 'hsl(var(--primary))',
+          50: '#f0f9ff',
+          100: '#e0f2fe',
+          200: '#bae6fd',
+          300: '#7dd3fc',
+          400: '#38bdf8',
+          500: '#0ea5e9',
+          600: '#0284c7',
+          700: '#0369a1',
+          800: '#075985',
+          900: '#0c4a6e',
+          950: '#082f49',
+        },
         'primary-foreground': 'hsl(var(--primary-foreground))',
         secondary: 'hsl(var(--secondary))',
         'secondary-foreground': 'hsl(var(--secondary-foreground))',
@@ -35,7 +48,7 @@ const config: Config = {
       fontFamily: {
         sans: ['var(--font-dm-sans)', 'sans-serif'],
         heading: ['var(--font-sora)', 'sans-serif'],
-        wordmark: ['Bricolage Grotesque', 'sans-serif'],
+        wordmark: ['var(--font-bricolage)', 'Bricolage Grotesque', 'sans-serif'],
       },
       keyframes: {
         fadeIn: {
