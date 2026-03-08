@@ -42,7 +42,7 @@ export function LoginForm({ locale, redirectTo }: LoginFormProps) {
   // Watch fields to determine if form is filled
   const email = watch('email');
   const password = watch('password');
-  const isFormFilled = email.length > 0 && password.length > 0;
+  const isFormFilled = isValid && email.length > 0 && password.length > 0;
 
   const resolveError = (key: string): string => {
     try {
