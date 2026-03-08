@@ -3,7 +3,11 @@ package com.lucasxf.ed.repository;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.lucasxf.ed.domain.User;
 
@@ -22,4 +26,31 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByEmail(String email);
 
     boolean existsByHandle(String handle);
+
+    /**
+     * Searches for learners with {@code PUBLIC} profile visibility whose handle or display name
+     * contains the given query string (case-insensitive, substring match).
+     *
+     * <p>Results are ordered alphabetically by {@code display_name}.
+     * Powered by the trigram GIN indexes added in V21 migration.
+     *
+     * @param q        the search term (caller must ensure length >= 2)
+     * @param pageable pagination parameters (sort is ignored; ordering is hardcoded)
+     * @return a page of matching users
+     */
+    @Query(value = """
+            SELECT * FROM users
+            WHERE profile_visibility = 'PUBLIC'
+              AND (handle ILIKE CONCAT('%', :q, '%')
+                   OR display_name ILIKE CONCAT('%', :q, '%'))
+            ORDER BY display_name ASC
+            """,
+           countQuery = """
+            SELECT COUNT(*) FROM users
+            WHERE profile_visibility = 'PUBLIC'
+              AND (handle ILIKE CONCAT('%', :q, '%')
+                   OR display_name ILIKE CONCAT('%', :q, '%'))
+            """,
+           nativeQuery = true)
+    Page<User> searchPublicByHandleOrDisplayName(@Param("q") String q, Pageable pageable);
 }

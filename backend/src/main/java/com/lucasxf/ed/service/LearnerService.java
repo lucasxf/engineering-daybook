@@ -22,6 +22,7 @@ import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.domain.UserTag;
 import com.lucasxf.ed.dto.FeedItemResponse;
 import com.lucasxf.ed.dto.LearnerProfileResponse;
+import com.lucasxf.ed.dto.LearnerSearchResult;
 import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.PokShareResponse;
 import com.lucasxf.ed.dto.RelationshipStatus;
@@ -245,6 +246,32 @@ public class LearnerService {
             : feedItems.subList(fromIndex, toIndex);
 
         return new PageImpl<>(pageContent, PageRequest.of(page, size), total);
+    }
+
+    /**
+     * Searches for PUBLIC learners by handle or display name.
+     *
+     * <p>Returns an empty page for queries shorter than 2 characters. Visibility enforcement
+     * is delegated to the data layer (NFR7). Relationship status is resolved per result so the
+     * frontend can render Follow/Unfollow buttons without additional requests.
+     *
+     * @param q           the search term (case-insensitive substring)
+     * @param requesterId the ID of the authenticated caller
+     * @param page        zero-based page number
+     * @param size        page size
+     * @return a page of {@link LearnerSearchResult} items ordered by display name
+     */
+    public Page<LearnerSearchResult> searchLearners(String q, UUID requesterId, int page, int size) {
+        if (q == null || q.trim().length() < 2) {
+            return Page.empty(PageRequest.of(page, size));
+        }
+        Page<User> userPage = userService.searchPublicLearners(q.trim(), PageRequest.of(page, size));
+        return userPage.map(user -> {
+            RelationshipStatus rel = user.getId().equals(requesterId)
+                ? null
+                : followService.getRelationship(requesterId, user.getId());
+            return LearnerSearchResult.from(user, rel);
+        });
     }
 
     /**
