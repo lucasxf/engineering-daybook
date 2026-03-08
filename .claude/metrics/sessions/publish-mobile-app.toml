@@ -1,7 +1,7 @@
 [metadata]
 session_branch = "publish-mobile-app"
 session_start = "2026-03-08T11:06:59Z"
-last_updated = "2026-03-08T18:26:46Z"
+last_updated = "2026-03-08T18:28:27Z"
 
 [agent_usage.Explore]
 invocations = 3
@@ -18,3 +18,7 @@ last_used = "2026-03-08T18:20:39Z"
 [agent_usage.general-purpose]
 invocations = 1
 last_used = "2026-03-08T18:26:46Z"
+
+[command_usage.create-pr]
+invocations = 1
+last_used = "2026-03-08T18:28:27Z"
