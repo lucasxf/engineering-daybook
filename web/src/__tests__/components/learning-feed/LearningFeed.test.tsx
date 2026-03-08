@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import EmptyState from '@/components/learning-feed/EmptyState';
@@ -48,6 +48,7 @@ vi.mock('@/components/ui/Avatar', () => ({
 }));
 
 const mockPok: Pok = {
+  type: 'owned',
   id: '1',
   userId: 'user1',
   title: 'React Server Components',

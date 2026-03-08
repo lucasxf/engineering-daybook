@@ -2,10 +2,10 @@
 
 import { format, formatDistanceToNow } from 'date-fns';
 import { useTranslations } from 'next-intl';
-import type { Pok } from '@/lib/pokApi';
+import type { FeedItem } from '@/lib/pokApi';
 
 interface LearningCardListProps {
-  learnings: Pok[];
+  learnings: FeedItem[];
 }
 
 export default function LearningCardList({ learnings }: LearningCardListProps) {
@@ -14,6 +14,8 @@ export default function LearningCardList({ learnings }: LearningCardListProps) {
   return (
     <div className="space-y-3">
       {learnings.map((learning) => {
+        // This feed shows owned learnings only; re-learnings (PokShare) are handled separately.
+        if (learning.type !== 'owned') return null;
         const createdDate = new Date(learning.createdAt);
         const updatedDate = new Date(learning.updatedAt);
         const formattedDate = format(createdDate, 'MMM d');

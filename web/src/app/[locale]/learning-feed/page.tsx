@@ -10,7 +10,7 @@ import EmptyState from '@/components/learning-feed/EmptyState';
 import LoadingState from '@/components/learning-feed/LoadingState';
 import ErrorState from '@/components/learning-feed/ErrorState';
 import NoResultsState from '@/components/learning-feed/NoResultsState';
-import { pokApi, type Pok } from '@/lib/pokApi';
+import { pokApi, type FeedItem } from '@/lib/pokApi';
 import { useAuth } from '@/hooks/useAuth';
 
 const ITEMS_PER_PAGE = 10;
@@ -22,7 +22,7 @@ function LearningFeedContent() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   // State management
-  const [learnings, setLearnings] = useState<Pok[]>([]);
+  const [learnings, setLearnings] = useState<FeedItem[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
