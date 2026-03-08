@@ -154,6 +154,23 @@ Alternatively, enable the registration screen and note in the reviewer instructi
 
 ---
 
+## EAS Initialization
+
+Run these in order from `mobile/`:
+
+```bash
+npm install eas-cli
+npx eas init
+```
+
+> `eas init` alone fails — `eas-cli` must be installed locally first via npm before using `npx eas`.
+
+After `eas init` completes, update the `projectId` in:
+- `mobile/app.json` → `extra.eas.projectId`
+- `mobile/app.config.ts` → `extra.eas.projectId`
+
+---
+
 ## App Icons and Splash Screen (in-app assets)
 
 Place these files in `mobile/assets/` before running `eas build`:
