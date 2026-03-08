@@ -31,11 +31,15 @@ export function Button({
             variant === 'primary' && disabled,
           /* Secondary */
           'bg-card text-card-foreground border border-card-border hover:bg-muted/10':
-            variant === 'secondary',
+            variant === 'secondary' && !disabled,
+          'bg-card text-card-foreground border border-card-border opacity-50 cursor-not-allowed':
+            variant === 'secondary' && disabled,
           /* Ghost */
-          'hover:bg-muted/10 text-muted-foreground': variant === 'ghost',
+          'hover:bg-muted/10 text-muted-foreground': variant === 'ghost' && !disabled,
+          'text-muted-foreground opacity-50 cursor-not-allowed': variant === 'ghost' && disabled,
           /* Danger */
-          'bg-destructive text-white hover:bg-destructive/90': variant === 'danger',
+          'bg-destructive text-white hover:bg-destructive/90': variant === 'danger' && !disabled,
+          'bg-destructive text-white opacity-50 cursor-not-allowed': variant === 'danger' && disabled,
         },
         {
           'h-8 px-3 text-sm': size === 'sm',

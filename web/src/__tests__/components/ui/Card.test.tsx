@@ -21,7 +21,7 @@ describe('Card', () => {
     const { container } = render(<Card>Content</Card>);
     const el = container.firstChild as HTMLElement;
     expect(el.className).toContain('rounded-lg');
-    expect(el.className).toContain('border-slate-200');
+    expect(el.className).toContain('border-card-border');
     expect(el.className).toContain('bg-white');
   });
 

@@ -5,8 +5,8 @@ import { useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 
 /**
- * Auth-aware logo link with Bricolage Grotesque wordmark.
- * "learn" in regular weight + "imo" in bold.
+ * Auth-aware logo link: routes authenticated users to their feed, guests to the locale home page.
+ * Rendered as a Bricolage Grotesque wordmark: "learn" in regular weight + "imo" in bold.
  */
 export function LogoLink() {
   const params = useParams<{ locale: string }>();

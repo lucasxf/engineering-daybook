@@ -37,7 +37,6 @@ export function FormField({
         <p
           id={errorId ?? undefined}
           role="alert"
-          aria-live="polite"
           className="text-xs text-[#C0392B] dark:text-[#FF8A8A]"
         >
           {error}
