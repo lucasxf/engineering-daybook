@@ -36,11 +36,6 @@
       "expo-secure-store",
       "expo-localization"
     ],
-    "extra": {
-      "eas": {
-        "projectId": "learnimo-mobile"
-      }
-    },
-    "_comment_eas": "TODO (Milestone 3.4): Replace projectId with the real EAS UUID from `eas init`."
+    "extra": {}
   }
 }
