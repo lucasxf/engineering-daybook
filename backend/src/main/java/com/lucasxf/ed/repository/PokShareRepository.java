@@ -73,4 +73,28 @@ public interface PokShareRepository extends JpaRepository<PokShare, UUID> {
      * @return list of shares referencing that POK
      */
     List<PokShare> findByOriginalPokId(UUID originalPokId);
+
+    /**
+     * Counts all shares created by the given user.
+     *
+     * <p>Used alongside a bounded fetch in feed pagination to compute the accurate
+     * total element count without loading all rows into memory.
+     *
+     * @param sharedByUserId the sharer's user ID
+     * @return total number of shares by this user
+     */
+    long countBySharedByUserId(UUID sharedByUserId);
+
+    /**
+     * Counts shares created by the given user, filtered by visibility tiers.
+     *
+     * <p>Used alongside a bounded fetch in learner feed pagination to compute the accurate
+     * total element count without loading all rows into memory.
+     *
+     * @param sharedByUserId the sharer's user ID
+     * @param visibilities   the set of visibility tiers to include
+     * @return total number of matching shares
+     */
+    long countBySharedByUserIdAndVisibilityIn(
+        UUID sharedByUserId, Collection<Pok.Visibility> visibilities);
 }

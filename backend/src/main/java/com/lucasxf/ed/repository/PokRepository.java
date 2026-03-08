@@ -78,6 +78,19 @@ public interface PokRepository extends JpaRepository<Pok, UUID> {
     long countByUserIdAndDeletedAtIsNull(UUID userId);
 
     /**
+     * Counts all active (non-deleted) POKs for a user whose visibility is one of the given tiers.
+     *
+     * <p>Used alongside a bounded fetch in learner feed pagination to compute the accurate
+     * total element count without loading all rows into memory.
+     *
+     * @param userId       the POK owner's user ID
+     * @param visibilities the set of visibility levels to include
+     * @return the total count of matching active POKs
+     */
+    long countByUserIdAndVisibilityInAndDeletedAtIsNull(
+        UUID userId, java.util.Collection<Pok.Visibility> visibilities);
+
+    /**
      * Returns the IDs of all active (non-deleted) POKs belonging to a user.
      *
      * <p>Used for bulk tag operations (e.g., removing a tag from all user POKs).

@@ -142,8 +142,16 @@ public class LearnerService {
     /**
      * Returns a paginated page of learnings and re-learnings for the given learner handle.
      *
-     * <p>Owned POKs and re-learnings are merged in memory, sorted by {@code createdAt DESC},
-     * and paginated. The owner sees all their items. Non-owners see only items whose visibility
+     * <p>Owned POKs and re-learnings are fetched with a bounded {@link PageRequest} (enough rows
+     * to correctly populate the requested page), merged in memory, sorted by {@code createdAt DESC},
+     * and sliced. Separate COUNT queries provide the accurate total for pagination controls.
+     *
+     * <p>The fetch bound is {@code (page + 1) * size} per source, which guarantees that
+     * the merged in-memory sort produces the correct items for page {@code page}: any item
+     * that belongs in positions {@code [0, (page+1)*size)} of the full sorted union must be
+     * within the top {@code (page+1)*size} of one of the two sources.
+     *
+     * <p>The owner sees all their items. Non-owners see only items whose visibility
      * tier permits access based on their relationship with the target learner.
      *
      * @param handle      the target learner's handle
@@ -160,16 +168,25 @@ public class LearnerService {
 
         boolean isOwner = target.getId().equals(requesterId);
 
+        // Bounded fetch: load only enough rows to satisfy this page.
+        // Fetching top (page+1)*size per source (sorted DESC) guarantees the merged
+        // result is accurate for all positions up to (page+1)*size in the full union.
+        int fetchLimit = Math.max((page + 1) * size, size);
+        Pageable bounded = PageRequest.of(0, fetchLimit, Sort.by(Sort.Direction.DESC, "createdAt"));
+
         List<Pok> poks;
         List<PokShare> shares;
+        long total;
 
         // TODO(perf): Both branches below fetch all rows via Pageable.unpaged() and then
         // paginate in memory. This is acceptable for MVP where per-user item counts are small,
         // but must be replaced with a DB-level UNION query (or keyset pagination) before this
         // endpoint is exposed to high-volume users. Tracked in Milestone 6.5 / Phase 4.
         if (isOwner) {
-            poks = pokRepository.findByUserIdAndDeletedAtIsNull(target.getId(), Pageable.unpaged()).getContent();
-            shares = pokShareRepository.findBySharedByUserId(target.getId(), Pageable.unpaged()).getContent();
+            poks = pokRepository.findByUserIdAndDeletedAtIsNull(target.getId(), bounded).getContent();
+            shares = pokShareRepository.findBySharedByUserId(target.getId(), bounded).getContent();
+            total = pokRepository.countByUserIdAndDeletedAtIsNull(target.getId())
+                + pokShareRepository.countBySharedByUserId(target.getId());
         } else {
             // Non-owner: PRIVATE profiles short-circuit before any follow DB query
             if (target.getProfileVisibility() == User.ProfileVisibility.PRIVATE) {
@@ -184,9 +201,11 @@ public class LearnerService {
 
             List<Pok.Visibility> visibleTiers = getVisiblePokTiers(relationship);
             poks = pokRepository.findByUserIdAndVisibilityInAndDeletedAtIsNull(
-                target.getId(), visibleTiers, Pageable.unpaged()).getContent();
+                target.getId(), visibleTiers, bounded).getContent();
             shares = pokShareRepository.findBySharedByUserIdAndVisibilityIn(
-                target.getId(), visibleTiers, Pageable.unpaged()).getContent();
+                target.getId(), visibleTiers, bounded).getContent();
+            total = pokRepository.countByUserIdAndVisibilityInAndDeletedAtIsNull(target.getId(), visibleTiers)
+                + pokShareRepository.countBySharedByUserIdAndVisibilityIn(target.getId(), visibleTiers);
         }
 
         // Pre-fetch the owner's tags once to avoid N+1 queries across the page
@@ -224,7 +243,7 @@ public class LearnerService {
             ? List.of()
             : feedItems.subList(fromIndex, toIndex);
 
-        return new PageImpl<>(pageContent, PageRequest.of(page, size), feedItems.size());
+        return new PageImpl<>(pageContent, PageRequest.of(page, size), total);
     }
 
     /**
