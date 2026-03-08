@@ -1,6 +1,9 @@
 package com.lucasxf.ed.service;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -120,6 +123,35 @@ public class FollowService {
         if (iFollowThem) return RelationshipStatus.FOLLOWING;
         if (theyFollowMe) return RelationshipStatus.FOLLOWED_BY;
         return RelationshipStatus.NONE;
+    }
+
+    /**
+     * Returns relationship statuses between the requester and each of the given targets in bulk.
+     *
+     * <p>Issues exactly 2 DB queries regardless of how many targets are provided, avoiding the
+     * N+1 pattern that would result from calling {@link #getRelationship} per user.
+     *
+     * @param requesterId the requesting learner's ID
+     * @param targetIds   the set of target learner IDs (must not be empty)
+     * @return a map from each target ID to its {@link RelationshipStatus}; every ID in
+     *         {@code targetIds} is guaranteed to have an entry
+     */
+    @Transactional(readOnly = true)
+    public Map<UUID, RelationshipStatus> getRelationships(UUID requesterId, Set<UUID> targetIds) {
+        Set<UUID> iFollow = followRepository.findFollowedIdsByFollowerIdAndFollowedIdIn(requesterId, targetIds);
+        Set<UUID> followMe = followRepository.findFollowerIdsByFollowedIdAndFollowerIdIn(requesterId, targetIds);
+
+        return targetIds.stream().collect(Collectors.toMap(
+            id -> id,
+            id -> {
+                boolean iFollowThem = iFollow.contains(id);
+                boolean theyFollowMe = followMe.contains(id);
+                if (iFollowThem && theyFollowMe) return RelationshipStatus.COLLEAGUE;
+                if (iFollowThem) return RelationshipStatus.FOLLOWING;
+                if (theyFollowMe) return RelationshipStatus.FOLLOWED_BY;
+                return RelationshipStatus.NONE;
+            }
+        ));
     }
 
     /**

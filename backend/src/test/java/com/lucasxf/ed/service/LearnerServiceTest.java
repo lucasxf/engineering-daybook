@@ -2,7 +2,9 @@ package com.lucasxf.ed.service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -32,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -333,8 +336,8 @@ class LearnerServiceTest {
 
         when(userService.searchPublicLearners(eq("bob"), any(Pageable.class)))
             .thenReturn(new PageImpl<>(List.of(bob)));
-        when(followService.getRelationship(aliceId, bobId))
-            .thenReturn(RelationshipStatus.FOLLOWING);
+        when(followService.getRelationships(eq(aliceId), anySet()))
+            .thenReturn(Map.of(bobId, RelationshipStatus.FOLLOWING));
 
         Page<LearnerSearchResult> result = learnerService.searchLearners("bob", aliceId, 0, 20);
 
@@ -364,8 +367,8 @@ class LearnerServiceTest {
 
         when(userService.searchPublicLearners(eq("bob"), any(Pageable.class)))
             .thenReturn(new PageImpl<>(List.of(bob)));
-        when(followService.getRelationship(any(), any()))
-            .thenReturn(RelationshipStatus.NONE);
+        when(followService.getRelationships(any(), anySet()))
+            .thenReturn(Map.of(bobId, RelationshipStatus.NONE));
 
         Page<LearnerSearchResult> result = learnerService.searchLearners("  bob  ", aliceId, 0, 20);
 

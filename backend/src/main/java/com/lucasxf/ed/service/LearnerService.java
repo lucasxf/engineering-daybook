@@ -266,12 +266,29 @@ public class LearnerService {
             return Page.empty(PageRequest.of(page, size));
         }
         Page<User> userPage = userService.searchPublicLearners(q.trim(), PageRequest.of(page, size));
-        return userPage.map(user -> {
-            RelationshipStatus rel = user.getId().equals(requesterId)
-                ? null
-                : followService.getRelationship(requesterId, user.getId());
-            return LearnerSearchResult.from(user, rel);
-        });
+
+        // Collect target IDs (exclude self — self always maps to null relationship)
+        Set<UUID> targetIds = userPage.getContent().stream()
+            .map(User::getId)
+            .filter(id -> !id.equals(requesterId))
+            .collect(Collectors.toSet());
+
+        // Bulk-resolve relationships in 2 queries regardless of page size (avoids N+1)
+        Map<UUID, RelationshipStatus> relationships = targetIds.isEmpty()
+            ? Map.of()
+            : followService.getRelationships(requesterId, targetIds);
+
+        List<LearnerSearchResult> results = userPage.getContent().stream()
+            .map(user -> {
+                UUID userId = user.getId();
+                RelationshipStatus rel = userId.equals(requesterId)
+                    ? null
+                    : relationships.get(userId);
+                return LearnerSearchResult.from(user, rel);
+            })
+            .toList();
+
+        return new PageImpl<>(results, userPage.getPageable(), userPage.getTotalElements());
     }
 
     /**
