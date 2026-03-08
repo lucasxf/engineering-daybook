@@ -281,6 +281,19 @@
       "colleagueCount": "{count, plural, one {# colleague} other {# colleagues}}"
     }
   },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: March 2026",
+    "sections": {
+      "intro": "Introduction",
+      "dataCollected": "What data we collect",
+      "howWeUse": "How we use your data",
+      "storage": "Data storage",
+      "thirdParties": "Third-party services",
+      "yourRights": "Your rights",
+      "contact": "Contact"
+    }
+  },
   "tags": {
     "addTag": "Add tag",
     "createNew": "New tag name...",

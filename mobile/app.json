@@ -24,7 +24,9 @@
         "backgroundColor": "#0f172a"
       },
       "package": "net.learnimo.app",
-      "softwareKeyboardLayoutMode": "resize"
+      "versionCode": 1,
+      "softwareKeyboardLayoutMode": "resize",
+      "permissions": []
     },
     "web": {
       "favicon": "./assets/favicon.png"
