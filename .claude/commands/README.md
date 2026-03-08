@@ -41,14 +41,11 @@
 ### During a Session
 
 ```bash
-# Run tests
-/quick-test backend
+# Triage an open PR
+/review-pr 12
 
-# Review code
-/review-code PokService
-
-# Add documentation
-/api-doc PokController
+# Fix approved review items
+/fix-pr 12
 ```
 
 ### After PR Review
