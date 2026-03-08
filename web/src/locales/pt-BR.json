@@ -281,6 +281,19 @@
       "colleagueCount": "{count, plural, one {# colega} other {# colegas}}"
     }
   },
+  "privacy": {
+    "title": "Política de Privacidade",
+    "lastUpdated": "Última atualização: março de 2026",
+    "sections": {
+      "intro": "Introdução",
+      "dataCollected": "Quais dados coletamos",
+      "howWeUse": "Como usamos seus dados",
+      "storage": "Armazenamento de dados",
+      "thirdParties": "Serviços de terceiros",
+      "yourRights": "Seus direitos",
+      "contact": "Contato"
+    }
+  },
   "tags": {
     "addTag": "Adicionar etiqueta",
     "createNew": "Nome da nova etiqueta...",
