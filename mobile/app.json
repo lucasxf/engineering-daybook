@@ -36,6 +36,13 @@
       "expo-secure-store",
       "expo-localization"
     ],
-    "extra": {}
+    "extra": {
+      "apiUrl": "http://localhost:8080/api/v1",
+      "googleClientId": "",
+      "eas": {
+        "projectId": "9c453fb8-107d-40db-bb84-4cd9ca18c3a7"
+      }
+    },
+    "owner": "lucasxf"
   }
 }
