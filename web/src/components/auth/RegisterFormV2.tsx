@@ -424,7 +424,7 @@ export function RegisterFormV2({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-6 shadow-sm" noValidate>
       {displayedServerError && (
         <AlertV2 variant="error">{displayedServerError}</AlertV2>
       )}
