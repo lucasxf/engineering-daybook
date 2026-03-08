@@ -148,7 +148,7 @@ export default function DemoPage() {
                 <div className="flex items-center justify-between">
                   {/* Wordmark */}
                   <div className="font-wordmark text-xl font-semibold">
-                    <span className="wordmark-regular text-foreground dark:text-parchment">learn</span>
+                    <span className="wordmark-regular text-ink dark:text-parchment">learn</span>
                     <span className="wordmark-bold text-accent">imo</span>
                   </div>
 
@@ -164,10 +164,10 @@ export default function DemoPage() {
               {/* PageHeader - Inline */}
               <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
-                  <h2 className="text-3xl font-heading font-semibold text-foreground dark:text-parchment">
+                  <h2 className="text-3xl font-heading font-semibold text-ink dark:text-parchment">
                     Meus Aprendizados
                   </h2>
-                  <p className="mt-1 text-sm text-muted dark:text-muted-foreground">
+                  <p className="mt-1 text-sm text-slate-600 dark:text-muted-foreground">
                     42 aprendizados
                   </p>
                 </div>
