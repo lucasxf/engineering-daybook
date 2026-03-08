@@ -265,14 +265,15 @@ public class LearnerService {
         if (q == null || q.trim().length() < 2) {
             return Page.empty(PageRequest.of(page, size));
         }
-        // requesterId is excluded at the DB layer so self never appears in results
+        // Self is excluded at DB layer; all results are other users
         Page<User> userPage = userService.searchPublicLearners(q.trim(), requesterId, PageRequest.of(page, size));
 
-        // Bulk-resolve relationships in 2 queries regardless of page size (avoids N+1)
+        // Collect target IDs for bulk relationship resolution (avoids N+1)
         Set<UUID> targetIds = userPage.getContent().stream()
             .map(User::getId)
             .collect(Collectors.toSet());
 
+        // Bulk-resolve relationships in 2 queries regardless of page size
         Map<UUID, RelationshipStatus> relationships = targetIds.isEmpty()
             ? Map.of()
             : followService.getRelationships(requesterId, targetIds);

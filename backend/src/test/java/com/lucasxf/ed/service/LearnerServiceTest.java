@@ -348,10 +348,8 @@ class LearnerServiceTest {
     }
 
     @Test
-    void searchLearners_excludesRequesterFromResults() {
-        // Self is excluded at the DB layer — the service passes requesterId as excludeId.
-        // This test verifies that searchPublicLearners is called with the requester's own ID
-        // as the excludeId, so the repository never returns the requester's own profile.
+    void searchLearners_selfExcluded_requestsWithRequesterId() {
+        // Self is now excluded at the repository layer — verify the requester ID is threaded through
         when(userService.searchPublicLearners(eq("alice"), eq(aliceId), any(Pageable.class)))
             .thenReturn(Page.empty());
 

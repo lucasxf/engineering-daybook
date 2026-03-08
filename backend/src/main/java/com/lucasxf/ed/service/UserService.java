@@ -55,16 +55,15 @@ public class UserService {
     /**
      * Searches for PUBLIC learners whose handle or display name contains the given term.
      *
-     * <p>The requester is excluded from results so they never see their own profile
-     * with a Follow button in search results.
+     * <p>The requesting user is excluded from results so they never see themselves.
      *
      * @param q           the search term (caller must ensure length >= 2)
-     * @param excludeId   the UUID of the authenticated requester (excluded from results)
+     * @param requesterId the ID of the caller, excluded from results
      * @param pageable    pagination parameters
      * @return a page of matching users ordered by display name
      */
-    public Page<User> searchPublicLearners(String q, UUID excludeId, Pageable pageable) {
-        return userRepository.searchPublicByHandleOrDisplayName(q, excludeId, pageable);
+    public Page<User> searchPublicLearners(String q, UUID requesterId, Pageable pageable) {
+        return userRepository.searchPublicByHandleOrDisplayName(q, requesterId, pageable);
     }
 
     /**
