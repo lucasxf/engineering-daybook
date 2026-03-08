@@ -7,10 +7,10 @@
 
 ## Agent Overview
 
-This project includes **11 custom agents** designed for full-stack development across web, mobile, and backend stacks.
+This project includes **10 custom agents** designed for full-stack development across web, mobile, and backend stacks.
 
 <!-- BEGIN AUTO-GENERATED: AGENTS_TABLE -->
-> **11 custom agents** — last auto-updated 2026-03-08
+> **10 custom agents** — last auto-updated 2026-03-08
 
 | Agent | Role | Model | Trigger |
 |-------|------|-------|---------|
@@ -20,7 +20,6 @@ This project includes **11 custom agents** designed for full-stack development a
 | `nexus` | frontend engineering decisions in Next | Sonnet | On-demand |
 | `pixl` | designing web or mobile app UI/UX, creating Next | Sonnet | On-demand |
 | `professor-x` | user wants to learn new concepts, understand patterns, study best p | Sonnet | On-demand |
-| `session-optimizer` | starting a work session, planning complex tasks, or optimizing toke | Haiku | On-demand |
 | `sous-chef` | reviewing Java/Spring Boot code, checking best practices, validatin | Sonnet | On-demand |
 | `steward` | backend test coverage is below the JaCoCo threshold | Sonnet | Auto (/finish-session < 90% coverage) |
 | `tech-writer` | creating or updating documentation (CLAUDE | Sonnet | Delegated (/finish-session, /implement-spec) |

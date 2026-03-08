@@ -114,7 +114,7 @@ test: add PokService unit tests
 ## Task Management
 
 - **Track Progress**: Mark milestone items complete in the active phase file (`docs/ROADMAP.phase-{N}.md`) — not in `docs/ROADMAP.md` (that's the index only).
-- **Document Results**: Run `/update-roadmap` or `/finish-session` to record session outcomes in the phase file.
+- **Document Results**: Run `/finish-session` to record session outcomes in the phase file.
 
 ## Environment Notes
 
@@ -198,4 +198,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-03-08 (session: feat/discovery-feed — Milestone 6.5 Discovery Feed complete)*
+*Last updated: 2026-03-08 (session: chore/automation-workflow-housecleaning — automation ecosystem housecleaning, archived 1 agent + 10 commands)*

@@ -44,18 +44,15 @@ SESSIONS_DIR = Path(__file__).parent.parent / "metrics" / "sessions"
 # --- BEGIN AUTO-GENERATED: KNOWN_AGENTS ---
 KNOWN_AGENTS = {
     "automation-sentinel", "hedy", "imhotep", "nexus", "pixl",
-    "professor-x", "session-optimizer", "sous-chef", "steward",
-    "tech-writer", "virgil",
+    "professor-x", "sous-chef", "steward", "tech-writer", "virgil",
 }
 # --- END AUTO-GENERATED: KNOWN_AGENTS ---
 
 # --- BEGIN AUTO-GENERATED: KNOWN_COMMANDS ---
 KNOWN_COMMANDS = {
-    "api-doc", "build-quiet", "compile-metrics", "create-pr", "directive",
-    "docker-start", "docker-stop", "finish-session", "fix-pr",
-    "generate-v0-prompt", "implement-spec", "quick-test", "resume-session",
-    "review-code", "review-pr", "save-response", "start-session",
-    "test-service", "update-roadmap", "verify-quiet", "write-spec",
+    "compile-metrics", "create-pr", "directive", "finish-session",
+    "fix-pr", "generate-v0-prompt", "implement-spec", "review-pr",
+    "save-response", "start-session", "write-spec",
 }
 # --- END AUTO-GENERATED: KNOWN_COMMANDS ---
 

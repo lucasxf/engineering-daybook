@@ -188,6 +188,20 @@ Tooling chore: improved custom-agent tracking accuracy and automated registry ma
 | Updated `.claude/agents/automation-sentinel.md` — added `Type` column (Built-in/Custom) requirement to report template; updated data source reference from `pulse` to `/compile-metrics` | ✅ Done |
 | Updated `.claude/commands/compile-metrics.md` — added Step 0 to run sync script before compilation; updated Step 8 to require `Type` column in sentinel Agent Usage table | ✅ Done |
 
+### Automation Ecosystem Housecleaning (chore/automation-workflow-housecleaning, 2026-03-08) ✅
+
+Tooling chore: audited the full `.claude/` automation ecosystem based on an automation-sentinel critical review report and archived redundant / low-value artifacts.
+
+| Task | Status |
+|------|--------|
+| Archived `session-optimizer` agent (redundant with `/start-session`) | ✅ Done |
+| Archived 10 slash commands: `quick-test`, `build-quiet`, `verify-quiet`, `test-service`, `update-roadmap`, `review-code`, `api-doc`, `docker-start`, `docker-stop`, `resume-session` | ✅ Done |
+| Added delegated invocation tracking limitation note to `automation-sentinel.md` | ✅ Done |
+| Removed archived entries from `usage-stats.toml`; updated health counters | ✅ Done |
+| Regenerated `KNOWN_AGENTS` / `KNOWN_COMMANDS` in `track-usage.py` | ✅ Done |
+| Regenerated `agents-readme.md` and `commands/README.md` tables | ✅ Done |
+| Removed stale `/update-roadmap` reference from `CLAUDE.md` Task Management section | ✅ Done |
+
 ### SDD Automation Workflow Enhancement (chore/enhance-spec-driven-development-automation-workflow, 2026-03-08) ✅
 
 Tooling session: refactored the Spec-Driven Development workflow to eliminate context rot during multi-task implementations.
