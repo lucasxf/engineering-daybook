@@ -1,6 +1,3 @@
-// TODO(6.5 — Discovery Feed): Wire ReLearningCard into the discovery feed page
-// once Milestone 6.5 adds the `/feed` route. This component is intentionally
-// deferred — it is feature-complete and tested, but has no page consumer until 6.5.
 'use client';
 
 import Link from 'next/link';

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { pokApi, type Pok } from '@/lib/pokApi';
+import { pokApi, type Pok, type FeedItem } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
 import type { SortOption } from '@/components/poks/SortDropdown';
@@ -16,7 +16,8 @@ interface UsePoksDataOptions {
 export interface UsePoksDataReturn {
   /** True when auth check is complete and user is authenticated — safe to render protected content. */
   isReady: boolean;
-  poks: Pok[];
+  /** Feed items — owned POKs and re-learnings (mixed when no filters; owned-only when searching). */
+  poks: FeedItem[];
   totalElements: number;
   loading: boolean;
   error: string | null;
@@ -33,7 +34,7 @@ export interface UsePoksDataReturn {
   handleClearSearch: () => void;
   /** Filters the feed by tag. Pass null to clear the filter. Clears keyword. */
   handleTagFilter: (tagId: string | null) => void;
-  /** Optimistically prepends a newly created pok to the list without a full reload. */
+  /** Optimistically prepends a newly created owned pok to the list without a full reload. */
   handleQuickSave: (pok: Pok) => void;
 }
 
@@ -68,7 +69,7 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
   const view = searchParams.get('view') || '';
   const selectedTagId = searchParams.get('tagId') || null;
 
-  const [poks, setPoks] = useState<Pok[]>([]);
+  const [poks, setPoks] = useState<FeedItem[]>([]);
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -120,17 +121,22 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
     try {
       const result = await pokApi.getAll({
         keyword: selectedTagId ? undefined : (keyword || undefined),
-        searchMode: selectedTagId ? undefined : 'hybrid',
+        // Only send searchMode when there is a keyword to search — it's meaningless otherwise,
+        // and sending it forces the backend into search mode (owned POKs only), preventing
+        // re-learnings from appearing in the default feed.
+        searchMode: (keyword && !selectedTagId) ? 'hybrid' : undefined,
         tagId: selectedTagId || undefined,
         sortBy,
         sortDirection,
         page,
         size: fetchSize,
       });
-      // getAll returns PokListPage (PokPage | FeedPage). This hook always passes filters
-      // so the backend returns PokPage (owned POKs only). Filter defensively.
-      const poksOnly = result.content.filter((item): item is Pok => !('originalPokId' in item));
-      setPoks(poksOnly);
+      // getAll returns PokListPage (PokPage | FeedPage).
+      // When no keyword/tag filter is active the backend returns FeedPage (mixed feed with
+      // re-learnings). When filters are present it returns PokPage (owned POKs only).
+      // Both PokPage.content (Pok[]) and FeedPage.content (FeedItem[]) are directly
+      // assignable to FeedItem[] because Pok extends FeedItem (type: 'owned' discriminator).
+      setPoks(result.content);
       setTotalElements(result.totalElements);
     } catch (err) {
       if (err instanceof ApiRequestError) {
@@ -177,6 +183,7 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
   }, [sortOption, updateURL]);
 
   const handleQuickSave = useCallback((pok: Pok) => {
+    // Pok already has type: 'owned' — it is directly assignable to FeedItem.
     setPoks((prev) => [pok, ...prev]);
     setTotalElements((prev) => prev + 1);
   }, []);

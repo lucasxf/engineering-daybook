@@ -159,6 +159,12 @@ Exceptions: intentionally deferred components must have a documented note (in th
 
 If a layer was not touched this session, skip it entirely.
 
+**Output management — keep context clean:**
+Build and test commands can produce thousands of lines. After running each stack's checks:
+- Retain only: (1) PASS/FAIL status line, (2) error messages if failed, (3) coverage summary
+- Discard verbose success output (test names, compilation progress, webpack stats) before proceeding to the next stack
+- Use quiet flags where available: `mvn verify -q`, `npx vitest run --reporter=dot`
+
 **Failure protocol — HARD RULE:**
 - Show the exact error output
 - Do NOT update docs

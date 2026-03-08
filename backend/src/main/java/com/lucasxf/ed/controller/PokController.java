@@ -187,13 +187,16 @@ public class PokController {
         // Enforce max page size
         int pageSize = Math.min(size, 100);
 
-        // No filters → return mixed feed (owned POKs + re-learnings), sorted by createdAt DESC
-        boolean hasFilters = keyword != null || searchMode != null || tagId != null
-            || sortBy != null || sortDirection != null
+        // No content filters → return mixed feed (owned POKs + re-learnings).
+        // sortBy/sortDirection and searchMode are not content filters — they control ordering and
+        // search mode, not which items are included. Only keyword, tagId, and date ranges trigger
+        // the search path (owned POKs only). Sort params are forwarded to getOwnFeed() so the
+        // user can order their mixed feed.
+        boolean hasFilters = (keyword != null && !keyword.isBlank()) || tagId != null
             || createdFrom != null || createdTo != null || updatedFrom != null || updatedTo != null;
 
         if (!hasFilters) {
-            return ResponseEntity.ok(pokService.getOwnFeed(userId, page, pageSize));
+            return ResponseEntity.ok(pokService.getOwnFeed(userId, page, pageSize, sortBy, sortDirection));
         }
 
         // Filters present → keyword/tag/semantic search over owned POKs only

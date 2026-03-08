@@ -1,11 +1,12 @@
 package com.lucasxf.ed.service;
 
+import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.User;
@@ -49,6 +50,17 @@ public class UserService {
      */
     public Optional<User> findByHandle(String handle) {
         return userRepository.findByHandle(handle);
+    }
+
+    /**
+     * Searches for PUBLIC learners whose handle or display name contains the given term.
+     *
+     * @param q        the search term (caller must ensure length >= 2)
+     * @param pageable pagination parameters
+     * @return a page of matching users ordered by display name
+     */
+    public Page<User> searchPublicLearners(String q, Pageable pageable) {
+        return userRepository.searchPublicByHandleOrDisplayName(q, pageable);
     }
 
     /**

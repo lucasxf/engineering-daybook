@@ -7,6 +7,8 @@ import type { Tag, TagSuggestion } from './tagApi';
 export type PokVisibility = 'PRIVATE' | 'COLLEAGUES_ONLY' | 'FOLLOWERS_ONLY' | 'PUBLIC';
 
 export interface Pok {
+  /** Type discriminator — always {@code "owned"} for POKs authored by the user. */
+  type: 'owned';
   id: string;
   userId: string;
   title: string | null;
@@ -17,7 +19,20 @@ export interface Pok {
   updatedAt: string;
   tags: Tag[];
   pendingSuggestions: TagSuggestion[];
+  /** Author's handle — populated in discovery feed context; absent in My Learnings. */
+  authorHandle?: string | null;
+  /** Author's display name — populated in discovery feed context; absent in My Learnings. */
+  authorDisplayName?: string | null;
+  /** Author's avatar URL — populated in discovery feed context; absent in My Learnings. */
+  authorAvatarUrl?: string | null;
 }
+
+/**
+ * An owned POK as it appears in a feed response.
+ * Now equivalent to `Pok` since `type: 'owned'` is declared on the interface.
+ * Kept as a named alias for semantic clarity.
+ */
+export type OwnedPok = Pok;
 
 export interface CreatePokDto {
   title?: string | null;
@@ -33,7 +48,7 @@ export interface UpdatePokDto {
 }
 
 export interface PokPage {
-  content: Pok[];
+  content: OwnedPok[];
   page: number;
   size: number;
   totalElements: number;
@@ -57,10 +72,16 @@ export interface PokShare {
   note: string | null;
   visibility: PokVisibility;
   createdAt: string;
+  /** Original author's handle — populated in the discovery feed context; absent on single-share detail. */
+  originalAuthorHandle?: string | null;
+  /** Original author's display name — populated in the discovery feed context; absent on single-share detail. */
+  originalAuthorDisplayName?: string | null;
+  /** Original author's avatar URL — populated in the discovery feed context; absent on single-share detail. */
+  originalAuthorAvatarUrl?: string | null;
 }
 
 /** Union type for feed items — an owned POK or a re-learning. */
-export type FeedItem = (Pok & { type: 'owned' }) | PokShare;
+export type FeedItem = OwnedPok | PokShare;
 
 /** Page of feed items (owned POKs mixed with re-learnings). */
 export interface FeedPage {

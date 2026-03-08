@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.lucasxf.ed.dto.FeedItemResponse;
 import com.lucasxf.ed.dto.LearnerProfileResponse;
+import com.lucasxf.ed.dto.LearnerSearchResult;
 import com.lucasxf.ed.service.FollowService;
 import com.lucasxf.ed.service.LearnerService;
 import com.lucasxf.ed.service.UserService;
@@ -49,6 +50,34 @@ public class LearnerController {
         this.learnerService = requireNonNull(learnerService);
         this.followService = requireNonNull(followService);
         this.userService = requireNonNull(userService);
+    }
+
+    /**
+     * Searches for learners by handle or display name.
+     *
+     * <p>Only learners with {@code profileVisibility = PUBLIC} appear in results.
+     * Queries shorter than 2 characters return an empty page.
+     *
+     * @param q              the search term (case-insensitive, substring)
+     * @param page           zero-based page number (default 0)
+     * @param size           page size (default 20)
+     * @param authentication the authenticated caller
+     * @return 200 with a page of {@link LearnerSearchResult} items
+     */
+    @GetMapping("/search")
+    @Operation(
+        summary = "Search learners",
+        description = "Searches PUBLIC learners by handle or display name (case-insensitive substring). "
+            + "Queries shorter than 2 characters return an empty page.")
+    @ApiResponse(responseCode = "200", description = "Search results returned")
+    @ApiResponse(responseCode = "401", description = "Not authenticated")
+    public ResponseEntity<Page<LearnerSearchResult>> searchLearners(
+            @RequestParam String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            Authentication authentication) {
+        UUID requesterId = UUID.fromString(authentication.getName());
+        return ResponseEntity.ok(learnerService.searchLearners(q, requesterId, page, size));
     }
 
     /**

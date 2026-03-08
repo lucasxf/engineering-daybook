@@ -62,10 +62,12 @@ const mockGetById = vi.mocked(pokApi.getById);
 const mockUpdate = vi.mocked(pokApi.update);
 
 const existingPok: Pok = {
+  type: 'owned',
   id: 'pok-456',
   userId: 'user-1',
   title: 'Original title',
   content: 'Original content',
+  visibility: 'PRIVATE',
   deletedAt: null,
   createdAt: '2026-02-14T10:00:00Z',
   updatedAt: '2026-02-15T12:00:00Z',

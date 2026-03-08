@@ -12,7 +12,7 @@
 --   - No original_author_id column: derived from poks.user_id join at query time to avoid denormalization.
 
 CREATE TABLE pok_shares (
-    id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     original_pok_id     UUID NOT NULL REFERENCES poks(id) ON DELETE CASCADE,
     shared_by_user_id   UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     note                TEXT,

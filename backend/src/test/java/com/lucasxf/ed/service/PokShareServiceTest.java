@@ -134,7 +134,7 @@ class PokShareServiceTest {
     }
 
     @Test
-    void share_nonPublicOriginal_throwsPokAccessDeniedException() {
+    void share_nonPublicOriginal_throwsIllegalArgumentException() {
         Pok privateFollowersPok = new Pok(bobId, "Title", "Content", Pok.Visibility.FOLLOWERS_ONLY);
         ReflectionTestUtils.setField(privateFollowersPok, "id", pokId);
 

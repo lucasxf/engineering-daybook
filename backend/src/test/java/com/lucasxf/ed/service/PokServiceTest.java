@@ -1277,13 +1277,16 @@ class PokServiceTest {
             .thenReturn(ownedPage);
         when(pokShareRepository.findBySharedByUserId(eq(userId), any(Pageable.class)))
             .thenReturn(Page.empty());
+        when(pokRepository.countByUserIdAndDeletedAtIsNull(userId)).thenReturn(1L);
+        when(pokShareRepository.countBySharedByUserId(userId)).thenReturn(0L);
         when(userTagRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(List.of());
         when(pokTagRepository.findByPokId(any(UUID.class))).thenReturn(List.of());
 
-        Page<FeedItemResponse> result = pokService.getOwnFeed(userId, 0, 20);
+        Page<FeedItemResponse> result = pokService.getOwnFeed(userId, 0, 20, null, null);
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().get(0).type()).isEqualTo("owned");
+        assertThat(result.getTotalElements()).isEqualTo(1L);
     }
 
     @Test
@@ -1299,13 +1302,16 @@ class PokServiceTest {
             .thenReturn(Page.empty());
         when(pokShareRepository.findBySharedByUserId(eq(userId), any(Pageable.class)))
             .thenReturn(new PageImpl<>(List.of(share)));
+        when(pokRepository.countByUserIdAndDeletedAtIsNull(userId)).thenReturn(0L);
+        when(pokShareRepository.countBySharedByUserId(userId)).thenReturn(1L);
         when(pokRepository.findAllById(any())).thenReturn(List.of(originalPok));
         when(userTagRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(List.of());
         when(userService.findById(userId)).thenReturn(currentUser);
 
-        Page<FeedItemResponse> result = pokService.getOwnFeed(userId, 0, 20);
+        Page<FeedItemResponse> result = pokService.getOwnFeed(userId, 0, 20, null, null);
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().get(0).type()).isEqualTo("shared");
+        assertThat(result.getTotalElements()).isEqualTo(1L);
     }
 }

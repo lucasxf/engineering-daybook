@@ -9,7 +9,9 @@ import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.dto.FeedItemResponse;
 import com.lucasxf.ed.dto.LearnerProfileResponse;
+import com.lucasxf.ed.dto.LearnerSearchResult;
 import com.lucasxf.ed.dto.PokResponse;
+import com.lucasxf.ed.dto.RelationshipStatus;
 import com.lucasxf.ed.exception.AlreadyFollowingException;
 import com.lucasxf.ed.exception.LearnerAccessDeniedException;
 import com.lucasxf.ed.exception.LearnerNotFoundException;
@@ -28,6 +30,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -275,5 +278,38 @@ class LearnerControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(user(requesterId.toString())))
             .andExpect(status().isConflict());
+    }
+
+    // ===== GET /api/v1/learners/search =====
+
+    @Test
+    void searchLearners_returnsPage() throws Exception {
+        LearnerSearchResult result = new LearnerSearchResult("bob", "Bob Builder", null, null, RelationshipStatus.NONE);
+        when(learnerService.searchLearners(eq("bob"), any(UUID.class), eq(0), eq(20)))
+            .thenReturn(new PageImpl<>(List.of(result), PageRequest.of(0, 20), 1));
+
+        mockMvc.perform(get("/api/v1/learners/search?q=bob")
+                .with(user(requesterId.toString())))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content[0].handle").value("bob"))
+            .andExpect(jsonPath("$.content[0].displayName").value("Bob Builder"))
+            .andExpect(jsonPath("$.totalElements").value(1));
+    }
+
+    @Test
+    void searchLearners_shortQuery_returnsEmptyPage() throws Exception {
+        when(learnerService.searchLearners(eq("a"), any(UUID.class), eq(0), eq(20)))
+            .thenReturn(Page.empty(PageRequest.of(0, 20)));
+
+        mockMvc.perform(get("/api/v1/learners/search?q=a")
+                .with(user(requesterId.toString())))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content").isEmpty());
+    }
+
+    @Test
+    void searchLearners_unauthenticated_returns401() throws Exception {
+        mockMvc.perform(get("/api/v1/learners/search?q=bob"))
+            .andExpect(status().isUnauthorized());
     }
 }

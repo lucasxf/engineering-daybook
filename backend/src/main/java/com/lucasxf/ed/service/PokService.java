@@ -189,26 +189,42 @@ public class PokService {
     }
 
     /**
-     * Returns a mixed feed of the authenticated user's own learnings and re-learnings,
-     * sorted by creation date descending.
+     * Returns a mixed feed of the authenticated user's own learnings and re-learnings.
      *
      * <p>Owned POKs and re-learnings are merged in memory and paginated. This method
-     * is used for the no-filter case of {@code GET /api/v1/poks}.
+     * is used for the no-filter case of {@code GET /api/v1/poks} (no keyword, tagId, or
+     * date filters). Optional sort params are respected; default is {@code createdAt DESC}.
      *
-     * @param userId the authenticated user's ID
-     * @param page   zero-based page number
-     * @param size   page size
+     * @param userId        the authenticated user's ID
+     * @param page          zero-based page number
+     * @param size          page size
+     * @param sortBy        optional sort field ({@code "createdAt"} or {@code "updatedAt"}); defaults to createdAt
+     * @param sortDirection optional sort direction ({@code "ASC"} or {@code "DESC"}); defaults to DESC
      * @return a page of {@link FeedItemResponse} items (mix of owned and shared)
      */
     @Transactional(readOnly = true)
-    public Page<FeedItemResponse> getOwnFeed(UUID userId, int page, int size) {
+    public Page<FeedItemResponse> getOwnFeed(UUID userId, int page, int size, String sortBy, String sortDirection) {
         List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
 
-        // Fetch all owned (non-deleted) POKs for this user
-        List<Pok> ownedPoks = pokRepository.findByUserIdAndDeletedAtIsNull(userId, Pageable.unpaged()).getContent();
+        // Bounded fetch: load only enough rows to satisfy this page.
+        // Fetching top (page+1)*size per source (sorted DESC) guarantees the merged
+        // result is accurate for all positions up to (page+1)*size in the full union.
+        int fetchLimit = Math.max((page + 1) * size, size);
+        Sort.Direction direction = "ASC".equalsIgnoreCase(sortDirection) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        String pokSortField = "updatedAt".equals(sortBy) ? "updatedAt" : "createdAt";
+        Pageable poksBounded = PageRequest.of(0, fetchLimit, Sort.by(direction, pokSortField));
+        // PokShare has no updatedAt — always sort shares by createdAt
+        Pageable sharesBounded = PageRequest.of(0, fetchLimit, Sort.by(direction, "createdAt"));
 
-        // Fetch all re-learnings created by this user
-        List<PokShare> shares = pokShareRepository.findBySharedByUserId(userId, Pageable.unpaged()).getContent();
+        // Fetch owned (non-deleted) POKs for this user with bounded pagination
+        List<Pok> ownedPoks = pokRepository.findByUserIdAndDeletedAtIsNull(userId, poksBounded).getContent();
+
+        // Fetch re-learnings created by this user with bounded pagination
+        List<PokShare> shares = pokShareRepository.findBySharedByUserId(userId, sharesBounded).getContent();
+
+        // Accurate totals from COUNT queries (no full table scan)
+        long total = pokRepository.countByUserIdAndDeletedAtIsNull(userId)
+            + pokShareRepository.countBySharedByUserId(userId);
 
         // Build feed items — owned POKs first
         List<FeedItemResponse> feedItems = new ArrayList<>();
@@ -235,8 +251,17 @@ public class PokService {
             }
         }
 
-        // Sort by createdAt DESC and in-memory paginate
-        feedItems.sort(Comparator.comparing(FeedItemResponse::createdAt).reversed());
+        // Sort by the requested field/direction (default: createdAt DESC)
+        boolean byUpdatedAt = "updatedAt".equals(sortBy);
+        boolean asc = "ASC".equalsIgnoreCase(sortDirection);
+        Comparator<FeedItemResponse> comparator = byUpdatedAt
+            ? Comparator.comparing(item -> {
+                // PokShareResponse has no updatedAt — fall back to createdAt for consistent ordering
+                if (item instanceof PokResponse pr) return pr.updatedAt();
+                return item.createdAt();
+              })
+            : Comparator.comparing(FeedItemResponse::createdAt);
+        feedItems.sort(asc ? comparator : comparator.reversed());
 
         int fromIndex = page * size;
         int toIndex = Math.min(fromIndex + size, feedItems.size());
@@ -244,7 +269,7 @@ public class PokService {
             ? List.of()
             : feedItems.subList(fromIndex, toIndex);
 
-        return new PageImpl<>(pageContent, PageRequest.of(page, size), feedItems.size());
+        return new PageImpl<>(pageContent, PageRequest.of(page, size), total);
     }
 
     /**

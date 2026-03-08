@@ -216,6 +216,29 @@ Then write:
 - **Implementation Approach** — Architecture summary from specialist outputs, test strategy, concrete file changes list
 - **Dependencies** — Blocked by, blocks, external requirements
 
+### 3.4 Generate Implementation Plan
+
+Using the `File Changes` list and `Test Strategy` from 3.3, produce an ordered task breakdown for the `## Implementation Plan` section. Group files into coherent atomic tasks — small enough for a single subagent to implement in a fresh context.
+
+**Ordering heuristics (apply in this order):**
+1. Migrations before entities/repositories
+2. Entities/repositories before services
+3. Services before controllers
+4. Backend tasks before frontend tasks (full-stack specs)
+5. Unit tests co-located with their production code (same task)
+6. Integration tests after the components they integrate
+7. E2E tests last
+8. i18n changes grouped with the components that consume them
+
+**For each task, specify:**
+- A brief, imperative description (e.g., "Add PokShare entity and repository")
+- The exact files to create or modify (use full relative paths)
+- Dependencies on prior tasks (or `_none_` for the first tasks)
+- A conventional commit message (`feat:`, `test:`, `chore:`, etc.)
+- Stack label: `backend`, `web`, `mobile`, or `infra`
+
+**Aim for 3–8 tasks per spec.** If fewer than 3 tasks are sufficient, a single implementation pass may be simpler than orchestration — note this to the user.
+
 ---
 
 ## Phase 4: Assembly & Review
@@ -253,6 +276,9 @@ Combine all sections into the template format from `docs/specs/template.md`:
 
 ## Implementation Approach
 [From Phase 3]
+
+## Implementation Plan
+[From Phase 3.4]
 
 ## Dependencies
 [From Phase 3]

@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, describe, it, beforeEach, expect } from 'vitest';
 import { NextIntlClientProvider } from 'next-intl';
+import { ApiRequestError } from '@/lib/api';
 import { ReLearningModal } from '@/components/poks/ReLearningModal';
 import type { Pok, PokShare } from '@/lib/pokApi';
 
@@ -34,6 +35,7 @@ const messages = {
         selfShare: 'You cannot re-learn your own learning',
         duplicate: 'You have already re-learned this learning',
         notPublic: 'Only public learnings can be re-learned',
+        noteTooLong: 'Note must not exceed 500 characters',
         notFound: 'Learning not found',
         unexpected: 'Something went wrong. Please try again.',
       },
@@ -50,6 +52,7 @@ const messages = {
 };
 
 const basePok: Pok = {
+  type: 'owned',
   id: 'pok-123',
   userId: 'user-bob',
   title: "Bob's Learning",
@@ -164,7 +167,7 @@ describe('ReLearningModal', () => {
 
   it('shows duplicate error on 409 response', async () => {
     const user = userEvent.setup();
-    mockShare.mockRejectedValue({ status: 409 });
+    mockShare.mockRejectedValue(new ApiRequestError(409, 'You have already re-learned this learning'));
 
     renderModal();
 
@@ -178,9 +181,9 @@ describe('ReLearningModal', () => {
     expect(mockOnClose).not.toHaveBeenCalled();
   });
 
-  it('shows selfShare error on 400 response', async () => {
+  it('shows selfShare error on 400 with self-share message', async () => {
     const user = userEvent.setup();
-    mockShare.mockRejectedValue({ status: 400, message: 'You cannot re-learn your own learning' });
+    mockShare.mockRejectedValue(new ApiRequestError(400, 'You cannot re-learn your own learning'));
 
     renderModal();
 
@@ -189,6 +192,36 @@ describe('ReLearningModal', () => {
     await waitFor(() => {
       expect(screen.getByRole('alert')).toHaveTextContent(
         'You cannot re-learn your own learning'
+      );
+    });
+  });
+
+  it('shows notPublic error on 400 for non-public original', async () => {
+    const user = userEvent.setup();
+    mockShare.mockRejectedValue(new ApiRequestError(400, 'Only PUBLIC learnings can be re-learned (MVP scope)'));
+
+    renderModal();
+
+    await user.click(screen.getByRole('button', { name: 'Re-learn' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Only public learnings can be re-learned'
+      );
+    });
+  });
+
+  it('shows noteTooLong error on 400 with validation message', async () => {
+    const user = userEvent.setup();
+    mockShare.mockRejectedValue(new ApiRequestError(400, 'Validation failed'));
+
+    renderModal();
+
+    await user.click(screen.getByRole('button', { name: 'Re-learn' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Note must not exceed 500 characters'
       );
     });
   });

@@ -1,6 +1,6 @@
 import { apiFetch } from './api';
 import type { ProfileVisibility } from './auth';
-import type { PokVisibility } from './pokApi';
+import type { FeedPage, PokVisibility } from './pokApi';
 
 export type RelationshipStatus = 'NONE' | 'FOLLOWING' | 'FOLLOWED_BY' | 'COLLEAGUE';
 
@@ -61,4 +61,48 @@ export function unfollowLearner(handle: string): Promise<void> {
   return apiFetch<void>(`/learners/${encodeURIComponent(handle)}/follow`, {
     method: 'DELETE',
   });
+}
+
+/** A single learner search result. */
+export interface LearnerSearchResult {
+  handle: string;
+  displayName: string;
+  avatarUrl: string | null;
+  bio: string | null;
+  relationship: RelationshipStatus | null;
+}
+
+/** Paginated learner search response. */
+export interface LearnerSearchPage {
+  content: LearnerSearchResult[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
+/**
+ * Returns the discovery feed for the authenticated user (social feed).
+ * Items are sorted newest-first and include learnings from followed learners.
+ */
+export function getFeed(params?: { page?: number; size?: number }): Promise<FeedPage> {
+  const search = new URLSearchParams();
+  if (params?.page !== undefined) search.set('page', String(params.page));
+  if (params?.size !== undefined) search.set('size', String(params.size));
+  const qs = search.toString();
+  return apiFetch<FeedPage>(`/feed${qs ? '?' + qs : ''}`);
+}
+
+/**
+ * Searches PUBLIC learners by handle or display name.
+ * Queries shorter than 2 characters return an empty page.
+ */
+export function searchLearners(
+  q: string,
+  params?: { page?: number; size?: number }
+): Promise<LearnerSearchPage> {
+  const search = new URLSearchParams({ q });
+  if (params?.page !== undefined) search.set('page', String(params.page));
+  if (params?.size !== undefined) search.set('size', String(params.size));
+  return apiFetch<LearnerSearchPage>(`/learners/search?${search.toString()}`);
 }
