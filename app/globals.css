@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light mode */
+    --bg-page: #F5F0E8;
+    --bg-card: #FFFFFF;
+    --border-card: #E8E4DF;
+    --text-heading: #1A1A2E;
+    --text-muted: #666666;
+    --text-label: #1A1A2E;
+    --input-bg: #FFFFFF;
+    --input-border: #CCCCCC;
+    --input-focus: #D4854A;
+    --input-placeholder: #AAAAAA;
+    --handle-prefix: #999999;
+    --strength-track: #E8E4DF;
+    --error-text: #C53030;
+    --error-banner-bg: #FFF5F5;
+    --error-banner-border: #FC8181;
+    --error-banner-text: #C53030;
+    --handle-available: #276749;
+    --handle-taken: #C53030;
+    --cta: #D4854A;
+    --cta-text: #FFFFFF;
+    --link: #D4854A;
+    --toggle-bg: #E8E4DF;
+    --toggle-fg: #1A1A2E;
+  }
+
+  .dark {
+    --bg-page: #0F1B2D;
+    --bg-card: #1A365D;
+    --border-card: #2B4A78;
+    --text-heading: #F5F0E8;
+    --text-muted: #8899AA;
+    --text-label: #F5F0E8;
+    --input-bg: #0F1B2D;
+    --input-border: #2B4A78;
+    --input-focus: #D4854A;
+    --input-placeholder: #4A607A;
+    --handle-prefix: #8899AA;
+    --strength-track: #2B4A78;
+    --error-text: #FC8181;
+    --error-banner-bg: #2D1515;
+    --error-banner-border: #FC8181;
+    --error-banner-text: #FEB2B2;
+    --handle-available: #68D391;
+    --handle-taken: #FC8181;
+    --cta: #D4854A;
+    --cta-text: #FFFFFF;
+    --link: #D4854A;
+    --toggle-bg: #2B4A78;
+    --toggle-fg: #F5F0E8;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
