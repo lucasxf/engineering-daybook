@@ -98,10 +98,10 @@ describe('ReLearningCard', () => {
   });
 
   it('renders formatted date', () => {
-    renderCard();
+    const { container } = renderCard();
 
-    // Date should be present in some formatted form
-    const time = screen.getByRole('time');
+    // <time> has no standard ARIA role in most jsdom versions; query directly
+    const time = container.querySelector('time');
     expect(time).toBeInTheDocument();
     expect(time).toHaveAttribute('dateTime', '2026-03-07T12:00:00Z');
   });
