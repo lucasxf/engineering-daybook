@@ -16,13 +16,13 @@
   },
   "language": {
     "en": "English",
-    "pt-BR": "Português (Brasil)"
+    "pt-BR": "Portugu\u00eas (Brasil)"
   },
   "auth": {
     "loginTitle": "Welcome back",
     "loginSubtitle": "Sign in to your learnimo",
     "registerTitle": "Create your account",
-    "registerSubtitle": "Capture what you learn — your future self will thank you",
+    "registerSubtitle": "Capture what you learn \u2014 your future self will thank you",
     "email": "Email",
     "password": "Password",
     "confirmPassword": "Confirm password",
@@ -107,7 +107,7 @@
       "button": "Search",
       "noResults": "No learnings found matching your search",
       "noResultsHint": "Try adjusting your search terms or filters",
-      "noResultsSemanticHint": "Try rephrasing your search — semantic search looks for meaning, not exact words",
+      "noResultsSemanticHint": "Try rephrasing your search \u2014 semantic search looks for meaning, not exact words",
       "clearButton": "Clear search",
       "error": "Failed to search learnings. Please try again."
     },
@@ -232,7 +232,7 @@
       "uploadAvatar": "Upload photo",
       "removeAvatar": "Remove photo",
       "uploading": "Uploading...",
-      "avatarHint": "JPG, PNG, or WebP · max 2 MB",
+      "avatarHint": "JPG, PNG, or WebP \u00b7 max 2 MB",
       "avatarTooLarge": "File too large. Maximum size is 2 MB.",
       "avatarInvalidType": "Unsupported format. Use JPG, PNG, or WebP.",
       "displayName": "Display name",
@@ -297,5 +297,25 @@
       "createFailed": "Failed to create tag",
       "deleteFailed": "Failed to delete tag"
     }
+  },
+  "nav": {
+    "feed": "Feed",
+    "discover": "Discover",
+    "myLearnings": "My Learnings"
+  },
+  "feed": {
+    "title": "Feed",
+    "empty": {
+      "title": "Your feed is empty",
+      "description": "Follow learners to see their knowledge in your feed.",
+      "discoverCta": "Find learners to follow"
+    }
+  },
+  "discover": {
+    "title": "Discover",
+    "searchPlaceholder": "Search by name or handle\ufffd",
+    "noResults": "No learners found",
+    "noResultsHint": "Try a different search term.",
+    "minCharsHint": "Type at least 2 characters to search"
   }
 }
