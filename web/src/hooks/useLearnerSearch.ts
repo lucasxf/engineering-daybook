@@ -40,11 +40,14 @@ export function useLearnerSearch(): UseLearnerSearchResult {
   });
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestIdRef = useRef(0);
 
   const executeSearch = useCallback((q: string, page: number) => {
+    const reqId = ++requestIdRef.current;
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
     searchLearners(q, { page, size: PAGE_SIZE })
       .then((data) => {
+        if (requestIdRef.current !== reqId) return;
         setState((prev) => ({
           ...prev,
           results: data.content,
@@ -56,7 +59,8 @@ export function useLearnerSearch(): UseLearnerSearchResult {
         }));
       })
       .catch(() => {
-        setState((prev) => ({ ...prev, isLoading: false, error: 'Search failed' }));
+        if (requestIdRef.current !== reqId) return;
+        setState((prev) => ({ ...prev, isLoading: false, error: 'SEARCH_FAILED' }));
       });
   }, []);
 
