@@ -174,7 +174,7 @@ Active work:
 - [x] Milestone 6.3: Learner Profiles — avatar upload/remove (Supabase Storage, Thumbnailator resize to 200×200), bio + displayName editing, Avatar component (web + mobile), learner profile page, settings page, header UserMenu with avatar; 415 backend + 357 web + 55 mobile tests (2026-03-07)
 - [x] Milestone 6.4: Share (Re-Learning) — PokShare entity (V20 migration), PokShareService (TDD), PokShareController (POST/DELETE/GET), exception hierarchy, LearnerService union feed, ReLearningModal component, Re-learn button on PokCard/PokList wired on learner profile; 46 backend + 29 web + 4 E2E tests (2026-03-07)
 - [ ] Milestone 6.2: Classes & Study Groups
-- [ ] Milestone 6.5: Discovery Feed
+- [x] Milestone 6.5: Discovery Feed — social feed (GET /api/v1/feed, FeedList, useFeedData), learner search (GET /api/v1/learners/search, Discover page); 17 E2E tests (2026-03-08)
 - [ ] Milestone 6.6: Community Principles & Content Moderation
 
 **Phase 8: Knowledge Enrichment** — 🔄 In Progress (8.1 done; 8.2 done)
@@ -198,4 +198,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-03-07 (session: feat/re-learning — Milestone 6.4 Share (Re-Learning) complete)*
+*Last updated: 2026-03-08 (session: feat/discovery-feed — Milestone 6.5 Discovery Feed complete)*

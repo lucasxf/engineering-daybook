@@ -19,6 +19,12 @@ export interface Pok {
   updatedAt: string;
   tags: Tag[];
   pendingSuggestions: TagSuggestion[];
+  /** Author's handle — populated in discovery feed context; null in My Learnings. */
+  authorHandle: string | null;
+  /** Author's display name — populated in discovery feed context; null in My Learnings. */
+  authorDisplayName: string | null;
+  /** Author's avatar URL — populated in discovery feed context; null in My Learnings. */
+  authorAvatarUrl: string | null;
 }
 
 /**
@@ -66,6 +72,12 @@ export interface PokShare {
   note: string | null;
   visibility: PokVisibility;
   createdAt: string;
+  /** Original author's handle — populated in the discovery feed context; null on single-share detail. */
+  originalAuthorHandle: string | null;
+  /** Original author's display name — populated in the discovery feed context; null on single-share detail. */
+  originalAuthorDisplayName: string | null;
+  /** Original author's avatar URL — populated in the discovery feed context; null on single-share detail. */
+  originalAuthorAvatarUrl: string | null;
 }
 
 /** Union type for feed items — an owned POK or a re-learning. */

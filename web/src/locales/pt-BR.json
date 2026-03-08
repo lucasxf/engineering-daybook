@@ -1,12 +1,12 @@
 {
   "common": {
     "appName": "learnimo",
-    "tagline": "Capture, organize e relembre seus aprendizados diários"
+    "tagline": "Capture, organize e relembre seus aprendizados di\u00e1rios"
   },
   "home": {
     "welcome": "Bem-vindo ao learnimo",
-    "description": "Seu diário de conhecimento.",
-    "getStarted": "Começar",
+    "description": "Seu di\u00e1rio de conhecimento.",
+    "getStarted": "Come\u00e7ar",
     "viewLearnings": "Ver meus aprendizados"
   },
   "theme": {
@@ -16,21 +16,21 @@
   },
   "language": {
     "en": "English",
-    "pt-BR": "Português (Brasil)"
+    "pt-BR": "Portugu\u00eas (Brasil)"
   },
   "auth": {
     "loginTitle": "Bem-vindo de volta",
     "loginSubtitle": "Entre no seu learnimo",
     "registerTitle": "Crie sua conta",
-    "registerSubtitle": "Registre o que você aprende — seu eu do futuro vai agradecer",
+    "registerSubtitle": "Registre o que voc\u00ea aprende \u2014 seu eu do futuro vai agradecer",
     "email": "E-mail",
     "password": "Senha",
     "confirmPassword": "Confirmar senha",
-    "displayName": "Nome de exibição",
+    "displayName": "Nome de exibi\u00e7\u00e3o",
     "handle": "Identificador",
-    "handleHint": "3-30 caracteres, letras minúsculas, números e hífens",
-    "handleAvailable": "Identificador disponível",
-    "handleTaken": "Identificador já está em uso",
+    "handleHint": "3-30 caracteres, letras min\u00fasculas, n\u00fameros e h\u00edfens",
+    "handleAvailable": "Identificador dispon\u00edvel",
+    "handleTaken": "Identificador j\u00e1 est\u00e1 em uso",
     "logIn": "Entrar",
     "loggingIn": "Entrando...",
     "signUp": "Cadastrar",
@@ -40,56 +40,56 @@
     "googleSignUp": "Cadastrar com Google",
     "orContinueWith": "ou continue com",
     "chooseHandleTitle": "Escolha seu identificador",
-    "chooseHandleSubtitle": "Escolha um identificador único para concluir seu cadastro",
+    "chooseHandleSubtitle": "Escolha um identificador \u00fanico para concluir seu cadastro",
     "completeRegistration": "Concluir cadastro",
     "completingRegistration": "Criando conta...",
     "showPassword": "Mostrar senha",
     "hidePassword": "Ocultar senha",
-    "noAccount": "Não tem uma conta?",
+    "noAccount": "N\u00e3o tem uma conta?",
     "signUpLink": "Cadastre-se",
-    "hasAccount": "Já tem uma conta?",
+    "hasAccount": "J\u00e1 tem uma conta?",
     "logInLink": "Entrar",
     "forgotPassword": "Esqueceu sua senha?",
     "forgotPasswordTitle": "Esqueceu sua senha?",
     "forgotPasswordSubtitle": "Informe seu e-mail e enviaremos um link para redefinir sua senha",
-    "forgotPasswordButton": "Enviar link de redefinição",
+    "forgotPasswordButton": "Enviar link de redefini\u00e7\u00e3o",
     "sendingResetLink": "Enviando...",
-    "forgotPasswordSent": "Se houver uma conta com esse e-mail, um link de redefinição foi enviado. Verifique sua caixa de entrada.",
+    "forgotPasswordSent": "Se houver uma conta com esse e-mail, um link de redefini\u00e7\u00e3o foi enviado. Verifique sua caixa de entrada.",
     "backToLogin": "Voltar para o login",
     "resetPasswordTitle": "Crie uma nova senha",
     "resetPasswordSubtitle": "Informe uma nova senha para sua conta",
     "newPassword": "Nova senha",
     "resetPasswordButton": "Redefinir senha",
     "resettingPassword": "Redefinindo...",
-    "resetPasswordSuccess": "Senha redefinida com sucesso. Você já pode fazer login.",
-    "resetPasswordInvalid": "Este link de redefinição de senha é inválido ou já foi utilizado.",
-    "resetPasswordExpired": "Este link de redefinição expirou. Solicite um novo.",
+    "resetPasswordSuccess": "Senha redefinida com sucesso. Voc\u00ea j\u00e1 pode fazer login.",
+    "resetPasswordInvalid": "Este link de redefini\u00e7\u00e3o de senha \u00e9 inv\u00e1lido ou j\u00e1 foi utilizado.",
+    "resetPasswordExpired": "Este link de redefini\u00e7\u00e3o expirou. Solicite um novo.",
     "requestNewLink": "Solicitar novo link",
     "passwordStrength": {
       "weak": "Fraca",
-      "medium": "Média",
+      "medium": "M\u00e9dia",
       "strong": "Forte"
     },
     "errors": {
-      "emailRequired": "E-mail é obrigatório",
-      "emailInvalid": "Formato de e-mail inválido",
-      "passwordRequired": "Senha é obrigatória",
+      "emailRequired": "E-mail \u00e9 obrigat\u00f3rio",
+      "emailInvalid": "Formato de e-mail inv\u00e1lido",
+      "passwordRequired": "Senha \u00e9 obrigat\u00f3ria",
       "passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
-      "passwordMaxLength": "A senha deve ter no máximo 128 caracteres",
-      "passwordUppercase": "A senha deve conter pelo menos uma letra maiúscula",
-      "passwordLowercase": "A senha deve conter pelo menos uma letra minúscula",
-      "passwordNumber": "A senha deve conter pelo menos um número",
+      "passwordMaxLength": "A senha deve ter no m\u00e1ximo 128 caracteres",
+      "passwordUppercase": "A senha deve conter pelo menos uma letra mai\u00fascula",
+      "passwordLowercase": "A senha deve conter pelo menos uma letra min\u00fascula",
+      "passwordNumber": "A senha deve conter pelo menos um n\u00famero",
       "confirmPasswordRequired": "Confirme sua senha",
-      "passwordsMismatch": "As senhas não coincidem",
-      "displayNameRequired": "Nome de exibição é obrigatório",
-      "displayNameMaxLength": "O nome de exibição deve ter no máximo 100 caracteres",
+      "passwordsMismatch": "As senhas n\u00e3o coincidem",
+      "displayNameRequired": "Nome de exibi\u00e7\u00e3o \u00e9 obrigat\u00f3rio",
+      "displayNameMaxLength": "O nome de exibi\u00e7\u00e3o deve ter no m\u00e1ximo 100 caracteres",
       "handleMinLength": "O identificador deve ter pelo menos 3 caracteres",
-      "handleMaxLength": "O identificador deve ter no máximo 30 caracteres",
-      "handleFormat": "O identificador deve conter apenas letras minúsculas, números e hífens",
-      "invalidCredentials": "E-mail ou senha inválidos",
-      "googleEmailConflict": "Este e-mail já está cadastrado com senha. Faça login com e-mail e senha.",
+      "handleMaxLength": "O identificador deve ter no m\u00e1ximo 30 caracteres",
+      "handleFormat": "O identificador deve conter apenas letras min\u00fasculas, n\u00fameros e h\u00edfens",
+      "invalidCredentials": "E-mail ou senha inv\u00e1lidos",
+      "googleEmailConflict": "Este e-mail j\u00e1 est\u00e1 cadastrado com senha. Fa\u00e7a login com e-mail e senha.",
       "googleCancelled": "Login cancelado. Tente novamente.",
-      "sessionExpired": "Sessão expirada. Tente novamente.",
+      "sessionExpired": "Sess\u00e3o expirada. Tente novamente.",
       "unexpected": "Algo deu errado. Tente novamente."
     }
   },
@@ -107,7 +107,7 @@
       "button": "Pesquisar",
       "noResults": "Nenhum aprendizado encontrado",
       "noResultsHint": "Tente ajustar seus termos de pesquisa ou filtros",
-      "noResultsSemanticHint": "Tente reformular sua busca — a pesquisa semântica busca pelo significado, não pelas palavras exatas",
+      "noResultsSemanticHint": "Tente reformular sua busca \u2014 a pesquisa sem\u00e2ntica busca pelo significado, n\u00e3o pelas palavras exatas",
       "clearButton": "Limpar pesquisa",
       "error": "Falha ao pesquisar aprendizados. Tente novamente."
     },
@@ -121,11 +121,11 @@
       "newestFirst": "Mais recentes primeiro",
       "oldestFirst": "Mais antigos primeiro",
       "recentlyUpdated": "Atualizados recentemente",
-      "relevance": "Relevância"
+      "relevance": "Relev\u00e2ncia"
     },
     "tagGroups": {
       "untagged": "Sem etiqueta",
-      "nudge": "Adicione etiquetas aos seus aprendizados para organizá-los aqui."
+      "nudge": "Adicione etiquetas aos seus aprendizados para organiz\u00e1-los aqui."
     },
     "timeline": {
       "title": "Linha do tempo"
@@ -133,9 +133,9 @@
     "filter": {
       "label": "Filtrar",
       "createdFrom": "Criado de",
-      "createdTo": "Criado até",
+      "createdTo": "Criado at\u00e9",
       "updatedFrom": "Atualizado de",
-      "updatedTo": "Atualizado até",
+      "updatedTo": "Atualizado at\u00e9",
       "applyButton": "Aplicar filtros",
       "clearButton": "Limpar filtros"
     },
@@ -150,27 +150,27 @@
       "cancelButton": "Cancelar"
     },
     "form": {
-      "titleLabel": "Título",
-      "titlePlaceholder": "Opcional - dê um título ao seu aprendizado",
-      "contentLabel": "Conteúdo",
-      "contentPlaceholder": "O que você aprendeu hoje?",
+      "titleLabel": "T\u00edtulo",
+      "titlePlaceholder": "Opcional - d\u00ea um t\u00edtulo ao seu aprendizado",
+      "contentLabel": "Conte\u00fado",
+      "contentPlaceholder": "O que voc\u00ea aprendeu hoje?",
       "createButton": "Salvar aprendizado",
-      "updateButton": "Salvar alterações",
+      "updateButton": "Salvar altera\u00e7\u00f5es",
       "submitting": "Salvando..."
     },
     "quickEntry": {
-      "placeholder": "O que você aprendeu?",
+      "placeholder": "O que voc\u00ea aprendeu?",
       "hint": "Ctrl+Enter para salvar",
       "saving": "Salvando..."
     },
     "emptyState": {
-      "message": "Nenhum aprendizado ainda. Comece a registrar o que você aprende!",
+      "message": "Nenhum aprendizado ainda. Comece a registrar o que voc\u00ea aprende!",
       "cta": "Crie seu primeiro aprendizado"
     },
     "delete": {
       "button": "Excluir",
       "confirmTitle": "Excluir aprendizado?",
-      "confirmMessage": "Esta ação não pode ser desfeita. Este aprendizado será excluído permanentemente.",
+      "confirmMessage": "Esta a\u00e7\u00e3o n\u00e3o pode ser desfeita. Este aprendizado ser\u00e1 exclu\u00eddo permanentemente.",
       "confirmButton": "Excluir",
       "cancelButton": "Cancelar",
       "deleting": "Excluindo..."
@@ -178,38 +178,38 @@
     "success": {
       "created": "Aprendizado salvo com sucesso",
       "updated": "Aprendizado atualizado com sucesso",
-      "deleted": "Aprendizado excluído com sucesso"
+      "deleted": "Aprendizado exclu\u00eddo com sucesso"
     },
     "visibility": {
       "private": "Privado",
       "colleaguesOnly": "Somente colegas",
       "followersOnly": "Somente seguidores",
-      "public": "Público",
+      "public": "P\u00fablico",
       "pickerLabel": "Visibilidade",
-      "publicWarning": "Aprendizados públicos não podem ser tornados privados novamente."
+      "publicWarning": "Aprendizados p\u00fablicos n\u00e3o podem ser tornados privados novamente."
     },
     "errors": {
-      "notFound": "Aprendizado não encontrado",
-      "forbidden": "Você não tem permissão para acessar este aprendizado",
-      "contentRequired": "O conteúdo é obrigatório e não pode estar em branco",
-      "titleTooLong": "O título deve ter no máximo 200 caracteres",
-      "contentTooLong": "O conteúdo deve ter no máximo 50.000 caracteres",
+      "notFound": "Aprendizado n\u00e3o encontrado",
+      "forbidden": "Voc\u00ea n\u00e3o tem permiss\u00e3o para acessar este aprendizado",
+      "contentRequired": "O conte\u00fado \u00e9 obrigat\u00f3rio e n\u00e3o pode estar em branco",
+      "titleTooLong": "O t\u00edtulo deve ter no m\u00e1ximo 200 caracteres",
+      "contentTooLong": "O conte\u00fado deve ter no m\u00e1ximo 50.000 caracteres",
       "unexpected": "Algo deu errado. Tente novamente.",
-      "visibilityImmutable": "Um aprendizado público não pode ser tornado privado."
+      "visibilityImmutable": "Um aprendizado p\u00fablico n\u00e3o pode ser tornado privado."
     },
     "share": {
       "button": "Re-aprender",
       "modalTitle": "Re-aprender este aprendizado",
-      "noteLabel": "Sua anotação",
-      "notePlaceholder": "Por que este aprendizado ressoou com você? (opcional)",
-      "noteHint": "Adicione contexto ou reflexão pessoal. Máx 500 caracteres.",
+      "noteLabel": "Sua anota\u00e7\u00e3o",
+      "notePlaceholder": "Por que este aprendizado ressoou com voc\u00ea? (opcional)",
+      "noteHint": "Adicione contexto ou reflex\u00e3o pessoal. M\u00e1x 500 caracteres.",
       "visibilityLabel": "Visibilidade",
       "submitButton": "Re-aprender",
       "submitting": "Salvando...",
       "success": "Re-aprendizado salvo",
       "remove": "Remover re-aprendizado",
       "removeConfirmTitle": "Remover re-aprendizado?",
-      "removeConfirmMessage": "Isso removerá seu re-aprendizado. O aprendizado original não será afetado.",
+      "removeConfirmMessage": "Isso remover\u00e1 seu re-aprendizado. O aprendizado original n\u00e3o ser\u00e1 afetado.",
       "removeConfirmButton": "Remover",
       "cancelButton": "Cancelar",
       "removing": "Removendo...",
@@ -225,49 +225,49 @@
     }
   },
   "settings": {
-    "title": "Configurações",
+    "title": "Configura\u00e7\u00f5es",
     "profile": {
       "heading": "Perfil",
       "avatar": "Avatar",
       "uploadAvatar": "Carregar foto",
       "removeAvatar": "Remover foto",
       "uploading": "Carregando...",
-      "avatarHint": "JPG, PNG ou WebP · máx 2 MB",
-      "avatarTooLarge": "Arquivo muito grande. O tamanho máximo é 2 MB.",
-      "avatarInvalidType": "Formato não suportado. Use JPG, PNG ou WebP.",
-      "displayName": "Nome de exibição",
+      "avatarHint": "JPG, PNG ou WebP \u00b7 m\u00e1x 2 MB",
+      "avatarTooLarge": "Arquivo muito grande. O tamanho m\u00e1ximo \u00e9 2 MB.",
+      "avatarInvalidType": "Formato n\u00e3o suportado. Use JPG, PNG ou WebP.",
+      "displayName": "Nome de exibi\u00e7\u00e3o",
       "displayNamePlaceholder": "Seu nome",
       "displayNameSave": "Salvar",
       "displayNameSaving": "Salvando...",
       "bio": "Bio",
-      "bioPlaceholder": "Conte sobre você (URLs não são permitidas)",
+      "bioPlaceholder": "Conte sobre voc\u00ea (URLs n\u00e3o s\u00e3o permitidas)",
       "bioSave": "Salvar",
       "bioSaving": "Salvando...",
-      "saveSuccess": "Alterações salvas",
+      "saveSuccess": "Altera\u00e7\u00f5es salvas",
       "saveError": "Falha ao salvar. Tente novamente."
     },
     "privacy": {
       "heading": "Privacidade",
       "profileVisibility": "Visibilidade do perfil",
-      "profileVisibilityHint": "Controla quem pode ver seu perfil e aprendizados públicos.",
-      "defaultPokVisibility": "Visibilidade padrão dos aprendizados",
-      "defaultPokVisibilityHint": "Novos aprendizados usarão esta visibilidade por padrão.",
+      "profileVisibilityHint": "Controla quem pode ver seu perfil e aprendizados p\u00fablicos.",
+      "defaultPokVisibility": "Visibilidade padr\u00e3o dos aprendizados",
+      "defaultPokVisibilityHint": "Novos aprendizados usar\u00e3o esta visibilidade por padr\u00e3o.",
       "private": "Privado",
       "colleaguesOnly": "Somente colegas",
       "followersOnly": "Somente seguidores",
-      "public": "Público",
-      "saveSuccess": "Configurações salvas",
-      "saveError": "Falha ao salvar configurações. Tente novamente.",
+      "public": "P\u00fablico",
+      "saveSuccess": "Configura\u00e7\u00f5es salvas",
+      "saveError": "Falha ao salvar configura\u00e7\u00f5es. Tente novamente.",
       "viewProfile": "Ver meu perfil"
     }
   },
   "learners": {
-    "privateProfile": "Este perfil é privado",
+    "privateProfile": "Este perfil \u00e9 privado",
     "privateProfileHint": "@{handle} optou por manter seu perfil privado.",
-    "noLearnings": "Nenhum aprendizado público ainda.",
-    "notFound": "Aprendiz não encontrado",
-    "notFoundHint": "Não existe um aprendiz com este identificador.",
-    "publicLearnings": "Aprendizados públicos",
+    "noLearnings": "Nenhum aprendizado p\u00fablico ainda.",
+    "notFound": "Aprendiz n\u00e3o encontrado",
+    "notFoundHint": "N\u00e3o existe um aprendiz com este identificador.",
+    "publicLearnings": "Aprendizados p\u00fablicos",
     "learningCount": "{count, plural, one {# aprendizado} other {# aprendizados}}",
     "unexpectedError": "Algo deu errado.",
     "social": {
@@ -297,5 +297,25 @@
       "createFailed": "Falha ao criar tag",
       "deleteFailed": "Falha ao excluir tag"
     }
+  },
+  "nav": {
+    "feed": "Feed",
+    "discover": "Descobrir",
+    "myLearnings": "Meus Aprendizados"
+  },
+  "feed": {
+    "title": "Feed",
+    "empty": {
+      "title": "Seu feed est\ufffd vazio",
+      "description": "Siga aprendizes para ver seus conhecimentos no feed.",
+      "discoverCta": "Encontrar aprendizes para seguir"
+    }
+  },
+  "discover": {
+    "title": "Descobrir",
+    "searchPlaceholder": "Buscar por nome ou handle\ufffd",
+    "noResults": "Nenhum aprendiz encontrado",
+    "noResultsHint": "Tente um termo diferente.",
+    "minCharsHint": "Digite pelo menos 2 caracteres para buscar"
   }
 }

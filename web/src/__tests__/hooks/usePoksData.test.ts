@@ -306,7 +306,7 @@ describe('usePoksData', () => {
       const newPok: Pok = { ...MOCK_POK, id: '2', title: 'New Learning' };
       act(() => result.current.handleQuickSave(newPok));
 
-      expect(result.current.poks[0]).toEqual(newPok);
+      expect(result.current.poks[0]).toEqual({ ...newPok, type: 'owned' });
       expect(result.current.poks).toHaveLength(2);
     });
 

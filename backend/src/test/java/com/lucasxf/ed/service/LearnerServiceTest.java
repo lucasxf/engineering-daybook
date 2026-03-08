@@ -18,6 +18,7 @@ import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.dto.FeedItemResponse;
 import com.lucasxf.ed.dto.LearnerProfileResponse;
+import com.lucasxf.ed.dto.LearnerSearchResult;
 import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.RelationshipStatus;
 import com.lucasxf.ed.exception.LearnerAccessDeniedException;
@@ -30,6 +31,8 @@ import com.lucasxf.ed.repository.UserTagRepository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.ReflectionTestUtils.setField;
@@ -303,6 +306,68 @@ class LearnerServiceTest {
         when(pokTagRepository.findByPokId(any(UUID.class))).thenReturn(List.of());
 
         Page<FeedItemResponse> result = learnerService.getLearnerPoks("alice", bobId, 0, 20);
+
+        assertThat(result.getContent()).hasSize(1);
+    }
+
+    // ===== searchLearners =====
+
+    @Test
+    void searchLearners_shortQuery_returnsEmptyPage() {
+        Page<LearnerSearchResult> result = learnerService.searchLearners("a", aliceId, 0, 20);
+        assertThat(result.getContent()).isEmpty();
+        assertThat(result.getTotalElements()).isZero();
+    }
+
+    @Test
+    void searchLearners_nullQuery_returnsEmptyPage() {
+        Page<LearnerSearchResult> result = learnerService.searchLearners(null, aliceId, 0, 20);
+        assertThat(result.getContent()).isEmpty();
+    }
+
+    @Test
+    void searchLearners_delegatesToUserService_andMapsRelationship() {
+        User bob = new User("bob@x.com", "h", "Bob Builder", "bob");
+        setField(bob, "id", bobId);
+        bob.setProfileVisibility(User.ProfileVisibility.PUBLIC);
+
+        when(userService.searchPublicLearners(eq("bob"), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(List.of(bob)));
+        when(followService.getRelationship(aliceId, bobId))
+            .thenReturn(RelationshipStatus.FOLLOWING);
+
+        Page<LearnerSearchResult> result = learnerService.searchLearners("bob", aliceId, 0, 20);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).handle()).isEqualTo("bob");
+        assertThat(result.getContent().get(0).displayName()).isEqualTo("Bob Builder");
+        assertThat(result.getContent().get(0).relationship()).isEqualTo(RelationshipStatus.FOLLOWING);
+    }
+
+    @Test
+    void searchLearners_selfInResults_hasNullRelationship() {
+        User alice = makeUser("alice", User.ProfileVisibility.PUBLIC);
+
+        when(userService.searchPublicLearners(eq("alice"), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(List.of(alice)));
+
+        Page<LearnerSearchResult> result = learnerService.searchLearners("alice", aliceId, 0, 20);
+
+        assertThat(result.getContent().get(0).relationship()).isNull();
+    }
+
+    @Test
+    void searchLearners_whitespaceTrimmingApplied() {
+        User bob = new User("bob@x.com", "h", "Bob", "bob");
+        setField(bob, "id", bobId);
+        bob.setProfileVisibility(User.ProfileVisibility.PUBLIC);
+
+        when(userService.searchPublicLearners(eq("bob"), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(List.of(bob)));
+        when(followService.getRelationship(any(), any()))
+            .thenReturn(RelationshipStatus.NONE);
+
+        Page<LearnerSearchResult> result = learnerService.searchLearners("  bob  ", aliceId, 0, 20);
 
         assertThat(result.getContent()).hasSize(1);
     }
