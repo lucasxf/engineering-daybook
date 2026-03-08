@@ -334,7 +334,7 @@ class LearnerServiceTest {
         setField(bob, "id", bobId);
         bob.setProfileVisibility(User.ProfileVisibility.PUBLIC);
 
-        when(userService.searchPublicLearners(eq("bob"), any(Pageable.class)))
+        when(userService.searchPublicLearners(eq("bob"), eq(aliceId), any(Pageable.class)))
             .thenReturn(new PageImpl<>(List.of(bob)));
         when(followService.getRelationships(eq(aliceId), anySet()))
             .thenReturn(Map.of(bobId, RelationshipStatus.FOLLOWING));
@@ -348,15 +348,14 @@ class LearnerServiceTest {
     }
 
     @Test
-    void searchLearners_selfInResults_hasNullRelationship() {
-        User alice = makeUser("alice", User.ProfileVisibility.PUBLIC);
-
-        when(userService.searchPublicLearners(eq("alice"), any(Pageable.class)))
-            .thenReturn(new PageImpl<>(List.of(alice)));
+    void searchLearners_selfExcluded_requestsWithRequesterId() {
+        // Self is now excluded at the repository layer — verify the requester ID is threaded through
+        when(userService.searchPublicLearners(eq("alice"), eq(aliceId), any(Pageable.class)))
+            .thenReturn(Page.empty());
 
         Page<LearnerSearchResult> result = learnerService.searchLearners("alice", aliceId, 0, 20);
 
-        assertThat(result.getContent().get(0).relationship()).isNull();
+        assertThat(result.getContent()).isEmpty();
     }
 
     @Test
@@ -365,7 +364,7 @@ class LearnerServiceTest {
         setField(bob, "id", bobId);
         bob.setProfileVisibility(User.ProfileVisibility.PUBLIC);
 
-        when(userService.searchPublicLearners(eq("bob"), any(Pageable.class)))
+        when(userService.searchPublicLearners(eq("bob"), eq(aliceId), any(Pageable.class)))
             .thenReturn(new PageImpl<>(List.of(bob)));
         when(followService.getRelationships(any(), anySet()))
             .thenReturn(Map.of(bobId, RelationshipStatus.NONE));
