@@ -27,6 +27,7 @@ describe('PokCard', () => {
   });
 
   const basePok: Pok = {
+    type: 'owned',
     id: '123',
     userId: 'user-1',
     title: 'Test Title',

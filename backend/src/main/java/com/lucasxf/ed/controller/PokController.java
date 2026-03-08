@@ -192,7 +192,7 @@ public class PokController {
         // search mode, not which items are included. Only keyword, tagId, and date ranges trigger
         // the search path (owned POKs only). Sort params are forwarded to getOwnFeed() so the
         // user can order their mixed feed.
-        boolean hasFilters = keyword != null || tagId != null
+        boolean hasFilters = (keyword != null && !keyword.isBlank()) || tagId != null
             || createdFrom != null || createdTo != null || updatedFrom != null || updatedTo != null;
 
         if (!hasFilters) {
