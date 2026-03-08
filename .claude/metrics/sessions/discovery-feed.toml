@@ -1,0 +1,24 @@
+[metadata]
+session_branch = "discovery-feed"
+session_start = "2026-03-08T09:15:57Z"
+last_updated = "2026-03-08T16:46:23Z"
+
+[command_usage.write-spec]
+invocations = 1
+last_used = "2026-03-08T09:15:57Z"
+
+[agent_usage.Explore]
+invocations = 3
+last_used = "2026-03-08T11:27:45Z"
+
+[agent_usage.general-purpose]
+invocations = 4
+last_used = "2026-03-08T16:46:23Z"
+
+[command_usage.implement-spec]
+invocations = 2
+last_used = "2026-03-08T09:44:25Z"
+
+[command_usage.finish-session]
+invocations = 2
+last_used = "2026-03-08T16:06:51Z"

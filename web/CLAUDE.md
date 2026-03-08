@@ -193,3 +193,13 @@ npm run test     # Run tests (Vitest)
 - **Map HTTP 400 share errors by `err.message`, not by status code alone:** A 400 from the share API covers multiple distinct failure reasons (self-share, non-PUBLIC original, visibility-tier violation, note length validation). Mapping all 400s to a single error key (e.g. `selfShare`) suppresses the real cause. Inspect `err.message` (populated from the backend's `ApiError.message`) and route to the correct i18n key: `errors.selfShare` for self-share, `errors.notPublic` for sharing not allowed, `errors.noteTooLong` for validation failures. Each new error key must be added to both `en.json` and `pt-BR.json`. (Added 2026-03-08)
 
 - **`getAll()` in `pokApi.ts` must return `Promise<PokListPage>`, not `Promise<PokPage>`:** When the backend can return a mixed feed (`FeedPage` containing `FeedItem[]`), a return type of `PokPage` causes TypeScript to silently accept type mismatches. Downstream hooks typed as `Pok[]` will receive `FeedItem[]` at runtime without any compile-time error. Fix: use the already-defined union return type `Promise<PokListPage>`. Callers that only want plain POKs should filter defensively: `result.content.filter((item): item is Pok => !('originalPokId' in item))`. (Added 2026-03-08)
+
+- **Type predicates on union types must be assignable to the parameter type:** When filtering `FeedItem[]` (a union of `Pok & { type: 'owned' }` and `PokShare`) with a type predicate like `(item): item is Pok`, TypeScript errors because `Pok` is not assignable to `FeedItem` — the union member requires the `type` discriminant field. Fix: include the discriminant in the predicate: `(item): item is Pok & { type: 'owned' }`. This preserves type narrowing while keeping the predicate assignable to the parameter type. (Added 2026-03-08)
+
+  ```typescript
+  // ❌ TypeScript error: Pok is not assignable to FeedItem
+  items.filter((item): item is Pok => item.type === 'owned')
+
+  // ✅ Correct: include the discriminant
+  items.filter((item): item is Pok & { type: 'owned' } => item.type === 'owned')
+  ```
