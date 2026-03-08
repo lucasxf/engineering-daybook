@@ -17,8 +17,8 @@ export function LearnerSearchBar({ value, onChange }: LearnerSearchBarProps) {
 
   return (
     <div className="relative w-full">
-      <label htmlFor="learner-search" className="sr-only">
-        {t('searchPlaceholder')}
+      <label htmlFor="learner-search" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+        {t('searchLabel')}
       </label>
       <Input
         id="learner-search"

@@ -310,12 +310,14 @@
       "description": "Follow learners to see their knowledge in your feed.",
       "discoverCta": "Find learners to follow"
     },
+    "itemCount": "{count, plural, one {# item} other {# items}}",
     "errors": {
       "loadFailed": "Failed to load feed. Please try again."
     }
   },
   "discover": {
     "title": "Discover",
+    "searchLabel": "Search learners",
     "searchPlaceholder": "Search by name or handle…",
     "noResults": "No learners found",
     "noResultsHint": "Try a different search term.",

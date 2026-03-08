@@ -55,7 +55,7 @@ function DiscoverContent() {
 }
 
 /**
- * Discover page with Suspense boundary (required for useSearchParams compatibility).
+ * Discover page with Suspense boundary (required for dynamic route param reading via useParams).
  */
 export default function DiscoverPage() {
   return (

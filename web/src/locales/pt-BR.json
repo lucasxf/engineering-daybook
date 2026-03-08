@@ -310,12 +310,14 @@
       "description": "Siga aprendizes para ver seus conhecimentos no feed.",
       "discoverCta": "Encontrar aprendizes para seguir"
     },
+    "itemCount": "{count, plural, one {# item} other {# itens}}",
     "errors": {
       "loadFailed": "Falha ao carregar o feed. Tente novamente."
     }
   },
   "discover": {
     "title": "Descobrir",
+    "searchLabel": "Buscar aprendizes",
     "searchPlaceholder": "Buscar por nome ou handle…",
     "noResults": "Nenhum aprendiz encontrado",
     "noResultsHint": "Tente um termo diferente.",

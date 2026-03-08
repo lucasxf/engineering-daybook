@@ -64,7 +64,7 @@ export default function FeedPage() {
           )}
 
           <p className="mt-4 text-center text-xs text-slate-400 dark:text-slate-500">
-            {totalElements} item{totalElements !== 1 ? 's' : ''}
+            {t('itemCount', { count: totalElements })}
           </p>
         </>
       )}
