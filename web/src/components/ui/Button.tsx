@@ -27,7 +27,7 @@ export function Button({
         {
           /* Primary: ember-cta with proper disabled state */
           'bg-primary text-primary-foreground hover:bg-primary-hover': variant === 'primary' && !disabled,
-          'bg-btn-disabled text-btn-disabled-text dark:bg-btn-disabled-dark dark:text-btn-disabled-text-dark cursor-not-allowed':
+          'bg-btn-disabled text-btn-disabled-text cursor-not-allowed':
             variant === 'primary' && disabled,
           /* Secondary */
           'bg-card text-card-foreground border border-card-border hover:bg-muted/10':

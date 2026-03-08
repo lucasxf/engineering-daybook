@@ -29,6 +29,9 @@
     
     --ring: 212 133 74;
     --radius: 0.5rem;
+
+    --btn-disabled: 224 216 208; /* #E0D8D0 */
+    --btn-disabled-text: 153 153 153; /* #999999 */
   }
 
   .dark {
@@ -56,6 +59,9 @@
     --destructive-border: 90 42 42; /* #5A2A2A */
     
     --ring: 212 133 74;
+
+    --btn-disabled: 58 74 90; /* #3A4A5A */
+    --btn-disabled-text: 106 122 138; /* #6A7A8A */
   }
 
   body {

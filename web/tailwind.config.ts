@@ -50,14 +50,8 @@ const config: Config = {
         parchment: '#F5F0E8',
         ink: '#1A1A2E',
         /* Disabled button colors */
-        'btn-disabled': {
-          DEFAULT: '#E0D8D0',
-          dark: '#3A4A5A',
-        },
-        'btn-disabled-text': {
-          DEFAULT: '#999999',
-          dark: '#6A7A8A',
-        },
+        'btn-disabled': 'rgb(var(--btn-disabled) / <alpha-value>)',
+        'btn-disabled-text': 'rgb(var(--btn-disabled-text) / <alpha-value>)',
       },
       keyframes: {
         fadeIn: {
