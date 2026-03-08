@@ -1,6 +1,6 @@
 # Discovery Feed
 
-> **Status:** Approved
+> **Status:** In Progress
 > **Created:** 2026-03-08
 > **Implemented:** _pending_
 
