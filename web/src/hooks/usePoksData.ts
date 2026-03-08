@@ -134,8 +134,8 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
       // getAll returns PokListPage (PokPage | FeedPage).
       // When no keyword/tag filter is active the backend returns FeedPage (mixed feed with
       // re-learnings). When filters are present it returns PokPage (owned POKs only).
-      // Both shapes are compatible with FeedItem[] — PokShare items carry originalPokId.
-      setPoks(result.content as FeedItem[]);
+      // PokPage.content is OwnedPok[] (a subtype of FeedItem[]) — no cast needed.
+      setPoks(result.content);
       setTotalElements(result.totalElements);
     } catch (err) {
       if (err instanceof ApiRequestError) {

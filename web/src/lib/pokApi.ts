@@ -19,6 +19,12 @@ export interface Pok {
   pendingSuggestions: TagSuggestion[];
 }
 
+/**
+ * An owned POK as it appears in a feed response.
+ * The backend always includes `type: "owned"` on PokResponse — this type captures that.
+ */
+export type OwnedPok = Pok & { type: 'owned' };
+
 export interface CreatePokDto {
   title?: string | null;
   content: string;
@@ -33,7 +39,7 @@ export interface UpdatePokDto {
 }
 
 export interface PokPage {
-  content: Pok[];
+  content: OwnedPok[];
   page: number;
   size: number;
   totalElements: number;
@@ -60,7 +66,7 @@ export interface PokShare {
 }
 
 /** Union type for feed items — an owned POK or a re-learning. */
-export type FeedItem = (Pok & { type: 'owned' }) | PokShare;
+export type FeedItem = OwnedPok | PokShare;
 
 /** Page of feed items (owned POKs mixed with re-learnings). */
 export interface FeedPage {
