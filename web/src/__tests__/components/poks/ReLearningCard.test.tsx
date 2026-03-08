@@ -100,7 +100,7 @@ describe('ReLearningCard', () => {
   it('renders formatted date', () => {
     const { container } = renderCard();
 
-    // <time> has no implicit ARIA role in ARIA 1.2 — query via DOM directly
+    // <time> has no standard ARIA role in most jsdom versions; query directly
     const time = container.querySelector('time');
     expect(time).toBeInTheDocument();
     expect(time).toHaveAttribute('dateTime', '2026-03-07T12:00:00Z');
