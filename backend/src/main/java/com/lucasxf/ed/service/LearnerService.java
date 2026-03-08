@@ -163,6 +163,10 @@ public class LearnerService {
         List<Pok> poks;
         List<PokShare> shares;
 
+        // TODO(Milestone 6.5+): Replace in-memory union+pagination with a DB-level UNION query
+        //   (native SQL or a view) once learner feeds grow. Currently fetches all rows for the
+        //   target user and paginates in memory, which is acceptable for MVP-scale data but will
+        //   degrade as the number of owned POKs and re-learnings grows.
         if (isOwner) {
             poks = pokRepository.findByUserIdAndDeletedAtIsNull(target.getId(), Pageable.unpaged()).getContent();
             shares = pokShareRepository.findBySharedByUserId(target.getId(), Pageable.unpaged()).getContent();
