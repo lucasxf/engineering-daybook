@@ -121,19 +121,35 @@ Expected rating: **Everyone / PEGI 3**
 
 ## Data Safety Section (Google Play Console)
 
-| Data type | Collected | Purpose | Encrypted in transit | Can user request deletion |
-|-----------|-----------|---------|----------------------|--------------------------|
-| Email address | Yes | Account registration and login | Yes (HTTPS) | Yes |
-| User ID (handle) | Yes | Account identification | Yes (HTTPS) | Yes |
-| Name (display name) | Yes | Profile display | Yes (HTTPS) | Yes |
-| Photos/videos (avatar) | Optional | Profile picture | Yes (HTTPS) | Yes |
-| User-generated content (learnings, tags, bio) | Yes | Core app functionality | Yes (HTTPS) | Yes |
-| App preferences (theme, language, visibility) | Yes | Personalization | Yes (HTTPS) | Yes |
+### Top-level questions
 
-**Data is not:**
-- Shared with third parties (except Supabase hosting, HuggingFace processing)
-- Used for advertising or profiling
+| Question | Answer | Reason |
+|----------|--------|--------|
+| Does your app collect or share any of the required user data types? | **Yes** | Email, name, handle, content, avatar |
+| Is all of the user data collected by your app encrypted in transit? | **Yes** | Every API call uses HTTPS — Railway backend (`https://`), Supabase Storage (`https://`), HuggingFace API (`https://`). No plain HTTP in production. |
+| Do you provide a way for users to request that their data is deleted? | **Yes** | Users can delete individual learnings in-app; account deletion via contact (privacy policy) |
+
+### Data types collected
+
+| Data type | Collected | Purpose | Encrypted in transit | Shared with third parties | Can user request deletion |
+|-----------|-----------|---------|----------------------|--------------------------|--------------------------|
+| Email address | Yes | Account login | Yes — HTTPS | No | Yes |
+| User ID / handle | Yes | Account identification | Yes — HTTPS | No | Yes |
+| Name (display name) | Yes | Profile display | Yes — HTTPS | No | Yes |
+| Photos / avatar | Optional | Profile picture | Yes — HTTPS (Supabase Storage) | Supabase (storage provider only) | Yes |
+| User-generated content (learnings, tags, bio) | Yes | Core app functionality | Yes — HTTPS | HuggingFace (embedding only, not stored) | Yes |
+| App preferences (theme, language, visibility) | Yes | Personalization | Yes — HTTPS | No | Yes |
+
+### What "shared with third parties" means here
+
+- **Supabase**: hosts the database and file storage. Acts as infrastructure provider, not a data recipient for business purposes.
+- **HuggingFace Inference API**: learning content text is sent for embedding generation (semantic search). HuggingFace does not store the content beyond the request lifetime.
+- Neither provider uses the data for advertising or profiling.
+
+**Data is never:**
+- Used for advertising or tracking
 - Sold to any party
+- Shared for any purpose other than operating the service
 
 ---
 
