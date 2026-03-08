@@ -109,7 +109,7 @@ export default function DemoPage() {
 
   return (
     <div className={mode === 'dark' ? 'dark' : ''}>
-      <div className="min-h-screen bg-background text-foreground dark:bg-deep-navy dark:text-parchment">
+      <div className={`min-h-screen ${mode === 'dark' ? 'bg-deep-navy text-parchment' : 'bg-slate-100 text-ink'}`}>
         {/* Demo Controls — barra de preview, não faz parte do design real do app */}
         <div className="border-b border-slate-200 bg-slate-50 px-4 py-3">
           <div className="mx-auto max-w-6xl flex items-center justify-between">
@@ -139,17 +139,21 @@ export default function DemoPage() {
         <div className="p-4 sm:p-8">
           <div className={`mx-auto max-w-4xl rounded-lg shadow-2xl overflow-hidden border ${
             mode === 'light'
-              ? 'bg-parchment border-border'
-              : 'bg-deep-navy border-mid-blue dark:border-mid-blue'
+              ? 'bg-parchment border-slate-200'
+              : 'bg-deep-navy border-mid-blue'
           }`}>
             {/* TopNav - Inline */}
-            <nav className="border-b border-border bg-card/50 backdrop-blur-sm dark:border-mid-blue dark:bg-primary-blue/30">
+            <nav className={`border-b backdrop-blur-sm ${
+              mode === 'light'
+                ? 'border-slate-200 bg-white/80'
+                : 'border-mid-blue bg-primary-blue/30'
+            }`}>
               <div className="mx-auto max-w-4xl px-4 py-4">
                 <div className="flex items-center justify-between">
                   {/* Wordmark */}
                   <div className="font-wordmark text-xl font-semibold">
-                    <span className="wordmark-regular text-ink dark:text-parchment">learn</span>
-                    <span className="wordmark-bold text-accent">imo</span>
+                    <span className={`wordmark-regular ${mode === 'light' ? 'text-ink' : 'text-parchment'}`}>learn</span>
+                    <span className="wordmark-bold text-ember-cta">imo</span>
                   </div>
 
                   {/* User Avatar */}
@@ -164,10 +168,10 @@ export default function DemoPage() {
               {/* PageHeader - Inline */}
               <div className="mb-8 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
-                  <h2 className="text-3xl font-heading font-semibold text-ink dark:text-parchment">
+                  <h2 className={`text-3xl font-heading font-semibold ${mode === 'light' ? 'text-ink' : 'text-parchment'}`}>
                     Meus Aprendizados
                   </h2>
-                  <p className="mt-1 text-sm text-slate-600 dark:text-muted-foreground">
+                  <p className={`mt-1 text-sm ${mode === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>
                     42 aprendizados
                   </p>
                 </div>
@@ -183,14 +187,18 @@ export default function DemoPage() {
                 {/* Search Input */}
                 <div className="relative flex-1">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3">
-                    <Search className="h-4 w-4 text-muted dark:text-muted-foreground" />
+                    <Search className={`h-4 w-4 ${mode === 'light' ? 'text-slate-400' : 'text-slate-500'}`} />
                   </div>
                   <input
                     type="text"
                     placeholder="Pesquisar seus aprendizados..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent focus:outline-none dark:border-mid-blue dark:bg-deep-navy dark:text-parchment dark:focus:border-ember-cta"
+                    className={`w-full rounded-md border pl-9 pr-3 py-2 text-sm transition-colors focus:outline-none ${
+                      mode === 'light'
+                        ? 'border-slate-300 bg-white text-ink placeholder:text-slate-400 focus:border-ember-cta'
+                        : 'border-mid-blue bg-deep-navy text-parchment placeholder:text-slate-500 focus:border-ember-cta'
+                    }`}
                     aria-label="Pesquisar aprendizados"
                   />
                 </div>
@@ -199,7 +207,11 @@ export default function DemoPage() {
                 <select
                   value={currentSortValue}
                   onChange={handleSortChange}
-                  className="rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground transition-colors focus:border-accent focus:outline-none dark:border-mid-blue dark:bg-deep-navy dark:text-parchment dark:focus:border-ember-cta"
+                  className={`rounded-md border px-3 py-2 text-sm transition-colors focus:outline-none ${
+                    mode === 'light'
+                      ? 'border-slate-300 bg-white text-ink focus:border-ember-cta'
+                      : 'border-mid-blue bg-deep-navy text-parchment focus:border-ember-cta'
+                  }`}
                   aria-label="Ordenar aprendizados"
                 >
                   {SORT_OPTIONS.map((option) => (
@@ -213,7 +225,7 @@ export default function DemoPage() {
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="rounded-md border border-accent bg-transparent px-3 py-2 text-sm font-medium text-accent transition-colors hover:bg-accent/10 dark:border-ember-cta dark:text-ember-cta dark:hover:bg-ember-cta/10"
+                    className="rounded-md border border-ember-cta bg-transparent px-3 py-2 text-sm font-medium text-ember-cta transition-colors hover:bg-ember-cta/10"
                   >
                     Limpar
                   </button>
@@ -228,15 +240,23 @@ export default function DemoPage() {
                       {filteredLearnings.map((learning) => (
                         <div
                           key={learning.id}
-                          className="group rounded-md border border-border bg-card p-4 transition-all duration-150 ease-out hover:border-mid-blue hover:shadow-sm dark:border-mid-blue dark:bg-primary-blue dark:hover:border-mid-blue dark:hover:shadow-md"
+                          className={`group rounded-md border p-4 transition-all duration-150 ease-out hover:shadow-sm ${
+                            mode === 'light'
+                              ? 'border-slate-200 bg-white hover:border-slate-300'
+                              : 'border-mid-blue bg-primary-blue hover:shadow-md'
+                          }`}
                         >
                           {/* Title */}
-                          <h3 className="font-heading text-lg font-semibold text-foreground dark:text-parchment line-clamp-2">
+                          <h3 className={`font-heading text-lg font-semibold line-clamp-2 ${
+                            mode === 'light' ? 'text-ink' : 'text-parchment'
+                          }`}>
                             {learning.title}
                           </h3>
 
                           {/* Content Preview */}
-                          <p className="mt-2 text-sm text-muted-foreground dark:text-muted line-clamp-2">
+                          <p className={`mt-2 text-sm line-clamp-2 ${
+                            mode === 'light' ? 'text-slate-600' : 'text-slate-400'
+                          }`}>
                             {learning.content}
                           </p>
 
@@ -246,7 +266,11 @@ export default function DemoPage() {
                               {learning.tags.map((tag) => (
                                 <span
                                   key={tag}
-                                  className="inline-block rounded px-2 py-1 text-xs font-medium bg-input text-muted-foreground dark:bg-mid-blue dark:text-blue-200"
+                                  className={`inline-block rounded px-2 py-1 text-xs font-medium ${
+                                    mode === 'light'
+                                      ? 'bg-slate-100 text-slate-600'
+                                      : 'bg-mid-blue text-blue-200'
+                                  }`}
                                 >
                                   {tag}
                                 </span>
@@ -255,7 +279,9 @@ export default function DemoPage() {
                           )}
 
                           {/* Timestamps */}
-                          <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground dark:text-muted-foreground">
+                          <div className={`mt-3 flex flex-wrap gap-2 text-xs ${
+                            mode === 'light' ? 'text-slate-500' : 'text-slate-400'
+                          }`}>
                             <span>Criado {formatDate(new Date(learning.createdAt))}</span>
                             <span>·</span>
                             <span>Atualizado {formatRelativeTime(new Date(learning.updatedAt))}</span>
@@ -269,19 +295,27 @@ export default function DemoPage() {
                       <div className="flex items-center gap-2">
                         <button
                           disabled
-                          className="flex h-9 w-9 items-center justify-center rounded-md border border-input bg-background text-foreground opacity-50 dark:border-mid-blue dark:bg-deep-navy dark:text-parchment"
+                          className={`flex h-9 w-9 items-center justify-center rounded-md border opacity-50 ${
+                            mode === 'light'
+                              ? 'border-slate-300 bg-white text-ink'
+                              : 'border-mid-blue bg-deep-navy text-parchment'
+                          }`}
                           aria-label="Página anterior"
                         >
                           <ChevronLeft className="h-4 w-4" />
                         </button>
 
-                        <span className="px-3 py-1 text-sm text-foreground dark:text-parchment">
+                        <span className={`px-3 py-1 text-sm ${mode === 'light' ? 'text-ink' : 'text-parchment'}`}>
                           Página 1 de 1
                         </span>
 
                         <button
                           disabled
-                          className="flex h-9 w-9 items-center justify-center rounded-md border border-input bg-background text-foreground opacity-50 dark:border-mid-blue dark:bg-deep-navy dark:text-parchment"
+                          className={`flex h-9 w-9 items-center justify-center rounded-md border opacity-50 ${
+                            mode === 'light'
+                              ? 'border-slate-300 bg-white text-ink'
+                              : 'border-mid-blue bg-deep-navy text-parchment'
+                          }`}
                           aria-label="Próxima página"
                         >
                           <ChevronRight className="h-4 w-4" />
@@ -291,16 +325,16 @@ export default function DemoPage() {
                   </>
                 ) : (
                   <div className="text-center py-12">
-                    <Search className="mx-auto h-12 w-12 text-muted dark:text-muted-foreground" />
-                    <h3 className="mt-4 font-heading text-lg font-semibold text-foreground dark:text-parchment">
+                    <Search className={`mx-auto h-12 w-12 ${mode === 'light' ? 'text-slate-400' : 'text-slate-500'}`} />
+                    <h3 className={`mt-4 font-heading text-lg font-semibold ${mode === 'light' ? 'text-ink' : 'text-parchment'}`}>
                       Nenhum resultado encontrado
                     </h3>
-                    <p className="mt-2 text-sm text-muted-foreground dark:text-muted">
+                    <p className={`mt-2 text-sm ${mode === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>
                       Não encontramos aprendizados que correspondam a "{searchQuery}"
                     </p>
                     <button
                       onClick={() => setSearchQuery('')}
-                      className="mt-4 rounded-md border border-accent bg-transparent px-4 py-2 text-sm font-medium text-accent transition-colors hover:bg-accent/10 dark:border-ember-cta dark:text-ember-cta dark:hover:bg-ember-cta/10"
+                      className="mt-4 rounded-md border border-ember-cta bg-transparent px-4 py-2 text-sm font-medium text-ember-cta transition-colors hover:bg-ember-cta/10"
                     >
                       Limpar pesquisa
                     </button>
@@ -311,7 +345,7 @@ export default function DemoPage() {
           </div>
 
           {/* Info Footer */}
-          <div className="mx-auto max-w-4xl mt-8 text-center text-sm text-muted-foreground dark:text-muted">
+          <div className={`mx-auto max-w-4xl mt-8 text-center text-sm ${mode === 'light' ? 'text-slate-500' : 'text-slate-400'}`}>
             <p>Este é um preview do design. Use os controles acima para alternar entre os modos.</p>
             <p className="mt-2 text-xs">Dados são fictícios e apenas para demonstração visual.</p>
           </div>
