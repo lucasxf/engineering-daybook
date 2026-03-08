@@ -197,6 +197,41 @@
       "unexpected": "Something went wrong. Please try again.",
       "visibilityImmutable": "A public learning cannot be made private."
     },
+    "feed": {
+      "empty": {
+        "title": "Your knowledge journey starts here",
+        "hint": "Save your first learning to start building your personal journal.",
+        "button": "Save first learning"
+      },
+      "error": {
+        "title": "Failed to load your learnings",
+        "hint": "Please try again in a moment.",
+        "retry": "Try again"
+      },
+      "noResults": {
+        "title": "No learnings found",
+        "hint": "No results for \"{query}\". Try adjusting your search terms.",
+        "clearSearch": "Clear search",
+        "newLearning": "New learning"
+      },
+      "sortOptions": {
+        "newestFirst": "Newest first",
+        "oldestFirst": "Oldest first",
+        "recentlyUpdated": "Recently updated",
+        "updatedOldestFirst": "Updated oldest first"
+      },
+      "pagination": {
+        "previous": "Previous",
+        "next": "Next",
+        "page": "Page",
+        "of": "of"
+      },
+      "card": {
+        "createdAt": "Created {date}",
+        "updatedAt": "Updated {relativeTime}"
+      },
+      "count": "{count, plural, =1 {1 learning} other {# learnings}}"
+    },
     "share": {
       "button": "Re-learn",
       "modalTitle": "Re-learn this learning",
