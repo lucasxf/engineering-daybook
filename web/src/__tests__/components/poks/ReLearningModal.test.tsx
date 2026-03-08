@@ -52,6 +52,7 @@ const messages = {
 };
 
 const basePok: Pok = {
+  type: 'owned',
   id: 'pok-123',
   userId: 'user-bob',
   title: "Bob's Learning",

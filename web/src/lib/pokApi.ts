@@ -7,6 +7,8 @@ import type { Tag, TagSuggestion } from './tagApi';
 export type PokVisibility = 'PRIVATE' | 'COLLEAGUES_ONLY' | 'FOLLOWERS_ONLY' | 'PUBLIC';
 
 export interface Pok {
+  /** Type discriminator — always {@code "owned"} for POKs authored by the user. */
+  type: 'owned';
   id: string;
   userId: string;
   title: string | null;
@@ -21,9 +23,10 @@ export interface Pok {
 
 /**
  * An owned POK as it appears in a feed response.
- * The backend always includes `type: "owned"` on PokResponse — this type captures that.
+ * Now equivalent to `Pok` since `type: 'owned'` is declared on the interface.
+ * Kept as a named alias for semantic clarity.
  */
-export type OwnedPok = Pok & { type: 'owned' };
+export type OwnedPok = Pok;
 
 export interface CreatePokDto {
   title?: string | null;

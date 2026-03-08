@@ -134,7 +134,8 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
       // getAll returns PokListPage (PokPage | FeedPage).
       // When no keyword/tag filter is active the backend returns FeedPage (mixed feed with
       // re-learnings). When filters are present it returns PokPage (owned POKs only).
-      // PokPage.content is OwnedPok[] (a subtype of FeedItem[]) — no cast needed.
+      // Both PokPage.content (Pok[]) and FeedPage.content (FeedItem[]) are directly
+      // assignable to FeedItem[] because Pok extends FeedItem (type: 'owned' discriminator).
       setPoks(result.content);
       setTotalElements(result.totalElements);
     } catch (err) {
@@ -182,10 +183,8 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
   }, [sortOption, updateURL]);
 
   const handleQuickSave = useCallback((pok: Pok) => {
-    // Newly-created poks are always owned; add the type discriminant so the item
-    // is a valid FeedItem (Pok & { type: 'owned' }).
-    const feedItem: FeedItem = { ...pok, type: 'owned' as const };
-    setPoks((prev) => [feedItem, ...prev]);
+    // Pok already has type: 'owned' — it is directly assignable to FeedItem.
+    setPoks((prev) => [pok, ...prev]);
     setTotalElements((prev) => prev + 1);
   }, []);
 

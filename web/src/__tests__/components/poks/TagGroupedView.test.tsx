@@ -20,6 +20,7 @@ import { TagGroupedView } from '@/components/poks/TagGroupedView';
 
 function makePok(id: string, title: string, tagNames: string[]): Pok {
   return {
+    type: 'owned',
     id,
     userId: 'u1',
     title,

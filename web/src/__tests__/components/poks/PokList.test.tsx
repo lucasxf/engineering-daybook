@@ -20,6 +20,7 @@ vi.mock('next-intl', () => ({
 
 describe('PokList', () => {
   const mockPok1: Pok = {
+    type: 'owned',
     id: '1',
     userId: 'user-1',
     title: 'POK 1',
@@ -32,6 +33,7 @@ describe('PokList', () => {
     pendingSuggestions: [],
   };
   const mockPok2: Pok = {
+    type: 'owned',
     id: '2',
     userId: 'user-1',
     title: null,

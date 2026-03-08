@@ -43,10 +43,12 @@ import { usePoksData } from '@/hooks/usePoksData';
 import type { Pok } from '@/lib/pokApi';
 
 const MOCK_POK: Pok = {
+  type: 'owned',
   id: '1',
   userId: 'user-1',
   title: 'Test Learning',
   content: 'Some content',
+  visibility: 'PRIVATE',
   deletedAt: null,
   createdAt: '2026-02-01T10:00:00Z',
   updatedAt: '2026-02-01T10:00:00Z',
