@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
+import { ApiRequestError } from '@/lib/api';
 import { pokApi, type Pok, type PokShare, type PokVisibility } from '@/lib/pokApi';
 
 interface ReLearningModalProps {
@@ -52,20 +53,24 @@ export function ReLearningModal({ pok, onClose, onSuccess }: ReLearningModalProp
       onSuccess(share);
       onClose();
     } catch (err: unknown) {
-      const status = (err as { status?: number })?.status;
-      const message = (err as { message?: string })?.message ?? '';
-      if (status === 400) {
-        if (message.includes('own learning') || message.includes('self')) {
-          setError(t('errors.selfShare'));
-        } else if (message.includes('500') || message.includes('Validation failed') || message.includes('Note must')) {
-          setError(t('errors.noteTooLong'));
+      if (err instanceof ApiRequestError) {
+        if (err.status === 400) {
+          const msg = err.message;
+          if (msg.includes('own learning') || msg.includes('self')) {
+            setError(t('errors.selfShare'));
+          } else if (msg.includes('Validation failed') || msg.includes('Note must')) {
+            setError(t('errors.noteTooLong'));
+          } else {
+            // Covers: not PUBLIC, visibility tier too loose, and other 400s
+            setError(t('errors.notPublic'));
+          }
+        } else if (err.status === 409) {
+          setError(t('errors.duplicate'));
+        } else if (err.status === 404) {
+          setError(t('errors.notFound'));
         } else {
-          setError(t('errors.notPublic'));
+          setError(t('errors.unexpected'));
         }
-      } else if (status === 409) {
-        setError(t('errors.duplicate'));
-      } else if (status === 404) {
-        setError(t('errors.notFound'));
       } else {
         setError(t('errors.unexpected'));
       }
