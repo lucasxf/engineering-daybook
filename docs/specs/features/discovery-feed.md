@@ -1,8 +1,8 @@
 # Discovery Feed
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-03-08
-> **Implemented:** _pending_
+> **Implemented:** 2026-03-08
 
 ---
 
@@ -611,19 +611,33 @@ items.map(item =>
 
 ## Post-Implementation Notes
 
-> _This section is filled AFTER implementation._
-
 ### Commits
-- _pending_
+- `6370c95` fix: extend PokShareResponse with original author fields
+- `5de6aef` chore: add V21 Flyway migration for discovery feed indexes
+- `e754554` feat: add FeedService with UNION ALL discovery feed query (TDD)
+- `5e0df6f` feat: add FeedController GET /api/v1/feed (TDD)
+- `ae48791` feat: add learner search endpoint (TDD)
+- `77d4b4f` feat: update home redirect and nav for discovery feed (web)
+- `7fe41a2` feat: add social feed page (web)
+- `f2b215f` feat: add Discover page with learner search (web)
+- `7bb3216` test: add E2E tests for feed and discover pages
+- `c837fd3` feat: update mobile FeedScreen for social feed
 
 ### Architectural Decisions
 
-_pending_
+- **Separate `learnerApi.ts` on mobile:** Rather than adding social feed types to `pokApi.ts`, a new `learnerApi.ts` module was created to mirror the web structure. This keeps the learner-facing API client separate from the POK CRUD client.
+- **New `useSocialFeedData` hook instead of updating `useFeedData`:** `useFeedData` is used by `FeedScreen` for own-learnings search with `PokSearchParams`. The social feed has no search params. A separate hook keeps both hooks simple with a single responsibility.
+- **Client-side auth guard on `/feed` and `/discover` (web):** Next.js middleware in this project only handles i18n routing. Auth redirects are done client-side via `useAuth() → router.push('/login')`, consistent with `usePoksData` and all other protected pages.
+- **Route ordering in E2E mock-api.ts:** `/learners/search` check must precede the `/learners/{handle}` regex match, otherwise "search" is treated as a handle and returns 404.
 
 ### Deviations from Spec
 
-_pending_
+- **`useFeedData` was not updated** — created `useSocialFeedData` instead to avoid breaking the existing personal-learnings hook. `FeedScreen` was updated to use the new hook.
+- **Mobile types in `learnerApi.ts`, not `pokApi.ts`** — cleaner separation; spec referenced `pokApi.ts` as the destination but the implementation pattern is better served by a separate module.
+- **AC-17 (Re-learn button on feed card)** — the mobile `ReLearningCard` variant was implemented as an inline renderer in `FeedScreen` rather than a dedicated component, as the mobile UI is simpler and a full modal was out of scope for this milestone.
 
 ### Lessons Learned
 
-_pending_
+- Playwright strict mode violations (multiple elements matching a locator) are common when cards have duplicate links (avatar + text). Use `.first()` or more specific selectors.
+- `input[type="search"]` has ARIA role `searchbox`, not `textbox` — always verify ARIA roles before writing Playwright locators.
+- Mock API route handlers must be ordered most-specific first (e.g. `/learners/search` before `/learners/{handle}`) to avoid false path matches.
