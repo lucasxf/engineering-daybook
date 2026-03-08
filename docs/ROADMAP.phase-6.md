@@ -96,12 +96,17 @@
 - Test coverage: 46 backend tests (21 service + 15 controller + 10 integration, 93.9% JaCoCo line coverage) + 29 web tests (24 component + 5 API) + 4 E2E scenarios in `learners.spec.ts`
 - Item 6.4.3 (share notification) deferred — does not block 6.5+
 
-## Milestone 6.5: Discovery Feed
+## Milestone 6.5: Discovery Feed ✅ Done (2026-03-08)
 
 | # | Feature | Priority |
 |---|---------|----------|
 | 6.5.1 | Feed of public POKs from learners you follow | Must Have |
 | 6.5.2 | Discover public learners (search by handle or name) | Should Have |
+
+**Implemented:**
+- Backend: `FeedService` (UNION ALL SQL query over poks + pok_shares), `FeedController` (GET /api/v1/feed), `LearnerService.searchLearners`, `LearnerController` search endpoint (GET /api/v1/learners/search), V21 Flyway migration (pg_trgm + 4 indexes)
+- Web: `/feed` page (FeedList + FeedEmptyState + ReLearningCard wired), `/discover` page (LearnerSearchBar + LearnerResultCard + FollowButton), NavLinks updated, home redirect `/` → `/feed`; 17 new E2E tests
+- Mobile: `learnerApi.ts` (FeedItem/PokShare types + getFeed()), `useSocialFeedData` hook, FeedScreen updated to show social feed with author attribution
 
 ## Milestone 6.6: Community Principles & Content Moderation
 
@@ -114,7 +119,6 @@
 
 ## Active / Pending
 
-- **Next up:** Milestone 6.5 — Discovery Feed (feed of public POKs from followed learners; `ReLearningCard` component lands here)
 - **Pending:** Milestone 6.2 (Classes & Study Groups), 6.6 (Community Principles & Content Moderation)
 
 ## Exit Criteria
@@ -124,5 +128,7 @@
 - [x] Profiles display correctly with visibility enforcement
 - [x] Share feature works with attribution and visibility cascade
 - [x] No vanity metrics visible on public profiles
+- [x] Social discovery feed shows learnings from followed learners
+- [x] Learner search enables finding new learners to follow
 - [ ] Community Principles published and linked in-app
 - [ ] Report mechanism functional

@@ -74,7 +74,7 @@ class PokControllerTest {
         // Given
         CreatePokRequest request = new CreatePokRequest("Test Title", "Test content", null, null);
         PokResponse response = new PokResponse(
-            "owned", pokId, userId, "Test Title", "Test content", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
+            "owned", pokId, userId, "Test Title", "Test content", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList(), null, null, null
         );
 
         when(pokService.create(any(CreatePokRequest.class), any(UUID.class)))
@@ -99,7 +99,7 @@ class PokControllerTest {
         // Given: Title is optional (frictionless capture)
         CreatePokRequest request = new CreatePokRequest(null, "Content without title", null, null);
         PokResponse response = new PokResponse(
-            "owned", pokId, userId, null, "Content without title", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
+            "owned", pokId, userId, null, "Content without title", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList(), null, null, null
         );
 
         when(pokService.create(any(CreatePokRequest.class), any(UUID.class)))
@@ -163,7 +163,7 @@ class PokControllerTest {
     void getPokById_whenExists_shouldReturn200() throws Exception {
         // Given
         PokResponse response = new PokResponse(
-            "owned", pokId, userId, "Title", "Content", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
+            "owned", pokId, userId, "Title", "Content", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList(), null, null, null
         );
 
         when(pokService.getById(eq(pokId), any(UUID.class))).thenReturn(response);
@@ -223,10 +223,10 @@ class PokControllerTest {
     void listPoks_shouldReturn200WithPagedResults() throws Exception {
         // Given
         PokResponse pok1 = new PokResponse(
-            "owned", UUID.randomUUID(), userId, "Title 1", "Content 1", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
+            "owned", UUID.randomUUID(), userId, "Title 1", "Content 1", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList(), null, null, null
         );
         PokResponse pok2 = new PokResponse(
-            "owned", UUID.randomUUID(), userId, null, "Content 2", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
+            "owned", UUID.randomUUID(), userId, null, "Content 2", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList(), null, null, null
         );
 
         Page<FeedItemResponse> page = new PageImpl<>(
@@ -286,7 +286,7 @@ class PokControllerTest {
         // Given
         UpdatePokRequest request = new UpdatePokRequest("Updated Title", "Updated content", null);
         PokResponse response = new PokResponse(
-            "owned", pokId, userId, "Updated Title", "Updated content", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
+            "owned", pokId, userId, "Updated Title", "Updated content", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList(), null, null, null
         );
 
         when(pokService.update(eq(pokId), any(UpdatePokRequest.class), any(UUID.class)))
@@ -310,7 +310,7 @@ class PokControllerTest {
         // Given: User removes title (sets to null)
         UpdatePokRequest request = new UpdatePokRequest(null, "Content only", null);
         PokResponse response = new PokResponse(
-            "owned", pokId, userId, null, "Content only", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
+            "owned", pokId, userId, null, "Content only", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList(), null, null, null
         );
 
         when(pokService.update(eq(pokId), any(UpdatePokRequest.class), any(UUID.class)))
@@ -443,7 +443,7 @@ class PokControllerTest {
     void searchPoks_withKeyword_shouldReturn200() throws Exception {
         // Given
         PokResponse pok = new PokResponse(
-            "owned", pokId, userId, "Spring Boot", "Content about Spring", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList()
+            "owned", pokId, userId, "Spring Boot", "Content about Spring", null, null, Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList(), null, null, null
         );
         Page<PokResponse> page = new PageImpl<>(List.of(pok), PageRequest.of(0, 20), 1);
 
@@ -728,7 +728,7 @@ class PokControllerTest {
         CreatePokRequest request = new CreatePokRequest("Title", "Content", null, Pok.Visibility.PUBLIC);
         PokResponse response = new PokResponse(
             "owned", pokId, userId, "Title", "Content", Pok.Visibility.PUBLIC, null, Instant.now(), Instant.now(),
-            Collections.emptyList(), Collections.emptyList());
+            Collections.emptyList(), Collections.emptyList(), null, null, null);
 
         when(pokService.create(any(CreatePokRequest.class), any(UUID.class))).thenReturn(response);
 
@@ -763,7 +763,7 @@ class PokControllerTest {
         UpdatePokRequest request = new UpdatePokRequest("Title", "Content", Pok.Visibility.PUBLIC);
         PokResponse response = new PokResponse(
             "owned", pokId, userId, "Title", "Content", Pok.Visibility.PUBLIC, null, Instant.now(), Instant.now(),
-            Collections.emptyList(), Collections.emptyList());
+            Collections.emptyList(), Collections.emptyList(), null, null, null);
 
         when(pokService.update(eq(pokId), any(UpdatePokRequest.class), any(UUID.class))).thenReturn(response);
 
@@ -803,7 +803,7 @@ class PokControllerTest {
         UUID otherUserId = UUID.randomUUID();
         PokResponse response = new PokResponse(
             "owned", pokId, otherUserId, "Public Learning", "Public content", Pok.Visibility.PUBLIC, null,
-            Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList());
+            Instant.now(), Instant.now(), Collections.emptyList(), Collections.emptyList(), null, null, null);
 
         when(pokService.getById(eq(pokId), any(UUID.class))).thenReturn(response);
 

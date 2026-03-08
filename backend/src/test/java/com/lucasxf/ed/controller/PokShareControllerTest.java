@@ -68,9 +68,9 @@ class PokShareControllerTest {
     void share_publicPok_returns201WithShareResponse() throws Exception {
         PokResponse originalPok = new PokResponse(
             "owned", pokId, UUID.randomUUID(), "Original Title", "Original Content",
-            Pok.Visibility.PUBLIC, null, null, null, null, null);
+            Pok.Visibility.PUBLIC, null, null, null, null, null, null, null, null);
         PokShareResponse response = new PokShareResponse(
-            "shared", shareId, pokId, originalPok, "alice", null, Pok.Visibility.PUBLIC, Instant.now());
+            "shared", shareId, pokId, originalPok, "alice", null, Pok.Visibility.PUBLIC, Instant.now(), null, null, null);
 
         when(pokShareService.share(eq(pokId), any(UUID.class), isNull(), eq(Pok.Visibility.PUBLIC)))
             .thenReturn(response);
@@ -92,9 +92,9 @@ class PokShareControllerTest {
         String note = "Great explanation of this concept";
         PokResponse originalPok = new PokResponse(
             "owned", pokId, UUID.randomUUID(), "Title", "Content",
-            Pok.Visibility.PUBLIC, null, null, null, null, null);
+            Pok.Visibility.PUBLIC, null, null, null, null, null, null, null, null);
         PokShareResponse response = new PokShareResponse(
-            "shared", shareId, pokId, originalPok, "alice", note, Pok.Visibility.PUBLIC, Instant.now());
+            "shared", shareId, pokId, originalPok, "alice", note, Pok.Visibility.PUBLIC, Instant.now(), null, null, null);
 
         when(pokShareService.share(eq(pokId), any(UUID.class), eq(note), eq(Pok.Visibility.PUBLIC)))
             .thenReturn(response);
@@ -205,9 +205,9 @@ class PokShareControllerTest {
     void getShareById_found_returns200WithShareResponse() throws Exception {
         PokResponse originalPok = new PokResponse(
             "owned", pokId, UUID.randomUUID(), "Title", "Content",
-            Pok.Visibility.PUBLIC, null, null, null, null, null);
+            Pok.Visibility.PUBLIC, null, null, null, null, null, null, null, null);
         PokShareResponse response = new PokShareResponse(
-            "shared", shareId, pokId, originalPok, "bob", "A note", Pok.Visibility.PUBLIC, Instant.now());
+            "shared", shareId, pokId, originalPok, "bob", "A note", Pok.Visibility.PUBLIC, Instant.now(), null, null, null);
 
         when(pokShareService.getShareById(eq(shareId), any(UUID.class))).thenReturn(response);
 

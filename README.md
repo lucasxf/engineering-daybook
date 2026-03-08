@@ -222,6 +222,7 @@ See [ROADMAP.phase-6.md](./docs/ROADMAP.phase-6.md)
 - [x] Following & Colleagues — follow/unfollow, automatic colleague detection (mutual follow), FOLLOWERS_ONLY and COLLEAGUES_ONLY visibility tiers, private social counts (anti-vanity), RelationshipStatus on profiles, FollowButton component, 4-tier visibility selectors on Settings page
 - [x] Learner Profiles — avatar upload (Supabase Storage, Thumbnailator resize), bio and display name editing, public profile page, header avatar thumbnail + handle link, visibility enforcement, no public vanity metrics
 - [x] Share (Re-Learning) — share any public learning to your own feed with attribution to original author; visibility cascade enforced (shared visibility ≤ original); original going private removes downstream shares; Re-learn button on learner profiles for non-owner visitors; ReLearningModal component
+- [x] Discovery Feed — social feed aggregating learnings and re-learnings from followed learners (GET /api/v1/feed); Discover page with learner search by handle/name (GET /api/v1/learners/search); mobile social feed via useFeedData hook; 17 E2E tests
 
 ### Phase 8: Knowledge Enrichment — 🔄 In Progress
 See [ROADMAP.phase-8.md](./docs/ROADMAP.phase-8.md)

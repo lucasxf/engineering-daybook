@@ -5,7 +5,7 @@ import type { Tag, TagSuggestion } from './tagApi';
 // Types (mirror web/src/lib/pokApi.ts)
 // ---------------------------------------------------------------------------
 
-export type PokVisibility = 'PRIVATE' | 'PUBLIC';
+export type PokVisibility = 'PRIVATE' | 'COLLEAGUES_ONLY' | 'FOLLOWERS_ONLY' | 'PUBLIC';
 
 export interface Pok {
   id: string;
@@ -18,6 +18,12 @@ export interface Pok {
   updatedAt: string;
   tags: Tag[];
   pendingSuggestions: TagSuggestion[];
+  /** Author's handle — populated in discovery feed context; absent in My Learnings. */
+  authorHandle?: string | null;
+  /** Author's display name — populated in discovery feed context; absent in My Learnings. */
+  authorDisplayName?: string | null;
+  /** Author's avatar URL — populated in discovery feed context; absent in My Learnings. */
+  authorAvatarUrl?: string | null;
 }
 
 export interface CreatePokDto {
