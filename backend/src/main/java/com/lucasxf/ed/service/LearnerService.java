@@ -178,10 +178,11 @@ public class LearnerService {
         List<PokShare> shares;
         long total;
 
-        // TODO(perf): Both branches below fetch all rows via Pageable.unpaged() and then
-        // paginate in memory. This is acceptable for MVP where per-user item counts are small,
-        // but must be replaced with a DB-level UNION query (or keyset pagination) before this
-        // endpoint is exposed to high-volume users. Tracked in Milestone 6.5 / Phase 4.
+        // TODO(perf): The merge strategy below fetches up to (page+1)*size rows from each
+        // source separately, merges and sorts in memory, then slices. This bounds memory to
+        // O((page+1)*size) per source (vs. Pageable.unpaged()), but a DB-level UNION query
+        // with a single ORDER BY + LIMIT would be more efficient for large page offsets.
+        // Tracked in Milestone 6.5 / Phase 4.
         if (isOwner) {
             poks = pokRepository.findByUserIdAndDeletedAtIsNull(target.getId(), bounded).getContent();
             shares = pokShareRepository.findBySharedByUserId(target.getId(), bounded).getContent();
