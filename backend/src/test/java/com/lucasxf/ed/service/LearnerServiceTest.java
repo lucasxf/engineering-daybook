@@ -16,12 +16,14 @@ import org.springframework.data.domain.Pageable;
 
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.User;
+import com.lucasxf.ed.dto.FeedItemResponse;
 import com.lucasxf.ed.dto.LearnerProfileResponse;
 import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.RelationshipStatus;
 import com.lucasxf.ed.exception.LearnerAccessDeniedException;
 import com.lucasxf.ed.exception.LearnerNotFoundException;
 import com.lucasxf.ed.repository.PokRepository;
+import com.lucasxf.ed.repository.PokShareRepository;
 import com.lucasxf.ed.repository.PokTagRepository;
 import com.lucasxf.ed.repository.UserTagRepository;
 
@@ -55,6 +57,9 @@ class LearnerServiceTest {
 
     @Mock
     private FollowService followService;
+
+    @Mock
+    private PokShareRepository pokShareRepository;
 
     @InjectMocks
     private LearnerService learnerService;
@@ -271,10 +276,13 @@ class LearnerServiceTest {
         when(pokRepository.findByUserIdAndVisibilityInAndDeletedAtIsNull(
             eq(aliceId), any(Collection.class), any(Pageable.class)))
             .thenReturn(new PageImpl<>(List.of(pub, fol)));
+        when(pokShareRepository.findBySharedByUserIdAndVisibilityIn(
+            eq(aliceId), any(Collection.class), any(Pageable.class)))
+            .thenReturn(Page.empty());
         when(userTagRepository.findByUserIdAndDeletedAtIsNull(aliceId)).thenReturn(List.of());
         when(pokTagRepository.findByPokId(any(UUID.class))).thenReturn(List.of());
 
-        Page<PokResponse> result = learnerService.getLearnerPoks("alice", bobId, 0, 20);
+        Page<FeedItemResponse> result = learnerService.getLearnerPoks("alice", bobId, 0, 20);
 
         assertThat(result.getContent()).hasSize(2);
     }
@@ -288,10 +296,13 @@ class LearnerServiceTest {
         when(pokRepository.findByUserIdAndVisibilityInAndDeletedAtIsNull(
             eq(aliceId), any(Collection.class), any(Pageable.class)))
             .thenReturn(new PageImpl<>(List.of(pub)));
+        when(pokShareRepository.findBySharedByUserIdAndVisibilityIn(
+            eq(aliceId), any(Collection.class), any(Pageable.class)))
+            .thenReturn(Page.empty());
         when(userTagRepository.findByUserIdAndDeletedAtIsNull(aliceId)).thenReturn(List.of());
         when(pokTagRepository.findByPokId(any(UUID.class))).thenReturn(List.of());
 
-        Page<PokResponse> result = learnerService.getLearnerPoks("alice", bobId, 0, 20);
+        Page<FeedItemResponse> result = learnerService.getLearnerPoks("alice", bobId, 0, 20);
 
         assertThat(result.getContent()).hasSize(1);
     }

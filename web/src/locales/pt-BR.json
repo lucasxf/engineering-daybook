@@ -196,6 +196,32 @@
       "contentTooLong": "O conteúdo deve ter no máximo 50.000 caracteres",
       "unexpected": "Algo deu errado. Tente novamente.",
       "visibilityImmutable": "Um aprendizado público não pode ser tornado privado."
+    },
+    "share": {
+      "button": "Re-aprender",
+      "modalTitle": "Re-aprender este aprendizado",
+      "noteLabel": "Sua anotação",
+      "notePlaceholder": "Por que este aprendizado ressoou com você? (opcional)",
+      "noteHint": "Adicione contexto ou reflexão pessoal. Máx 500 caracteres.",
+      "visibilityLabel": "Visibilidade",
+      "submitButton": "Re-aprender",
+      "submitting": "Salvando...",
+      "success": "Re-aprendizado salvo",
+      "remove": "Remover re-aprendizado",
+      "removeConfirmTitle": "Remover re-aprendizado?",
+      "removeConfirmMessage": "Isso removerá seu re-aprendizado. O aprendizado original não será afetado.",
+      "removeConfirmButton": "Remover",
+      "cancelButton": "Cancelar",
+      "removing": "Removendo...",
+      "removeSuccess": "Re-aprendizado removido",
+      "errors": {
+        "selfShare": "Você não pode re-aprender seu próprio aprendizado",
+        "duplicate": "Você já re-aprendeu este aprendizado",
+        "notPublic": "Apenas aprendizados públicos podem ser re-aprendidos",
+        "noteTooLong": "A nota não pode exceder 500 caracteres",
+        "notFound": "Aprendizado não encontrado",
+        "unexpected": "Algo deu errado. Tente novamente."
+      }
     }
   },
   "settings": {

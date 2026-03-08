@@ -12,6 +12,8 @@ import { Alert } from '@/components/ui/Alert';
 import { Avatar } from '@/components/ui/Avatar';
 import { MarkdownContent } from '@/components/ui/MarkdownContent';
 import { FollowButton } from '@/components/FollowButton';
+import { ReLearningModal } from '@/components/poks/ReLearningModal';
+import type { LearnerPokSummary } from '@/lib/learnerApi';
 
 export default function LearnerProfilePage() {
   const t = useTranslations('learners');
@@ -25,6 +27,7 @@ export default function LearnerProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [relationshipStatus, setRelationshipStatus] = useState<RelationshipStatus>('NONE');
+  const [sharingPok, setSharingPok] = useState<LearnerPokSummary | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -145,7 +148,7 @@ export default function LearnerProfilePage() {
       ) : (
         <div className="space-y-4">
           {profile.learnings.map((pok) => (
-            <Card key={pok.id} className="p-4">
+            <Card key={pok.id} className="group relative p-4">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
                   {pok.title && (
@@ -164,10 +167,28 @@ export default function LearnerProfilePage() {
                       : tPoks('visibility.private')}
                   </span>
                 )}
+                {!isOwner && pok.visibility === 'PUBLIC' && (
+                  <button
+                    type="button"
+                    aria-label={tPoks('share.button')}
+                    onClick={() => setSharingPok(pok)}
+                    className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-blue-600 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-slate-700"
+                  >
+                    🔁 {tPoks('share.button')}
+                  </button>
+                )}
               </div>
             </Card>
           ))}
         </div>
+      )}
+
+      {sharingPok !== null && (
+        <ReLearningModal
+          pok={sharingPok}
+          onClose={() => setSharingPok(null)}
+          onSuccess={() => setSharingPok(null)}
+        />
       )}
     </main>
   );

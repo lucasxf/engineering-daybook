@@ -1,26 +1,29 @@
 ---
 description: Convert a spec file into a self-contained v0.dev prompt
-argument-hint: <spec-file-path>
+argument-hint: <screen-name>
 ---
 
 # Generate v0 Prompt from Spec
 
-Convert a learnimo spec file into a self-contained, copy-pasteable v0.dev prompt.
+Convert a learnimo screen into a self-contained, copy-pasteable v0.dev prompt. One invocation = one screen.
 
 ## Usage
 
 ```
-/generate-v0-prompt <spec-file-path>
+/generate-v0-prompt <screen-name>
 ```
 
 Example:
 ```
-/generate-v0-prompt docs/specs/pok-crud.md
+/generate-v0-prompt "Login"
+/generate-v0-prompt "Create Learning"
 ```
+
+The screen name must match (case-insensitive) a row in `.claude/v0-prompts/INDEX.md`. To see all screens and their status, open that file.
 
 ## Input
 
-The user provides a path to a spec file (`.md`). These specs contain:
+The user provides a **screen name**. The command looks up the matching row in the INDEX to find the source spec file. Spec files contain:
 - Functional requirements (FR) with priority levels
 - Non-functional requirements (NFR)
 - Acceptance criteria in Gherkin format
@@ -30,11 +33,49 @@ The user provides a path to a spec file (`.md`). These specs contain:
 
 ## Your Task
 
-Read the spec file and produce a **single, self-contained v0.dev prompt** that can be copy-pasted directly into a v0 chat. The prompt must include the brand context AND the screen requirements extracted from the spec.
+### Step 0 — Look up screen in INDEX (ALWAYS run first, before reading the spec)
 
-## Output Format
+Read `.claude/v0-prompts/INDEX.md` and find the row whose **Screen** column matches the given screen name (case-insensitive).
 
-Output a single markdown code block containing the v0 prompt. The user will copy the contents and paste into v0.app.
+- **If no matching row exists:** STOP. Output:
+
+  ```
+  ⚠️ Screen "[Screen Name]" not found in .claude/v0-prompts/INDEX.md.
+  Available screens: [list all Screen names from the index]
+  ```
+
+  Then exit. No further steps.
+
+- **If the matching row is already ✅:** STOP immediately. Do not read the spec. Output:
+
+  ```
+  ⚠️ Skipping — a v0 prompt for "[Screen Name]" already exists:
+     .claude/v0-prompts/<existing-filename>.md
+
+  To regenerate it anyway, delete or rename that file and re-run the command.
+  ```
+
+  Then output the finish banner and exit. No further steps.
+
+- **If the matching row is ⬜:** note the **Source Spec** path from that row, then proceed to Step 1.
+
+### Step 1 — Generate and save
+
+Read the spec file (from the Source Spec path found in Step 0) and produce a **single, self-contained v0.dev prompt for the requested screen only**, then **write it to a file** the user can open directly in their editor or browser.
+
+## Output Format (Step 1)
+
+1. **Write the prompt to a file** using the Write tool:
+   - Output directory: `.claude/v0-prompts/`
+   - Filename: derive from the spec filename + screen name slug, e.g. `pok-listing-search--learning-feed.md`
+   - The file must contain **only the raw prompt text** (no wrapping code block, no frontmatter) so the user can open it, select all, and paste directly into v0.app
+2. **Update the index table** at `.claude/v0-prompts/INDEX.md`:
+   - Find the row whose **Screen** matches the screen you just generated (case-insensitive, fuzzy match on the name)
+   - Update its **Prompt File** column to the filename you wrote
+   - Update its **Status** column from `⬜` to `✅`
+   - If the screen is not in the table yet, append a new row with the spec path, filename, and `✅`
+   - Use the Edit tool for this (targeted replacement of the matching row only)
+3. **Tell the user the file path** so they can open it immediately.
 
 ## Conversion Rules
 
@@ -157,16 +198,13 @@ I'm redesigning the **[Screen Name]** screen for **learnimo**, a personal learni
 **Component framework:** [footer from rule 4]
 ```
 
-### 6. Handling multi-screen specs
+### 6. Targeting the right screen in the spec
 
-Some spec files describe multiple screens. Detect screens as follows:
-- **New format:** List all `### Screen:` headings found in the `## Screens` section
-- **Legacy format:** Infer screens from Implementation → Web section component/route descriptions
+When reading the spec, focus only on the screen named in the argument. Specs often describe multiple screens:
+- **New format:** Find the `### Screen: [Name]` block that matches the requested screen
+- **Legacy format:** Focus on the component/route section for this specific screen only
 
-If multiple screens are found:
-- Ask the user which screen they want to generate a prompt for
-- List the detected screens by name
-- Generate one prompt per screen (not one mega-prompt)
+Do NOT generate content for other screens in the same spec file.
 
 ### 7. Quality checks before outputting
 
@@ -183,7 +221,7 @@ Before producing the prompt, verify:
 
 ## Example Output
 
-For a spec like `pok-listing-search.md`, targeting the Learning Feed screen, the output would be a prompt that:
+For `/generate-v0-prompt "Learning Feed"` (spec looked up from INDEX as `pok-listing-search.md`), the output would be a prompt that:
 - Opens with "I'm redesigning the Learning Feed..."
 - Includes the full brand header
 - Describes the nav bar, page header, quick-entry bar, search bar, POK feed, and pagination
@@ -193,3 +231,13 @@ For a spec like `pok-listing-search.md`, targeting the Learning Feed screen, the
 - Is approximately 80-120 lines long (enough detail for v0, not overwhelming)
 
 The user should be able to copy-paste the output directly into v0.app and get a meaningful first generation.
+
+## Finish Banner
+
+After writing the file and reporting the path, output this exact closing banner:
+
+```
+---
+✅ /generate-v0-prompt complete — prompt saved to .claude/v0-prompts/<filename>.md
+---
+```

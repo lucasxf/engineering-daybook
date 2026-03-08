@@ -7,6 +7,8 @@ import type { Tag, TagSuggestion } from './tagApi';
 export type PokVisibility = 'PRIVATE' | 'COLLEAGUES_ONLY' | 'FOLLOWERS_ONLY' | 'PUBLIC';
 
 export interface Pok {
+  /** Type discriminator — always {@code "owned"} for POKs authored by the user. */
+  type: 'owned';
   id: string;
   userId: string;
   title: string | null;
@@ -18,6 +20,13 @@ export interface Pok {
   tags: Tag[];
   pendingSuggestions: TagSuggestion[];
 }
+
+/**
+ * An owned POK as it appears in a feed response.
+ * Now equivalent to `Pok` since `type: 'owned'` is declared on the interface.
+ * Kept as a named alias for semantic clarity.
+ */
+export type OwnedPok = Pok;
 
 export interface CreatePokDto {
   title?: string | null;
@@ -33,7 +42,7 @@ export interface UpdatePokDto {
 }
 
 export interface PokPage {
-  content: Pok[];
+  content: OwnedPok[];
   page: number;
   size: number;
   totalElements: number;
@@ -41,7 +50,41 @@ export interface PokPage {
   number: number;
 }
 
+// Note: When no filters are passed, /api/v1/poks returns FeedPage (mixed feed).
+// When any filter is provided, it returns PokPage (owned POKs only).
+export type PokListPage = PokPage | FeedPage;
+
 export type SearchMode = 'hybrid' | 'semantic' | 'keyword';
+
+/** A re-learning (shared POK) created by one learner referencing another learner's public learning. */
+export interface PokShare {
+  type: 'shared';
+  id: string;
+  originalPokId: string;
+  originalPok: Pok;
+  sharedByHandle: string;
+  note: string | null;
+  visibility: PokVisibility;
+  createdAt: string;
+}
+
+/** Union type for feed items — an owned POK or a re-learning. */
+export type FeedItem = OwnedPok | PokShare;
+
+/** Page of feed items (owned POKs mixed with re-learnings). */
+export interface FeedPage {
+  content: FeedItem[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  number: number;
+}
+
+export interface CreatePokShareDto {
+  note?: string | null;
+  visibility?: PokVisibility | null;
+}
 
 export interface PokSearchParams {
   keyword?: string;
@@ -87,10 +130,10 @@ export const pokApi = {
    * - Pagination
    *
    * @param params optional search/filter/sort parameters
-   * @returns a page of matching POKs
+   * @returns a page of matching POKs or feed items (mixed owned + shared) when no filters applied
    * @throws ApiRequestError on validation errors (400), unauthorized (401)
    */
-  async getAll(params?: PokSearchParams): Promise<PokPage> {
+  async getAll(params?: PokSearchParams): Promise<PokListPage> {
     const queryParams = new URLSearchParams();
 
     // Add parameters only if they have values
@@ -109,7 +152,7 @@ export const pokApi = {
     queryParams.set('size', (params?.size ?? 20).toString());
 
     const queryString = queryParams.toString();
-    return apiFetch<PokPage>(`/poks?${queryString}`);
+    return apiFetch<PokListPage>(`/poks?${queryString}`);
   },
 
   /**
@@ -151,5 +194,50 @@ export const pokApi = {
     return apiFetch<void>(`/poks/${id}`, {
       method: 'DELETE',
     });
+  },
+
+  /**
+   * Re-learns (shares) a public learning from another learner.
+   *
+   * Creates a reference to the original learning attributed to its author.
+   * The original content is never modified.
+   *
+   * @param originalPokId ID of the original public learning to re-learn
+   * @param data optional note and visibility (defaults to original's visibility)
+   * @returns the created PokShare
+   * @throws ApiRequestError on self-share or non-public original (400), not found (404),
+   *         duplicate re-learning (409), unauthorized (401)
+   */
+  async share(originalPokId: string, data: CreatePokShareDto): Promise<PokShare> {
+    return apiFetch<PokShare>(`/poks/${originalPokId}/share`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  /**
+   * Removes a re-learning. Only the sharer can remove their own re-learning.
+   *
+   * @param shareId the re-learning ID to remove
+   * @throws ApiRequestError on not owner (403), not found (404), unauthorized (401)
+   */
+  async unshare(shareId: string): Promise<void> {
+    return apiFetch<void>(`/poks/shared/${shareId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  /**
+   * Returns the detail for a re-learning by ID.
+   *
+   * Access is governed by the share's visibility tier and the requester's
+   * relationship with the sharer.
+   *
+   * @param shareId the re-learning ID
+   * @returns the PokShare detail
+   * @throws ApiRequestError on access denied (403), not found (404), unauthorized (401)
+   */
+  async getShareById(shareId: string): Promise<PokShare> {
+    return apiFetch<PokShare>(`/poks/shared/${shareId}`);
   },
 };

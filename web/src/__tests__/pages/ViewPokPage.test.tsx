@@ -64,10 +64,12 @@ const mockGetById = vi.mocked(pokApi.getById);
 const mockDelete = vi.mocked(pokApi.delete);
 
 const mockPok: Pok = {
+  type: 'owned',
   id: 'pok-123',
   userId: 'user-1',
   title: 'My Test Learning',
   content: 'Some useful content I learned today.',
+  visibility: 'PRIVATE',
   deletedAt: null,
   createdAt: '2026-02-14T10:00:00Z',
   updatedAt: '2026-02-15T12:00:00Z',

@@ -25,6 +25,7 @@ import { TimelineView } from '@/components/poks/TimelineView';
 
 function makePok(id: string, createdAt: string): Pok {
   return {
+    type: 'owned',
     id,
     userId: 'u1',
     title: `Learning ${id}`,
