@@ -70,7 +70,7 @@ export function useFeedData(): UseFeedDataResult {
           error: t('errors.loadFailed'),
         }));
       });
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
