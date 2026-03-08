@@ -141,6 +141,11 @@ Do NOT use parenthetical annotations like "(built-in)" in the agent name column.
   2. `automation-sentinel` → Reads TOML file, performs analysis
 - **Note:** `pulse` agent (git-history scanner) was archived in favour of this delta-file approach (2026-03-06)
 
+### Known Tracking Limitation: Delegated Invocations
+The `track-usage.py` hook fires on `Task` tool calls and captures `subagent_type`. However, when a **command** delegates to an agent via natural language instructions (rather than an explicit Task tool call), those invocations may not be attributed. This means agents like `tech-writer`, `virgil`, `sous-chef`, and `steward` — which are primarily invoked as delegates from `/finish-session`, `/write-spec`, `/fix-pr`, and `/implement-spec` — will be **systematically undercounted** in the TOML.
+
+**Implication for analysis:** Zero or near-zero invocation counts for wired-in agents do NOT indicate the agent is unused. Evaluate agent value by its wiring in commands, not raw invocation counts.
+
 ### tech-writer
 - **Relationship:** Sentinel identifies doc gaps → tech-writer fills them
 
@@ -160,8 +165,8 @@ Do NOT use parenthetical annotations like "(built-in)" in the agent name column.
 ## Agent Metadata
 
 **Created:** 2026-01-29
-**Last Updated:** 2026-01-29
-**Version:** 1.0.0
+**Last Updated:** 2026-03-08
+**Version:** 1.1.0
 **Type:** Meta-Agent (manages automation layer)
 **Model:** Sonnet (complex system analysis)
 **Triggers:** Manual only (on-demand)
