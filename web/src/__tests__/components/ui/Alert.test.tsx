@@ -20,9 +20,9 @@ describe('Alert', () => {
   it('applies error variant classes', () => {
     render(<Alert variant="error">Error</Alert>);
     const el = screen.getByRole('alert');
-    expect(el.className).toContain('border-red-300');
-    expect(el.className).toContain('bg-red-50');
-    expect(el.className).toContain('text-red-700');
+    expect(el.className).toContain('border-[#F5C6C6]');
+    expect(el.className).toContain('bg-[#FFF0F0]');
+    expect(el.className).toContain('text-[#C0392B]');
   });
 
   it('applies success variant classes', () => {
@@ -36,7 +36,7 @@ describe('Alert', () => {
   it('applies info variant classes', () => {
     render(<Alert variant="info">Note</Alert>);
     const el = screen.getByRole('alert');
-    expect(el.className).toContain('border-slate-300');
+    expect(el.className).toContain('border-card-border');
   });
 
   it('merges custom className', () => {

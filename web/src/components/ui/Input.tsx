@@ -21,7 +21,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           'placeholder:text-input-placeholder',
           /* Dark mode */
           'dark:bg-deep-navy dark:border-mid-blue dark:text-parchment',
-          'dark:placeholder:text-[#4A5A6A]',
+          'dark:placeholder:text-input-placeholder',
           /* Focus state - ember-cta accent */
           'focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/25',
           'disabled:cursor-not-allowed disabled:opacity-50',

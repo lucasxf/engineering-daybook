@@ -16,8 +16,8 @@
     --primary-foreground: 255 255 255;
     --primary-hover: 192 115 64; /* #C07340 */
     
-    --muted: 102 102 102; /* #666666 */
-    --muted-foreground: 102 102 102;
+    --muted: 237 233 228; /* #EDE9E4 — subtle warm surface */
+    --muted-foreground: 102 102 102; /* #666666 — secondary text */
     
     --input: 255 255 255;
     --input-border: 204 204 204; /* #CCC */
@@ -44,8 +44,8 @@
     --primary-foreground: 255 255 255;
     --primary-hover: 192 115 64; /* #C07340 */
     
-    --muted: 136 153 170; /* #8899AA */
-    --muted-foreground: 136 153 170;
+    --muted: 20 36 58; /* #14243A — subtle dark surface */
+    --muted-foreground: 136 153 170; /* #8899AA — secondary text */
     
     --input: 15 27 45; /* deep-navy */
     --input-border: 43 74 120; /* mid-blue */

@@ -71,11 +71,11 @@ function LoginContent() {
         <LoginForm locale={params.locale} redirectTo={redirectTo} />
 
         <div className="my-6 flex items-center gap-3">
-          <hr className="flex-1 border-[#E8E4DF] dark:border-mid-blue" />
+          <hr className="flex-1 border-card-border" />
           <span className="text-xs text-muted-foreground">
             {t('orContinueWith')}
           </span>
-          <hr className="flex-1 border-[#E8E4DF] dark:border-mid-blue" />
+          <hr className="flex-1 border-card-border" />
         </div>
 
         <GoogleLoginButton mode="login" />

@@ -46,8 +46,6 @@ const config: Config = {
         'deep-navy': '#0F1B2D',
         'primary-blue': '#1A365D',
         'mid-blue': '#2B4A78',
-        'branch-brown': '#8B5E3C',
-        'dark-leather': '#6B4226',
         'ember-cta': '#D4854A',
         parchment: '#F5F0E8',
         ink: '#1A1A2E',

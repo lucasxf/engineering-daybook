@@ -10,11 +10,7 @@ export function Label({ className, ...props }: LabelProps) {
   return (
     <label
       className={cn(
-        'block text-sm font-medium',
-        /* Light mode: #666666 */
-        'text-[#666666]',
-        /* Dark mode: muted blue-gray #8899AA */
-        'dark:text-[#8899AA]',
+        'block text-sm font-medium text-muted-foreground',
         className
       )}
       {...props}
