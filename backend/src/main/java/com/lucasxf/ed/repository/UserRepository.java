@@ -31,16 +31,19 @@ public interface UserRepository extends JpaRepository<User, UUID> {
      * Searches for learners with {@code PUBLIC} profile visibility whose handle or display name
      * contains the given query string (case-insensitive, substring match).
      *
-     * <p>Results are ordered alphabetically by {@code display_name}.
+     * <p>The requesting user is excluded from results so they never see a Follow button
+     * for their own account. Results are ordered alphabetically by {@code display_name}.
      * Powered by the trigram GIN indexes added in V21 migration.
      *
-     * @param q        the search term (caller must ensure length >= 2)
-     * @param pageable pagination parameters (sort is ignored; ordering is hardcoded)
+     * @param q         the search term (caller must ensure length >= 2)
+     * @param excludeId the UUID of the authenticated requester (excluded from results)
+     * @param pageable  pagination parameters (sort is ignored; ordering is hardcoded)
      * @return a page of matching users
      */
     @Query(value = """
             SELECT * FROM users
             WHERE profile_visibility = 'PUBLIC'
+              AND id <> CAST(:excludeId AS uuid)
               AND (handle ILIKE CONCAT('%', :q, '%')
                    OR display_name ILIKE CONCAT('%', :q, '%'))
             ORDER BY display_name ASC
@@ -48,9 +51,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
            countQuery = """
             SELECT COUNT(*) FROM users
             WHERE profile_visibility = 'PUBLIC'
+              AND id <> CAST(:excludeId AS uuid)
               AND (handle ILIKE CONCAT('%', :q, '%')
                    OR display_name ILIKE CONCAT('%', :q, '%'))
             """,
            nativeQuery = true)
-    Page<User> searchPublicByHandleOrDisplayName(@Param("q") String q, Pageable pageable);
+    Page<User> searchPublicByHandleOrDisplayName(@Param("q") String q, @Param("excludeId") UUID excludeId,
+                                                 Pageable pageable);
 }

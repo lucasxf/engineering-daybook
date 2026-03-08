@@ -265,27 +265,20 @@ public class LearnerService {
         if (q == null || q.trim().length() < 2) {
             return Page.empty(PageRequest.of(page, size));
         }
-        Page<User> userPage = userService.searchPublicLearners(q.trim(), PageRequest.of(page, size));
-
-        // Collect target IDs (exclude self — self always maps to null relationship)
-        Set<UUID> targetIds = userPage.getContent().stream()
-            .map(User::getId)
-            .filter(id -> !id.equals(requesterId))
-            .collect(Collectors.toSet());
+        // requesterId is excluded at the DB layer so self never appears in results
+        Page<User> userPage = userService.searchPublicLearners(q.trim(), requesterId, PageRequest.of(page, size));
 
         // Bulk-resolve relationships in 2 queries regardless of page size (avoids N+1)
+        Set<UUID> targetIds = userPage.getContent().stream()
+            .map(User::getId)
+            .collect(Collectors.toSet());
+
         Map<UUID, RelationshipStatus> relationships = targetIds.isEmpty()
             ? Map.of()
             : followService.getRelationships(requesterId, targetIds);
 
         List<LearnerSearchResult> results = userPage.getContent().stream()
-            .map(user -> {
-                UUID userId = user.getId();
-                RelationshipStatus rel = userId.equals(requesterId)
-                    ? null
-                    : relationships.get(userId);
-                return LearnerSearchResult.from(user, rel);
-            })
+            .map(user -> LearnerSearchResult.from(user, relationships.get(user.getId())))
             .toList();
 
         return new PageImpl<>(results, userPage.getPageable(), userPage.getTotalElements());
