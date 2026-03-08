@@ -31,7 +31,7 @@ Import from Google Fonts: `Bricolage+Grotesque:wght@400;700&DM+Sans:wght@400;500
 **Layout (top → bottom):**
 1. **Top nav bar** — "learnimo" wordmark (left), user avatar/menu (right)
 2. **Page header** — "My Learnings" (h1, Sora 600), count badge (e.g. "42 learnings"), "+ New Learning" CTA button in ember-cta on the right
-3. **Search + Sort toolbar** — full-width search input with magnifying glass icon (left) and a sort dropdown (right). Search placeholder: "Search your learnings..." (EN) / "Pesquisar seus aprendizados..." (PT-BR). Sort options: "Newest first" (default), "Oldest first", "Recently created", "First created"
+3. **Search + Sort toolbar** — full-width search input with magnifying glass icon (left) and a sort dropdown (right). Search placeholder: "Search your learnings..." (EN) / "Pesquisar seus aprendizados..." (PT-BR). Sort options: "Recently updated" (default, updatedAt DESC), "Oldest updated" (updatedAt ASC), "Recently created" (createdAt DESC), "First created" (createdAt ASC)
 4. **Learning cards list** — vertical stack of cards, each showing:
    - Title (Sora 600, prominent)
    - Content preview (2–3 lines, truncated with ellipsis)
@@ -43,7 +43,7 @@ Import from Google Fonts: `Bricolage+Grotesque:wght@400;700&DM+Sans:wght@400;500
 **States to design:**
 
 - **Populated (default):** Feed shows 10 learning cards per page. Search bar empty. Sort set to "Newest first." Pagination visible at bottom.
-- **Loading:** Centered spinner replaces the card list area. Nav, header, and search toolbar remain visible and interactive. "+ New Learning" button stays visible.
+- **Loading:** 3 skeleton cards replace the card list area. Nav, header, and search toolbar remain visible and interactive. "+ New Learning" button stays visible.
 - **Empty (no learnings yet):** Large centered illustration area (book/quill icon) + heading "Your knowledge journey starts here" + subtext "Save your first learning to get started." + prominent "+ Save Learning" button. No search bar shown (nothing to search).
 - **No search results:** Search bar shows the entered query. Card area replaced by a centered icon + "No learnings found matching your search" (EN) / "Nenhum aprendizado encontrado para sua pesquisa" (PT-BR) + muted subtext "Try adjusting your search terms or filters" + "Clear search" button (secondary style). "+ New Learning" button still visible in header.
 - **Error:** Card area replaced by a centered warning icon + "Failed to load your learnings. Please try again." (EN) / "Falha ao carregar seus aprendizados. Tente novamente." (PT-BR) + "Retry" button.
@@ -84,7 +84,7 @@ Import from Google Fonts: `Bricolage+Grotesque:wght@400;700&DM+Sans:wght@400;500
 - The search input debounces 300ms — show a subtle loading indicator inside the input (spinning icon replacing magnifying glass) while the API responds
 - Changing the sort dropdown immediately re-fetches — no submit button needed
 - "Clear search" resets both the input and the sort to default, re-fetching the full list
-- Search and sort state is reflected in the URL query string (e.g. `?keyword=react&sortBy=updatedAt&sortDirection=ASC`) so the page is bookmarkable
+- Search and sort state is reflected in the URL query string (e.g. `?keyword=react&sortBy=updatedAt&sortDirection=DESC`) so the page is bookmarkable
 - Card hover should be smooth (150ms ease) with a subtle left border accent in #D4854A or a slight elevation
 
 **Accessibility:**

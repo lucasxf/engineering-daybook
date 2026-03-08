@@ -115,9 +115,9 @@ describe('ReLearningCard', () => {
   });
 
   it('does not render blockquote when note is null', () => {
-    renderCard(baseShare);
+    const { container } = renderCard(baseShare);
 
-    expect(screen.queryByRole('blockquote')).not.toBeInTheDocument();
+    expect(container.querySelector('blockquote')).not.toBeInTheDocument();
   });
 
   it('links to original pok detail page', () => {

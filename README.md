@@ -256,8 +256,8 @@ Key endpoints:
 - `POST /api/v1/users/me/avatar` - Upload or replace user avatar (multipart/form-data)
 - `DELETE /api/v1/users/me/avatar` - Remove user avatar
 - `POST /api/v1/poks/{id}/share` - Share a public learning to your own feed
-- `DELETE /api/v1/poks/{id}/share` - Remove a re-learning share
-- `GET /api/v1/poks/{id}/share/{shareId}` - Get a specific share record
+- `DELETE /api/v1/poks/shared/{shareId}` - Remove a re-learning share
+- `GET /api/v1/poks/shared/{shareId}` - Get a specific share record
 
 ---
 

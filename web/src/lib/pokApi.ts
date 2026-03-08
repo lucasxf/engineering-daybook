@@ -121,10 +121,10 @@ export const pokApi = {
    * - Pagination
    *
    * @param params optional search/filter/sort parameters
-   * @returns a page of matching POKs
+   * @returns a page of matching POKs or feed items (mixed owned + shared) when no filters applied
    * @throws ApiRequestError on validation errors (400), unauthorized (401)
    */
-  async getAll(params?: PokSearchParams): Promise<PokPage> {
+  async getAll(params?: PokSearchParams): Promise<PokListPage> {
     const queryParams = new URLSearchParams();
 
     // Add parameters only if they have values
@@ -143,7 +143,7 @@ export const pokApi = {
     queryParams.set('size', (params?.size ?? 20).toString());
 
     const queryString = queryParams.toString();
-    return apiFetch<PokPage>(`/poks?${queryString}`);
+    return apiFetch<PokListPage>(`/poks?${queryString}`);
   },
 
   /**

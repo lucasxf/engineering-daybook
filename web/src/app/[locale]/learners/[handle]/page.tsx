@@ -167,7 +167,7 @@ export default function LearnerProfilePage() {
                       : tPoks('visibility.private')}
                   </span>
                 )}
-                {!isOwner && (
+                {!isOwner && pok.visibility === 'PUBLIC' && (
                   <button
                     type="button"
                     aria-label={tPoks('share.button')}

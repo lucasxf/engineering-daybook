@@ -127,7 +127,10 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
         page,
         size: fetchSize,
       });
-      setPoks(result.content);
+      // getAll returns PokListPage (PokPage | FeedPage). This hook always passes filters
+      // so the backend returns PokPage (owned POKs only). Filter defensively.
+      const poksOnly = result.content.filter((item): item is Pok => !('originalPokId' in item));
+      setPoks(poksOnly);
       setTotalElements(result.totalElements);
     } catch (err) {
       if (err instanceof ApiRequestError) {

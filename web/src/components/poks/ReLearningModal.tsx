@@ -53,8 +53,15 @@ export function ReLearningModal({ pok, onClose, onSuccess }: ReLearningModalProp
       onClose();
     } catch (err: unknown) {
       const status = (err as { status?: number })?.status;
+      const message = (err as { message?: string })?.message ?? '';
       if (status === 400) {
-        setError(t('errors.selfShare'));
+        if (message.includes('own learning') || message.includes('self')) {
+          setError(t('errors.selfShare'));
+        } else if (message.includes('500') || message.includes('Validation failed') || message.includes('Note must')) {
+          setError(t('errors.noteTooLong'));
+        } else {
+          setError(t('errors.notPublic'));
+        }
       } else if (status === 409) {
         setError(t('errors.duplicate'));
       } else if (status === 404) {

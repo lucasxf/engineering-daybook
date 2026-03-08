@@ -180,7 +180,7 @@ describe('ReLearningModal', () => {
 
   it('shows selfShare error on 400 response', async () => {
     const user = userEvent.setup();
-    mockShare.mockRejectedValue({ status: 400 });
+    mockShare.mockRejectedValue({ status: 400, message: 'You cannot re-learn your own learning' });
 
     renderModal();
 

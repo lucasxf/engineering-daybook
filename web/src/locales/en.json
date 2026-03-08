@@ -218,6 +218,7 @@
         "selfShare": "You cannot re-learn your own learning",
         "duplicate": "You have already re-learned this learning",
         "notPublic": "Only public learnings can be re-learned",
+        "noteTooLong": "Note must not exceed 500 characters",
         "notFound": "Learning not found",
         "unexpected": "Something went wrong. Please try again."
       }

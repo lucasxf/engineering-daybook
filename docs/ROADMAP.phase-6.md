@@ -87,7 +87,7 @@
 - Exception hierarchy: `SelfShareException` (400), `PokShareConflictException` (409), `PokShareAccessDeniedException` (403), `PokShareNotFoundException` (404) — all registered in global exception handler
 - `PokShareService` (TDD): `share()`, `unshare()`, `getShareById()`, `getSharesForPok()` — enforces visibility cascade (shared visibility ≤ original's) and cascades private reversion to remove downstream shares
 - `PokService` extended with cascade delete of shares on POK deletion/privatisation; `LearnerService` feed union support for mixed owned/shared `FeedItem` results
-- `PokShareController`: `POST /api/v1/poks/{id}/share`, `DELETE /api/v1/poks/{id}/share`, `GET /api/v1/poks/{id}/share/{shareId}`
+- `PokShareController`: `POST /api/v1/poks/{id}/share`, `DELETE /api/v1/poks/shared/{shareId}`, `GET /api/v1/poks/shared/{shareId}`
 - Frontend: `pokApi.share()`, `pokApi.unshare()`, `pokApi.getShareById()`, `FeedItem` union type distinguishing owned vs. shared learnings
 - `ReLearningModal` component: modal for creating a re-learning from another learner's public POK
 - `ReLearningCard` component: card for rendering shared learnings in feed — **intentionally deferred to Milestone 6.5 (Discovery Feed)**
