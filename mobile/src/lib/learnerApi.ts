@@ -33,10 +33,13 @@ export interface FeedPage {
  * Returns the discovery feed for the authenticated user (social feed).
  * Items are sorted newest-first and include learnings from followed learners.
  */
-export function getFeed(params?: { page?: number; size?: number }): Promise<FeedPage> {
+export function getFeed(
+  params?: { page?: number; size?: number },
+  signal?: AbortSignal
+): Promise<FeedPage> {
   const search = new URLSearchParams();
   if (params?.page !== undefined) search.set('page', String(params.page));
   if (params?.size !== undefined) search.set('size', String(params.size));
   const qs = search.toString();
-  return apiFetch<FeedPage>(`/feed${qs ? '?' + qs : ''}`);
+  return apiFetch<FeedPage>(`/feed${qs ? '?' + qs : ''}`, {}, signal);
 }

@@ -309,6 +309,9 @@
       "title": "Seu feed está vazio",
       "description": "Siga aprendizes para ver seus conhecimentos no feed.",
       "discoverCta": "Encontrar aprendizes para seguir"
+    },
+    "errors": {
+      "loadFailed": "Falha ao carregar o feed. Tente novamente."
     }
   },
   "discover": {

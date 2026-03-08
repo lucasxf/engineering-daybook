@@ -46,7 +46,7 @@ export function useSocialFeedData(): UseSocialFeedDataReturn {
     abortRef.current = controller;
 
     try {
-      return await getFeed({ page, size: PAGE_SIZE });
+      return await getFeed({ page, size: PAGE_SIZE }, controller.signal);
     } catch (e: unknown) {
       if ((e as Error).name === 'AbortError') return null;
       throw e;
