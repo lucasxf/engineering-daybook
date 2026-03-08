@@ -34,6 +34,7 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -233,7 +234,7 @@ class PokControllerTest {
             PageRequest.of(0, 20),
             2);
 
-        when(pokService.getOwnFeed(any(UUID.class), eq(0), eq(20))).thenReturn(page);
+        when(pokService.getOwnFeed(any(UUID.class), eq(0), eq(20), isNull(), isNull())).thenReturn(page);
 
         // When/Then
         mockMvc.perform(get("/api/v1/poks")
@@ -247,7 +248,7 @@ class PokControllerTest {
             .andExpect(jsonPath("$.number").value(0))
             .andExpect(jsonPath("$.size").value(20));
 
-        verify(pokService).getOwnFeed(eq(userId), eq(0), eq(20));
+        verify(pokService).getOwnFeed(eq(userId), eq(0), eq(20), isNull(), isNull());
     }
 
     @Test
@@ -256,7 +257,7 @@ class PokControllerTest {
         // Given
         Page<FeedItemResponse> emptyPage = Page.empty(PageRequest.of(1, 10));
 
-        when(pokService.getOwnFeed(any(UUID.class), eq(1), eq(10))).thenReturn(emptyPage);
+        when(pokService.getOwnFeed(any(UUID.class), eq(1), eq(10), isNull(), isNull())).thenReturn(emptyPage);
 
         // When/Then
         mockMvc.perform(get("/api/v1/poks")
@@ -474,22 +475,11 @@ class PokControllerTest {
     @Test
     @WithMockUser
     void searchPoks_withSortParameters_shouldReturn200() throws Exception {
-        // Given
-        Page<PokResponse> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
+        // Sort params alone (no keyword/tag/date) → routes to getOwnFeed (mixed feed), not search.
+        // Sort and searchMode are not content filters — only keyword, tagId, and date ranges are.
+        Page<FeedItemResponse> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
 
-        when(pokService.search(
-            any(UUID.class),
-            eq(null),
-            eq(null),
-            eq(null),
-            eq("createdAt"),
-            eq("ASC"),
-            eq(null),
-            eq(null),
-            eq(null),
-            eq(null),
-            eq(0),
-            eq(20))).thenReturn(page);
+        when(pokService.getOwnFeed(any(UUID.class), eq(0), eq(20), eq("createdAt"), eq("ASC"))).thenReturn(page);
 
         // When/Then
         mockMvc.perform(get("/api/v1/poks")
@@ -498,7 +488,7 @@ class PokControllerTest {
                 .param("sortDirection", "ASC"))
             .andExpect(status().isOk());
 
-        verify(pokService).search(eq(userId), eq(null), eq(null), eq(null), eq("createdAt"), eq("ASC"), eq(null), eq(null), eq(null), eq(null), eq(0), eq(20));
+        verify(pokService).getOwnFeed(eq(userId), eq(0), eq(20), eq("createdAt"), eq("ASC"));
     }
 
     @Test
@@ -598,14 +588,14 @@ class PokControllerTest {
         // Given: No parameters → routes to getOwnFeed (mixed feed, not search)
         Page<FeedItemResponse> page = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
 
-        when(pokService.getOwnFeed(any(UUID.class), eq(0), eq(20))).thenReturn(page);
+        when(pokService.getOwnFeed(any(UUID.class), eq(0), eq(20), isNull(), isNull())).thenReturn(page);
 
         // When/Then
         mockMvc.perform(get("/api/v1/poks")
                 .with(user(userId.toString())))
             .andExpect(status().isOk());
 
-        verify(pokService).getOwnFeed(eq(userId), eq(0), eq(20));
+        verify(pokService).getOwnFeed(eq(userId), eq(0), eq(20), isNull(), isNull());
     }
 
     @Test

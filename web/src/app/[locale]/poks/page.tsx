@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { PokList } from '@/components/poks/PokList';
 import { QuickEntry } from '@/components/poks/QuickEntry';
+import type { Pok } from '@/lib/pokApi';
 import { SearchBar } from '@/components/poks/SearchBar';
 import { SortDropdown } from '@/components/poks/SortDropdown';
 import { NoSearchResults } from '@/components/poks/NoSearchResults';
@@ -72,6 +73,10 @@ function PoksContent() {
     );
   }
 
+  // TagGroupedView and TimelineView operate on owned POKs only (grouping by tag/date
+  // is not meaningful for re-learnings which inherit the original's tags).
+  const ownedPoks = poks.filter((item): item is Pok => !('originalPokId' in item));
+
   // Determine which content to display
   const hasSearchOrFilter = !!keyword || !!selectedTagId;
   const isEmptyResults = !loading && poks.length === 0;
@@ -127,7 +132,7 @@ function PoksContent() {
       ) : showEmptyState ? (
         <EmptyState />
       ) : isTagsView ? (
-        <TagGroupedView poks={poks} />
+        <TagGroupedView poks={ownedPoks} />
       ) : poks.length > 0 ? (
         <PokList poks={poks} />
       ) : null}

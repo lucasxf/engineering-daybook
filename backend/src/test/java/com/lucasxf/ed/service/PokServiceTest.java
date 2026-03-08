@@ -1282,7 +1282,7 @@ class PokServiceTest {
         when(userTagRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(List.of());
         when(pokTagRepository.findByPokId(any(UUID.class))).thenReturn(List.of());
 
-        Page<FeedItemResponse> result = pokService.getOwnFeed(userId, 0, 20);
+        Page<FeedItemResponse> result = pokService.getOwnFeed(userId, 0, 20, null, null);
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().get(0).type()).isEqualTo("owned");
@@ -1308,7 +1308,7 @@ class PokServiceTest {
         when(userTagRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(List.of());
         when(userService.findById(userId)).thenReturn(currentUser);
 
-        Page<FeedItemResponse> result = pokService.getOwnFeed(userId, 0, 20);
+        Page<FeedItemResponse> result = pokService.getOwnFeed(userId, 0, 20, null, null);
 
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent().get(0).type()).isEqualTo("shared");

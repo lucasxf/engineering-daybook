@@ -189,19 +189,21 @@ public class PokService {
     }
 
     /**
-     * Returns a mixed feed of the authenticated user's own learnings and re-learnings,
-     * sorted by creation date descending.
+     * Returns a mixed feed of the authenticated user's own learnings and re-learnings.
      *
      * <p>Owned POKs and re-learnings are merged in memory and paginated. This method
-     * is used for the no-filter case of {@code GET /api/v1/poks}.
+     * is used for the no-filter case of {@code GET /api/v1/poks} (no keyword, tagId, or
+     * date filters). Optional sort params are respected; default is {@code createdAt DESC}.
      *
-     * @param userId the authenticated user's ID
-     * @param page   zero-based page number
-     * @param size   page size
+     * @param userId        the authenticated user's ID
+     * @param page          zero-based page number
+     * @param size          page size
+     * @param sortBy        optional sort field ({@code "createdAt"} or {@code "updatedAt"}); defaults to createdAt
+     * @param sortDirection optional sort direction ({@code "ASC"} or {@code "DESC"}); defaults to DESC
      * @return a page of {@link FeedItemResponse} items (mix of owned and shared)
      */
     @Transactional(readOnly = true)
-    public Page<FeedItemResponse> getOwnFeed(UUID userId, int page, int size) {
+    public Page<FeedItemResponse> getOwnFeed(UUID userId, int page, int size, String sortBy, String sortDirection) {
         List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
 
         // Bounded fetch: load only enough rows to satisfy this page.
@@ -245,8 +247,17 @@ public class PokService {
             }
         }
 
-        // Sort by createdAt DESC and in-memory paginate
-        feedItems.sort(Comparator.comparing(FeedItemResponse::createdAt).reversed());
+        // Sort by the requested field/direction (default: createdAt DESC)
+        boolean byUpdatedAt = "updatedAt".equals(sortBy);
+        boolean asc = "ASC".equalsIgnoreCase(sortDirection);
+        Comparator<FeedItemResponse> comparator = byUpdatedAt
+            ? Comparator.comparing(item -> {
+                // PokShareResponse has no updatedAt — fall back to createdAt for consistent ordering
+                if (item instanceof PokResponse pr) return pr.updatedAt();
+                return item.createdAt();
+              })
+            : Comparator.comparing(FeedItemResponse::createdAt);
+        feedItems.sort(asc ? comparator : comparator.reversed());
 
         int fromIndex = page * size;
         int toIndex = Math.min(fromIndex + size, feedItems.size());

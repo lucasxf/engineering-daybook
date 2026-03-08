@@ -174,7 +174,21 @@ describe('usePoksData', () => {
       );
     });
 
-    it('always passes searchMode=hybrid to the API', async () => {
+    it('omits searchMode when there is no keyword (feed mode)', async () => {
+      // With no keyword, searchMode must be omitted so the backend routes to
+      // getOwnFeed() (mixed feed) instead of search() (owned-only).
+      renderHook(() => usePoksData({ fetchSize: 20 }));
+
+      await waitFor(() => expect(mockGetAll).toHaveBeenCalled());
+
+      expect(mockGetAll).toHaveBeenCalledWith(
+        expect.not.objectContaining({ searchMode: expect.anything() })
+      );
+    });
+
+    it('passes searchMode=hybrid when keyword is present', async () => {
+      mockUseSearchParams.mockReturnValue(new URLSearchParams('keyword=react'));
+
       renderHook(() => usePoksData({ fetchSize: 20 }));
 
       await waitFor(() => expect(mockGetAll).toHaveBeenCalled());
