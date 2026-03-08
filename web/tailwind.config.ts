@@ -49,7 +49,7 @@ const config: Config = {
         'ember-cta': '#D4854A',
         parchment: '#F5F0E8',
         ink: '#1A1A2E',
-        /* Disabled button colors */
+        /* Disabled button colors — values driven by CSS variables in globals.css */
         'btn-disabled': 'rgb(var(--btn-disabled) / <alpha-value>)',
         'btn-disabled-text': 'rgb(var(--btn-disabled-text) / <alpha-value>)',
       },

@@ -30,7 +30,7 @@ export function LoginForm({ locale, redirectTo }: LoginFormProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
     resetField,
     watch,
   } = useForm<LoginFormData>({
