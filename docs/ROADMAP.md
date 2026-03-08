@@ -75,4 +75,4 @@ Only update this index when:
 1. A full phase completes → bump `CURRENT_PHASE` and update the status table
 2. A phase's summary status changes → update the status column
 
-> `/finish-session` and `/update-roadmap` update phase files; they touch this file only on phase completion.
+> `/finish-session` updates phase files; it touches this file only on phase completion.

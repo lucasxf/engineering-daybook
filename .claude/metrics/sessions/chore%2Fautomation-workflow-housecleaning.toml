@@ -1,0 +1,16 @@
+[metadata]
+session_branch = "chore/automation-workflow-housecleaning"
+session_start = "2026-03-08T19:43:37Z"
+last_updated = "2026-03-08T20:11:38Z"
+
+[agent_usage.Explore]
+invocations = 1
+last_used = "2026-03-08T19:43:37Z"
+
+[command_usage.finish-session]
+invocations = 1
+last_used = "2026-03-08T20:09:19Z"
+
+[agent_usage.tech-writer]
+invocations = 1
+last_used = "2026-03-08T20:11:38Z"
