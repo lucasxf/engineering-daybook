@@ -24,7 +24,6 @@
         "backgroundColor": "#0f172a"
       },
       "package": "net.learnimo.app",
-      "versionCode": 1,
       "softwareKeyboardLayoutMode": "resize",
       "permissions": []
     },
