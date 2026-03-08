@@ -204,11 +204,21 @@ public class PokService {
     public Page<FeedItemResponse> getOwnFeed(UUID userId, int page, int size) {
         List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
 
-        // Fetch all owned (non-deleted) POKs for this user
-        List<Pok> ownedPoks = pokRepository.findByUserIdAndDeletedAtIsNull(userId, Pageable.unpaged()).getContent();
+        // Bounded fetch: load only enough rows to satisfy this page.
+        // Fetching top (page+1)*size per source (sorted DESC) guarantees the merged
+        // result is accurate for all positions up to (page+1)*size in the full union.
+        int fetchLimit = Math.max((page + 1) * size, size);
+        Pageable bounded = PageRequest.of(0, fetchLimit, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        // Fetch all re-learnings created by this user
-        List<PokShare> shares = pokShareRepository.findBySharedByUserId(userId, Pageable.unpaged()).getContent();
+        // Fetch owned (non-deleted) POKs for this user with bounded pagination
+        List<Pok> ownedPoks = pokRepository.findByUserIdAndDeletedAtIsNull(userId, bounded).getContent();
+
+        // Fetch re-learnings created by this user with bounded pagination
+        List<PokShare> shares = pokShareRepository.findBySharedByUserId(userId, bounded).getContent();
+
+        // Accurate totals from COUNT queries (no full table scan)
+        long total = pokRepository.countByUserIdAndDeletedAtIsNull(userId)
+            + pokShareRepository.countBySharedByUserId(userId);
 
         // Build feed items — owned POKs first
         List<FeedItemResponse> feedItems = new ArrayList<>();
@@ -244,7 +254,7 @@ public class PokService {
             ? List.of()
             : feedItems.subList(fromIndex, toIndex);
 
-        return new PageImpl<>(pageContent, PageRequest.of(page, size), feedItems.size());
+        return new PageImpl<>(pageContent, PageRequest.of(page, size), total);
     }
 
     /**
