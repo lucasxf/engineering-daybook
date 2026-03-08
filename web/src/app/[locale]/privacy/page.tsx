@@ -166,9 +166,20 @@ function PrivacyEn({ t }: { t: TFn }) {
             <strong>Visibility control:</strong> you decide whether each learning is private (only
             you) or public. Private learnings are never visible to other users.
           </li>
-          <li>
-            <strong>Account deletion:</strong> to permanently delete your account and all associated
-            data, contact us (see below). We will process the request within 30 days.
+          <li id="delete-account">
+            <strong>Account deletion:</strong> to permanently delete your learnimo account and all
+            associated data (learnings, tags, profile, avatar), open an issue at{' '}
+            <a
+              href="https://github.com/lucasxf/engineering-daybook/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary-600 hover:underline dark:text-primary-400"
+            >
+              github.com/lucasxf/engineering-daybook/issues
+            </a>{' '}
+            with the subject <em>&ldquo;Account deletion request — [your handle]&rdquo;</em>. We
+            will permanently delete your account and all associated data within 30 days. Email
+            address is retained for 90 days in backup logs before permanent removal.
           </li>
         </ul>
       </Section>
@@ -325,10 +336,20 @@ function PrivacyPtBR({ t }: { t: TFn }) {
             <strong>Controle de visibilidade:</strong> você decide se cada aprendizado é privado
             (somente você) ou público. Aprendizados privados nunca são visíveis para outros usuários.
           </li>
-          <li>
-            <strong>Exclusão de conta:</strong> para excluir permanentemente sua conta e todos os
-            dados associados, entre em contato conosco (veja abaixo). Processaremos a solicitação
-            em até 30 dias.
+          <li id="delete-account-pt">
+            <strong>Exclusão de conta:</strong> para excluir permanentemente sua conta learnimo e
+            todos os dados associados (aprendizados, etiquetas, perfil, avatar), abra uma issue em{' '}
+            <a
+              href="https://github.com/lucasxf/engineering-daybook/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary-600 hover:underline dark:text-primary-400"
+            >
+              github.com/lucasxf/engineering-daybook/issues
+            </a>{' '}
+            com o assunto <em>&ldquo;Solicitação de exclusão de conta — [seu handle]&rdquo;</em>.
+            Excluiremos permanentemente sua conta e todos os dados associados em até 30 dias. O
+            endereço de e-mail é retido por 90 dias em logs de backup antes da remoção permanente.
           </li>
         </ul>
       </Section>
