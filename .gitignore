@@ -149,6 +149,9 @@ mobile/*.orig.*
 # Expo EAS
 mobile/.easignore
 
+# Google Play service account key (contains sensitive credentials — never commit)
+mobile/google-play-service-account.json
+
 # Metro bundler
 mobile/.metro-health-check*
 
