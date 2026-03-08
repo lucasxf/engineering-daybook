@@ -101,6 +101,61 @@ export const MOCK_POK_SHARE: MockPokShare = {
   originalAuthorAvatarUrl: null,
 };
 
+export interface MockFeedItem {
+  type: 'owned' | 'shared';
+  id: string;
+  userId?: string;
+  title?: string | null;
+  content?: string;
+  visibility?: string;
+  deletedAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  tags?: unknown[];
+  pendingSuggestions?: unknown[];
+  authorHandle?: string | null;
+  authorDisplayName?: string | null;
+  authorAvatarUrl?: string | null;
+  // For shared items
+  originalPokId?: string;
+  originalPok?: MockPok | null;
+  sharedByHandle?: string;
+  note?: string | null;
+  originalAuthorHandle?: string | null;
+  originalAuthorDisplayName?: string | null;
+  originalAuthorAvatarUrl?: string | null;
+}
+
+export interface MockLearnerSearchResult {
+  handle: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  relationship: 'NONE' | 'FOLLOWING' | 'FOLLOWED_BY' | 'COLLEAGUE';
+}
+
+function makeFeedPage(items: MockFeedItem[]) {
+  return {
+    content: items,
+    page: 0,
+    size: 20,
+    totalElements: items.length,
+    totalPages: Math.ceil(items.length / 20) || 1,
+    number: 0,
+  };
+}
+
+function makeLearnerSearchPage(results: MockLearnerSearchResult[]) {
+  return {
+    content: results,
+    page: 0,
+    size: 20,
+    totalElements: results.length,
+    totalPages: Math.ceil(results.length / 20) || 1,
+    number: 0,
+  };
+}
+
 export interface ApiMockConfig {
   /** Whether GET /auth/me succeeds. Defaults to true. */
   authenticated?: boolean;
@@ -126,6 +181,10 @@ export interface ApiMockConfig {
   followEnabled?: boolean;
   /** Response returned by POST /poks/{id}/share. Defaults to MOCK_POK_SHARE. */
   createdShare?: MockPokShare;
+  /** Items returned by GET /feed. Defaults to []. */
+  feedItems?: MockFeedItem[];
+  /** Learner search results returned by GET /learners/search. Defaults to []. */
+  learnerSearchResults?: MockLearnerSearchResult[];
 }
 
 // ---------------------------------------------------------------------------
@@ -154,6 +213,8 @@ export async function setupApiMocks(page: Page, config: ApiMockConfig = {}) {
     learnerProfiles = {},
     followEnabled = true,
     createdShare = MOCK_POK_SHARE,
+    feedItems = [],
+    learnerSearchResults = [],
   } = config;
 
   await page.route(`${API}/**`, async (route) => {
@@ -228,6 +289,13 @@ export async function setupApiMocks(page: Page, config: ApiMockConfig = {}) {
       return;
     }
 
+    // --- Learner search (must come before learnerProfileMatch to avoid /learners/search being swallowed) ---
+
+    if (path === '/learners/search' && method === 'GET') {
+      await route.fulfill({ json: makeLearnerSearchPage(learnerSearchResults) });
+      return;
+    }
+
     // --- Learner profiles ---
 
     const learnerProfileMatch = path.match(/^\/learners\/([^/]+)$/);
@@ -266,6 +334,13 @@ export async function setupApiMocks(page: Page, config: ApiMockConfig = {}) {
         }
         return;
       }
+    }
+
+    // --- Discovery feed ---
+
+    if (path === '/feed' && method === 'GET') {
+      await route.fulfill({ json: makeFeedPage(feedItems) });
+      return;
     }
 
     // --- Re-learning (PokShare) endpoints ---

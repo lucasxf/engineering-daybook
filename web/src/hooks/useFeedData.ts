@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 import { getFeed } from '@/lib/learnerApi';
 import type { FeedItem, FeedPage } from '@/lib/pokApi';
 
@@ -26,6 +28,10 @@ const PAGE_SIZE = 20;
  * @returns feed items, pagination state, and page-navigation helpers
  */
 export function useFeedData(): UseFeedDataResult {
+  const router = useRouter();
+  const params = useParams<{ locale: string }>();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+
   const [state, setState] = useState<UseFeedDataState>({
     items: [],
     totalElements: 0,
@@ -34,6 +40,13 @@ export function useFeedData(): UseFeedDataResult {
     isLoading: true,
     error: null,
   });
+
+  // Redirect unauthenticated users to login
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push(`/${params.locale}/login` as never);
+    }
+  }, [authLoading, isAuthenticated, router, params.locale]);
 
   const loadPage = useCallback((page: number) => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
@@ -58,8 +71,10 @@ export function useFeedData(): UseFeedDataResult {
   }, []);
 
   useEffect(() => {
-    loadPage(0);
-  }, [loadPage]);
+    if (!authLoading && isAuthenticated) {
+      loadPage(0);
+    }
+  }, [authLoading, isAuthenticated, loadPage]);
 
   return {
     ...state,

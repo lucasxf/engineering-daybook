@@ -1,7 +1,9 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import { useRouter, useParams } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 import { Spinner } from '@/components/ui/Spinner';
 import { LearnerSearchBar } from '@/components/discover/LearnerSearchBar';
 import { LearnerResultsList } from '@/components/discover/LearnerResultsList';
@@ -11,11 +13,21 @@ import { useLearnerSearch } from '@/hooks/useLearnerSearch';
  * Learner discovery page — search for PUBLIC learners by name or handle.
  *
  * Route: /[locale]/discover
- * Auth: required (redirected to login by middleware if unauthenticated)
+ * Auth: required (redirected to login when unauthenticated)
  */
 function DiscoverContent() {
   const t = useTranslations('discover');
+  const router = useRouter();
+  const params = useParams<{ locale: string }>();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const { query, results, isLoading, setQuery } = useLearnerSearch();
+
+  // Redirect unauthenticated users to login
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push(`/${params.locale}/login` as never);
+    }
+  }, [authLoading, isAuthenticated, router, params.locale]);
 
   return (
     <div className="mx-auto max-w-2xl">
