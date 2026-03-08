@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.lucasxf.ed.config.CorsProperties;
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.User;
+import com.lucasxf.ed.dto.FeedItemResponse;
 import com.lucasxf.ed.dto.LearnerProfileResponse;
 import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.exception.AlreadyFollowingException;
@@ -173,7 +174,7 @@ class LearnerControllerTest {
     @Test
     void getLearnerPoks_publicProfile_returns200WithOnlyPublicPoks() throws Exception {
         PokResponse pubResponse = PokResponse.from(makePublicPok());
-        Page<PokResponse> page = new PageImpl<>(List.of(pubResponse));
+        Page<FeedItemResponse> page = new PageImpl<>(List.of(pubResponse));
         when(learnerService.getLearnerPoks(eq("alice"), any(UUID.class), eq(0), eq(20)))
             .thenReturn(page);
 

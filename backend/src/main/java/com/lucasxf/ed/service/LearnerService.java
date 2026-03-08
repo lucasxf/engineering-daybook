@@ -1,24 +1,35 @@
 package com.lucasxf.ed.service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.lucasxf.ed.domain.Pok;
+import com.lucasxf.ed.domain.PokShare;
 import com.lucasxf.ed.domain.PokTag;
 import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.domain.UserTag;
+import com.lucasxf.ed.dto.FeedItemResponse;
 import com.lucasxf.ed.dto.LearnerProfileResponse;
 import com.lucasxf.ed.dto.PokResponse;
+import com.lucasxf.ed.dto.PokShareResponse;
 import com.lucasxf.ed.dto.RelationshipStatus;
 import com.lucasxf.ed.dto.TagResponse;
 import com.lucasxf.ed.exception.LearnerAccessDeniedException;
 import com.lucasxf.ed.exception.LearnerNotFoundException;
 import com.lucasxf.ed.repository.PokRepository;
+import com.lucasxf.ed.repository.PokShareRepository;
 import com.lucasxf.ed.repository.PokTagRepository;
 import com.lucasxf.ed.repository.UserTagRepository;
 
@@ -47,15 +58,18 @@ public class LearnerService {
 
     private final UserService userService;
     private final PokRepository pokRepository;
+    private final PokShareRepository pokShareRepository;
     private final PokTagRepository pokTagRepository;
     private final UserTagRepository userTagRepository;
     private final FollowService followService;
 
     public LearnerService(UserService userService, PokRepository pokRepository,
+                          PokShareRepository pokShareRepository,
                           PokTagRepository pokTagRepository, UserTagRepository userTagRepository,
                           FollowService followService) {
         this.userService = requireNonNull(userService);
         this.pokRepository = requireNonNull(pokRepository);
+        this.pokShareRepository = requireNonNull(pokShareRepository);
         this.pokTagRepository = requireNonNull(pokTagRepository);
         this.userTagRepository = requireNonNull(userTagRepository);
         this.followService = requireNonNull(followService);
@@ -126,34 +140,32 @@ public class LearnerService {
     }
 
     /**
-     * Returns a paginated page of learnings for the given learner handle, mapped to DTOs.
+     * Returns a paginated page of learnings and re-learnings for the given learner handle.
      *
-     * <p>The owner always sees all their own learnings. Non-owners see only the learnings
-     * whose visibility tier permits access (PUBLIC, FOLLOWERS_ONLY for followers, etc.).
-     * Tags are always built from the owner's tag set.
-     *
-     * <p>For non-owners, the follow relationship is computed exactly once and reused for
-     * both access gating and POK visibility-tier filtering.
+     * <p>Owned POKs and re-learnings are merged in memory, sorted by {@code createdAt DESC},
+     * and paginated. The owner sees all their items. Non-owners see only items whose visibility
+     * tier permits access based on their relationship with the target learner.
      *
      * @param handle      the target learner's handle
      * @param requesterId the UUID of the requesting user
      * @param page        zero-based page number
      * @param size        page size
-     * @return a page of {@link PokResponse} DTOs
+     * @return a page of {@link FeedItemResponse} items
      * @throws LearnerNotFoundException     if no learner with that handle exists
      * @throws LearnerAccessDeniedException if the profile visibility denies access
      */
-    public Page<PokResponse> getLearnerPoks(String handle, UUID requesterId, int page, int size) {
+    public Page<FeedItemResponse> getLearnerPoks(String handle, UUID requesterId, int page, int size) {
         User target = userService.findByHandle(handle)
             .orElseThrow(() -> new LearnerNotFoundException("Learner not found: @" + handle));
 
         boolean isOwner = target.getId().equals(requesterId);
 
-        PageRequest pageable = PageRequest.of(page, size, DEFAULT_SORT);
+        List<Pok> poks;
+        List<PokShare> shares;
 
-        Page<Pok> poks;
         if (isOwner) {
-            poks = pokRepository.findByUserIdAndDeletedAtIsNull(target.getId(), pageable);
+            poks = pokRepository.findByUserIdAndDeletedAtIsNull(target.getId(), Pageable.unpaged()).getContent();
+            shares = pokShareRepository.findBySharedByUserId(target.getId(), Pageable.unpaged()).getContent();
         } else {
             // Non-owner: PRIVATE profiles short-circuit before any follow DB query
             if (target.getProfileVisibility() == User.ProfileVisibility.PRIVATE) {
@@ -168,12 +180,47 @@ public class LearnerService {
 
             List<Pok.Visibility> visibleTiers = getVisiblePokTiers(relationship);
             poks = pokRepository.findByUserIdAndVisibilityInAndDeletedAtIsNull(
-                target.getId(), visibleTiers, pageable);
+                target.getId(), visibleTiers, Pageable.unpaged()).getContent();
+            shares = pokShareRepository.findBySharedByUserIdAndVisibilityIn(
+                target.getId(), visibleTiers, Pageable.unpaged()).getContent();
         }
 
         // Pre-fetch the owner's tags once to avoid N+1 queries across the page
         List<UserTag> ownerTags = userTagRepository.findByUserIdAndDeletedAtIsNull(target.getId());
-        return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), ownerTags), List.of()));
+
+        // Build feed items — owned POKs
+        List<FeedItemResponse> feedItems = new ArrayList<>();
+        for (Pok pok : poks) {
+            feedItems.add(PokResponse.from(pok, buildTagResponses(pok.getId(), ownerTags), List.of()));
+        }
+
+        // Append re-learnings (batch-fetch originals to avoid N+1)
+        if (!shares.isEmpty()) {
+            Set<UUID> originalPokIds = shares.stream()
+                .map(PokShare::getOriginalPokId)
+                .collect(Collectors.toSet());
+            Map<UUID, Pok> originalsById = pokRepository.findAllById(originalPokIds).stream()
+                .collect(Collectors.toMap(Pok::getId, p -> p));
+
+            String targetHandle = target.getHandle();
+            for (PokShare share : shares) {
+                Pok original = originalsById.get(share.getOriginalPokId());
+                if (original != null) {
+                    feedItems.add(PokShareResponse.from(share, PokResponse.from(original), targetHandle));
+                }
+            }
+        }
+
+        // Sort by createdAt DESC and in-memory paginate
+        feedItems.sort(Comparator.comparing(FeedItemResponse::createdAt).reversed());
+
+        int fromIndex = page * size;
+        int toIndex = Math.min(fromIndex + size, feedItems.size());
+        List<FeedItemResponse> pageContent = fromIndex >= feedItems.size()
+            ? List.of()
+            : feedItems.subList(fromIndex, toIndex);
+
+        return new PageImpl<>(pageContent, PageRequest.of(page, size), feedItems.size());
     }
 
     /**

@@ -7,8 +7,12 @@ import java.util.UUID;
 import com.lucasxf.ed.domain.Pok;
 
 /**
- * Response DTO for POK operations.
+ * Response DTO for an owned POK (Piece of Knowledge).
  *
+ * <p>Implements {@link FeedItemResponse} — {@code type} is always {@code "owned"} to allow
+ * the frontend to discriminate between owned learnings and re-learnings in a mixed feed.
+ *
+ * @param type               always {@code "owned"} — discriminates from {@code PokShareResponse}
  * @param id                 POK unique identifier
  * @param userId             owner user ID
  * @param title              optional title (can be null)
@@ -23,6 +27,7 @@ import com.lucasxf.ed.domain.Pok;
  * @since 2026-02-14
  */
 public record PokResponse(
+    String type,
     UUID id,
     UUID userId,
     String title,
@@ -32,18 +37,18 @@ public record PokResponse(
     Instant createdAt,
     Instant updatedAt,
     List<TagResponse> tags,
-    List<TagSuggestionResponse> pendingSuggestions
-) {
+    List<TagSuggestionResponse> pendingSuggestions) implements FeedItemResponse {
 
     /**
      * Converts a {@link Pok} entity to a {@link PokResponse} DTO without tags or suggestions.
      * Used in contexts where tag data is not needed (e.g., list views before tags are loaded).
      *
      * @param pok the POK entity
-     * @return the response DTO with empty tag lists
+     * @return the response DTO with empty tag lists and {@code type = "owned"}
      */
     public static PokResponse from(Pok pok) {
         return new PokResponse(
+            "owned",
             pok.getId(),
             pok.getUserId(),
             pok.getTitle(),
@@ -53,8 +58,7 @@ public record PokResponse(
             pok.getCreatedAt(),
             pok.getUpdatedAt(),
             List.of(),
-            List.of()
-        );
+            List.of());
     }
 
     /**
@@ -63,10 +67,11 @@ public record PokResponse(
      * @param pok                the POK entity
      * @param tags               the user's active tags assigned to this POK
      * @param pendingSuggestions AI-generated tag suggestions pending user decision
-     * @return the response DTO
+     * @return the response DTO with {@code type = "owned"}
      */
     public static PokResponse from(Pok pok, List<TagResponse> tags, List<TagSuggestionResponse> pendingSuggestions) {
         return new PokResponse(
+            "owned",
             pok.getId(),
             pok.getUserId(),
             pok.getTitle(),
@@ -76,7 +81,6 @@ public record PokResponse(
             pok.getCreatedAt(),
             pok.getUpdatedAt(),
             tags,
-            pendingSuggestions
-        );
+            pendingSuggestions);
     }
 }

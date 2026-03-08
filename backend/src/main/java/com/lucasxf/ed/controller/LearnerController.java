@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.lucasxf.ed.dto.FeedItemResponse;
 import com.lucasxf.ed.dto.LearnerProfileResponse;
-import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.service.FollowService;
 import com.lucasxf.ed.service.LearnerService;
 import com.lucasxf.ed.service.UserService;
@@ -92,13 +92,13 @@ public class LearnerController {
     @ApiResponse(responseCode = "401", description = "Not authenticated")
     @ApiResponse(responseCode = "403", description = "Profile access denied")
     @ApiResponse(responseCode = "404", description = "Learner not found")
-    public ResponseEntity<Page<PokResponse>> getLearnerPoks(
+    public ResponseEntity<Page<FeedItemResponse>> getLearnerPoks(
             @PathVariable String handle,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             Authentication authentication) {
         UUID requesterId = UUID.fromString(authentication.getName());
-        Page<PokResponse> result = learnerService.getLearnerPoks(handle, requesterId, page, size);
+        Page<FeedItemResponse> result = learnerService.getLearnerPoks(handle, requesterId, page, size);
         return ResponseEntity.ok(result);
     }
 

@@ -1,4 +1,6 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
 import { PokList } from '@/components/poks/PokList';
 import { Pok } from '@/lib/pokApi';
 
@@ -10,7 +12,10 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: () => (key: string) => {
+    const keys: Record<string, string> = { 'share.button': 'Re-learn' };
+    return keys[key] ?? key;
+  },
 }));
 
 describe('PokList', () => {
@@ -65,5 +70,21 @@ describe('PokList', () => {
     const { container } = renderList(mockPoks);
 
     expect(container.querySelector('[class*="flex-col"]')).toBeInTheDocument();
+  });
+
+  it('passes onShare to each PokCard for PUBLIC poks when onSharePok is provided', async () => {
+    const user = userEvent.setup();
+    const mockOnSharePok = vi.fn();
+    const publicPoks: Pok[] = [
+      { ...mockPoks[0], id: '1', visibility: 'PUBLIC' },
+      { ...mockPoks[1], id: '2', visibility: 'PUBLIC' },
+    ];
+
+    render(<PokList poks={publicPoks} onSharePok={mockOnSharePok} />);
+
+    const reLearnButtons = screen.getAllByRole('button', { name: 'Re-learn' });
+    await user.click(reLearnButtons[0]);
+
+    expect(mockOnSharePok).toHaveBeenCalledWith(publicPoks[0]);
   });
 });
