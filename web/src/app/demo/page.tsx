@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Search, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Search, ChevronLeft, ChevronRight, Sun, Moon } from 'lucide-react';
 
 // Define Learning type locally to avoid import issues
 interface Learning {
@@ -110,41 +110,28 @@ export default function DemoPage() {
   return (
     <div className={mode === 'dark' ? 'dark' : ''}>
       <div className="min-h-screen bg-background text-foreground dark:bg-deep-navy dark:text-parchment">
-        {/* Demo Controls */}
-        <div className="border-b border-border bg-parchment dark:border-mid-blue dark:bg-primary-blue px-4 py-4">
-          <div className="mx-auto max-w-6xl">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h1 className="text-lg font-heading font-semibold dark:text-parchment">
-                  Preview - Learning Feed
-                </h1>
-                <p className="text-sm text-muted-foreground mt-1 dark:text-muted">
-                  Visualize o design em modo escuro e claro
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setMode('dark')}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    mode === 'dark'
-                      ? 'bg-primary-blue text-parchment dark:bg-mid-blue dark:text-parchment'
-                      : 'bg-white text-primary-blue border border-border dark:bg-deep-navy dark:text-parchment dark:border-mid-blue'
-                  }`}
-                >
-                  Escuro
-                </button>
-                <button
-                  onClick={() => setMode('light')}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    mode === 'light'
-                      ? 'bg-primary-blue text-white border border-primary-blue'
-                      : 'bg-parchment text-primary-blue border border-border dark:bg-deep-navy dark:text-parchment dark:border-mid-blue'
-                  }`}
-                >
-                  Claro
-                </button>
-              </div>
+        {/* Demo Controls — barra de preview, não faz parte do design real do app */}
+        <div className="border-b border-slate-200 bg-slate-50 px-4 py-3">
+          <div className="mx-auto max-w-6xl flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="rounded bg-slate-200 px-2 py-0.5 text-xs font-mono font-medium text-slate-500 uppercase tracking-wider">
+                preview
+              </span>
+              <span className="text-sm text-slate-500">Learning Feed</span>
             </div>
+
+            {/* Ícone sol/lua — apenas para alternar o tema no preview */}
+            <button
+              onClick={() => setMode(mode === 'dark' ? 'light' : 'dark')}
+              className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500 transition-colors hover:border-slate-300 hover:text-slate-700"
+              aria-label={mode === 'dark' ? 'Alternar para modo claro' : 'Alternar para modo escuro'}
+            >
+              {mode === 'dark' ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </button>
           </div>
         </div>
 
