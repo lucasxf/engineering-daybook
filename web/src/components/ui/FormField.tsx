@@ -13,6 +13,10 @@ interface FormFieldProps {
  * Form field wrapper with label, input slot, error message, and optional hint.
  * Uses Library at Dusk design tokens for consistent styling.
  * Provides error/hint element IDs; consumers should wire up aria-describedby on their inputs.
+ *
+ * When `htmlFor` is omitted (for example, when the child component manages its own
+ * labelling via `aria-labelledby`), the label is rendered without a `for` attribute
+ * and acts purely as a visible group heading.
  */
 export function FormField({
   label,
