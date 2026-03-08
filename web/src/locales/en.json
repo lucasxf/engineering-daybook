@@ -316,6 +316,9 @@
     "searchPlaceholder": "Search by name or handle\ufffd",
     "noResults": "No learners found",
     "noResultsHint": "Try a different search term.",
-    "minCharsHint": "Type at least 2 characters to search"
+    "minCharsHint": "Type at least 2 characters to search",
+    "errors": {
+      "searchFailed": "Search failed. Please try again."
+    }
   }
 }

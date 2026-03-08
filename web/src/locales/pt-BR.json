@@ -316,6 +316,9 @@
     "searchPlaceholder": "Buscar por nome ou handle\ufffd",
     "noResults": "Nenhum aprendiz encontrado",
     "noResultsHint": "Tente um termo diferente.",
-    "minCharsHint": "Digite pelo menos 2 caracteres para buscar"
+    "minCharsHint": "Digite pelo menos 2 caracteres para buscar",
+    "errors": {
+      "searchFailed": "Falha na busca. Tente novamente."
+    }
   }
 }
