@@ -306,14 +306,14 @@
   "feed": {
     "title": "Feed",
     "empty": {
-      "title": "Seu feed est\ufffd vazio",
+      "title": "Seu feed está vazio",
       "description": "Siga aprendizes para ver seus conhecimentos no feed.",
       "discoverCta": "Encontrar aprendizes para seguir"
     }
   },
   "discover": {
     "title": "Descobrir",
-    "searchPlaceholder": "Buscar por nome ou handle\ufffd",
+    "searchPlaceholder": "Buscar por nome ou handle…",
     "noResults": "Nenhum aprendiz encontrado",
     "noResultsHint": "Tente um termo diferente.",
     "minCharsHint": "Digite pelo menos 2 caracteres para buscar",

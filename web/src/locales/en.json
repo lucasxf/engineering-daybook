@@ -313,7 +313,7 @@
   },
   "discover": {
     "title": "Discover",
-    "searchPlaceholder": "Search by name or handle\ufffd",
+    "searchPlaceholder": "Search by name or handle…",
     "noResults": "No learners found",
     "noResultsHint": "Try a different search term.",
     "minCharsHint": "Type at least 2 characters to search",

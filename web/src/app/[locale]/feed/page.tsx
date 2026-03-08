@@ -12,7 +12,7 @@ import { useFeedData } from '@/hooks/useFeedData';
  * Discovery feed page — shows learnings from learners the user follows.
  *
  * Route: /[locale]/feed
- * Auth: required (redirected to login by middleware if unauthenticated)
+ * Auth: required (redirected to login client-side by useFeedData hook if unauthenticated)
  */
 export default function FeedPage() {
   const t = useTranslations('feed');
