@@ -4,17 +4,23 @@ import { useState, forwardRef, type InputHTMLAttributes } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { cn } from '@/lib/utils';
 import {
   registerSchema,
   type RegisterFormData,
   getPasswordStrength,
 } from '@/lib/validations';
+import { useAuth } from '@/hooks/useAuth';
+import { useHandleAvailability } from '@/hooks/useHandleAvailability';
+import { ApiRequestError } from '@/lib/api';
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   Design System Tokens (CSS Custom Properties)
-   Injected via :root or .theme-* classes for theming isolation.
-────────────────────────────────────────────────────────────────────────────── */
+const GoogleLoginButton = dynamic(
+  () => import('@/components/auth/GoogleLoginButton').then(m => m.GoogleLoginButton),
+  { ssr: false }
+);
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Icons
@@ -83,29 +89,6 @@ function SpinnerIcon({ className }: { className?: string }) {
         className="opacity-75"
         fill="currentColor"
         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-      />
-    </svg>
-  );
-}
-
-function GoogleIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24">
-      <path
-        fill="currentColor"
-        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-      />
-      <path
-        fill="currentColor"
-        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-      />
-      <path
-        fill="currentColor"
-        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-      />
-      <path
-        fill="currentColor"
-        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
       />
     </svg>
   );
@@ -181,18 +164,17 @@ const PasswordInputV2 = forwardRef<HTMLInputElement, PasswordInputV2Props>(
 PasswordInputV2.displayName = 'PasswordInputV2';
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   Handle Input with @ prefix
+   Handle Input with @ prefix and real-time availability check
 ────────────────────────────────────────────────────────────────────────────── */
 interface HandleInputV2Props extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
   value: string;
   hasError?: boolean;
-  isChecking?: boolean;
-  isAvailable?: boolean | null;
 }
 
 const HandleInputV2 = forwardRef<HTMLInputElement, HandleInputV2Props>(
-  ({ value, hasError, isChecking, isAvailable, ...props }, ref) => {
+  ({ value, hasError, ...props }, ref) => {
     const t = useTranslations('auth');
+    const { isChecking, isAvailable } = useHandleAvailability(value);
 
     return (
       <div>
@@ -360,31 +342,19 @@ function PasswordStrengthIndicator({ strength }: { strength: 'weak' | 'medium' |
 ────────────────────────────────────────────────────────────────────────────── */
 export interface RegisterFormV2Props {
   locale: string;
-  /** For demo: force submitting state */
-  forceSubmitting?: boolean;
-  /** For demo: inject server error */
-  serverErrorOverride?: string | null;
-  /** For demo: handle availability state */
-  handleAvailability?: { isChecking: boolean; isAvailable: boolean | null };
-  /** Callback when form submits (for demo purposes) */
-  onSubmit?: (data: RegisterFormData) => Promise<void>;
 }
 
-export function RegisterFormV2({
-  locale,
-  forceSubmitting,
-  serverErrorOverride,
-  handleAvailability,
-  onSubmit: onSubmitProp,
-}: RegisterFormV2Props) {
+export function RegisterFormV2({ locale }: RegisterFormV2Props) {
   const t = useTranslations('auth');
+  const router = useRouter();
+  const { register: registerUser } = useAuth();
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
     watch,
-    formState: { errors, isSubmitting: formIsSubmitting },
+    formState: { errors, isSubmitting },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -396,9 +366,6 @@ export function RegisterFormV2({
     },
     mode: 'onTouched',
   });
-
-  const isSubmitting = forceSubmitting ?? formIsSubmitting;
-  const displayedServerError = serverErrorOverride ?? serverError;
 
   const password = watch('password');
   const handle = watch('handle');
@@ -414,19 +381,31 @@ export function RegisterFormV2({
 
   const onSubmit = async (data: RegisterFormData) => {
     setServerError(null);
-    if (onSubmitProp) {
-      try {
-        await onSubmitProp(data);
-      } catch (error) {
-        setServerError(error instanceof Error ? error.message : t('errors.unexpected'));
+    try {
+      await registerUser({
+        email: data.email,
+        password: data.password,
+        displayName: data.displayName,
+        handle: data.handle,
+      });
+      router.push(`/${locale}/poks` as never);
+    } catch (error) {
+      if (error instanceof ApiRequestError) {
+        setServerError(
+          error.status === 409
+            ? error.message
+            : error.message || t('errors.unexpected')
+        );
+      } else {
+        setServerError(t('errors.unexpected'));
       }
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-6 shadow-sm" noValidate>
-      {displayedServerError && (
-        <AlertV2 variant="error">{displayedServerError}</AlertV2>
+      {serverError && (
+        <AlertV2 variant="error">{serverError}</AlertV2>
       )}
 
       <FormFieldV2
@@ -474,8 +453,6 @@ export function RegisterFormV2({
           hasError={!!errors.handle}
           aria-describedby={errors.handle ? 'register-handle-error' : 'register-handle-hint'}
           value={handle}
-          isChecking={handleAvailability?.isChecking}
-          isAvailable={handleAvailability?.isAvailable}
           {...register('handle')}
         />
       </FormFieldV2>
@@ -524,25 +501,22 @@ export function RegisterFormV2({
           <div className="w-full border-t border-[var(--input-border)]" />
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="bg-[var(--background)] px-3 text-[var(--muted)]">
+          <span className="bg-[var(--card-bg)] px-3 text-[var(--muted)]">
             {t('orContinueWith')}
           </span>
         </div>
       </div>
 
-      <ButtonV2 type="button" variant="outline" className="w-full">
-        <GoogleIcon className="mr-2 h-4 w-4" />
-        {t('continueWithGoogle')}
-      </ButtonV2>
+      <GoogleLoginButton mode="register" />
 
       <p className="text-center text-sm text-[var(--muted)]">
         {t('hasAccount')}{' '}
-        <a
-          href={`/${locale}/login`}
+        <Link
+          href={`/${locale}/login` as never}
           className="font-medium text-[var(--primary)] hover:underline"
         >
           {t('logInLink')}
-        </a>
+        </Link>
       </p>
     </form>
   );
