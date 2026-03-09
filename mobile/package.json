@@ -34,7 +34,7 @@
     "react": "^19.0.0",
     "react-hook-form": "^7.54.2",
     "react-native": "^0.79.6",
-    "react-native-error-boundary": "^1.2.4",
+    "react-native-error-boundary": "^3.1.0",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-markdown-display": "^7.0.2",
