@@ -18,8 +18,10 @@ import org.springframework.data.domain.Sort;
 
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.PokAuditLog;
+import com.lucasxf.ed.domain.PokShare;
 import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.dto.CreatePokRequest;
+import com.lucasxf.ed.dto.FeedItemResponse;
 import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
 import com.lucasxf.ed.exception.PokAccessDeniedException;
@@ -28,6 +30,7 @@ import com.lucasxf.ed.exception.PokVisibilityImmutableException;
 import com.lucasxf.ed.dto.PokAuditLogResponse;
 import com.lucasxf.ed.repository.PokAuditLogRepository;
 import com.lucasxf.ed.repository.PokRepository;
+import com.lucasxf.ed.repository.PokShareRepository;
 import com.lucasxf.ed.repository.PokTagRepository;
 import com.lucasxf.ed.repository.PokTagSuggestionRepository;
 import com.lucasxf.ed.repository.UserTagRepository;
@@ -87,6 +90,12 @@ class PokServiceTest {
 
     @Mock
     private FollowService followService;
+
+    @Mock
+    private PokShareRepository pokShareRepository;
+
+    @Mock
+    private PokShareService pokShareService;
 
     @InjectMocks
     private PokService pokService;
@@ -447,6 +456,19 @@ class PokServiceTest {
             .isInstanceOf(PokAccessDeniedException.class);
 
         verify(pokRepository).findByIdAndDeletedAtIsNull(pokId);
+    }
+
+    @Test
+    void softDelete_cascadesDeleteToShares() {
+        // FR5: when a POK is soft-deleted, all re-learnings referencing it must be removed
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(userId, "Title", "Content");
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+
+        pokService.softDelete(pokId, userId);
+
+        verify(pokShareService).cascadeDeleteByOriginalPok(pokId);
     }
 
     // ===== SEARCH/FILTER/SORT TESTS =====
@@ -1241,5 +1263,55 @@ class PokServiceTest {
         // Then: no exception, pok was saved
         assertThat(response).isNotNull();
         verify(pokRepository).save(any(Pok.class));
+    }
+
+    // ===== GET OWN FEED TESTS =====
+
+    @Test
+    void getOwnFeed_noShares_returnsOnlyOwnedPoks() {
+        Pok pok = new Pok(userId, "Title", "Content");
+        ReflectionTestUtils.setField(pok, "id", UUID.randomUUID());
+        Page<Pok> ownedPage = new PageImpl<>(List.of(pok));
+
+        when(pokRepository.findByUserIdAndDeletedAtIsNull(eq(userId), any(Pageable.class)))
+            .thenReturn(ownedPage);
+        when(pokShareRepository.findBySharedByUserId(eq(userId), any(Pageable.class)))
+            .thenReturn(Page.empty());
+        when(pokRepository.countByUserIdAndDeletedAtIsNull(userId)).thenReturn(1L);
+        when(pokShareRepository.countBySharedByUserId(userId)).thenReturn(0L);
+        when(userTagRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(List.of());
+        when(pokTagRepository.findByPokId(any(UUID.class))).thenReturn(List.of());
+
+        Page<FeedItemResponse> result = pokService.getOwnFeed(userId, 0, 20, null, null);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).type()).isEqualTo("owned");
+        assertThat(result.getTotalElements()).isEqualTo(1L);
+    }
+
+    @Test
+    void getOwnFeed_withShare_returnsMixedFeed() {
+        UUID originalPokId = UUID.randomUUID();
+        Pok originalPok = new Pok(otherUserId, "Original", "Content");
+        ReflectionTestUtils.setField(originalPok, "id", originalPokId);
+
+        PokShare share = new PokShare(originalPokId, userId, null, Pok.Visibility.PUBLIC);
+        ReflectionTestUtils.setField(share, "id", UUID.randomUUID());
+
+        when(pokRepository.findByUserIdAndDeletedAtIsNull(eq(userId), any(Pageable.class)))
+            .thenReturn(Page.empty());
+        when(pokShareRepository.findBySharedByUserId(eq(userId), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(List.of(share)));
+        when(pokRepository.countByUserIdAndDeletedAtIsNull(userId)).thenReturn(0L);
+        when(pokShareRepository.countBySharedByUserId(userId)).thenReturn(1L);
+        when(pokRepository.findAllById(any())).thenReturn(List.of(originalPok));
+        when(userTagRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(List.of());
+        when(userService.findById(userId)).thenReturn(currentUser);
+
+        Page<FeedItemResponse> result = pokService.getOwnFeed(userId, 0, 20, null, null);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).type()).isEqualTo("shared");
+        assertThat(result.getTotalElements()).isEqualTo(1L);
     }
 }

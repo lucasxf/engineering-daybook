@@ -1,6 +1,6 @@
 # Phase 6: Social Capabilities (TBD)
 
-> Status: **🔄 In Progress** (6.1 done — 2026-03-07; 6.3 done — 2026-03-07)
+> Status: **🔄 In Progress** (6.1 done — 2026-03-07; 6.3 done — 2026-03-07; 6.4 done — 2026-03-07)
 
 ---
 
@@ -72,22 +72,41 @@
 - Mobile: `Avatar` component, `ProfileScreen` updates (avatar + bio display), `userApi` (`uploadAvatar`, `deleteAvatar`)
 - Test coverage: 415 backend tests, 357 web tests, 55 mobile tests — all passing
 
-## Milestone 6.4: Share (Re-Learning)
+## Milestone 6.4: Share (Re-Learning) ✅ Done (2026-03-07)
 
-| # | Feature | Priority |
-|---|---------|----------|
-| 6.4.1 | Share a public POK (reference in learner's feed, attributed to original author) | Should Have |
-| 6.4.2 | Shared POK in sharer's feed and profile, linked to original | Should Have |
-| 6.4.3 | Original author notified when their POK is shared | Should Have |
-| 6.4.4 | Shared POK visibility ≤ original's | Must Have |
-| 6.4.5 | Original POK going private removes all downstream shares | Must Have |
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 6.4.1 | Share a public POK (reference in learner's feed, attributed to original author) | Should Have | ✅ Done |
+| 6.4.2 | Shared POK in sharer's feed and profile, linked to original | Should Have | ✅ Done |
+| 6.4.3 | Original author notified when their POK is shared | Should Have | ⏳ Deferred |
+| 6.4.4 | Shared POK visibility ≤ original's | Must Have | ✅ Done |
+| 6.4.5 | Original POK going private removes all downstream shares | Must Have | ✅ Done |
 
-## Milestone 6.5: Discovery Feed
+**Implementation notes (2026-03-07):**
+- V20 Flyway migration adds `pok_shares` table; `PokShare` entity with `PokShareRepository` (Spring Data JPA)
+- Exception hierarchy: `SelfShareException` (400), `PokShareConflictException` (409), `PokShareAccessDeniedException` (403), `PokShareNotFoundException` (404) — all registered in global exception handler
+- `PokShareService` (TDD): `share()`, `unshare()`, `getShareById()`, `getSharesForPok()` — enforces visibility cascade (shared visibility ≤ original's) and cascades private reversion to remove downstream shares
+- `PokService` extended with cascade delete of shares on POK deletion/privatisation; `LearnerService` feed union support for mixed owned/shared `FeedItem` results
+- `PokShareController`: `POST /api/v1/poks/{id}/share`, `DELETE /api/v1/poks/shared/{shareId}`, `GET /api/v1/poks/shared/{shareId}`
+- Frontend: `pokApi.share()`, `pokApi.unshare()`, `pokApi.getShareById()`, `FeedItem` union type distinguishing owned vs. shared learnings
+- `ReLearningModal` component: modal for creating a re-learning from another learner's public POK
+- `ReLearningCard` component: card for rendering shared learnings in feed — **intentionally deferred to Milestone 6.5 (Discovery Feed)**
+- Re-learn button on `PokCard` and `PokList`; wired on learner profile page for non-owner visitors
+- i18n: `poks.share.*` namespace added to EN (`en.json`) and PT-BR (`pt-BR.json`)
+- Test coverage: 46 backend tests (21 service + 15 controller + 10 integration, 93.9% JaCoCo line coverage) + 29 web tests (24 component + 5 API) + 4 E2E scenarios in `learners.spec.ts`
+- Item 6.4.3 (share notification) deferred — does not block 6.5+
+
+## Milestone 6.5: Discovery Feed ✅ Done (2026-03-08)
 
 | # | Feature | Priority |
 |---|---------|----------|
 | 6.5.1 | Feed of public POKs from learners you follow | Must Have |
 | 6.5.2 | Discover public learners (search by handle or name) | Should Have |
+
+**Implemented:**
+- Backend: `FeedService` (UNION ALL SQL query over poks + pok_shares), `FeedController` (GET /api/v1/feed), `LearnerService.searchLearners`, `LearnerController` search endpoint (GET /api/v1/learners/search), V21 Flyway migration (pg_trgm + 4 indexes)
+- Web: `/feed` page (FeedList + FeedEmptyState + ReLearningCard wired), `/discover` page (LearnerSearchBar + LearnerResultCard + FollowButton), NavLinks updated, home redirect `/` → `/feed`; 17 new E2E tests
+- Mobile: `learnerApi.ts` (FeedItem/PokShare types + getFeed()), `useSocialFeedData` hook, FeedScreen updated to show social feed with author attribution
 
 ## Milestone 6.6: Community Principles & Content Moderation
 
@@ -98,12 +117,18 @@
 | 6.6.3 | AI moderation agent for harmful/abusive language in shared content | Should Have |
 | 6.6.4 | Community guidelines linked from onboarding and profile pages | Should Have |
 
+## Active / Pending
+
+- **Pending:** Milestone 6.2 (Classes & Study Groups), 6.6 (Community Principles & Content Moderation)
+
 ## Exit Criteria
 
-- [ ] Learners can follow/unfollow others
-- [ ] Mutual follows correctly identified as colleagues
-- [ ] Profiles display correctly with visibility enforcement
-- [ ] Share feature works with attribution and visibility cascade
-- [ ] No vanity metrics visible on public profiles
+- [x] Learners can follow/unfollow others
+- [x] Mutual follows correctly identified as colleagues
+- [x] Profiles display correctly with visibility enforcement
+- [x] Share feature works with attribution and visibility cascade
+- [x] No vanity metrics visible on public profiles
+- [x] Social discovery feed shows learnings from followed learners
+- [x] Learner search enables finding new learners to follow
 - [ ] Community Principles published and linked in-app
 - [ ] Report mechanism functional

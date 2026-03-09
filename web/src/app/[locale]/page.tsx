@@ -26,7 +26,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.replace(`/${params.locale}/poks`);
+      router.replace(`/${params.locale}/feed`);
     }
   }, [isLoading, isAuthenticated, router, params.locale]);
 

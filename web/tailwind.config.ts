@@ -9,14 +9,15 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-dm-sans)'],
-        heading: ['var(--font-sora)'],
-        wordmark: ['var(--font-bricolage)'],
+        sans: ['var(--font-dm-sans)', 'sans-serif'],
+        heading: ['var(--font-sora)', 'sans-serif'],
+        wordmark: ['var(--font-bricolage)', 'Bricolage Grotesque', 'sans-serif'],
       },
       colors: {
         /* Library at Dusk palette */
         background: 'rgb(var(--background) / <alpha-value>)',
         foreground: 'rgb(var(--foreground) / <alpha-value>)',
+        border: 'rgb(var(--border) / <alpha-value>)',
         card: {
           DEFAULT: 'rgb(var(--card) / <alpha-value>)',
           foreground: 'rgb(var(--card-foreground) / <alpha-value>)',
@@ -46,6 +47,8 @@ const config: Config = {
         'deep-navy': '#0F1B2D',
         'primary-blue': '#1A365D',
         'mid-blue': '#2B4A78',
+        'branch-brown': '#8B5E3C',
+        'dark-leather': '#6B4226',
         'ember-cta': '#D4854A',
         parchment: '#F5F0E8',
         ink: '#1A1A2E',
@@ -62,10 +65,15 @@ const config: Config = {
           from: { opacity: '0', transform: 'translateY(0.5rem)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
+        spin: {
+          from: { transform: 'rotate(0deg)' },
+          to: { transform: 'rotate(360deg)' },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 150ms ease-out',
         slideUp: 'slideUp 200ms ease-out',
+        spin: 'spin 1s linear infinite',
       },
     },
   },

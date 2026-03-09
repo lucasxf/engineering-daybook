@@ -5,6 +5,7 @@ import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.exception.EmbeddingUnavailableException;
 import com.lucasxf.ed.repository.PokAuditLogRepository;
 import com.lucasxf.ed.repository.PokRepository;
+import com.lucasxf.ed.repository.PokShareRepository;
 import com.lucasxf.ed.repository.PokTagRepository;
 import com.lucasxf.ed.repository.PokTagSuggestionRepository;
 import com.lucasxf.ed.repository.UserTagRepository;
@@ -51,6 +52,8 @@ class PokServiceSemanticSearchTest {
     @Mock private TagService tagService;
     @Mock private UserService userService;
     @Mock private FollowService followService;
+    @Mock private PokShareRepository pokShareRepository;
+    @Mock private PokShareService pokShareService;
 
     private PokService pokService;
     private UUID userId;
@@ -63,7 +66,7 @@ class PokServiceSemanticSearchTest {
             pokRepository, pokAuditLogRepository, pokTagRepository,
             userTagRepository, pokTagSuggestionRepository,
             tagSuggestionService, embeddingGenerationService, embeddingService,
-            tagService, userService, followService);
+            tagService, userService, followService, pokShareRepository, pokShareService);
         userId = UUID.randomUUID();
         pok1 = new Pok(userId, "Java basics", "Introduction to Java");
         pok2 = new Pok(userId, "Spring Boot", "Building REST APIs");

@@ -6,6 +6,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LanguageToggle } from '@/components/ui/LanguageToggle';
 import { UserMenu } from '@/components/auth/UserMenu';
 import { LogoLink } from '@/components/ui/LogoLink';
+import { NavLinks } from '@/components/ui/NavLinks';
 
 interface LocaleLayoutProps {
   children: React.ReactNode;
@@ -33,7 +34,10 @@ export default async function LocaleLayout({
       <div className="min-h-screen bg-background">
         <header className="border-b border-[#E8E4DF] bg-parchment dark:border-primary-blue dark:bg-deep-navy">
           <div className="container mx-auto flex h-16 items-center justify-between px-4">
-            <h1><LogoLink /></h1>
+            <div className="flex items-center gap-6">
+              <h1><LogoLink /></h1>
+              <NavLinks />
+            </div>
             <div className="flex items-center gap-2">
               <UserMenu />
               <LanguageToggle />

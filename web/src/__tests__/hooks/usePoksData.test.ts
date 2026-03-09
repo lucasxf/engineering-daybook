@@ -43,10 +43,12 @@ import { usePoksData } from '@/hooks/usePoksData';
 import type { Pok } from '@/lib/pokApi';
 
 const MOCK_POK: Pok = {
+  type: 'owned',
   id: '1',
   userId: 'user-1',
   title: 'Test Learning',
   content: 'Some content',
+  visibility: 'PRIVATE',
   deletedAt: null,
   createdAt: '2026-02-01T10:00:00Z',
   updatedAt: '2026-02-01T10:00:00Z',
@@ -174,7 +176,21 @@ describe('usePoksData', () => {
       );
     });
 
-    it('always passes searchMode=hybrid to the API', async () => {
+    it('omits searchMode when there is no keyword (feed mode)', async () => {
+      // With no keyword, searchMode must be omitted so the backend routes to
+      // getOwnFeed() (mixed feed) instead of search() (owned-only).
+      renderHook(() => usePoksData({ fetchSize: 20 }));
+
+      await waitFor(() => expect(mockGetAll).toHaveBeenCalled());
+
+      expect(mockGetAll).toHaveBeenCalledWith(
+        expect.not.objectContaining({ searchMode: expect.anything() })
+      );
+    });
+
+    it('passes searchMode=hybrid when keyword is present', async () => {
+      mockUseSearchParams.mockReturnValue(new URLSearchParams('keyword=react'));
+
       renderHook(() => usePoksData({ fetchSize: 20 }));
 
       await waitFor(() => expect(mockGetAll).toHaveBeenCalled());
@@ -290,7 +306,7 @@ describe('usePoksData', () => {
       const newPok: Pok = { ...MOCK_POK, id: '2', title: 'New Learning' };
       act(() => result.current.handleQuickSave(newPok));
 
-      expect(result.current.poks[0]).toEqual(newPok);
+      expect(result.current.poks[0]).toEqual({ ...newPok, type: 'owned' });
       expect(result.current.poks).toHaveLength(2);
     });
 

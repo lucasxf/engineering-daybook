@@ -61,6 +61,7 @@ const messages = {
 const mockCreate = vi.mocked(pokApi.create);
 
 const makePok = (overrides?: Partial<Pok>): Pok => ({
+  type: 'owned',
   id: 'pok-1',
   userId: 'user-1',
   title: null,

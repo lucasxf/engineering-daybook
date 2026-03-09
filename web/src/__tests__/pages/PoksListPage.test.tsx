@@ -42,10 +42,12 @@ vi.mock('@/hooks/useAuth', () => ({
 const mockGetAll = vi.mocked(pokApi.getAll);
 
 const makePok = (id: string, overrides?: Partial<Pok>): Pok => ({
+  type: 'owned',
   id,
   userId: 'user-1',
   title: `Learning ${id}`,
   content: `Content for learning ${id}`,
+  visibility: 'PRIVATE',
   deletedAt: null,
   createdAt: '2026-02-14T10:00:00Z',
   updatedAt: '2026-02-14T10:00:00Z',

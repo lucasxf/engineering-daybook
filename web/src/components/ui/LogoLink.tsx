@@ -13,7 +13,7 @@ export function LogoLink() {
   const { isAuthenticated } = useAuth();
 
   const href = isAuthenticated
-    ? `/${params.locale}/poks`
+    ? `/${params.locale}/feed`
     : `/${params.locale}`;
 
   return (
