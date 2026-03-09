@@ -156,12 +156,12 @@ Active work:
 - [x] Milestone 2.3: Visualization (timeline, tag-grouped view, sort) — done (2026-02-25)
 - [ ] Milestone 2.4: UX Delight (inspirational prompts, homepage personalization)
 
-**Phase 3: AI & Mobile** — 🔄 In Progress (3.1, 3.3 done)
+**Phase 3: AI & Mobile** — 🔄 In Progress (3.1, 3.3 done; 3.4 in progress)
 
 - [x] Milestone 3.1: Semantic Search — hybrid keyword + vector search, HuggingFace embeddings, pgvector (2026-02-26)
 - [ ] Milestone 3.2: AI Connections (related learnings)
 - [x] Milestone 3.3: Mobile App (Expo/React Native) — done (2026-02-27)
-- [ ] Milestone 3.4: App Store Publishing
+- [ ] Milestone 3.4: App Store Publishing — Android .aab built, Play Console setup done, Play Store internal track in progress; 6 mobile feature parity specs written (2026-03-09)
 
 **Phase 5: Privacy** — 🔄 In Progress (5.1 done; 5.2 done)
 

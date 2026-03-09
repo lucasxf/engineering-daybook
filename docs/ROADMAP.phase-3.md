@@ -78,6 +78,17 @@
 - Production `.aab` artifact: `https://expo.dev/artifacts/eas/2svV1cBny8Fri4ULvGYnC5.aab`
 - Android-first strategy: iOS deferred pending Apple Developer Program enrollment
 
+**Progress update (2026-03-09):**
+- Mobile feature parity table (`mobile/store-assets/web-mobile-feature-parity.md`) audited and updated: social discovery feed row corrected (split into social following feed ✅/✅ and Discover page ✅/❌); 3 new rows added (My Learnings personal feed, Search bar UI, Social: Discover page learner search); gap descriptions sharpened for follow/unfollow, learner profiles, and re-learning.
+- Six mobile feature parity specs written and ready for implementation via `/implement-spec`:
+  1. `docs/specs/features/mobile-profile-editing.md` — edit displayName, bio, and avatar on ProfileScreen
+  2. `docs/specs/features/mobile-my-learnings.md` — personal feed tab with search and sort controls
+  3. `docs/specs/features/mobile-social-discovery.md` — follow/unfollow, LearnerProfileScreen, DiscoverScreen, FollowButton
+  4. `docs/specs/features/mobile-tag-management.md` — tag add/remove, tag-at-creation, AI suggestions, tag filter
+  5. `docs/specs/features/mobile-4-tier-visibility.md` — expand 2-tier to 4-tier visibility on mobile (FOLLOWERS_ONLY, COLLEAGUES_ONLY)
+  6. `docs/specs/features/mobile-re-learning.md` — share/unshare learnings, ReLearningModal, attribution display
+- Recommended implementation order: (1) mobile-profile-editing → (2) mobile-my-learnings → (3) mobile-4-tier-visibility → (4) mobile-tag-management → (5) mobile-social-discovery → (6) mobile-re-learning. Social discovery depends on follow/unfollow wiring that lands in step 5; re-learning depends on visibility cascade enforcement from step 3.
+
 ---
 
 ## Milestone 3.2: AI Connections

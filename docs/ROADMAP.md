@@ -30,7 +30,7 @@
 | 0 — Foundation | `ROADMAP.phase-0.md` | ✅ Complete |
 | 1 — MVP | `ROADMAP.phase-1.md` | 🔄 Active |
 | 2 — Evolution | `ROADMAP.phase-2.md` | 🔄 Started (2.1, 2.2, 2.3 done; 2.4 planned) |
-| 3 — AI & Mobile | `ROADMAP.phase-3.md` | 🔄 In Progress (3.1, 3.3 done) |
+| 3 — AI & Mobile | `ROADMAP.phase-3.md` | 🔄 In Progress (3.1, 3.3 done; 3.4 in progress) |
 | 4 — Growth | `ROADMAP.phase-4.md` | ⏸️ Postponed |
 | 5 — Privacy | `ROADMAP.phase-5.md` | 🔄 In Progress (5.1 done; 5.2 done) |
 | 6 — Social | `ROADMAP.phase-6.md` | 🔄 In Progress (6.1 done; 6.3 done; 6.4 done; 6.5 done) |
