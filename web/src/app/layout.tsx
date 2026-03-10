@@ -24,7 +24,10 @@ const sora = Sora({
 });
 
 export const metadata: Metadata = {
-  title: 'My Learnings | learnimo',
+  title: {
+    default: 'learnimo',
+    template: '%s | learnimo',
+  },
   description: 'Personal learning journal where you capture, organize, and recall what you learn',
 };
 
