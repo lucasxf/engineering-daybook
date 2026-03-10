@@ -105,7 +105,7 @@ ls docs/specs/features/
 
 ## Phase 2: Product Sections
 
-**Delegate to `virgil` agent** with this prompt:
+**Delegate to `virgil` agent via the Agent tool with `subagent_type: virgil`** using this prompt:
 
 > "Define the product requirements for the following feature in Engineering Daybook: **[feature name/description]**.
 >
@@ -127,7 +127,7 @@ Review the agent's output for completeness and consistency. Extract the **Scope*
 
 ### 2.1 Screen Definition (web or full-stack only)
 
-If the Scope includes `web` or `full-stack`, delegate to the `pixl` agent:
+If the Scope includes `web` or `full-stack`, delegate to the `pixl` agent via the Agent tool with `subagent_type: pixl`:
 
 > "Define the UI screens for the following feature in Engineering Daybook: **[feature name]**.
 >
@@ -189,7 +189,7 @@ Include the `pixl` agent's output as the `## Screens` section of the spec.
 
 Delegate to specialists in parallel based on the **Scope** from Phase 2. Each specialist receives: feature name, functional requirements list, and the codebase brief from 3.1.
 
-**Web or Full-stack:** Delegate to `nexus` agent:
+**Web or Full-stack:** Delegate to `nexus` agent via the Agent tool with `subagent_type: nexus`:
 > "You are reviewing the frontend engineering approach for: **[feature name]**.
 >
 > Functional requirements: [paste FR list]
@@ -197,7 +197,7 @@ Delegate to specialists in parallel based on the **Scope** from Phase 2. Each sp
 >
 > Provide: recommended routing/URL structure, component architecture, state strategy, data fetching approach, TypeScript patterns, and a list of files to create or modify. Call out any risks or data strategy decisions that need resolving before implementation."
 
-**Backend or Full-stack:** Delegate to `sous-chef` agent:
+**Backend or Full-stack:** Delegate to `sous-chef` agent via the Agent tool with `subagent_type: sous-chef`:
 > "You are reviewing the backend engineering approach for: **[feature name]**.
 >
 > Functional requirements: [paste FR list]

@@ -122,7 +122,7 @@ docker info > /dev/null 2>&1 && echo "DOCKER_OK" || echo "DOCKER_DOWN"
 integration tests are silently skipped via `disabledWithoutDocker = true`, leaving coverage
 data incomplete and integration regressions undetected.
 
-**If DOCKER_OK:** Delegate to the `steward` agent via the Task tool with:
+**If DOCKER_OK:** Delegate to the `steward` agent via the Agent tool with `subagent_type: steward`. Pass:
 - The current coverage percentage and the configured threshold (check `backend/pom.xml` →
   `<jacoco-minimum-coverage>` or `<minimum>` in the JaCoCo plugin config)
 - Report path: `backend/target/site/jacoco/jacoco.xml`
@@ -158,7 +158,7 @@ Route each group to the appropriate specialist agent via the Task tool.
 
 ### Launch Agents
 
-For each group, launch the specialist agent via the Task tool with:
+For each group, launch the specialist agent via the Agent tool with `subagent_type` matching the agent name from the routing table above (e.g., `subagent_type: sous-chef` for backend files). Pass:
 - The exact comment text and file/line reference
 - The recommendation from the triage report (accept / accept with modification — include the deviation if applicable)
 - Relevant conventions from `CLAUDE.md` or the stack-specific `CLAUDE.md`
@@ -208,6 +208,15 @@ Skip for docs-only changes (`.md`, Javadoc, i18n `.json`).
 
 **If any targeted tests fail** → STOP. Show the failure. Ask user whether to revert or debug.
 
+**E2E regression check — Web:**
+
+If any `web/` files were changed in Step 3, run the full Playwright suite:
+```bash
+(cd web && npx playwright test --reporter=line 2>&1 | tail -20)
+```
+
+If E2E tests fail → STOP. Show the failing tests. Ask user whether to revert or debug.
+
 ---
 
 ## 4. Commit and Push
@@ -231,7 +240,7 @@ git push origin $PR_BRANCH
 ## 5. Extract and Save Coding Style Learnings
 
 Review what each accepted fix revealed. For each one that exposes a pitfall, convention, or
-anti-pattern not already documented, delegate documentation to the `tech-writer` agent via the Task tool.
+anti-pattern not already documented, delegate documentation to the `tech-writer` agent via the Agent tool with `subagent_type: tech-writer`.
 
 **What qualifies:**
 - A missing annotation/config that silently breaks intended behavior (e.g., `@EnableAsync`, `@Transactional`)
@@ -245,7 +254,7 @@ anti-pattern not already documented, delegate documentation to the `tech-writer`
 - Suggestions that were Rejected or Deferred
 - Things already in CLAUDE.md
 
-**How to delegate:** Launch `tech-writer` via the Task tool with the list of qualifying learnings
+**How to delegate:** Launch `tech-writer` via the Agent tool with `subagent_type: tech-writer`. Pass the list of qualifying learnings
 (one per bullet): what the pitfall is, why it matters, the correct pattern. The agent applies its
 own routing rules to place each entry in the right file and section.
 

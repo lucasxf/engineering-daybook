@@ -59,7 +59,7 @@ for c in root.findall('counter[@type=\"LINE\"]'):
 
 **If output contains `BELOW_THRESHOLD`:**
 - Do NOT proceed to docs or commit
-- Delegate to the `steward` agent with full context:
+- Delegate to the `steward` agent via the Agent tool with `subagent_type: steward`. Pass full context:
   - Current coverage percentage
   - Path to `backend/target/site/jacoco/jacoco.xml`
   - The failing threshold (90%)
@@ -94,8 +94,11 @@ Then run the unused import check (Java compiler does not catch these — Checkst
 # Preferred: run tools directly so output is never swallowed by npm wrapper
 (cd web && npx eslint src)            # lint — also catches unused imports via @typescript-eslint/no-unused-vars
 (cd web && npx next build)            # type-check + production build
-(cd web && npx vitest run)            # unit tests
+(cd web && npx vitest run --coverage) # unit tests + 80% line coverage threshold (enforced by vitest.config.ts)
 ```
+
+If vitest exits non-zero due to coverage below 80% → **STOP.** Do not commit. Show the coverage summary and ask the user how to proceed (add tests or lower threshold).
+
 
 > **Unused imports (TypeScript):** Caught automatically by `npx eslint src` via the
 > `@typescript-eslint/no-unused-vars` rule (included in `next/typescript`). No separate step needed.
@@ -130,6 +133,17 @@ git ls-files --others --exclude-standard 'web/e2e/**' 2>/dev/null
 
 Exceptions: user can explicitly say "skip E2E for this session" — warn and proceed.
 
+**E2E test execution gate — Web:**
+
+Run the full Playwright suite whenever `web/` files changed (coverage gate already passed):
+```bash
+(cd web && npx playwright test --reporter=line 2>&1 | tail -20)
+```
+
+- If Playwright exits with "Executable doesn't exist" or "browserType.launch: Executable doesn't exist" → auto-run `npx playwright install chromium` first, then retry once.
+- If E2E tests fail → **STOP.** Do not commit. Show the failing test names and ask the user how to proceed.
+- The dev server auto-starts via Playwright's `webServer` config (port 3001) — no backend needed.
+
 **Orphaned export check (Web) — only if new `.tsx` or `.ts` files were added:**
 
 Check whether any new components or hooks added this session have zero consumers:
@@ -154,8 +168,10 @@ Exceptions: intentionally deferred components must have a documented note (in th
 **Mobile** — only if `mobile/` files changed:
 ```bash
 (cd mobile && npm run lint)
-(cd mobile && npm run test)
+(cd mobile && npm run test:coverage) # unit tests + 80% line coverage threshold (enforced by jest.config.js coverageThreshold)
 ```
+
+If Jest exits non-zero due to coverage below 80% → **STOP.** Do not commit. Show the coverage summary and ask how to proceed.
 
 If a layer was not touched this session, skip it entirely.
 
@@ -180,7 +196,7 @@ Skip entirely if Step 1 passed on the first run with no issues.
 **Non-trivial** (capture): dependency incompatibility, tool misconfiguration, unexpected build/test behavior, environment quirk, anything that required more than one fix attempt.
 **Trivial** (skip): obvious typo in code, simple missing import, straightforward syntax error.
 
-Collect every non-trivial error from Step 1 and **delegate to `tech-writer` agent** with:
+Collect every non-trivial error from Step 1 and **delegate to `tech-writer` agent via the Agent tool with `subagent_type: tech-writer`**. Pass:
 - A description of each failure (error message or summary)
 - The root cause discovered
 - The fix applied
@@ -203,7 +219,7 @@ grep "CURRENT_PHASE:" docs/ROADMAP.md
 # e.g. <!-- CURRENT_PHASE: 1 --> → load docs/ROADMAP.phase-1.md
 ```
 
-**Delegate to `tech-writer` agent** to update the current phase file (`docs/ROADMAP.phase-{N}.md`):
+**Delegate to `tech-writer` agent via the Agent tool with `subagent_type: tech-writer`** to update the current phase file (`docs/ROADMAP.phase-{N}.md`):
 - Mark newly completed tasks as ✅
 - Move completed items into the appropriate "Completed" section within the phase file
 - Update "Active / Pending" section with remaining work
@@ -219,7 +235,7 @@ After updating the phase file, check: are ALL items in any milestone now ✅?
 
 ## 4. Documentation Staleness Check (ALWAYS - Delegate to tech-writer)
 
-**Always delegate to `tech-writer` agent.** The check is scoped to what changed this session — not a full-repo audit. tech-writer must verify each applicable item below and explicitly confirm it is current or fix it.
+**Always delegate to `tech-writer` agent via the Agent tool with `subagent_type: tech-writer`.** The check is scoped to what changed this session — not a full-repo audit. tech-writer must verify each applicable item below and explicitly confirm it is current or fix it.
 
 ### If `backend/` files changed:
 - [ ] **OpenAPI annotations** — every new/modified endpoint has `@Tag`, `@Operation`, `@ApiResponses`, `@Parameter`. Missing = CRITICAL, block commit.

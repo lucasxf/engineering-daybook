@@ -52,7 +52,7 @@ KNOWN_AGENTS = {
 KNOWN_COMMANDS = {
     "compile-metrics", "create-pr", "directive", "finish-session",
     "fix-pr", "generate-v0-prompt", "implement-spec", "review-pr",
-    "save-response", "start-session", "write-spec",
+    "review-spec", "save-response", "start-session", "write-spec",
 }
 # --- END AUTO-GENERATED: KNOWN_COMMANDS ---
 

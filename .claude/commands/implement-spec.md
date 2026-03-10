@@ -105,7 +105,7 @@ git log HEAD..origin/develop --oneline
 
 1. Read the spec's Status field
 2. **If "Implemented":** STOP. Ask: "This spec is already implemented. Re-implement? (y/n)"
-3. **If "Draft":** Ask: "Spec is in Draft. Has it been reviewed? Consider using the `virgil` agent first."
+3. **If "Draft":** Ask: "Spec is in Draft. Has it been reviewed? Consider running `/review-spec` first."
 4. **If "Approved" or user confirms:** Proceed
 
 ### 1.3 Update Status
@@ -304,7 +304,7 @@ You are implementing Task {N} of the "{spec_name}" spec.
 - Return a brief summary of what you created/modified (file names and key additions).
 ```
 
-3. **Spawn subagent** via Task tool with `subagent_type: "general-purpose"`.
+3. **Spawn subagent** via Task tool with `subagent_type` set by stack: `sous-chef` for `backend`, `nexus` for `web`, `hedy` for `mobile`. Use `general-purpose` only for `infra` or multi-stack tasks — if using `general-purpose`, include the agent name(s) in the task description.
 
 4. **Verify after return:**
    - Run stack-specific tests for the affected files
@@ -317,6 +317,8 @@ You are implementing Task {N} of the "{spec_name}" spec.
 
    # Web
    cd web && npm run lint && npm run test -- --run
+   # Web E2E (only if task touched web/ files)
+   (cd web && npx playwright test --reporter=line)
 
    # Mobile
    cd mobile && npm run test
@@ -339,13 +341,13 @@ You are implementing Task {N} of the "{spec_name}" spec.
 
 After ALL tasks complete, optionally delegate a holistic code review:
 
-**If backend code was written:** Delegate to `sous-chef` agent for review.
+**If backend code was written:** Delegate to `sous-chef` agent via the Agent tool with `subagent_type: sous-chef` for review.
 
-**If web (Next.js/TypeScript) code was written:** Delegate to `nexus` agent for review.
+**If web (Next.js/TypeScript) code was written:** Delegate to `nexus` agent via the Agent tool with `subagent_type: nexus` for review.
 
-**If mobile (Expo/React Native) code was written:** Delegate to `hedy` agent for review.
+**If mobile (Expo/React Native) code was written:** Delegate to `hedy` agent via the Agent tool with `subagent_type: hedy` for review.
 
-**If UI/design changes were made (web or mobile):** Delegate to `pixl` agent for a design/accessibility review.
+**If UI/design changes were made (web or mobile):** Delegate to `pixl` agent via the Agent tool with `subagent_type: pixl` for a design/accessibility review.
 
 If issues are found:
 - Fix critical and major issues (dispatch a targeted subagent or fix directly if trivial)
@@ -422,13 +424,13 @@ Run E2E suite to confirm:
 
 #### 3.5 Code Quality Check
 
-**If backend code was written:** Delegate to `sous-chef` agent for review.
+**If backend code was written:** Delegate to `sous-chef` agent via the Agent tool with `subagent_type: sous-chef` for review.
 
-**If web (Next.js/TypeScript) code was written:** Delegate to `nexus` agent for review.
+**If web (Next.js/TypeScript) code was written:** Delegate to `nexus` agent via the Agent tool with `subagent_type: nexus` for review.
 
-**If mobile (Expo/React Native) code was written:** Delegate to `hedy` agent for review.
+**If mobile (Expo/React Native) code was written:** Delegate to `hedy` agent via the Agent tool with `subagent_type: hedy` for review.
 
-**If UI/design changes were made (web or mobile):** Delegate to `pixl` agent for a design/accessibility review.
+**If UI/design changes were made (web or mobile):** Delegate to `pixl` agent via the Agent tool with `subagent_type: pixl` for a design/accessibility review.
 
 If issues are found:
 - Fix critical and major issues
@@ -438,7 +440,7 @@ If issues are found:
 
 ## Phase 4: Documentation
 
-**Delegate to `tech-writer` agent** for applicable documentation:
+**Delegate to `tech-writer` agent via the Agent tool with `subagent_type: tech-writer`** for applicable documentation:
 
 **Backend (Java):**
 - Javadoc on new public classes (`@author`, `@since`)
@@ -499,7 +501,7 @@ Run full verification for the relevant stack:
 cd backend && ./mvnw verify
 
 # Web
-cd web && npm run test && npm run build
+cd web && npm run test && npm run build && npx playwright test --reporter=line
 
 # Mobile
 cd mobile && npm run test

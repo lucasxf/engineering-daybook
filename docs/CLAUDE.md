@@ -52,10 +52,15 @@
 # 1. Write spec (includes Implementation Plan section)
 /write-spec my-feature
 
-# 2. Implement from spec
+# 2. Review and validate the spec (optional but recommended)
+/review-spec docs/specs/features/my-feature.md
+# Or revise + review in one step:
+/review-spec docs/specs/features/my-feature.md "add NFR for latency, split AC3"
+
+# 3. Implement from spec
 /implement-spec docs/specs/features/my-feature.md
 
-# 3. Finish session as usual
+# 4. Finish session as usual
 /finish-session "Completed my-feature"
 ```
 

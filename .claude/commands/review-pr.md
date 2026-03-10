@@ -225,7 +225,7 @@ so there is a clear audit trail. Include: file:line, author, original comment su
 If only one signal is present — outdated but not in the skip list, or in the skip list but not
 outdated — **do not skip**. Evaluate normally and note the discrepancy.
 
-**Delegate evaluation of all remaining comments to the `keepr` agent** via the Task tool.
+**Delegate evaluation of all remaining comments to the `keepr` agent via the Agent tool with `subagent_type: keepr`.**
 
 Pass to keepr:
 - The full list of non-skipped comments (file:line, author, body, outdated flag)
