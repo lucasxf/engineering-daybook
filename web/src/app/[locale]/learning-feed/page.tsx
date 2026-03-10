@@ -178,7 +178,7 @@ function LearningFeedContent() {
 
 export default function LearningFeedPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<LoadingState />}>
       <LearningFeedContent />
     </Suspense>
   );
