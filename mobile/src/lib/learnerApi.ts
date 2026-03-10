@@ -101,22 +101,22 @@ export interface LearnerSearchPage {
 /**
  * Fetches the public profile of a learner by handle.
  */
-export function getLearnerProfile(handle: string): Promise<LearnerProfileResponse> {
-  return apiFetch<LearnerProfileResponse>(`/learners/${handle}`);
+export function getLearnerProfile(handle: string, signal?: AbortSignal): Promise<LearnerProfileResponse> {
+  return apiFetch<LearnerProfileResponse>(`/learners/${handle}`, {}, signal);
 }
 
 /**
  * Follows a learner by handle (POST /learners/{handle}/follow).
  */
-export function followLearner(handle: string): Promise<void> {
-  return apiFetch<void>(`/learners/${handle}/follow`, { method: 'POST' });
+export function followLearner(handle: string, signal?: AbortSignal): Promise<void> {
+  return apiFetch<void>(`/learners/${handle}/follow`, { method: 'POST' }, signal);
 }
 
 /**
  * Unfollows a learner by handle (DELETE /learners/{handle}/follow).
  */
-export function unfollowLearner(handle: string): Promise<void> {
-  return apiFetch<void>(`/learners/${handle}/follow`, { method: 'DELETE' });
+export function unfollowLearner(handle: string, signal?: AbortSignal): Promise<void> {
+  return apiFetch<void>(`/learners/${handle}/follow`, { method: 'DELETE' }, signal);
 }
 
 /**
@@ -124,10 +124,11 @@ export function unfollowLearner(handle: string): Promise<void> {
  */
 export function searchLearners(
   q: string,
-  params?: { page?: number; size?: number }
+  params?: { page?: number; size?: number },
+  signal?: AbortSignal
 ): Promise<LearnerSearchPage> {
   const search = new URLSearchParams({ q });
   if (params?.page !== undefined) search.set('page', String(params.page));
   if (params?.size !== undefined) search.set('size', String(params.size));
-  return apiFetch<LearnerSearchPage>(`/learners/search?${search.toString()}`);
+  return apiFetch<LearnerSearchPage>(`/learners/search?${search.toString()}`, {}, signal);
 }

@@ -41,15 +41,24 @@ describe('getLearnerProfile', () => {
     const result = await getLearnerProfile('alice');
 
     expect(mockApiFetch).toHaveBeenCalledTimes(1);
-    expect(mockApiFetch).toHaveBeenCalledWith('/learners/alice');
+    expect(mockApiFetch).toHaveBeenCalledWith('/learners/alice', {}, undefined);
     expect(result).toEqual(profile);
+  });
+
+  it('forwards the AbortSignal to apiFetch', async () => {
+    mockApiFetch.mockResolvedValueOnce({} as LearnerProfileResponse);
+    const signal = new AbortController().signal;
+
+    await getLearnerProfile('alice', signal);
+
+    expect(mockApiFetch).toHaveBeenCalledWith('/learners/alice', {}, signal);
   });
 
   it('propagates errors thrown by apiFetch', async () => {
     mockApiFetch.mockRejectedValueOnce(new Error('Not found'));
 
     await expect(getLearnerProfile('unknown')).rejects.toThrow('Not found');
-    expect(mockApiFetch).toHaveBeenCalledWith('/learners/unknown');
+    expect(mockApiFetch).toHaveBeenCalledWith('/learners/unknown', {}, undefined);
   });
 });
 
@@ -64,7 +73,16 @@ describe('followLearner', () => {
     await followLearner('alice');
 
     expect(mockApiFetch).toHaveBeenCalledTimes(1);
-    expect(mockApiFetch).toHaveBeenCalledWith('/learners/alice/follow', { method: 'POST' });
+    expect(mockApiFetch).toHaveBeenCalledWith('/learners/alice/follow', { method: 'POST' }, undefined);
+  });
+
+  it('forwards the AbortSignal to apiFetch', async () => {
+    mockApiFetch.mockResolvedValueOnce(undefined);
+    const signal = new AbortController().signal;
+
+    await followLearner('alice', signal);
+
+    expect(mockApiFetch).toHaveBeenCalledWith('/learners/alice/follow', { method: 'POST' }, signal);
   });
 
   it('propagates errors thrown by apiFetch', async () => {
@@ -85,7 +103,16 @@ describe('unfollowLearner', () => {
     await unfollowLearner('alice');
 
     expect(mockApiFetch).toHaveBeenCalledTimes(1);
-    expect(mockApiFetch).toHaveBeenCalledWith('/learners/alice/follow', { method: 'DELETE' });
+    expect(mockApiFetch).toHaveBeenCalledWith('/learners/alice/follow', { method: 'DELETE' }, undefined);
+  });
+
+  it('forwards the AbortSignal to apiFetch', async () => {
+    mockApiFetch.mockResolvedValueOnce(undefined);
+    const signal = new AbortController().signal;
+
+    await unfollowLearner('alice', signal);
+
+    expect(mockApiFetch).toHaveBeenCalledWith('/learners/alice/follow', { method: 'DELETE' }, signal);
   });
 
   it('propagates errors thrown by apiFetch', async () => {
@@ -114,7 +141,7 @@ describe('searchLearners', () => {
     const result = await searchLearners('alice');
 
     expect(mockApiFetch).toHaveBeenCalledTimes(1);
-    expect(mockApiFetch).toHaveBeenCalledWith('/learners/search?q=alice');
+    expect(mockApiFetch).toHaveBeenCalledWith('/learners/search?q=alice', {}, undefined);
     expect(result).toEqual(page);
   });
 
@@ -123,7 +150,7 @@ describe('searchLearners', () => {
 
     await searchLearners('alice', { page: 2, size: 10 });
 
-    expect(mockApiFetch).toHaveBeenCalledWith('/learners/search?q=alice&page=2&size=10');
+    expect(mockApiFetch).toHaveBeenCalledWith('/learners/search?q=alice&page=2&size=10', {}, undefined);
   });
 
   it('includes only page when size is omitted', async () => {
@@ -131,7 +158,7 @@ describe('searchLearners', () => {
 
     await searchLearners('bob', { page: 1 });
 
-    expect(mockApiFetch).toHaveBeenCalledWith('/learners/search?q=bob&page=1');
+    expect(mockApiFetch).toHaveBeenCalledWith('/learners/search?q=bob&page=1', {}, undefined);
   });
 
   it('includes only size when page is omitted', async () => {
@@ -139,7 +166,7 @@ describe('searchLearners', () => {
 
     await searchLearners('bob', { size: 5 });
 
-    expect(mockApiFetch).toHaveBeenCalledWith('/learners/search?q=bob&size=5');
+    expect(mockApiFetch).toHaveBeenCalledWith('/learners/search?q=bob&size=5', {}, undefined);
   });
 
   it('URL-encodes special characters in the query', async () => {
@@ -147,7 +174,16 @@ describe('searchLearners', () => {
 
     await searchLearners('hello world');
 
-    expect(mockApiFetch).toHaveBeenCalledWith('/learners/search?q=hello+world');
+    expect(mockApiFetch).toHaveBeenCalledWith('/learners/search?q=hello+world', {}, undefined);
+  });
+
+  it('forwards the AbortSignal to apiFetch', async () => {
+    mockApiFetch.mockResolvedValueOnce(page);
+    const signal = new AbortController().signal;
+
+    await searchLearners('alice', undefined, signal);
+
+    expect(mockApiFetch).toHaveBeenCalledWith('/learners/search?q=alice', {}, signal);
   });
 
   it('propagates errors thrown by apiFetch', async () => {

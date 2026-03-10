@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -24,10 +24,7 @@ import type { LearnerSearchResult, RelationshipStatus } from '@/lib/learnerApi';
 // Types
 // ---------------------------------------------------------------------------
 
-// LearnerProfile is added to AppStackParamList in Task 7; cast until then.
-type DiscoverNavProp = NativeStackNavigationProp<AppStackParamList> & {
-  navigate(screen: 'LearnerProfile', params: { handle: string }): void;
-};
+type DiscoverNavProp = NativeStackNavigationProp<AppStackParamList>;
 
 // ---------------------------------------------------------------------------
 // Component
@@ -40,7 +37,13 @@ export function DiscoverScreen() {
   const { t } = useI18n();
 
   const [query, setQuery] = useState('');
-  const { results, loading, error } = useLearnerSearch(query);
+  const { results: searchResults, loading, error } = useLearnerSearch(query);
+  const [results, setResults] = useState<LearnerSearchResult[]>([]);
+
+  // Sync results from hook into local state
+  useEffect(() => {
+    setResults(searchResults);
+  }, [searchResults]);
 
   const currentUserHandle = user?.handle;
 
@@ -82,12 +85,11 @@ export function DiscoverScreen() {
   });
 
   function handleCardPress(handle: string) {
-    (navigation as any).navigate('LearnerProfile', { handle });
+    navigation.navigate('LearnerProfile', { handle });
   }
 
-  function handleRelationshipChange(_handle: string, _newStatus: RelationshipStatus) {
-    // No-op: useLearnerSearch results are not mutated in-place here.
-    // LearnerProfileScreen owns relationship state when navigated.
+  function handleRelationshipChange(handle: string, newStatus: RelationshipStatus) {
+    setResults(prev => prev.map(r => r.handle === handle ? { ...r, relationship: newStatus } : r));
   }
 
   function renderItem({ item }: ListRenderItemInfo<LearnerSearchResult>) {
@@ -170,7 +172,7 @@ export function DiscoverScreen() {
             value={query}
             onChangeText={setQuery}
             placeholder={t('discover.searchPlaceholder')}
-            accessibilityLabel="Search learners"
+            accessibilityLabel={t('discover.searchPlaceholder')}
             returnKeyType="search"
             autoCapitalize="none"
             autoCorrect={false}

@@ -58,6 +58,8 @@ export function FeedScreen() {
           {/* Re-learning header — sharer attribution is tappable */}
           <Pressable
             onPress={() => handleAuthorPress(item.sharedByHandle)}
+            accessibilityRole="button"
+            accessibilityLabel={`@${item.sharedByHandle}`}
             style={{
               paddingHorizontal: theme.spacing.md,
               paddingVertical: theme.spacing.xs,
@@ -77,6 +79,8 @@ export function FeedScreen() {
           {/* Original author attribution is tappable */}
           <Pressable
             onPress={() => handleAuthorPress(authorHandle)}
+            accessibilityRole="button"
+            accessibilityLabel={authorName}
             style={{
               paddingHorizontal: theme.spacing.md,
               paddingBottom: theme.spacing.xs,
@@ -99,6 +103,8 @@ export function FeedScreen() {
         {authorHandle ? (
           <Pressable
             onPress={() => handleAuthorPress(authorHandle)}
+            accessibilityRole="button"
+            accessibilityLabel={authorName}
             style={{
               flexDirection: 'row',
               alignItems: 'center',

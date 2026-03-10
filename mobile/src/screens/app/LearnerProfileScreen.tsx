@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import type { RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/contexts/I18nContext';
@@ -14,13 +15,10 @@ import { Text } from '@/components/ui/Text';
 import { LearningCard } from '@/components/feed/LearningCard';
 import { FollowButton } from '@/components/learners/FollowButton';
 import type { AppStackParamList } from '@/navigation/AppStack';
-import type { RelationshipStatus, LearnerPokSummary } from '@/lib/learnerApi';
+import type { RelationshipStatus, LearnerPokSummary, LearnerProfileResponse } from '@/lib/learnerApi';
 import type { Pok } from '@/lib/pokApi';
 
-// ---------------------------------------------------------------------------
-// Temporary local route typing — Task 7 will add LearnerProfile to AppStackParamList
-// ---------------------------------------------------------------------------
-type LearnerProfileRoute = RouteProp<{ LearnerProfile: { handle: string } }, 'LearnerProfile'>;
+type LearnerProfileRoute = RouteProp<AppStackParamList, 'LearnerProfile'>;
 
 type AppNav = NativeStackNavigationProp<AppStackParamList>;
 
@@ -38,6 +36,67 @@ function mapToPok(learning: LearnerPokSummary, ownerHandle: string): Pok {
     tags: [],
     pendingSuggestions: [],
   };
+}
+
+// ---------------------------------------------------------------------------
+// ProfileHeader
+// ---------------------------------------------------------------------------
+
+interface ProfileHeaderProps {
+  profile: LearnerProfileResponse;
+  isOwnProfile: boolean;
+  relationshipStatus: RelationshipStatus | null;
+  onRelationshipChange: (newStatus: RelationshipStatus) => void;
+}
+
+function ProfileHeader({ profile, isOwnProfile, relationshipStatus, onRelationshipChange }: ProfileHeaderProps) {
+  const { theme } = useTheme();
+  const displayName = profile.displayName ?? `@${profile.handle}`;
+
+  return (
+    <View
+      style={{
+        padding: theme.spacing.md,
+        gap: theme.spacing.sm,
+      }}
+    >
+      {/* Avatar + identity row */}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: theme.spacing.md,
+        }}
+      >
+        <Avatar
+          avatarUrl={profile.avatarUrl}
+          displayName={displayName}
+          handle={profile.handle}
+          size={64}
+        />
+        <View style={{ flex: 1, gap: theme.spacing.xs }}>
+          <Text variant="label">{displayName}</Text>
+          <Text variant="bodySm" color={theme.colors.textSecondary}>
+            @{profile.handle}
+          </Text>
+        </View>
+      </View>
+
+      {/* Bio */}
+      {profile.bio ? (
+        <Text variant="bodySm">{profile.bio}</Text>
+      ) : null}
+
+      {/* FollowButton — absent for own profile */}
+      {!isOwnProfile ? (
+        <FollowButton
+          handle={profile.handle}
+          relationshipStatus={relationshipStatus ?? 'NONE'}
+          onRelationshipChange={onRelationshipChange}
+        />
+      ) : null}
+    </View>
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -117,64 +176,17 @@ export function LearnerProfileScreen() {
   }
 
   // ------------------------------------------------------------------
-  // Profile header (shared between private shell and populated views)
-  // ------------------------------------------------------------------
-  const displayName = profile.displayName ?? `@${profile.handle}`;
-
-  function ProfileHeader() {
-    return (
-      <View
-        style={{
-          padding: theme.spacing.md,
-          gap: theme.spacing.sm,
-        }}
-      >
-        {/* Avatar + identity row */}
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: theme.spacing.md,
-          }}
-        >
-          <Avatar
-            avatarUrl={profile.avatarUrl}
-            displayName={displayName}
-            handle={profile.handle}
-            size={64}
-          />
-          <View style={{ flex: 1, gap: theme.spacing.xs }}>
-            <Text variant="label">{displayName}</Text>
-            <Text variant="bodySm" color={theme.colors.textSecondary}>
-              @{profile.handle}
-            </Text>
-          </View>
-        </View>
-
-        {/* Bio */}
-        {profile.bio ? (
-          <Text variant="bodySm">{profile.bio}</Text>
-        ) : null}
-
-        {/* FollowButton — absent for own profile */}
-        {!isOwnProfile ? (
-          <FollowButton
-            handle={handle}
-            relationshipStatus={relationshipStatus}
-            onRelationshipChange={setRelationshipStatus}
-          />
-        ) : null}
-      </View>
-    );
-  }
-
-  // ------------------------------------------------------------------
   // Private shell state
   // ------------------------------------------------------------------
   if (isPrivateShell) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
-        <ProfileHeader />
+        <ProfileHeader
+          profile={profile}
+          isOwnProfile={isOwnProfile}
+          relationshipStatus={relationshipStatus}
+          onRelationshipChange={setRelationshipStatus}
+        />
         <View
           style={{
             paddingHorizontal: theme.spacing.md,
@@ -202,7 +214,12 @@ export function LearnerProfileScreen() {
         keyExtractor={(item) => item.id}
         ListHeaderComponent={
           <View>
-            <ProfileHeader />
+            <ProfileHeader
+              profile={profile}
+              isOwnProfile={isOwnProfile}
+              relationshipStatus={relationshipStatus}
+              onRelationshipChange={setRelationshipStatus}
+            />
             <View
               style={{
                 paddingHorizontal: theme.spacing.md,
