@@ -1,7 +1,7 @@
 'use client';
 
-import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useParams } from 'next/navigation';
 import type { FeedItem } from '@/lib/pokApi';
 
 interface LearningCardListProps {
@@ -23,8 +23,8 @@ function formatRelativeTime(date: Date, locale: string): string {
 }
 
 export default function LearningCardList({ learnings }: LearningCardListProps) {
-  const params = useParams<{ locale: string }>();
   const t = useTranslations('poks');
+  const params = useParams<{ locale: string }>();
 
   return (
     <div className="space-y-3">

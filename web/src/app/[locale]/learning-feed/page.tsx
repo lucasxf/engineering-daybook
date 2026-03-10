@@ -10,7 +10,6 @@ import EmptyState from '@/components/learning-feed/EmptyState';
 import LoadingState from '@/components/learning-feed/LoadingState';
 import ErrorState from '@/components/learning-feed/ErrorState';
 import NoResultsState from '@/components/learning-feed/NoResultsState';
-import TopNav from '@/components/learning-feed/TopNav';
 import { usePoksData } from '@/hooks/usePoksData';
 
 const ITEMS_PER_PAGE = 10;
@@ -119,7 +118,6 @@ function LearningFeedContent() {
 export default function LearningFeedPage() {
   return (
     <div className="min-h-screen bg-background">
-      <TopNav />
       <main className="py-8 px-4">
         <Suspense fallback={<LoadingState />}>
           <LearningFeedContent />
