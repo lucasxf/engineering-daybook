@@ -159,6 +159,15 @@ export default {
     },
   },
 
+  // Learner Profile screen
+  learnerProfile: {
+    learnings: 'Aprendizados',
+    noLearnings: 'Nenhum aprendizado ainda',
+    privateProfile: 'Este perfil é privado',
+    loadError: 'Falha ao carregar perfil',
+    retry: 'Tentar novamente',
+  },
+
   // Learners (social discovery)
   learners: {
     social: {

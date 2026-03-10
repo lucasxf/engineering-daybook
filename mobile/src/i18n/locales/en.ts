@@ -162,6 +162,15 @@ export default {
     },
   },
 
+  // Learner Profile screen
+  learnerProfile: {
+    learnings: 'Learnings',
+    noLearnings: 'No learnings yet',
+    privateProfile: 'This profile is private',
+    loadError: 'Failed to load profile',
+    retry: 'Retry',
+  },
+
   // Learners (social discovery)
   learners: {
     social: {
