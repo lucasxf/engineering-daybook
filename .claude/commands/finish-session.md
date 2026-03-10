@@ -185,19 +185,8 @@ Collect every non-trivial error from Step 1 and **delegate to `tech-writer` agen
 - The root cause discovered
 - The fix applied
 
-Give tech-writer this routing rule for where to write each learning:
-
-> **File hierarchy for learnings — most specific wins:**
-> - Error is scoped to one stack → `backend/CLAUDE.md`, `web/CLAUDE.md`, or `mobile/CLAUDE.md` ("Known Issues / Pitfalls" section)
-> - Error is project-wide or cross-cutting (git, CI, environment, shared tooling) → root `CLAUDE.md`
-> - Reusable debugging insight that applies beyond this project → `memory/MEMORY.md` or a topic file under `memory/`
-> - When scope is ambiguous, prefer the most specific file (stack > project > memory)
-
-tech-writer must:
-1. Check whether the learning already exists in the target file — do not duplicate
-2. Add new entries under the appropriate section heading
-3. Keep each entry concise: what failed, why, and what the fix is (1–3 sentences)
-4. Report which files were updated, or confirm no update was needed if all learnings were already documented
+The agent applies its own learning-routing rules to place each entry in the right file and section.
+It will report which files were updated, or confirm no update was needed.
 
 ## 3. Update Phase File and Archive Completed Milestones (REQUIRED - Delegate to tech-writer)
 
