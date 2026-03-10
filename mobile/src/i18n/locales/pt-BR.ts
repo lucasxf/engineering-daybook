@@ -83,6 +83,8 @@ export default {
       relearning: 're-aprendido por',
       by: 'por',
       loadError: 'Falha ao carregar o feed',
+      discover: 'Descobrir aprendizes',
+      findLearners: 'Encontrar Aprendizes',
     },
     new: {
       title: 'Salvar Aprendizado',
@@ -161,11 +163,21 @@ export default {
 
   // Learner Profile screen
   learnerProfile: {
+    title: 'Perfil',
     learnings: 'Aprendizados',
     noLearnings: 'Nenhum aprendizado ainda',
     privateProfile: 'Este perfil é privado',
     loadError: 'Falha ao carregar perfil',
     retry: 'Tentar novamente',
+  },
+
+  // Discover screen
+  discover: {
+    title: 'Descobrir Aprendizes',
+    searchPlaceholder: 'Buscar por nome ou @usuário',
+    minCharsPrompt: 'Digite pelo menos 2 caracteres',
+    noResults: 'Nenhum aprendiz encontrado',
+    loadError: 'Algo deu errado. Tente novamente.',
   },
 
   // Learners (social discovery)
