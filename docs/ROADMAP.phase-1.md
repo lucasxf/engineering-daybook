@@ -202,6 +202,20 @@ Tooling chore: audited the full `.claude/` automation ecosystem based on an auto
 | Regenerated `agents-readme.md` and `commands/README.md` tables | ✅ Done |
 | Removed stale `/update-roadmap` reference from `CLAUDE.md` Task Management section | ✅ Done |
 
+### Command Context Optimization (chore/command-context-optimization, 2026-03-10) ✅
+
+Tooling chore: reduced token footprint across three slash commands by moving repeated inline logic into agents.
+
+| Task | Status |
+|------|--------|
+| Added `keepr` agent (`.claude/agents/keepr.md`) — owns PR review evaluation framework (4-axis rubric: correctness, consistency, proportionality, timing; Accept/Reject/Defer/Question verdicts) | ✅ Done |
+| Slimmed `review-pr` Step 4 from ~70 lines to ~15 lines — evaluation logic delegated to keepr | ✅ Done |
+| Replaced 45-line inline JaCoCo analysis in `fix-pr` with steward delegation; Docker gate reinstated before delegation (guard for Testcontainers silent-skip) | ✅ Done |
+| Removed duplicated tech-writer routing tables from `fix-pr` and `finish-session` — routing now lives in tech-writer agent | ✅ Done |
+| Added Learning Routing section to `tech-writer` agent | ✅ Done |
+| Registered keepr in `sync-automation-registry.py` and `agents-readme.md` | ✅ Done |
+| Net reduction: ~140 lines / ~1,100 tokens across three commands | ✅ Done |
+
 ### SDD Automation Workflow Enhancement (chore/enhance-spec-driven-development-automation-workflow, 2026-03-08) ✅
 
 Tooling session: refactored the Spec-Driven Development workflow to eliminate context rot during multi-task implementations.
