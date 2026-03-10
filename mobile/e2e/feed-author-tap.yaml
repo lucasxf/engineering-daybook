@@ -1,0 +1,46 @@
+appId: net.learnimo.app
+---
+# AC33: Tapping an author attribution row in the social feed navigates to their profile
+#
+# Test data assumptions:
+#   - Logged-in user: test@learnimo.net / TestPass123 (handle: "alice")
+#   - "alice" follows "bob" so bob's learnings appear in alice's social feed
+#   - "bob" has at least one public learning visible in the feed
+#   - The FeedScreen renders owned feed items with an author row showing
+#     the display name and @handle above the LearningCard
+
+# Start fresh and log in
+- launchApp:
+    clearState: true
+
+- assertVisible: "Welcome back"
+
+- tapOn:
+    text: "Email"
+- inputText: "test@learnimo.net"
+- tapOn:
+    text: "Password"
+- inputText: "TestPass123"
+- tapOn:
+    text: "Sign in"
+
+# Verify: land on the social feed
+- assertVisible: "Feed"
+
+- waitForAnimationToEnd:
+
+# Verify: a feed item from another learner is visible (author attribution row)
+- assertVisible: "@bob"
+
+# Tap the author attribution row for "bob"
+- tapOn:
+    text: "@bob"
+
+- waitForAnimationToEnd:
+
+# Verify: LearnerProfileScreen for "bob" is now visible
+- assertVisible: "@bob"
+- assertVisible: "Learnings"
+
+# Verify: we are NOT still on the feed (the feed heading is gone)
+- assertNotVisible: "Feed"
