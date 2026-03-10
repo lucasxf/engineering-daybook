@@ -113,62 +113,16 @@ Add missing type annotations, fix incorrect types, add type guards. Re-run to co
 
 ### Coverage Failures (Backend)
 
-> Start with the JaCoCo XML report — it tells you exactly which classes are under-covered
-> in seconds, without re-running the full suite.
+Delegate to the `steward` agent via the Task tool with:
+- The current coverage percentage and the configured threshold (check `backend/pom.xml` →
+  `<jacoco-minimum-coverage>` or `<minimum>` in the JaCoCo plugin config)
+- Report path: `backend/target/site/jacoco/jacoco.xml`
 
-1. Generate the report if it doesn't exist yet:
-```bash
-test -f backend/target/site/jacoco/jacoco.xml \
-  && echo "Report exists" \
-  || (cd backend && mvn jacoco:report -q)
-```
-
-2. Parse the report:
-```bash
-python3 -c "
-import xml.etree.ElementTree as ET
-tree = ET.parse('backend/target/site/jacoco/jacoco.xml')
-root = tree.getroot()
-
-print('=== Bundle Totals ===')
-for c in root.findall('counter'):
-    missed = int(c.get('missed', 0))
-    covered = int(c.get('covered', 0))
-    total = missed + covered
-    pct = (covered / total * 100) if total else 0
-    print(f'{c.get(\"type\"):15} {covered}/{total} ({pct:.1f}%)')
-
-print()
-print('=== Classes by Missed Lines (worst first) ===')
-classes = []
-for cls in root.findall('package/class'):
-    for c in cls.findall('counter[@type=\"LINE\"]'):
-        missed = int(c.get('missed', 0))
-        covered = int(c.get('covered', 0))
-        if missed > 0:
-            classes.append((missed, cls.get('name'), covered))
-for missed, name, covered in sorted(classes, reverse=True)[:20]:
-    print(f'  missed={missed:4d}  covered={covered:4d}  {name}')
-"
-```
-
-2. Check the configured threshold: `backend/pom.xml` → `<jacoco-minimum-coverage>` or `<minimum>` in the JaCoCo plugin config.
-
-3. Write targeted tests for classes with the most missed lines.
-   Follow project conventions: JUnit 5 + Mockito for unit tests, Testcontainers for integration tests.
-
-4. **Check Docker is running before `mvn verify`** (required for Testcontainers):
-```bash
-docker info > /dev/null 2>&1 && echo "Docker running" || echo "Docker NOT running"
-```
-   If Docker is not running → attempt to start Docker Desktop and wait ~20s before retrying.
-   If still unavailable → STOP and ask the user. Do not silently skip integration tests.
-
-5. Verify coverage locally:
+Wait for the agent to complete. Then verify locally:
 ```bash
 (cd backend && mvn verify -q)
 ```
-   Re-parse `jacoco.xml` to confirm the gap is closed before committing.
+Re-parse `jacoco.xml` to confirm the gap is closed before committing.
 
 ---
 
@@ -282,19 +236,9 @@ anti-pattern not already documented, delegate documentation to the `tech-writer`
 - Suggestions that were Rejected or Deferred
 - Things already in CLAUDE.md
 
-**How to delegate:** Launch `tech-writer` via the Task tool with:
-- The list of qualifying learnings (one per bullet): what the pitfall is, why it matters, the correct pattern
-- The target file for each entry:
-
-| Fix touches | Target |
-|-------------|--------|
-| Java / Spring / Maven | `backend/CLAUDE.md` → `## Known Pitfalls` |
-| TypeScript / Next.js / React | `web/CLAUDE.md` → extend `## Coding Conventions` |
-| Expo / React Native | `mobile/CLAUDE.md` → `## Known Pitfalls` |
-| Cross-cutting or architectural | Root `CLAUDE.md` → relevant section |
-
-The agent will write each entry (2–4 sentences + code example where it aids clarity) and append it
-to the correct section.
+**How to delegate:** Launch `tech-writer` via the Task tool with the list of qualifying learnings
+(one per bullet): what the pitfall is, why it matters, the correct pattern. The agent applies its
+own routing rules to place each entry in the right file and section.
 
 After the agent completes, report what was documented in the §7 Summary under "Coding Style Tips Saved".
 

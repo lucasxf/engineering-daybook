@@ -43,7 +43,7 @@ SESSIONS_DIR = Path(__file__).parent.parent / "metrics" / "sessions"
 
 # --- BEGIN AUTO-GENERATED: KNOWN_AGENTS ---
 KNOWN_AGENTS = {
-    "automation-sentinel", "hedy", "imhotep", "nexus", "pixl",
+    "automation-sentinel", "hedy", "imhotep", "keepr", "nexus", "pixl",
     "professor-x", "sous-chef", "steward", "tech-writer", "virgil",
 }
 # --- END AUTO-GENERATED: KNOWN_AGENTS ---
