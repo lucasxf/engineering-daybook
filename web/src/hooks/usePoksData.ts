@@ -65,7 +65,8 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
   const sortDirection =
     (searchParams.get('sortDirection') as SortOption['sortDirection']) || DEFAULT_SORT.sortDirection;
   const sortOption: SortOption = useMemo(() => ({ sortBy, sortDirection }), [sortBy, sortDirection]);
-  const page = parseInt(searchParams.get('page') || '0', 10);
+  const parsedPage = parseInt(searchParams.get('page') || '0', 10);
+  const page = Number.isFinite(parsedPage) ? parsedPage : 0;
   const view = searchParams.get('view') || '';
   const selectedTagId = searchParams.get('tagId') || null;
 
