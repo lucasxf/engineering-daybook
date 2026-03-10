@@ -198,4 +198,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-03-10 (session: chore/command-context-optimization — command context optimization, added keepr agent, ~140 lines / ~1,100 tokens reduced across review-pr, fix-pr, finish-session)*
+*Last updated: 2026-03-10 (session: develop — sentinel recs 1/2/5: delegation tracking fix, /review-spec command, LOC metrics)*
