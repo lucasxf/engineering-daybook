@@ -11,6 +11,13 @@ import type { SortOption } from '@/components/poks/SortDropdown';
 interface UsePoksDataOptions {
   /** Number of items per page. Use 20 for paginated feed, 1000 for visualization views. */
   fetchSize: number;
+  /**
+   * When true, only owned POKs are fetched (re-learnings excluded).
+   * Achieved by always sending searchMode: 'hybrid', which forces the backend
+   * into owned-only mode even when no keyword is present.
+   * Default: false (mixed feed: owned POKs + re-learnings).
+   */
+  ownedOnly?: boolean;
 }
 
 export interface UsePoksDataReturn {
@@ -51,7 +58,7 @@ const DEFAULT_SORT: SortOption = { sortBy: 'createdAt', sortDirection: 'DESC' };
  * call the returned handlers, which update the URL, which triggers a re-render
  * with updated params, which re-fires data loading.
  */
-export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataReturn {
+export function usePoksData({ fetchSize, ownedOnly = false }: UsePoksDataOptions): UsePoksDataReturn {
   const t = useTranslations('poks');
   const params = useParams<{ locale: string }>();
   const router = useRouter();
@@ -122,10 +129,10 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
     try {
       const result = await pokApi.getAll({
         keyword: selectedTagId ? undefined : (keyword || undefined),
-        // Only send searchMode when there is a keyword to search — it's meaningless otherwise,
-        // and sending it forces the backend into search mode (owned POKs only), preventing
-        // re-learnings from appearing in the default feed.
-        searchMode: (keyword && !selectedTagId) ? 'hybrid' : undefined,
+        // Send searchMode: 'hybrid' when searching by keyword, or when ownedOnly mode is enabled.
+        // Without a keyword, 'hybrid' forces the backend into owned-POK-only mode (no re-learnings),
+        // which also makes totalElements accurate for owned-only pagination.
+        searchMode: (!selectedTagId && (!!keyword || ownedOnly)) ? 'hybrid' : undefined,
         tagId: selectedTagId || undefined,
         sortBy,
         sortDirection,
@@ -148,7 +155,7 @@ export function usePoksData({ fetchSize }: UsePoksDataOptions): UsePoksDataRetur
     } finally {
       setLoading(false);
     }
-  }, [keyword, selectedTagId, sortBy, sortDirection, page, fetchSize, t]);
+  }, [keyword, selectedTagId, sortBy, sortDirection, page, fetchSize, ownedOnly, t]);
 
   useEffect(() => {
     if (isAuthenticated) {

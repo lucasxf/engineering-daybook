@@ -32,16 +32,14 @@ function LearningFeedContent() {
     handleSearch,
     handleSortChange,
     handleClearSearch,
-  } = usePoksData({ fetchSize: ITEMS_PER_PAGE });
+  } = usePoksData({ fetchSize: ITEMS_PER_PAGE, ownedOnly: true });
 
   // usePoksData.page is 0-indexed; PaginationControls expects 1-indexed
   const currentPage = page + 1;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
 
-  // Pre-filter to owned POKs: the backend returns a mixed feed (owned + re-learnings) when no
-  // keyword/tag filter is active, but this page scopes to authored content only.
-  // Note: totalItems still comes from the backend and may include re-learnings, so pagination
-  // counts can be slightly off. A dedicated owned-only API param would fix this fully.
+  // ownedOnly: true ensures the backend returns owned POKs only (no re-learnings),
+  // so totalItems and totalPages are accurate for this page's scope.
   const ownedLearnings = learnings.filter((l): l is OwnedPok => l.type === 'owned');
 
   const isEmpty = !isLoading && ownedLearnings.length === 0 && !keyword;
