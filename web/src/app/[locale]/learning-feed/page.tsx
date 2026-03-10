@@ -11,6 +11,7 @@ import LoadingState from '@/components/learning-feed/LoadingState';
 import ErrorState from '@/components/learning-feed/ErrorState';
 import NoResultsState from '@/components/learning-feed/NoResultsState';
 import { usePoksData } from '@/hooks/usePoksData';
+import type { OwnedPok } from '@/lib/pokApi';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -31,13 +32,18 @@ function LearningFeedContent() {
     handleSearch,
     handleSortChange,
     handleClearSearch,
-  } = usePoksData({ fetchSize: ITEMS_PER_PAGE });
+  } = usePoksData({ fetchSize: ITEMS_PER_PAGE, ownedOnly: true });
 
   // usePoksData.page is 0-indexed; PaginationControls expects 1-indexed
   const currentPage = page + 1;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-  const isEmpty = !isLoading && totalItems === 0 && !keyword;
-  const hasNoResults = !isLoading && learnings.length === 0 && keyword !== '';
+
+  // ownedOnly: true ensures the backend returns owned POKs only (no re-learnings),
+  // so totalItems and totalPages are accurate for this page's scope.
+  const ownedLearnings = learnings.filter((l): l is OwnedPok => l.type === 'owned');
+
+  const isEmpty = !isLoading && ownedLearnings.length === 0 && !keyword;
+  const hasNoResults = !isLoading && ownedLearnings.length === 0 && keyword !== '';
 
   // Adapter: SearchSortToolbar passes (sortBy, sortDirection) separately;
   // usePoksData.handleSortChange expects a SortOption object
@@ -99,7 +105,7 @@ function LearningFeedContent() {
               />
             ) : (
               <>
-                <LearningCardList learnings={learnings} />
+                <LearningCardList learnings={ownedLearnings} />
                 {totalPages > 1 && (
                   <PaginationControls
                     currentPage={currentPage}
@@ -117,12 +123,8 @@ function LearningFeedContent() {
 
 export default function LearningFeedPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <main className="py-8 px-4">
-        <Suspense fallback={<LoadingState />}>
-          <LearningFeedContent />
-        </Suspense>
-      </main>
-    </div>
+    <Suspense fallback={<LoadingState />}>
+      <LearningFeedContent />
+    </Suspense>
   );
 }
