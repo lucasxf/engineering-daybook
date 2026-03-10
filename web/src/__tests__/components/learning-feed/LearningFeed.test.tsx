@@ -70,9 +70,10 @@ describe('EmptyState', () => {
   });
 
   it('calls onNewLearning when button clicked', async () => {
+    const user = userEvent.setup();
     const onNew = vi.fn();
     render(<EmptyState onNewLearning={onNew} />);
-    await userEvent.click(screen.getByText('feed.empty.button'));
+    await user.click(screen.getByText('feed.empty.button'));
     expect(onNew).toHaveBeenCalledOnce();
   });
 });
@@ -86,9 +87,10 @@ describe('ErrorState', () => {
   });
 
   it('calls onRetry when button clicked', async () => {
+    const user = userEvent.setup();
     const onRetry = vi.fn();
     render(<ErrorState onRetry={onRetry} />);
-    await userEvent.click(screen.getByText('feed.error.retry'));
+    await user.click(screen.getByText('feed.error.retry'));
     expect(onRetry).toHaveBeenCalledOnce();
   });
 });
@@ -107,6 +109,7 @@ describe('NoResultsState', () => {
   });
 
   it('calls onClearSearch when clear button clicked', async () => {
+    const user = userEvent.setup();
     const onClear = vi.fn();
     render(
       <NoResultsState
@@ -115,7 +118,7 @@ describe('NoResultsState', () => {
         onNewLearning={vi.fn()}
       />
     );
-    await userEvent.click(screen.getByText('feed.noResults.clearSearch'));
+    await user.click(screen.getByText('feed.noResults.clearSearch'));
     expect(onClear).toHaveBeenCalledOnce();
   });
 });
@@ -128,9 +131,10 @@ describe('PageHeader', () => {
   });
 
   it('calls onNewLearning when create button clicked', async () => {
+    const user = userEvent.setup();
     const onNew = vi.fn();
     render(<PageHeader totalCount={0} onNewLearning={onNew} />);
-    await userEvent.click(screen.getByText('list.createButton'));
+    await user.click(screen.getByText('list.createButton'));
     expect(onNew).toHaveBeenCalledOnce();
   });
 });
@@ -161,13 +165,14 @@ describe('PaginationControls', () => {
   });
 
   it('calls onPageChange with correct page when navigating', async () => {
+    const user = userEvent.setup();
     const onPageChange = vi.fn();
     render(
       <PaginationControls currentPage={3} totalPages={5} onPageChange={onPageChange} />
     );
-    await userEvent.click(screen.getByText('feed.pagination.next'));
+    await user.click(screen.getByText('feed.pagination.next'));
     expect(onPageChange).toHaveBeenCalledWith(4);
-    await userEvent.click(screen.getByText('feed.pagination.previous'));
+    await user.click(screen.getByText('feed.pagination.previous'));
     expect(onPageChange).toHaveBeenCalledWith(2);
   });
 });
@@ -217,6 +222,7 @@ describe('SearchSortToolbar', () => {
   });
 
   it('input value updates as user types', async () => {
+    const user = userEvent.setup();
     render(
       <SearchSortToolbar
         keyword=""
@@ -229,7 +235,7 @@ describe('SearchSortToolbar', () => {
       />
     );
     const input = screen.getByRole('textbox') as HTMLInputElement;
-    await userEvent.type(input, 'react');
+    await user.type(input, 'react');
     expect(input.value).toBe('react');
   });
 });
