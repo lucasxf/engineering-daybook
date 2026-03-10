@@ -195,21 +195,56 @@
       "titleTooLong": "O t\u00edtulo deve ter no m\u00e1ximo 200 caracteres",
       "contentTooLong": "O conte\u00fado deve ter no m\u00e1ximo 50.000 caracteres",
       "unexpected": "Algo deu errado. Tente novamente.",
-      "visibilityImmutable": "Um aprendizado p\u00fablico n\u00e3o pode ser tornado privado."
+      "visibilityImmutable": "Um aprendizado público não pode ser tornado privado."
+    },
+    "feed": {
+      "empty": {
+        "title": "Sua jornada de conhecimento começa aqui",
+        "hint": "Salve seu primeiro aprendizado para começar a construir seu diário pessoal.",
+        "button": "Salvar primeiro aprendizado"
+      },
+      "error": {
+        "title": "Falha ao carregar seus aprendizados",
+        "hint": "Tente novamente em alguns momentos.",
+        "retry": "Tentar novamente"
+      },
+      "noResults": {
+        "title": "Nenhum aprendizado encontrado",
+        "hint": "Nenhum resultado para \"{query}\". Tente ajustar seus termos de busca.",
+        "clearSearch": "Limpar busca",
+        "newLearning": "Novo aprendizado"
+      },
+      "sortOptions": {
+        "newestFirst": "Mais recentes",
+        "oldestFirst": "Mais antigos",
+        "recentlyUpdated": "Atualizados recentemente",
+        "updatedOldestFirst": "Atualizados primeiro"
+      },
+      "pagination": {
+        "previous": "Anterior",
+        "next": "Próxima",
+        "page": "Página",
+        "of": "de"
+      },
+      "card": {
+        "createdAt": "Criado {date}",
+        "updatedAt": "Atualizado {relativeTime}"
+      },
+      "count": "{count, plural, =1 {1 aprendizado} other {# aprendizados}}"
     },
     "share": {
       "button": "Re-aprender",
       "modalTitle": "Re-aprender este aprendizado",
-      "noteLabel": "Sua anota\u00e7\u00e3o",
-      "notePlaceholder": "Por que este aprendizado ressoou com voc\u00ea? (opcional)",
-      "noteHint": "Adicione contexto ou reflex\u00e3o pessoal. M\u00e1x 500 caracteres.",
+      "noteLabel": "Sua anotação",
+      "notePlaceholder": "Por que este aprendizado ressoou com você? (opcional)",
+      "noteHint": "Adicione contexto ou reflexão pessoal. Máx 500 caracteres.",
       "visibilityLabel": "Visibilidade",
       "submitButton": "Re-aprender",
       "submitting": "Salvando...",
       "success": "Re-aprendizado salvo",
       "remove": "Remover re-aprendizado",
       "removeConfirmTitle": "Remover re-aprendizado?",
-      "removeConfirmMessage": "Isso remover\u00e1 seu re-aprendizado. O aprendizado original n\u00e3o ser\u00e1 afetado.",
+      "removeConfirmMessage": "Isso removerá seu re-aprendizado. O aprendizado original não será afetado.",
       "removeConfirmButton": "Remover",
       "cancelButton": "Cancelar",
       "removing": "Removendo...",
