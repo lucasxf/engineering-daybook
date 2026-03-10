@@ -1,7 +1,7 @@
 [metadata]
 session_branch = "feat/mobile-social-discovery"
 session_start = "2026-03-10T10:15:20Z"
-last_updated = "2026-03-10T10:46:01Z"
+last_updated = "2026-03-10T11:00:48Z"
 
 [agent_usage.general-purpose]
 invocations = 10
@@ -10,3 +10,7 @@ last_used = "2026-03-10T10:40:53Z"
 [command_usage.finish-session]
 invocations = 1
 last_used = "2026-03-10T10:46:01Z"
+
+[command_usage.create-pr]
+invocations = 1
+last_used = "2026-03-10T11:00:48Z"
