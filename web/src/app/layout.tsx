@@ -24,7 +24,10 @@ const sora = Sora({
 });
 
 export const metadata: Metadata = {
-  title: 'My Learnings | learnimo',
+  title: {
+    default: 'learnimo',
+    template: '%s | learnimo',
+  },
   description: 'Personal learning journal where you capture, organize, and recall what you learn',
 };
 
@@ -41,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html suppressHydrationWarning>
       <body className={`${bricolageGrotesque.variable} ${dmSans.variable} ${sora.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <GoogleOAuthWrapper>

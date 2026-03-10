@@ -168,7 +168,7 @@ Active work:
 - [x] Milestone 5.1: POK Visibility Controls — private/public visibility on POKs and user default preference; irreversible PUBLIC→PRIVATE enforcement; access control; web + mobile UI indicators (2026-03-04)
 - [x] Milestone 5.2: Learner Profile Privacy — profileVisibility field, learner profile endpoint/page, settings page/screen, E2E tests (2026-03-04)
 
-**Phase 6: Social Capabilities** — 🔄 In Progress (6.1 done; 6.3 done; 6.4 done)
+**Phase 6: Social Capabilities** — 🔄 In Progress (6.1 done; 6.3 done; 6.4 done; 6.5 done)
 
 - [x] Milestone 6.1: Following & Colleagues — follow/unfollow endpoints, colleague auto-detection (mutual follow), FOLLOWERS_ONLY/COLLEAGUES_ONLY visibility tiers, private social counts (anti-vanity), RelationshipStatus on profiles, FollowButton component, 4-tier visibility selectors on Settings page; 115 backend + 347 frontend + 8 E2E tests (2026-03-07)
 - [x] Milestone 6.3: Learner Profiles — avatar upload/remove (Supabase Storage, Thumbnailator resize to 200×200), bio + displayName editing, Avatar component (web + mobile), learner profile page, settings page, header UserMenu with avatar; 415 backend + 357 web + 55 mobile tests (2026-03-07)
@@ -198,4 +198,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-03-08 (session: chore/automation-workflow-housecleaning — automation ecosystem housecleaning, archived 1 agent + 10 commands)*
+*Last updated: 2026-03-10 (session: chore/command-context-optimization — command context optimization, added keepr agent, ~140 lines / ~1,100 tokens reduced across review-pr, fix-pr, finish-session)*

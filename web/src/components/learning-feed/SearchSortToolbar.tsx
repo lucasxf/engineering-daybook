@@ -27,6 +27,11 @@ export default function SearchSortToolbar({
   const t = useTranslations('poks');
   const [searchInput, setSearchInput] = useState(keyword);
 
+  // Sync local input when keyword changes externally (e.g. clear button, URL navigation)
+  useEffect(() => {
+    setSearchInput(keyword);
+  }, [keyword]);
+
   const sortOptions = [
     { value: 'createdAt:DESC', label: t('feed.sortOptions.newestFirst') },
     { value: 'createdAt:ASC', label: t('feed.sortOptions.oldestFirst') },
