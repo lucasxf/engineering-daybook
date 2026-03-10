@@ -212,10 +212,6 @@ gh api repos/$REPO/pulls/$PR_NUMBER/reviews --paginate
 
 ## 4. Evaluate Each Review Comment
 
-> **Mindset:** You are a second reviewer deciding whether each comment is *correct*, *worth the cost*,
-> and *consistent with this project's goals*. Treat every comment — including Copilot's — as a
-> proposal that may or may not be right.
-
 **Before evaluating, apply the delta skip check for each inline comment:**
 
 If BOTH of the following are true, mark the comment as `⏭ Previously addressed — skipping` and
@@ -229,51 +225,15 @@ so there is a clear audit trail. Include: file:line, author, original comment su
 If only one signal is present — outdated but not in the skip list, or in the skip list but not
 outdated — **do not skip**. Evaluate normally and note the discrepancy.
 
-For each remaining comment:
+**Delegate evaluation of all remaining comments to the `keepr` agent** via the Task tool.
 
-**Step A — Read context first.** Before evaluating, read:
-- The exact file and surrounding lines (inline comments: ±20 lines)
-- The spec in `docs/specs/` if the comment touches a recently implemented feature
-- The relevant section of `CLAUDE.md` if the comment is about style or conventions
+Pass to keepr:
+- The full list of non-skipped comments (file:line, author, body, outdated flag)
+- `$REPO` so keepr can read source files for context
 
-**Step B — Evaluate on four axes:**
-
-1. **Correctness** — Is the claim accurate? Does the fix actually solve the problem, or does it introduce a new one?
-2. **Consistency** — Does it align with CLAUDE.md conventions, existing patterns, and ADRs?
-3. **Proportionality** — Is the scope of change proportional to the benefit?
-4. **Timing** — Is this the right moment? Some suggestions are valid but wrong for this PR's scope.
-
-**Step C — Classify and recommend:**
-
-| Category | Description | Icon |
-|----------|-------------|------|
-| **Bug / Correctness fix** | The current code is wrong; the suggestion fixes a real defect | :bug: |
-| **Convention / Style** | Aligns with CLAUDE.md or project patterns; low-risk change | :wrench: |
-| **Suggestion** | Valid improvement but optional; trade-offs exist | :bulb: |
-| **Question** | Requires a reply, not a code change | :question: |
-| **Informational** | Praise, acknowledgment, FYI — no action needed | :information_source: |
-
-**Recommendation options:**
-- **Accept** — Correct, proportional, consistent. Implement it.
-- **Accept with modification** — Real issue, but suggested fix is wrong or incomplete. Implement a corrected version.
-- **Reject** — Factually wrong, conflicts with a project directive, or introduces more complexity than it solves. Cite the reason (CLAUDE.md section, ADR, or specific counter-argument).
-- **Defer** — Valid but belongs in a separate PR or future milestone.
-
-**For grey-area comments, show the trade-off explicitly:**
-
-```
-Trade-off analysis:
-  FOR applying: [concrete benefit — what problem it solves, who benefits, how much]
-  AGAINST applying: [concrete cost — complexity, consistency violation, risk, scope creep]
-  Verdict: [Accept / Reject / Defer] — [one-sentence rationale]
-```
-
-Grey-area examples that require trade-off analysis:
-- Suggestions that improve readability but increase indirection
-- Security hardening that goes beyond the threat model in scope for this PR
-- Refactors that are valid but widen the PR's blast radius
-- Suggestions that conflict with a project guideline but have merit in this specific case
-- Copilot suggestions that are technically correct but miss the intent of the code
+keepr returns grouped results (Accept / Accept with modification / Reject / Defer / Questions /
+Informational) with classification, rationale, agent assignment, and trade-off analysis for grey
+areas. Use its output directly in Step 5 and the triage report.
 
 ---
 
