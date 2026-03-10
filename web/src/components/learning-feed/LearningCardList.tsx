@@ -1,6 +1,6 @@
 'use client';
 
-import { format, formatDistanceToNow } from 'date-fns';
+import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import type { FeedItem } from '@/lib/pokApi';
 
@@ -8,7 +8,22 @@ interface LearningCardListProps {
   learnings: FeedItem[];
 }
 
+function formatRelativeTime(date: Date, locale: string): string {
+  const diffMs = date.getTime() - Date.now();
+  const diffSeconds = Math.round(diffMs / 1000);
+  const diffMinutes = Math.round(diffSeconds / 60);
+  const diffHours = Math.round(diffMinutes / 60);
+  const diffDays = Math.round(diffHours / 24);
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+
+  if (Math.abs(diffSeconds) < 60) return rtf.format(diffSeconds, 'second');
+  if (Math.abs(diffMinutes) < 60) return rtf.format(diffMinutes, 'minute');
+  if (Math.abs(diffHours) < 24) return rtf.format(diffHours, 'hour');
+  return rtf.format(diffDays, 'day');
+}
+
 export default function LearningCardList({ learnings }: LearningCardListProps) {
+  const params = useParams<{ locale: string }>();
   const t = useTranslations('poks');
 
   return (
@@ -18,8 +33,11 @@ export default function LearningCardList({ learnings }: LearningCardListProps) {
         if (learning.type !== 'owned') return null;
         const createdDate = new Date(learning.createdAt);
         const updatedDate = new Date(learning.updatedAt);
-        const formattedDate = format(createdDate, 'MMM d');
-        const relativeTime = formatDistanceToNow(updatedDate, { addSuffix: true });
+        const formattedDate = createdDate.toLocaleDateString(params.locale, {
+          month: 'short',
+          day: 'numeric',
+        });
+        const relativeTime = formatRelativeTime(updatedDate, params.locale);
 
         return (
           <div
