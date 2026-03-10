@@ -460,6 +460,46 @@ Add keys to both locale files under `learnings.visibility`:
 
 ---
 
+## Implementation Plan
+
+### Task 1: Remove duplicate `PokVisibility` from `auth.ts` (type cleanup)
+- **Files:** `mobile/src/lib/auth.ts`, `mobile/src/screens/app/ProfileScreen.tsx` (import fix only)
+- **Depends on:** _none_
+- **Commit:** `fix(mobile): remove duplicate PokVisibility from auth.ts; import from pokApi.ts`
+- **Stack:** mobile
+
+### Task 2: Add `VisibilityPicker` and `VisibilityBadge` components
+- **Files:** `mobile/src/components/ui/VisibilityPicker.tsx`, `mobile/src/components/ui/__tests__/VisibilityPicker.test.tsx`
+- **Depends on:** Task 1 (imports `PokVisibility` from `pokApi.ts`)
+- **Commit:** `feat(mobile): add VisibilityPicker and VisibilityBadge components with 4-tier support`
+- **Stack:** mobile
+
+### Task 3: Refactor `LearningNewScreen` to use 4-tier `VisibilityPicker`
+- **Files:** `mobile/src/screens/app/LearningNewScreen.tsx`
+- **Depends on:** Task 2
+- **Commit:** `feat(mobile): expand LearningNewScreen visibility picker to 4 tiers`
+- **Stack:** mobile
+
+### Task 4: Refactor `LearningDetailScreen` — 4-tier picker and badge
+- **Files:** `mobile/src/screens/app/LearningDetailScreen.tsx`
+- **Depends on:** Task 2
+- **Commit:** `feat(mobile): expand LearningDetailScreen visibility picker and badge to 4 tiers`
+- **Stack:** mobile
+
+### Task 5: Refactor `ProfileScreen` `defaultPokVisibility` selector
+- **Files:** `mobile/src/screens/app/ProfileScreen.tsx`
+- **Depends on:** Task 2
+- **Commit:** `feat(mobile): expand ProfileScreen default learning visibility to 4-tier picker`
+- **Stack:** mobile
+
+### Task 6: Add i18n keys for new visibility tiers
+- **Files:** `mobile/src/i18n/locales/en.ts`, `mobile/src/i18n/locales/pt-BR.ts`
+- **Depends on:** _none_ (can run in parallel with Tasks 2–5)
+- **Commit:** `feat(mobile/i18n): add followersOnly and colleaguesOnly visibility keys in EN and PT-BR`
+- **Stack:** mobile
+
+---
+
 ## Dependencies
 
 **Blocked by:**

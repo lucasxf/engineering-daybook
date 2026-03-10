@@ -497,6 +497,52 @@ mobile/src/navigation/AppStack.tsx — LearningDetail route already present
 
 ---
 
+## Implementation Plan
+
+### Task 1: Add `useTags` hook
+- **Files:** `mobile/src/hooks/useTags.ts`, `mobile/src/hooks/__tests__/useTags.test.ts`
+- **Depends on:** _none_
+- **Commit:** `feat: add useTags hook with in-memory caching for mobile tag list`
+- **Stack:** mobile
+
+### Task 2: Add `TagPicker` component
+- **Files:** `mobile/src/components/tags/TagPicker.tsx`, `mobile/src/components/tags/__tests__/TagPicker.test.tsx`
+- **Depends on:** Task 1 (uses `useTags`)
+- **Commit:** `feat: add mobile TagPicker component with search, assign, and create-new row`
+- **Stack:** mobile
+
+### Task 3: Add `TagSuggestionBanner` component
+- **Files:** `mobile/src/components/tags/TagSuggestionBanner.tsx`, `mobile/src/components/tags/__tests__/TagSuggestionBanner.test.tsx`
+- **Depends on:** _none_ (independent of TagPicker)
+- **Commit:** `feat: add mobile TagSuggestionBanner component for AI tag suggestion review`
+- **Stack:** mobile
+
+### Task 4: Modify `LearningNewScreen` post-save navigation
+- **Files:** `mobile/src/screens/app/LearningNewScreen.tsx`
+- **Depends on:** _none_
+- **Commit:** `feat: navigate to LearningDetail after save on LearningNewScreen (TM-3)`
+- **Stack:** mobile
+
+### Task 5: Modify `LearningDetailScreen` with tag operations
+- **Files:** `mobile/src/screens/app/LearningDetailScreen.tsx`
+- **Depends on:** Task 2, Task 3
+- **Commit:** `feat: add tag add/remove and AI suggestion review to LearningDetailScreen`
+- **Stack:** mobile
+
+### Task 6: Add tag filter chip row to `MyLearningsScreen`
+- **Files:** `mobile/src/screens/app/MyLearningsScreen.tsx`
+- **Depends on:** Task 1
+- **Commit:** `feat: add tag filter chip row to MyLearningsScreen`
+- **Stack:** mobile
+
+### Task 7: Add i18n keys
+- **Files:** `mobile/src/i18n/locales/en.ts`, `mobile/src/i18n/locales/pt-BR.ts`
+- **Depends on:** _none_ (can run in parallel with Tasks 2–6)
+- **Commit:** `feat: add tags.* and tags.suggestions.* i18n keys (EN + PT-BR)`
+- **Stack:** mobile
+
+---
+
 ## Dependencies
 
 **Blocked by:** `mobile-my-learnings.md` — `MyLearningsScreen` must exist for FR17–FR22. The tag filter chip row is added to that screen. If `MyLearningsScreen` is not yet implemented, defer TM-4 and implement TM-1/2/3 first.
