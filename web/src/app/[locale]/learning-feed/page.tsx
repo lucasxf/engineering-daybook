@@ -125,12 +125,8 @@ function LearningFeedContent() {
 
 export default function LearningFeedPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <main className="py-8 px-4">
-        <Suspense fallback={<LoadingState />}>
-          <LearningFeedContent />
-        </Suspense>
-      </main>
-    </div>
+    <Suspense fallback={<LoadingState />}>
+      <LearningFeedContent />
+    </Suspense>
   );
 }
