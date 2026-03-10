@@ -89,6 +89,12 @@
   6. `docs/specs/features/mobile-re-learning.md` — share/unshare learnings, ReLearningModal, attribution display
 - Recommended implementation order: (1) mobile-profile-editing → (2) mobile-my-learnings → (3) mobile-4-tier-visibility → (4) mobile-tag-management → (5) mobile-social-discovery → (6) mobile-re-learning. Social discovery depends on follow/unfollow wiring that lands in step 5; re-learning depends on visibility cascade enforcement from step 3.
 
+**Progress update (2026-03-10 — spec orchestration prep):**
+- Added `## Implementation Plan` sections (orchestrator/subagent task breakdown) to two mobile specs that were previously in legacy mode, making them ready for `/implement-spec` dispatch:
+  - `docs/specs/features/mobile-tag-management.md` — 7-task implementation plan (useTags hook → TagPicker → TagSuggestionBanner → post-save navigation → tag operations on detail → tag filter on My Learnings → i18n keys)
+  - `docs/specs/features/mobile-4-tier-visibility.md` — 6-task implementation plan (type cleanup → VisibilityPicker/Badge components → 4-tier pickers on new/detail/profile screens → i18n keys)
+- Other two specs (`mobile-social-discovery.md` and `mobile-re-learning.md`) already had proper Implementation Plan sections and required no changes.
+
 ---
 
 ## Milestone 3.2: AI Connections
