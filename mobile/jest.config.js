@@ -47,6 +47,7 @@ module.exports = {
         '^@/(.*)$': '<rootDir>/src/$1',
         '^react-native$': '<rootDir>/src/__mocks__/react-native.js',
         '^react-native-markdown-display$': '<rootDir>/src/__mocks__/react-native-markdown-display.js',
+        '^expo-image-picker$': '<rootDir>/src/__mocks__/expo-image-picker.js',
       },
       transformIgnorePatterns: [
         'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|react-native-markdown-display)',
