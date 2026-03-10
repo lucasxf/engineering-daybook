@@ -208,9 +208,9 @@ Tooling chore: reduced token footprint across three slash commands by moving rep
 
 | Task | Status |
 |------|--------|
-| Added `keepr` agent (`.claude/agents/keepr.md`) — owns PR review evaluation rubric (scoring dimensions, quality gates, thresholds) | ✅ Done |
+| Added `keepr` agent (`.claude/agents/keepr.md`) — owns PR review evaluation framework (4-axis rubric: correctness, consistency, proportionality, timing; Accept/Reject/Defer/Question verdicts) | ✅ Done |
 | Slimmed `review-pr` Step 4 from ~70 lines to ~15 lines — evaluation logic delegated to keepr | ✅ Done |
-| Replaced 45-line inline JaCoCo analysis + Docker check in `fix-pr` with steward delegation | ✅ Done |
+| Replaced 45-line inline JaCoCo analysis in `fix-pr` with steward delegation; Docker gate reinstated before delegation (guard for Testcontainers silent-skip) | ✅ Done |
 | Removed duplicated tech-writer routing tables from `fix-pr` and `finish-session` — routing now lives in tech-writer agent | ✅ Done |
 | Added Learning Routing section to `tech-writer` agent | ✅ Done |
 | Registered keepr in `sync-automation-registry.py` and `agents-readme.md` | ✅ Done |

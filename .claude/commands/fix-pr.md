@@ -113,7 +113,20 @@ Add missing type annotations, fix incorrect types, add type guards. Re-run to co
 
 ### Coverage Failures (Backend)
 
-Delegate to the `steward` agent via the Task tool with:
+Before delegating to steward, verify Docker is running (required for Testcontainers integration tests):
+```bash
+docker info > /dev/null 2>&1 && echo "DOCKER_OK" || echo "DOCKER_DOWN"
+```
+
+**If DOCKER_DOWN:**
+1. Attempt to start Docker Desktop:
+   ```bash
+   start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe" && sleep 20
+   docker info > /dev/null 2>&1 && echo "DOCKER_OK" || echo "DOCKER_STILL_DOWN"
+   ```
+2. If still down → **STOP. Ask the user** — Testcontainers integration tests will be silently skipped (`@DisabledWithoutDocker`), making coverage data incomplete and integration regressions undetected. Do NOT proceed.
+
+**If DOCKER_OK**, delegate to the `steward` agent via the Task tool with:
 - The current coverage percentage and the configured threshold (check `backend/pom.xml` →
   `<jacoco-minimum-coverage>` or `<minimum>` in the JaCoCo plugin config)
 - Report path: `backend/target/site/jacoco/jacoco.xml`
