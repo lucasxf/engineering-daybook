@@ -159,6 +159,17 @@ export default {
     },
   },
 
+  // Learners (social discovery)
+  learners: {
+    social: {
+      follow: 'Seguir',
+      following: 'Seguindo',
+      followBack: 'Seguir de volta',
+      colleague: 'Colega',
+      unexpectedError: 'Algo deu errado',
+    },
+  },
+
   common: {
     loading: 'Carregando…',
     retry: 'Tentar novamente',
