@@ -67,20 +67,6 @@
 | 3.4.7 | Apple App Store Review submission + approval | Should Have | ⏳ Deferred |
 | 3.4.8 | Google Play Store public release | Should Have | ⏳ Deferred |
 
-#### Mobile Feature Parity — Profile Editing (2026-03-09)
-
-Spec: `mobile-profile-editing`. Implemented as part of Milestone 3.4 feature parity work (branch: `feat/mobile-profile-editing`).
-
-| Deliverable | Status |
-|-------------|--------|
-| Display name inline edit on ProfileScreen | ✅ Done |
-| Bio inline edit with character counter on ProfileScreen | ✅ Done |
-| Avatar upload / remove via `expo-image-picker` (`AvatarPicker` component) | ✅ Done |
-| `AuthContext.updateUser(patch)` — mobile auth context patch method | ✅ Done |
-| 18 new i18n keys (`profile.*` namespace, EN + PT-BR) | ✅ Done |
-| 18 new tests (9 AvatarPicker, 2 AuthContext, 7 ProfileScreen) | ✅ Done |
-| Maestro E2E flow: `mobile/e2e/profile-editing.yaml` (4 flows) | ✅ Done |
-
 **Implementation notes:**
 - EAS Build cloud service (Expo Application Services) used for managed signing and CI builds — no local Gradle invocation needed
 - `appVersionSource: remote` in `eas.json` — EAS manages Android `versionCode` automatically; do not set it in `app.json`
