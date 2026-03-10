@@ -60,7 +60,7 @@ function LearningFeedContent() {
         sortDirection,
         page: page - 1, // backend is 0-indexed
         size: ITEMS_PER_PAGE,
-        searchMode: 'hybrid',
+        searchMode: keyword ? 'hybrid' : undefined,
       })
       .then((result) => {
         if (cancelled) return;
@@ -83,14 +83,16 @@ function LearningFeedContent() {
 
   const handleSearch = useCallback(
     (query: string) => {
-      const p = new URLSearchParams();
+      const p = new URLSearchParams(searchParams);
       if (query) {
         p.set('keyword', query);
-        p.set('page', '1');
+      } else {
+        p.delete('keyword');
       }
+      p.set('page', '1');
       router.push(`?${p.toString()}`);
     },
-    [router]
+    [router, searchParams]
   );
 
   const handleSort = useCallback(
