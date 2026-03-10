@@ -22,6 +22,8 @@ export interface AuthContextValue {
   user: AuthResponse | null;
   /** Called after a successful login/register from an auth screen. */
   setUser: (user: AuthResponse) => void;
+  /** Shallow-merges patch into the current user state. No-op when user is null. */
+  updateUser: (patch: Partial<AuthResponse>) => void;
   logout: () => Promise<void>;
 }
 
@@ -104,9 +106,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setStatus('unauthenticated');
   }, []);
 
+  const updateUser = useCallback((patch: Partial<AuthResponse>) => {
+    setUserState((prev) => (prev ? { ...prev, ...patch } : prev));
+  }, []);
+
   const value = useMemo(
-    () => ({ status, user, setUser, logout }),
-    [status, user, setUser, logout]
+    () => ({ status, user, setUser, updateUser, logout }),
+    [status, user, setUser, updateUser, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -19,11 +19,11 @@ module.exports = {
         '!src/lib/**/*.test.{ts,tsx}',
       ],
     },
-    // Screen-level integration tests — full jest-expo environment (lib, hooks, and components each have their own project)
+    // Screen-level integration tests — full jest-expo environment (lib, hooks, components, and screens each have their own project)
     {
       displayName: 'rn',
       preset: 'jest-expo',
-      testRegex: 'src/(?!(lib|hooks|components)/).*__tests__/.*\\.test\\.(ts|tsx)$',
+      testRegex: 'src/(?!(lib|hooks|components|screens)/).*__tests__/.*\\.test\\.(ts|tsx)$',
       setupFilesAfterEnv: ['@testing-library/jest-native/extend-expect'],
       transformIgnorePatterns: [
         'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|date-fns|react-native-markdown-display)',
@@ -47,6 +47,7 @@ module.exports = {
         '^@/(.*)$': '<rootDir>/src/$1',
         '^react-native$': '<rootDir>/src/__mocks__/react-native.js',
         '^react-native-markdown-display$': '<rootDir>/src/__mocks__/react-native-markdown-display.js',
+        '^expo-image-picker$': '<rootDir>/src/__mocks__/expo-image-picker.js',
       },
       transformIgnorePatterns: [
         'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|react-native-markdown-display)',
@@ -55,6 +56,33 @@ module.exports = {
         'src/components/**/*.{ts,tsx}',
         '!src/components/**/__tests__/**',
         '!src/components/**/*.test.{ts,tsx}',
+      ],
+    },
+    // Screen unit tests — node environment to avoid jest-expo setup.js failures on Node 22 + RN 0.79
+    // Uses @testing-library/react-native with react-native stub (see src/__mocks__/react-native.js).
+    // See: mobile/CLAUDE.md "jest-expo preset fails with RN 0.76 in Node 22"
+    {
+      displayName: 'screens',
+      testEnvironment: 'node',
+      testRegex: 'src/screens/.*__tests__/.*\\.test\\.tsx$',
+      transform: {
+        '^.+\\.tsx?$': ['babel-jest', { configFile: './babel.config.js' }],
+      },
+      moduleNameMapper: {
+        '^@/(.*)$': '<rootDir>/src/$1',
+        '^react-native$': '<rootDir>/src/__mocks__/react-native.js',
+        '^react-native-safe-area-context$': '<rootDir>/src/__mocks__/react-native-safe-area-context.js',
+        '^expo-image-picker$': '<rootDir>/src/__mocks__/expo-image-picker.js',
+        '^expo-constants$': '<rootDir>/src/__mocks__/expo-constants.js',
+        '^expo-secure-store$': '<rootDir>/src/__mocks__/expo-secure-store.js',
+      },
+      transformIgnorePatterns: [
+        'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*)',
+      ],
+      collectCoverageFrom: [
+        'src/screens/**/*.{ts,tsx}',
+        '!src/screens/**/__tests__/**',
+        '!src/screens/**/*.test.{ts,tsx}',
       ],
     },
   ],

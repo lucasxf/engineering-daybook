@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Alert, ScrollView, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Alert, ScrollView, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/contexts/I18nContext';
@@ -7,8 +7,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Avatar } from '@/components/ui/Avatar';
-import { updateUserSettings } from '@/lib/userApi';
+import { AvatarPicker } from '@/components/ui/AvatarPicker';
+import { updateUserSettings, uploadAvatar, deleteAvatar } from '@/lib/userApi';
 import type { ProfileVisibility, PokVisibility } from '@/lib/auth';
 import type { Locale } from '@/i18n/i18n';
 
@@ -17,7 +17,7 @@ type ColorSchemeOverride = 'light' | 'dark' | 'system';
 export function ProfileScreen() {
   const { theme, override, setOverride } = useTheme();
   const { t, locale, setAppLocale } = useI18n();
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
 
   const [profileVisibility, setProfileVisibility] = useState<ProfileVisibility>(
     user?.profileVisibility ?? 'PRIVATE'
@@ -26,22 +26,98 @@ export function ProfileScreen() {
     user?.defaultPokVisibility ?? 'PRIVATE'
   );
 
+  // Display name editing state
+  const [displayName, setDisplayName] = useState(user?.displayName ?? '');
+  const [displayNameSaving, setDisplayNameSaving] = useState(false);
+
+  // Bio editing state
+  const [bio, setBio] = useState(user?.bio ?? '');
+  const [bioSaving, setBioSaving] = useState(false);
+
+  // Avatar upload state
+  const [avatarUploading, setAvatarUploading] = useState(false);
+
+  // Sync local state only on initial user load (not on every user object change)
+  // to avoid clobbering in-progress edits when unrelated fields (e.g. avatarUrl) update.
+  const initialSyncDone = useRef(false);
+  useEffect(() => {
+    if (user && !initialSyncDone.current) {
+      initialSyncDone.current = true;
+      setDisplayName(user.displayName ?? '');
+      setBio(user.bio ?? '');
+    }
+  }, [user]);
+
+  async function handleDisplayNameSave() {
+    const prev = user?.displayName ?? ''; // last server-confirmed value for rollback
+    setDisplayNameSaving(true);
+    try {
+      await updateUserSettings({ displayName });
+      updateUser({ displayName });
+    } catch {
+      setDisplayName(prev);
+      Alert.alert(t('profile.saveError'));
+    } finally {
+      setDisplayNameSaving(false);
+    }
+  }
+
+  async function handleBioSave() {
+    const prev = user?.bio ?? ''; // last server-confirmed value for rollback
+    setBioSaving(true);
+    try {
+      await updateUserSettings({ bio });
+      updateUser({ bio });
+    } catch {
+      setBio(prev);
+      Alert.alert(t('profile.saveError'));
+    } finally {
+      setBioSaving(false);
+    }
+  }
+
+  async function handleAvatarUpload(uri: string, type: string, fileName: string) {
+    setAvatarUploading(true);
+    try {
+      const { avatarUrl } = await uploadAvatar(uri, type, fileName);
+      updateUser({ avatarUrl });
+    } catch {
+      Alert.alert(t('profile.saveError'));
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
+
+  async function handleAvatarRemove() {
+    setAvatarUploading(true);
+    try {
+      await deleteAvatar();
+      updateUser({ avatarUrl: undefined });
+    } catch {
+      Alert.alert(t('profile.saveError'));
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
+
   async function handleProfileVisibilityChange(value: ProfileVisibility) {
+    const prev = profileVisibility; // capture from local state before optimistic update
     setProfileVisibility(value);
     try {
       await updateUserSettings({ profileVisibility: value });
     } catch {
-      setProfileVisibility(user?.profileVisibility ?? 'PRIVATE');
+      setProfileVisibility(prev);
       Alert.alert(t('profile.privacy.saveError'));
     }
   }
 
   async function handleDefaultPokVisibilityChange(value: PokVisibility) {
+    const prev = defaultPokVisibility; // capture from local state before optimistic update
     setDefaultPokVisibility(value);
     try {
       await updateUserSettings({ defaultPokVisibility: value });
     } catch {
-      setDefaultPokVisibility(user?.defaultPokVisibility ?? 'PRIVATE');
+      setDefaultPokVisibility(prev);
       Alert.alert(t('profile.privacy.saveError'));
     }
   }
@@ -84,24 +160,97 @@ export function ProfileScreen() {
 
         {user && (
           <Card style={{ gap: theme.spacing.sm }}>
+            {/* Avatar + identity header */}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
-              <Avatar
-                avatarUrl={user.avatarUrl}
+              <AvatarPicker
+                avatarUrl={user.avatarUrl ?? undefined}
                 displayName={user.displayName ?? user.handle}
                 handle={user.handle}
                 size={56}
+                uploading={avatarUploading}
+                onUpload={handleAvatarUpload}
+                onRemove={handleAvatarRemove}
               />
               <View style={{ flex: 1 }}>
-                {user.displayName ? (
-                  <Text variant="label">{user.displayName}</Text>
-                ) : null}
                 <Text variant="bodySm">@{user.handle}</Text>
                 <Text variant="caption">{user.email}</Text>
               </View>
             </View>
-            {user.bio ? (
-              <Text variant="bodySm">{user.bio}</Text>
-            ) : null}
+
+            {/* Display name editing */}
+            <View style={{ gap: theme.spacing.xs }}>
+              <Text variant="label">{t('profile.displayNameLabel') || 'Display name'}</Text>
+              <View style={{ flexDirection: 'row', gap: theme.spacing.xs, alignItems: 'center' }}>
+                <TextInput
+                  testID="display-name-input"
+                  accessibilityLabel={t('profile.displayName')}
+                  value={displayName}
+                  onChangeText={setDisplayName}
+                  placeholder={t('profile.displayNamePlaceholder')}
+                  maxLength={100}
+                  style={{
+                    flex: 1,
+                    borderWidth: 1,
+                    borderColor: theme.colors.border,
+                    borderRadius: 8,
+                    paddingHorizontal: theme.spacing.sm,
+                    paddingVertical: theme.spacing.xs,
+                    color: theme.colors.textPrimary,
+                    backgroundColor: theme.colors.surface,
+                  }}
+                  editable={!displayNameSaving}
+                />
+                <Button
+                  testID="display-name-save-button"
+                  label={displayNameSaving ? t('profile.displayNameSaving') : t('profile.displayNameSave')}
+                  variant="primary"
+                  onPress={handleDisplayNameSave}
+                  disabled={displayNameSaving}
+                  loading={displayNameSaving}
+                />
+              </View>
+            </View>
+
+            {/* Bio editing */}
+            <View style={{ gap: theme.spacing.xs }}>
+              <Text variant="label">{t('profile.bioLabel') || 'Bio'}</Text>
+              <TextInput
+                testID="bio-input"
+                accessibilityLabel={t('profile.bio')}
+                value={bio}
+                onChangeText={setBio}
+                placeholder={t('profile.bioPlaceholder')}
+                maxLength={200}
+                multiline
+                blurOnSubmit={false}
+                numberOfLines={3}
+                style={{
+                  borderWidth: 1,
+                  borderColor: theme.colors.border,
+                  borderRadius: 8,
+                  paddingHorizontal: theme.spacing.sm,
+                  paddingVertical: theme.spacing.xs,
+                  color: theme.colors.textPrimary,
+                  backgroundColor: theme.colors.surface,
+                  minHeight: 72,
+                  textAlignVertical: 'top',
+                }}
+                editable={!bioSaving}
+              />
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text variant="caption" testID="bio-char-count">
+                  {t('profile.bioCharCount', { count: bio.length })}
+                </Text>
+                <Button
+                  testID="bio-save-button"
+                  label={bioSaving ? t('profile.bioSaving') : t('profile.bioSave')}
+                  variant="primary"
+                  onPress={handleBioSave}
+                  disabled={bioSaving}
+                  loading={bioSaving}
+                />
+              </View>
+            </View>
           </Card>
         )}
 
