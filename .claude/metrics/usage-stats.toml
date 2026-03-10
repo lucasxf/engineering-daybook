@@ -2,7 +2,7 @@
 # Compiled by /compile-metrics, analyzed by automation-sentinel agent
 
 [metadata]
-timestamp = "2026-03-08T19:14:49Z"
+timestamp = "2026-03-10T23:06:22Z"
 commit_sha = ""
 branch = "develop"
 schema_version = "1.0.0"
@@ -10,16 +10,16 @@ updated_by = "compile-metrics"
 
 # Agent Usage Metrics
 [agent_usage.Explore]
-invocations = 33
-last_used = "2026-03-08T11:27:47Z"
+invocations = 43
+last_used = "2026-03-10T10:22:02Z"
 
 [agent_usage.Plan]
-invocations = 5
-last_used = "2026-03-08T11:30:14Z"
+invocations = 7
+last_used = "2026-03-09T23:37:53Z"
 
 [agent_usage.general-purpose]
-invocations = 22
-last_used = "2026-03-08T16:46:23Z"
+invocations = 32
+last_used = "2026-03-10T10:40:34Z"
 
 [agent_usage.automation-sentinel]
 invocations = 0
@@ -54,8 +54,8 @@ invocations = 0
 last_used = ""
 
 [agent_usage.tech-writer]
-invocations = 2
-last_used = "2026-03-06T18:41:55Z"
+invocations = 3
+last_used = "2026-03-08T20:11:38Z"
 
 [agent_usage.virgil]
 invocations = 0
@@ -63,24 +63,24 @@ last_used = ""
 
 # Command Usage Metrics
 [command_usage.compile-metrics]
-invocations = 3
-last_used = "2026-03-08T19:04:15Z"
+invocations = 5
+last_used = "2026-03-10T23:05:09Z"
 
 [command_usage.create-pr]
-invocations = 13
-last_used = "2026-03-08T16:50:13Z"
+invocations = 16
+last_used = "2026-03-10T10:41:31Z"
 
 [command_usage.directive]
 invocations = 1
 last_used = "2026-03-06T18:44:46Z"
 
 [command_usage.finish-session]
-invocations = 18
-last_used = "2026-03-08T16:06:51Z"
+invocations = 24
+last_used = "2026-03-10T10:38:02Z"
 
 [command_usage.fix-pr]
-invocations = 4
-last_used = "2026-03-08T16:15:23Z"
+invocations = 5
+last_used = "2026-03-08T22:02:39Z"
 
 [command_usage.generate-v0-prompt]
 invocations = 1
@@ -95,8 +95,8 @@ invocations = 5
 last_used = "2026-03-08T15:59:46Z"
 
 [command_usage.save-response]
-invocations = 1
-last_used = "2026-03-06T18:14:21Z"
+invocations = 2
+last_used = "2026-03-09T23:53:05Z"
 
 [command_usage.start-session]
 invocations = 14
