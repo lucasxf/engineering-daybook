@@ -1,7 +1,8 @@
 # Mobile Profile Editing
 
-> **Status:** Planned
+> **Status:** Implemented
 > **Created:** 2026-03-09
+> **Implemented:** 2026-03-09
 
 ---
 
@@ -352,12 +353,32 @@ Run under `rn` jest project (jest-expo preset).
 
 ## Post-Implementation Notes
 
-> _This section is filled AFTER implementation._
-
 ### Commits
+
+1. `616bf68` — chore: install expo-image-picker (+ spec files from publish-mobile-app branch)
+2. `4ebeb02` — feat(mobile): add updateUser to AuthContext + tests
+3. `fe61b13` — feat(mobile): add AvatarPicker component + tests
+4. `4c173d5` — feat(mobile): add profile editing i18n keys
+5. `871ab81` — feat(mobile): wire profile editing into ProfileScreen + tests
+6. `a133d7f` — test(mobile): add Maestro E2E flow for profile editing
+7. `615085b` — fix(mobile): address code review issues in profile editing
 
 ### Architectural Decisions
 
+- **AvatarPicker is pure**: The component receives `onUpload`/`onRemove` callbacks and does not own async state. The caller (ProfileScreen) owns the upload logic and state (`avatarUploading`). This follows the React single-responsibility principle and makes the component easily testable.
+- **`useEffect` initial-sync-only pattern**: The `useEffect` that syncs `displayName`/`bio` from `user` uses a `useRef` flag to run only on initial load. This prevents in-progress edits from being clobbered when unrelated fields (e.g., `avatarUrl`) are updated via `updateUser()`.
+- **4th jest project (`screens`)**: ProfileScreen tests require RNTL rendering but cannot run under the existing `rn` (jest-expo) project due to Node 22 + RN 0.79 compatibility issues. A dedicated `screens` jest project with node env and manual mocks was added, following the same pattern as the `components` project.
+- **Rollback semantics**: Display name/bio save handlers revert to `user?.displayName`/`user?.bio` (last server-confirmed value) on error, not to local state. Privacy handlers use local state prev (captured before the optimistic update). The difference: display name/bio edits are not optimistic, privacy changes are.
+
 ### Deviations from Spec
 
+- **`profile.displayNameLabel` and `profile.bioLabel` i18n keys**: The spec's i18n table did not include these keys (only `profile.displayName` and `profile.bio` exist from before). The screen uses `t('profile.displayName')` and `t('profile.bio')` (existing keys) for the field labels, with no inline fallback string (removed the `|| 'Display name'` pattern flagged in review).
+- **Separate Save buttons kept**: The UX review flagged two separate Save buttons (one for display name, one for bio) as violating the "min-clicks" mandate. This was intentional per spec (FR1/FR2 each specify an adjacent Save button). A combined "Save profile" UX could be a future improvement.
+- **`fileSize` validation on Android**: Per the spec's Open Question #1, client-side size check is skipped when `fileSize` is undefined (Android). The server enforces 2 MB regardless. A potential improvement: use `expo-file-system` as fallback.
+
 ### Lessons Learned
+
+- The `components` jest project pattern (3rd project) scales — the 4th `screens` project follows the same template with different test regex and mocks.
+- `require()` inside a component render function is never correct in React; always import at module level.
+- Rollback semantics differ between optimistic-update patterns (capture local state before change) and save-on-submit patterns (capture server state from context).
+- When mocking `useAuth()` in tests, return a **stable object** (module-level const, not object literal inside the mock factory). A fresh object reference on every `useAuth()` call triggers `useEffect([user])` on every render, resetting local form state between interactions.
