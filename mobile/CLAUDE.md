@@ -12,7 +12,7 @@
 - **Forms:** react-hook-form + @hookform/resolvers + zod
 - **i18n:** i18n-js 4 + expo-localization
 - **Auth storage:** expo-secure-store (tokens only)
-- **Testing (unit):** jest 29 + jest-expo preset (two-project config)
+- **Testing (unit):** jest 29 + jest-expo preset (four-project config)
 - **Testing (E2E):** Maestro YAML flows (`mobile/e2e/`)
 
 ---
@@ -24,7 +24,7 @@ mobile/
 ├── app.config.ts          # Expo config with env vars (EXPO_PUBLIC_API_URL)
 ├── app.json               # App metadata (scheme: learnimo, bundle ID)
 ├── eas.json               # EAS Build profiles (dev / preview / production)
-├── jest.config.js         # Two projects: lib (node env) + rn (jest-expo)
+├── jest.config.js         # Four projects: lib (node env) + rn (jest-expo) + components (node env) + screens (node env)
 ├── e2e/                   # Maestro E2E YAML flows
 └── src/
     ├── App.tsx            # Root: GestureHandler > SafeArea > Theme > I18n > Auth > Navigator
@@ -79,14 +79,16 @@ See `src/lib/api.ts`, `src/lib/tokenStore.ts`, `src/contexts/AuthContext.tsx`.
 
 ## Jest Configuration
 
-Two jest projects (see `jest.config.js`):
+Four jest projects (see `jest.config.js`):
 
 | Project | Environment | Covers |
 |---------|-------------|--------|
 | `lib` | `node` | `src/lib/__tests__/` and `src/hooks/__tests__/` — pure TS logic |
-| `rn` | `jest-expo` | React Native components and hooks with rendering |
+| `rn` | `jest-expo` | Any remaining RN integration tests not covered by the other three projects |
+| `components` | `node` | `src/components/**/__tests__/` — component unit tests with native module stubs |
+| `screens` | `node` | `src/screens/**/__tests__/` — screen-level tests using RNTL with native module stubs |
 
-**Why two projects?** `jest-expo`'s setup file (`setup.js`) calls `Object.defineProperty` on React Native internals that break under Node 22 with RN 0.76+. Pure TypeScript lib tests (no rendering) run fine in `node` env.
+**Why four projects?** `jest-expo`'s setup file (`setup.js`) calls `Object.defineProperty` on React Native internals that break under Node 22 with RN 0.76+. Component and screen tests that use RNTL rendering cannot run under `jest-expo` for this reason. Each of `components` and `screens` runs in `testEnvironment: 'node'` with a `moduleNameMapper` that stubs out native modules (react-native, safe-area-context, expo-constants, expo-secure-store, expo-image-picker, etc.) and manual stubs in `src/__mocks__/`. The `rn` project's `testRegex` excludes `lib/`, `hooks/`, `components/`, and `screens/` directories so tests never double-run across projects.
 
 **Run all tests:**
 ```bash
@@ -172,6 +174,12 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
 
 - **`eas init` requires local `eas-cli` install before `npx eas init`** — Running `npx eas init` without a prior local install fails because npx cannot locate the binary in ephemeral environments. Fix: run `npm install eas-cli` inside the `mobile/` directory first to add it to `node_modules/.bin/`, then run `npx eas init`. (Added 2026-03-08)
 
+- **A 4th jest project (`screens`) is required for screen-level tests on Node 22 + RN 0.79**: ProfileScreen and similar screen tests require RNTL rendering but cannot run under `jest-expo` because Node 22 + RN 0.79 breaks `detectHostComponentNames`. The fix is to add a 4th jest project named `screens` with `testEnvironment: 'node'`, a `moduleNameMapper` covering react-native, safe-area-context, expo-constants, expo-secure-store, and expo-image-picker, plus manual stubs for each in `src/__mocks__/`. The `rn` project's `testRegex` must exclude `screens/` via a negative lookahead so tests don't double-run. (Added 2026-03-09)
+
+- **`require()` inside a React component render function is a production crash risk**: Writing `const { Text } = require('react-native')` inside a component body (e.g., a `RemoveLabel` function component) runs on every render, breaks Hot Module Replacement, and can crash under Hermes/Metro in certain bundle configurations. Always import at module level. Additionally, ESLint treats stale `eslint-disable-next-line` comments for non-existent rules as errors (not warnings), so any such comments left behind after removing the require must be deleted too. (Added 2026-03-09)
+
+- **`useAuth()` mock in screen tests must return a stable object reference**: If the mock factory returns `{ user: {...} }` as an inline object literal, `useAuth()` produces a new object on every call. A `useEffect` with `[user]` in its dependency array then fires on every render, resetting controlled form fields (e.g., `displayName`, `bio`) between `fireEvent.changeText` and `fireEvent.press`. Fix: define the user object as a module-level `const stableUser = {...}` inside the mock factory so the identical reference is returned on every call. (Added 2026-03-09)
+
 ---
 
-*Last updated: 2026-03-08 (session: chore/publish-mobile-app — Milestone 3.4 in progress: EAS build, Play Store setup, privacy policy, store metadata)*
+*Last updated: 2026-03-09 (session: chore/publish-mobile-app — added 4th jest project (screens), stable useAuth mock pattern, require()-in-render pitfall; jest config updated to four-project table)*

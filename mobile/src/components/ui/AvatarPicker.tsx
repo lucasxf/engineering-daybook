@@ -103,8 +103,6 @@ export function AvatarPicker({
           accessibilityRole="button"
           testID="remove-photo-button"
         >
-          {/* Text is intentionally imported from react-native via the mock */}
-          {/* eslint-disable-next-line react-native/no-inline-styles */}
           <RemoveLabel />
         </Pressable>
       ) : null}
