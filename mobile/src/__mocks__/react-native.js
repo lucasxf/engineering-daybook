@@ -49,6 +49,11 @@ const Alert = {
   alert: jest.fn(),
 };
 
+const Linking = {
+  openSettings: jest.fn(() => Promise.resolve()),
+  openURL: jest.fn(() => Promise.resolve()),
+};
+
 const StyleSheet = {
   create: (styles) => styles,
   flatten: (style) => style,
@@ -65,5 +70,6 @@ module.exports = {
   Switch,
   Modal,
   Alert,
+  Linking,
   StyleSheet,
 };

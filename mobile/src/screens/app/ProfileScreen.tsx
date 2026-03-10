@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Alert, ScrollView, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -37,16 +37,19 @@ export function ProfileScreen() {
   // Avatar upload state
   const [avatarUploading, setAvatarUploading] = useState(false);
 
-  // Sync local state when user object changes (e.g. after external update)
+  // Sync local state only on initial user load (not on every user object change)
+  // to avoid clobbering in-progress edits when unrelated fields (e.g. avatarUrl) update.
+  const initialSyncDone = useRef(false);
   useEffect(() => {
-    if (user) {
+    if (user && !initialSyncDone.current) {
+      initialSyncDone.current = true;
       setDisplayName(user.displayName ?? '');
       setBio(user.bio ?? '');
     }
   }, [user]);
 
   async function handleDisplayNameSave() {
-    const prev = user?.displayName ?? '';
+    const prev = user?.displayName ?? ''; // last server-confirmed value for rollback
     setDisplayNameSaving(true);
     try {
       await updateUserSettings({ displayName });
@@ -60,7 +63,7 @@ export function ProfileScreen() {
   }
 
   async function handleBioSave() {
-    const prev = user?.bio ?? '';
+    const prev = user?.bio ?? ''; // last server-confirmed value for rollback
     setBioSaving(true);
     try {
       await updateUserSettings({ bio });
@@ -98,21 +101,23 @@ export function ProfileScreen() {
   }
 
   async function handleProfileVisibilityChange(value: ProfileVisibility) {
+    const prev = profileVisibility; // capture from local state before optimistic update
     setProfileVisibility(value);
     try {
       await updateUserSettings({ profileVisibility: value });
     } catch {
-      setProfileVisibility(user?.profileVisibility ?? 'PRIVATE');
+      setProfileVisibility(prev);
       Alert.alert(t('profile.privacy.saveError'));
     }
   }
 
   async function handleDefaultPokVisibilityChange(value: PokVisibility) {
+    const prev = defaultPokVisibility; // capture from local state before optimistic update
     setDefaultPokVisibility(value);
     try {
       await updateUserSettings({ defaultPokVisibility: value });
     } catch {
-      setDefaultPokVisibility(user?.defaultPokVisibility ?? 'PRIVATE');
+      setDefaultPokVisibility(prev);
       Alert.alert(t('profile.privacy.saveError'));
     }
   }
@@ -178,6 +183,7 @@ export function ProfileScreen() {
               <View style={{ flexDirection: 'row', gap: theme.spacing.xs, alignItems: 'center' }}>
                 <TextInput
                   testID="display-name-input"
+                  accessibilityLabel={t('profile.displayName')}
                   value={displayName}
                   onChangeText={setDisplayName}
                   placeholder={t('profile.displayNamePlaceholder')}
@@ -210,11 +216,13 @@ export function ProfileScreen() {
               <Text variant="label">{t('profile.bioLabel') || 'Bio'}</Text>
               <TextInput
                 testID="bio-input"
+                accessibilityLabel={t('profile.bio')}
                 value={bio}
                 onChangeText={setBio}
                 placeholder={t('profile.bioPlaceholder')}
                 maxLength={200}
                 multiline
+                blurOnSubmit={false}
                 numberOfLines={3}
                 style={{
                   borderWidth: 1,

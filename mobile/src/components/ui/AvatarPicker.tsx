@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Pressable, ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import { Text, View, Pressable, ActivityIndicator, Alert, Linking, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Avatar } from './Avatar';
 
@@ -34,9 +34,17 @@ export function AvatarPicker({
   async function handlePress() {
     if (uploading) return;
 
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const { status, canAskAgain } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission denied', 'Photo library access denied');
+      if (canAskAgain === false) {
+        // System will not show the prompt again — direct user to Settings
+        Alert.alert('Photo library access denied', 'Enable photo access in Settings to change your avatar.', [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Go to Settings', onPress: () => Linking.openSettings() },
+        ]);
+      } else {
+        Alert.alert('Permission denied', 'Photo library access denied');
+      }
       return;
     }
 
@@ -62,7 +70,7 @@ export function AvatarPicker({
 
   function handleRemove() {
     Alert.alert('Remove photo', 'Remove your profile photo?', [
-      { text: 'Cancel', style: 'cancel', onPress: () => {} },
+      { text: 'Cancel', style: 'cancel' },
       { text: 'Remove', style: 'destructive', onPress: onRemove },
     ]);
   }
@@ -106,8 +114,6 @@ export function AvatarPicker({
 
 /** Renders the destructive "Remove photo" label. */
 function RemoveLabel() {
-  // Import Text here to keep jsx simple and avoid a lint rule on inline styles
-  const { Text } = require('react-native');
   return <Text style={styles.removeText}>Remove photo</Text>;
 }
 
