@@ -59,7 +59,7 @@ function LearningFeedContent() {
         sortDirection,
         page: page - 1, // backend is 0-indexed
         size: ITEMS_PER_PAGE,
-        ...(keyword ? { searchMode: 'hybrid' } : {}),
+        searchMode: keyword ? 'hybrid' : undefined,
       })
       .then((result) => {
         if (cancelled) return;
