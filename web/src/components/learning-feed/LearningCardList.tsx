@@ -2,10 +2,10 @@
 
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
-import type { FeedItem } from '@/lib/pokApi';
+import type { OwnedPok } from '@/lib/pokApi';
 
 interface LearningCardListProps {
-  learnings: FeedItem[];
+  learnings: OwnedPok[];
 }
 
 function formatRelativeTime(date: Date, locale: string): string {
@@ -29,8 +29,6 @@ export default function LearningCardList({ learnings }: LearningCardListProps) {
   return (
     <div className="space-y-3">
       {learnings.map((learning) => {
-        // This feed shows owned learnings only; re-learnings (PokShare) are handled separately.
-        if (learning.type !== 'owned') return null;
         const createdDate = new Date(learning.createdAt);
         const updatedDate = new Date(learning.updatedAt);
         const formattedDate = createdDate.toLocaleDateString(params.locale, {

@@ -11,6 +11,7 @@ import LoadingState from '@/components/learning-feed/LoadingState';
 import ErrorState from '@/components/learning-feed/ErrorState';
 import NoResultsState from '@/components/learning-feed/NoResultsState';
 import { usePoksData } from '@/hooks/usePoksData';
+import type { OwnedPok } from '@/lib/pokApi';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -36,8 +37,15 @@ function LearningFeedContent() {
   // usePoksData.page is 0-indexed; PaginationControls expects 1-indexed
   const currentPage = page + 1;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-  const isEmpty = !isLoading && totalItems === 0 && !keyword;
-  const hasNoResults = !isLoading && learnings.length === 0 && keyword !== '';
+
+  // Pre-filter to owned POKs: the backend returns a mixed feed (owned + re-learnings) when no
+  // keyword/tag filter is active, but this page scopes to authored content only.
+  // Note: totalItems still comes from the backend and may include re-learnings, so pagination
+  // counts can be slightly off. A dedicated owned-only API param would fix this fully.
+  const ownedLearnings = learnings.filter((l): l is OwnedPok => l.type === 'owned');
+
+  const isEmpty = !isLoading && ownedLearnings.length === 0 && !keyword;
+  const hasNoResults = !isLoading && ownedLearnings.length === 0 && keyword !== '';
 
   // Adapter: SearchSortToolbar passes (sortBy, sortDirection) separately;
   // usePoksData.handleSortChange expects a SortOption object
@@ -99,7 +107,7 @@ function LearningFeedContent() {
               />
             ) : (
               <>
-                <LearningCardList learnings={learnings} />
+                <LearningCardList learnings={ownedLearnings} />
                 {totalPages > 1 && (
                   <PaginationControls
                     currentPage={currentPage}
