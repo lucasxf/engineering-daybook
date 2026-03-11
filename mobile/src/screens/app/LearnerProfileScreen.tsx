@@ -30,7 +30,7 @@ function mapToPok(learning: LearnerPokSummary, ownerHandle: string): Pok {
   return {
     ...learning,
     userId: ownerHandle,
-    visibility: 'PUBLIC' as const,
+    visibility: learning.visibility ?? 'PUBLIC',
     deletedAt: null,
     updatedAt: learning.createdAt,
     tags: [],

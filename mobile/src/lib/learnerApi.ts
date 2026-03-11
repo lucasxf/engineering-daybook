@@ -1,5 +1,5 @@
 import { apiFetch } from './api';
-import type { Pok } from './pokApi';
+import type { Pok, PokVisibility } from './pokApi';
 
 /** A re-learning (shared POK) created by one learner referencing another's public learning. */
 export interface PokShare {
@@ -63,6 +63,8 @@ export interface LearnerPokSummary {
   title?: string | null;
   content: string;
   createdAt: string;
+  /** Visibility — present for the profile owner only; null/absent for other viewers. */
+  visibility?: PokVisibility | null;
 }
 
 export interface LearnerProfileResponse {
