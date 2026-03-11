@@ -109,7 +109,6 @@ export function LoginForm({ locale, redirectTo }: LoginFormProps) {
         <PasswordInput
           id="login-password"
           autoComplete="current-password"
-          placeholder={t('passwordPlaceholder')}
           hasError={!!errors.password}
           aria-describedby={
             errors.password ? 'login-password-error' : undefined
