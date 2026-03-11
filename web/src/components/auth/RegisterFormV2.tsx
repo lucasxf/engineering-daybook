@@ -108,12 +108,12 @@ const InputV2 = forwardRef<HTMLInputElement, InputV2Props>(
         ref={ref}
         className={cn(
           'block w-full rounded-lg border px-3 py-2.5 text-sm transition-all duration-200',
-          'bg-[var(--input-bg)] text-[var(--input-text)]',
+          'bg-input text-foreground',
           'placeholder:text-[var(--input-placeholder)]',
           'focus:outline-none focus:ring-2 focus:ring-[var(--ring)]',
           'disabled:cursor-not-allowed disabled:opacity-50',
           hasError
-            ? 'border-[var(--error)] focus:ring-[var(--error)]'
+            ? 'border-destructive focus:ring-destructive'
             : 'border-[var(--input-border)]',
           className
         )}

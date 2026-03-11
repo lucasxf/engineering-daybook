@@ -24,8 +24,6 @@ export function useLearnerProfile(handle: string): UseLearnerProfileResult {
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    let cancelled = false;
-
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -33,21 +31,18 @@ export function useLearnerProfile(handle: string): UseLearnerProfileResult {
     setLoading(true);
     setError(null);
 
-    getLearnerProfile(handle)
+    getLearnerProfile(handle, controller.signal)
       .then((data) => {
-        if (cancelled) return;
         setProfile(data);
         setLoading(false);
       })
       .catch((e: unknown) => {
-        if (cancelled) return;
         if ((e as Error).name === 'AbortError') return;
         setError((e as Error).message ?? 'Failed to load profile');
         setLoading(false);
       });
 
     return () => {
-      cancelled = true;
       controller.abort();
     };
     // reloadTick intentionally included to allow manual re-fetch via reload()

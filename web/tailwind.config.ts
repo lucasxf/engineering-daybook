@@ -27,6 +27,18 @@ const config: Config = {
           DEFAULT: 'rgb(var(--primary) / <alpha-value>)',
           foreground: 'rgb(var(--primary-foreground) / <alpha-value>)',
           hover: 'rgb(var(--primary-hover) / <alpha-value>)',
+          /* Numeric scale — ember-cta palette for legacy callers */
+          50: '#FFF8F3',
+          100: '#FFE8D6',
+          200: '#FCCFB0',
+          300: '#F4AD7D',
+          400: '#E8955B',
+          500: '#D4854A',
+          600: '#C07340',
+          700: '#A05C32',
+          800: '#7A4225',
+          900: '#5A2E19',
+          950: '#3A1A0A',
         },
         muted: {
           DEFAULT: 'rgb(var(--muted) / <alpha-value>)',
