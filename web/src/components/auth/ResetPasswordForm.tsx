@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
@@ -19,19 +19,48 @@ interface ResetPasswordFormProps {
   locale: string;
 }
 
+/**
+ * Password requirements checker for real-time validation.
+ */
+function checkPasswordRequirements(password: string) {
+  return {
+    minLength: password.length >= 8,
+    maxLength: password.length <= 128,
+    hasUppercase: /[A-Z]/.test(password),
+    hasLowercase: /[a-z]/.test(password),
+    hasNumber: /\d/.test(password),
+  };
+}
+
 export function ResetPasswordForm({ token, locale }: ResetPasswordFormProps) {
   const t = useTranslations('auth');
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [passwordRequirements, setPasswordRequirements] = useState({
+    minLength: false,
+    maxLength: true,
+    hasUppercase: false,
+    hasLowercase: false,
+    hasNumber: false,
+  });
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
+    mode: 'onChange',
     defaultValues: { newPassword: '', confirmPassword: '' },
   });
+
+  const newPassword = watch('newPassword');
+
+  // Update password requirements as user types
+  useEffect(() => {
+    setPasswordRequirements(checkPasswordRequirements(newPassword));
+  }, [newPassword]);
 
   const resolveError = (key: string): string => {
     try {
@@ -45,6 +74,7 @@ export function ResetPasswordForm({ token, locale }: ResetPasswordFormProps) {
     setServerError(null);
     try {
       await confirmPasswordResetApi(token, data.newPassword);
+      // Success state will be displayed by parent component
       router.push(`/${locale}/login?reset=success` as never);
     } catch (error) {
       if (error instanceof ApiRequestError) {
@@ -56,19 +86,45 @@ export function ResetPasswordForm({ token, locale }: ResetPasswordFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-      {serverError && <Alert variant="error">{serverError}</Alert>}
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+      {serverError && (
+        <Alert variant="error" role="alert">
+          {serverError}
+        </Alert>
+      )}
 
       <FormField
         label={t('newPassword')}
         htmlFor="reset-password"
         error={errors.newPassword ? resolveError(errors.newPassword.message!) : undefined}
+        hint={
+          <div className="space-y-2 text-xs text-muted-foreground">
+            <p className="font-medium">Password requirements:</p>
+            <ul className="space-y-1 pl-4">
+              <li className={passwordRequirements.minLength ? 'text-success' : ''}>
+                • 8–128 characters
+              </li>
+              <li className={passwordRequirements.hasUppercase ? 'text-success' : ''}>
+                • At least one uppercase letter
+              </li>
+              <li className={passwordRequirements.hasLowercase ? 'text-success' : ''}>
+                • At least one lowercase letter
+              </li>
+              <li className={passwordRequirements.hasNumber ? 'text-success' : ''}>
+                • At least one number
+              </li>
+            </ul>
+          </div>
+        }
       >
         <PasswordInput
           id="reset-password"
+          placeholder="••••••••"
           autoComplete="new-password"
           hasError={!!errors.newPassword}
-          aria-describedby={errors.newPassword ? 'reset-password-error' : undefined}
+          aria-describedby={
+            errors.newPassword ? 'reset-password-error' : 'reset-password-hint'
+          }
           {...register('newPassword')}
         />
       </FormField>
@@ -84,6 +140,7 @@ export function ResetPasswordForm({ token, locale }: ResetPasswordFormProps) {
       >
         <PasswordInput
           id="reset-confirm-password"
+          placeholder="••••••••"
           autoComplete="new-password"
           hasError={!!errors.confirmPassword}
           aria-describedby={
@@ -93,7 +150,11 @@ export function ResetPasswordForm({ token, locale }: ResetPasswordFormProps) {
         />
       </FormField>
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={isSubmitting}
+      >
         {isSubmitting ? (
           <>
             <Spinner size="sm" className="mr-2" />
