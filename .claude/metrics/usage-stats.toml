@@ -2,7 +2,7 @@
 # Compiled by /compile-metrics, analyzed by automation-sentinel agent
 
 [metadata]
-timestamp = "2026-03-11T15:24:54Z"
+timestamp = "2026-03-11T21:23:06Z"
 commit_sha = ""
 branch = "develop"
 schema_version = "1.0.0"
@@ -10,16 +10,16 @@ updated_by = "compile-metrics"
 
 # Agent Usage Metrics
 [agent_usage.Explore]
-invocations = 60
-last_used = "2026-03-11T12:27:15Z"
+invocations = 70
+last_used = "2026-03-11T16:31:23Z"
 
 [agent_usage.Plan]
 invocations = 11
 last_used = "2026-03-09T23:37:53Z"
 
 [agent_usage.general-purpose]
-invocations = 62
-last_used = "2026-03-10T10:40:53Z"
+invocations = 63
+last_used = "2026-03-11T21:21:27Z"
 
 [agent_usage.automation-sentinel]
 invocations = 0
@@ -67,44 +67,44 @@ last_used = ""
 
 # Command Usage Metrics
 [command_usage.compile-metrics]
-invocations = 7
-last_used = "2026-03-11T15:24:07Z"
+invocations = 8
+last_used = "2026-03-11T21:22:18Z"
 
 [command_usage.create-pr]
-invocations = 26
-last_used = "2026-03-11T08:04:52Z"
+invocations = 27
+last_used = "2026-03-11T16:00:02Z"
 
 [command_usage.directive]
 invocations = 1
 last_used = "2026-03-06T18:44:46Z"
 
 [command_usage.finish-session]
-invocations = 40
-last_used = "2026-03-11T13:10:40Z"
+invocations = 42
+last_used = "2026-03-11T21:19:52Z"
 
 [command_usage.fix-pr]
-invocations = 6
-last_used = "2026-03-11T11:46:27Z"
+invocations = 7
+last_used = "2026-03-11T21:12:08Z"
 
 [command_usage.generate-v0-prompt]
-invocations = 1
-last_used = "2026-03-07T14:56:29Z"
+invocations = 3
+last_used = "2026-03-11T18:08:17Z"
 
 [command_usage.implement-spec]
 invocations = 6
 last_used = "2026-03-08T09:44:25Z"
 
 [command_usage.review-pr]
-invocations = 7
-last_used = "2026-03-11T11:21:25Z"
+invocations = 8
+last_used = "2026-03-11T20:59:25Z"
 
 [command_usage.save-response]
 invocations = 4
 last_used = "2026-03-09T23:53:05Z"
 
 [command_usage.start-session]
-invocations = 15
-last_used = "2026-03-11T07:49:54Z"
+invocations = 17
+last_used = "2026-03-11T17:16:54Z"
 
 [command_usage.write-spec]
 invocations = 5
@@ -116,10 +116,10 @@ last_used = ""
 
 # Productivity Metrics
 [productivity]
-current_total_locs = 54121
-current_production_locs = 24937
+current_total_locs = 54503
+current_production_locs = 25319
 current_test_locs = 29184
-test_ratio_percent = 117.0
+test_ratio_percent = 115.3
 total_locs_added = 0
 total_locs_deleted = 0
 net_locs = 0
