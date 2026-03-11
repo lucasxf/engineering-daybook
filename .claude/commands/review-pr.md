@@ -402,6 +402,77 @@ Triage report saved → <absolute path to TRIAGE_FILE>
 Next step: /fix-pr $PR_NUMBER
 ```
 
+## Step 6.5: Extract Verdict Metrics
+
+Parse the triage report at `$TRIAGE_FILE` to count items under each verdict section, then append to the current session delta file.
+
+```bash
+python3 - "$TRIAGE_FILE" <<'PYEOF'
+import re, subprocess, sys
+from pathlib import Path
+
+triage_path = Path(sys.argv[1])
+if not triage_path.exists():
+    print("Triage file not found — skipping metrics")
+    raise SystemExit(0)
+
+report = triage_path.read_text(encoding="utf-8")
+
+def count_items(text, section_header):
+    """Count '- ' bullet lines immediately after a section header."""
+    pattern = rf'{re.escape(section_header)}\n(.*?)(?=\n###|\Z)'
+    m = re.search(pattern, text, re.DOTALL)
+    if not m:
+        return 0
+    return len(re.findall(r'^- ', m.group(1), re.MULTILINE))
+
+accepted     = count_items(report, '### Approved for implementation')
+rejected     = count_items(report, '### Rejected')
+deferred     = count_items(report, '### Deferred')
+questions    = count_items(report, '### Requires manual reply')
+informational = count_items(report, '### Informational')
+total = accepted + rejected + deferred + questions + informational
+
+branch = subprocess.run(
+    ['git', 'branch', '--show-current'],
+    capture_output=True, text=True, timeout=3
+).stdout.strip() or 'unknown'
+safe_branch = branch.replace('/', '%2F')
+safe_branch = re.sub(r'[^\w\-\.%]', '_', safe_branch) or 'unknown'
+
+delta_path = Path(f'.claude/metrics/sessions/{safe_branch}.toml')
+content = delta_path.read_text(encoding='utf-8') if delta_path.exists() else ''
+
+if '[pr_review_quality]' in content:
+    # Accumulate into existing section
+    def add(field, n):
+        global content
+        def inc(m): return m.group(1) + str(int(m.group(2)) + n)
+        content = re.sub(rf'(\[pr_review_quality\][^\[]*?{re.escape(field)} = )(\d+)', inc, content, flags=re.DOTALL)
+    add('total_prs_triaged', 1)
+    add('total_comments_triaged', total)
+    add('accepted', accepted)
+    add('rejected', rejected)
+    add('deferred', deferred)
+    add('questions', questions)
+    add('informational', informational)
+else:
+    content += (
+        f'\n[pr_review_quality]\n'
+        f'total_prs_triaged = 1\n'
+        f'total_comments_triaged = {total}\n'
+        f'accepted = {accepted}\n'
+        f'rejected = {rejected}\n'
+        f'deferred = {deferred}\n'
+        f'questions = {questions}\n'
+        f'informational = {informational}\n'
+    )
+
+delta_path.write_text(content, encoding='utf-8')
+print(f'PR review quality: accepted={accepted}, rejected={rejected}, deferred={deferred}, questions={questions}, informational={informational}, total={total}')
+PYEOF
+```
+
 After the confirmation, output this exact closing banner so the user knows the command has finished:
 
 ```

@@ -124,6 +124,16 @@ total_locs_added = 0
 total_locs_deleted = 0
 net_locs = 0
 
+# PR Review Quality Metrics
+[pr_review_quality]
+total_prs_triaged = 0
+total_comments_triaged = 0
+accepted = 0
+rejected = 0
+deferred = 0
+questions = 0
+informational = 0
+
 # Health Metrics
 [health]
 schema_errors = 0
