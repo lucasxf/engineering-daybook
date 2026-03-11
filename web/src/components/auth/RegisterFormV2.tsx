@@ -403,7 +403,7 @@ export function RegisterFormV2({ locale }: RegisterFormV2Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] p-6 shadow-sm" noValidate>
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 rounded-lg border border-card-border bg-card p-6 shadow-sm" noValidate>
       {serverError && (
         <AlertV2 variant="error">{serverError}</AlertV2>
       )}
@@ -501,7 +501,7 @@ export function RegisterFormV2({ locale }: RegisterFormV2Props) {
           <div className="w-full border-t border-[var(--input-border)]" />
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="bg-[var(--card-bg)] px-3 text-[var(--muted)]">
+          <span className="bg-card px-3 text-muted">
             {t('orContinueWith')}
           </span>
         </div>
