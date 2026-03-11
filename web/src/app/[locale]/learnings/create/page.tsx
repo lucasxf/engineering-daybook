@@ -40,7 +40,6 @@ export default function CreateLearningPage() {
       <LearningPageHeader locale={params.locale} />
       <CreateLearningForm
         onSubmit={handleSubmit}
-        locale={params.locale}
       />
     </div>
   );

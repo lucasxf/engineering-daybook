@@ -117,11 +117,13 @@
       "errors": {
         "contentRequired": "Conteúdo é obrigatório",
         "titleTooLong": "O título deve ter no máximo 200 caracteres",
-        "contentTooLong": "O conteúdo deve ter entre 1 e 50.000 caracteres"
+        "contentTooLong": "O conteúdo deve ter entre 1 e 50.000 caracteres",
+        "saveFailed": "Falha ao salvar. Tente novamente."
       },
       "success": {
         "message": "Aprendizado salvo!"
-      }
+      },
+      "backToFeed": "Voltar ao feed"
     }
   },
   "poks": {

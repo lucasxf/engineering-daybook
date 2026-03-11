@@ -1,29 +1,41 @@
 import { z } from 'zod';
 
+interface LearningSchemaMessages {
+  contentRequired: string;
+  titleTooLong: string;
+  contentTooLong: string;
+}
+
 /**
- * Zod validation schema for Learning creation.
+ * Factory for the Learning creation Zod schema.
+ * Accepts translated error messages so validation errors are always localized.
  *
  * Rules:
  * - title: optional (0-200 characters)
  * - content: mandatory (1-50,000 characters)
  */
-export const learningSchema = z.object({
-  title: z
-    .string()
-    .max(200, 'Title must be 200 characters or less')
-    .optional()
-    .or(z.literal('')),
+export function createLearningSchema(messages: LearningSchemaMessages) {
+  return z.object({
+    title: z
+      .string()
+      .max(200, messages.titleTooLong)
+      .optional()
+      .or(z.literal('')),
 
-  content: z
-    .string()
-    .min(1, 'Content is required')
-    .max(50000, 'Content must be between 1 and 50,000 characters')
-    .refine((val) => val.trim().length > 0, {
-      message: 'Content is required',
-    }),
-});
+    content: z
+      .string()
+      .min(1, messages.contentRequired)
+      .max(50000, messages.contentTooLong)
+      .refine((val) => val.trim().length > 0, {
+        message: messages.contentRequired,
+      }),
+  });
+}
 
 /**
- * TypeScript type inferred from learningSchema.
+ * TypeScript type for Learning form data.
  */
-export type LearningFormData = z.infer<typeof learningSchema>;
+export type LearningFormData = {
+  title?: string;
+  content: string;
+};

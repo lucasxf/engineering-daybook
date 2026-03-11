@@ -18,17 +18,17 @@ export function LearningPageHeader({ locale }: LearningPageHeaderProps) {
   return (
     <div className="mb-8 flex items-center justify-between">
       <div className="flex-1">
-        <h1 className="font-heading text-3xl font-600 text-foreground text-balance">
+        <h1 className="font-heading text-3xl font-semibold text-foreground text-balance">
           {t('pageHeader')}
         </h1>
       </div>
       <Link
         href={`/${locale}/poks`}
         className="flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-        aria-label="Back to feed"
+        aria-label={t('backToFeed')}
       >
         <ArrowLeft className="h-4 w-4" />
-        <span className="sr-only">Back to feed</span>
+        <span className="sr-only">{t('backToFeed')}</span>
       </Link>
     </div>
   );

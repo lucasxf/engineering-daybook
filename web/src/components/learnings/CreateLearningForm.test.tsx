@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { CreateLearningForm } from '../CreateLearningForm';
+import { CreateLearningForm } from './CreateLearningForm';
 
 // Mock next-intl
 vi.mock('next-intl', () => ({
@@ -13,6 +13,10 @@ vi.mock('next-intl', () => ({
       'form.saveButton': 'Save Learning',
       'form.savingButton': 'Saving...',
       'form.cancelButton': 'Cancel',
+      'errors.contentRequired': 'Content is required',
+      'errors.titleTooLong': 'Title must be 200 characters or less',
+      'errors.contentTooLong': 'Content must be between 1 and 50,000 characters',
+      'errors.saveFailed': 'Failed to save. Please try again.',
       'success.message': 'Learning saved!',
     };
     return translations[key] || key;
@@ -37,7 +41,7 @@ describe('CreateLearningForm', () => {
 
   it('renders the form with title and content fields', () => {
     render(
-      <CreateLearningForm onSubmit={mockOnSubmit} locale="en" />
+      <CreateLearningForm onSubmit={mockOnSubmit} />
     );
 
     expect(screen.getByLabelText('Title')).toBeInTheDocument();
@@ -47,7 +51,7 @@ describe('CreateLearningForm', () => {
 
   it('displays character counters for both fields', () => {
     render(
-      <CreateLearningForm onSubmit={mockOnSubmit} locale="en" />
+      <CreateLearningForm onSubmit={mockOnSubmit} />
     );
 
     expect(screen.getByText('0 / 200')).toBeInTheDocument();
@@ -56,7 +60,7 @@ describe('CreateLearningForm', () => {
 
   it('disables the submit button when content is empty', () => {
     render(
-      <CreateLearningForm onSubmit={mockOnSubmit} locale="en" />
+      <CreateLearningForm onSubmit={mockOnSubmit} />
     );
 
     const submitButton = screen.getByRole('button', { name: 'Save Learning' });
@@ -65,7 +69,7 @@ describe('CreateLearningForm', () => {
 
   it('enables the submit button when content has text', async () => {
     render(
-      <CreateLearningForm onSubmit={mockOnSubmit} locale="en" />
+      <CreateLearningForm onSubmit={mockOnSubmit} />
     );
 
     const contentField = screen.getByLabelText('Content');
@@ -79,7 +83,7 @@ describe('CreateLearningForm', () => {
 
   it('updates character counters as user types', async () => {
     render(
-      <CreateLearningForm onSubmit={mockOnSubmit} locale="en" />
+      <CreateLearningForm onSubmit={mockOnSubmit} />
     );
 
     const titleField = screen.getByLabelText('Title');
@@ -94,22 +98,11 @@ describe('CreateLearningForm', () => {
     });
   });
 
-  it('shows error message when content is empty on submit', async () => {
-    mockOnSubmit.mockResolvedValueOnce(undefined);
-
-    render(
-      <CreateLearningForm onSubmit={mockOnSubmit} locale="en" />
-    );
-
-    const submitButton = screen.getByRole('button', { name: 'Save Learning' });
-    expect(submitButton).toBeDisabled();
-  });
-
   it('calls onSubmit with form data when submitted', async () => {
     mockOnSubmit.mockResolvedValueOnce(undefined);
 
     render(
-      <CreateLearningForm onSubmit={mockOnSubmit} locale="en" />
+      <CreateLearningForm onSubmit={mockOnSubmit} />
     );
 
     const titleField = screen.getByLabelText('Title');
@@ -139,7 +132,7 @@ describe('CreateLearningForm', () => {
     );
 
     render(
-      <CreateLearningForm onSubmit={mockOnSubmit} locale="en" />
+      <CreateLearningForm onSubmit={mockOnSubmit} />
     );
 
     const contentField = screen.getByLabelText('Content');
@@ -154,5 +147,25 @@ describe('CreateLearningForm', () => {
     fireEvent.click(submitButton);
 
     expect(screen.getByRole('button', { name: 'Saving...' })).toBeInTheDocument();
+  });
+
+  it('shows error toast when submission fails', async () => {
+    mockOnSubmit.mockRejectedValueOnce(new Error('API error'));
+
+    render(
+      <CreateLearningForm onSubmit={mockOnSubmit} />
+    );
+
+    const contentField = screen.getByLabelText('Content');
+    fireEvent.change(contentField, { target: { value: 'Test content' } });
+
+    const submitButton = screen.getByRole('button', { name: 'Save Learning' });
+    await waitFor(() => expect(submitButton).not.toBeDisabled());
+
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Failed to save. Please try again.')).toBeInTheDocument();
+    });
   });
 });

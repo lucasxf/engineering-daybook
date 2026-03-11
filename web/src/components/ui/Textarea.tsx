@@ -13,9 +13,9 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, hasError, autoExpand = false, onChange, ...props }, ref) => {
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      if (autoExpand && ref && 'current' in ref && ref.current) {
-        ref.current.style.height = 'auto';
-        ref.current.style.height = `${ref.current.scrollHeight}px`;
+      if (autoExpand) {
+        e.currentTarget.style.height = 'auto';
+        e.currentTarget.style.height = `${e.currentTarget.scrollHeight}px`;
       }
       onChange?.(e);
     };

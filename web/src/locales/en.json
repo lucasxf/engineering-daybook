@@ -117,11 +117,13 @@
       "errors": {
         "contentRequired": "Content is required",
         "titleTooLong": "Title must be 200 characters or less",
-        "contentTooLong": "Content must be between 1 and 50,000 characters"
+        "contentTooLong": "Content must be between 1 and 50,000 characters",
+        "saveFailed": "Failed to save. Please try again."
       },
       "success": {
         "message": "Learning saved!"
-      }
+      },
+      "backToFeed": "Back to feed"
     }
   },
   "poks": {

@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { learningSchema, type LearningFormData } from '@/lib/validations/learningSchema';
+import { createLearningSchema, type LearningFormData } from '@/lib/validations/learningSchema';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
@@ -14,7 +14,6 @@ import { Toast } from '@/components/ui/Toast';
 
 interface CreateLearningFormProps {
   onSubmit: (data: LearningFormData) => Promise<void>;
-  locale: string;
 }
 
 /**
@@ -28,17 +27,25 @@ interface CreateLearningFormProps {
  * - Auto-expanding textarea
  * - i18n support (EN/PT-BR)
  * - Loading state with spinner
- * - Success toast notification
+ * - Success and error toast notifications
  * - Keyboard shortcuts (Cmd/Ctrl+Enter to submit, Escape to cancel)
  */
-export function CreateLearningForm({
-  onSubmit,
-  locale,
-}: CreateLearningFormProps) {
+export function CreateLearningForm({ onSubmit }: CreateLearningFormProps) {
   const t = useTranslations('learnings.create');
   const router = useRouter();
-  const contentRef = useRef<HTMLTextAreaElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [showErrorToast, setShowErrorToast] = useState(false);
+
+  const schema = useMemo(
+    () =>
+      createLearningSchema({
+        contentRequired: t('errors.contentRequired'),
+        titleTooLong: t('errors.titleTooLong'),
+        contentTooLong: t('errors.contentTooLong'),
+      }),
+    [t]
+  );
 
   const {
     register,
@@ -46,7 +53,7 @@ export function CreateLearningForm({
     watch,
     formState: { errors, isSubmitting },
   } = useForm<LearningFormData>({
-    resolver: zodResolver(learningSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       title: '',
       content: '',
@@ -61,10 +68,7 @@ export function CreateLearningForm({
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
-        const form = document.querySelector('form');
-        if (form) {
-          form.dispatchEvent(new Event('submit', { bubbles: true }));
-        }
+        formRef.current?.requestSubmit();
       }
       if (e.key === 'Escape') {
         router.back();
@@ -79,11 +83,9 @@ export function CreateLearningForm({
     try {
       await onSubmit(data);
       setShowSuccessToast(true);
-      setTimeout(() => {
-        router.back();
-      }, 1500);
     } catch (error) {
       console.error('Failed to save learning:', error);
+      setShowErrorToast(true);
     }
   };
 
@@ -93,6 +95,7 @@ export function CreateLearningForm({
   return (
     <>
       <form
+        ref={formRef}
         onSubmit={handleSubmit(handleFormSubmit)}
         className="mx-auto max-w-2xl space-y-6"
         noValidate
@@ -143,7 +146,6 @@ export function CreateLearningForm({
           </Label>
           <Textarea
             id="learning-content"
-            ref={contentRef}
             placeholder={t('form.contentPlaceholder')}
             maxLength={50000}
             autoExpand
@@ -204,6 +206,15 @@ export function CreateLearningForm({
           message={t('success.message')}
           onDismiss={() => setShowSuccessToast(false)}
           durationMs={3000}
+        />
+      )}
+
+      {/* Error Toast */}
+      {showErrorToast && (
+        <Toast
+          message={t('errors.saveFailed')}
+          onDismiss={() => setShowErrorToast(false)}
+          durationMs={4000}
         />
       )}
     </>
