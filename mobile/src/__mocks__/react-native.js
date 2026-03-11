@@ -9,4 +9,15 @@ const Text = ({ children, testID }) =>
 
 const View = ({ children }) => React.createElement('div', null, children);
 
-module.exports = { Text, View };
+const Pressable = ({ children, onPress, accessibilityRole, accessibilityLabel, style }) =>
+  React.createElement(
+    'button',
+    { onClick: onPress, role: accessibilityRole, 'aria-label': accessibilityLabel },
+    children
+  );
+
+const StyleSheet = {
+  create: (styles) => styles,
+};
+
+module.exports = { Text, View, Pressable, StyleSheet };

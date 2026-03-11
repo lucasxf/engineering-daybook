@@ -1,0 +1,54 @@
+appId: net.learnimo.app
+---
+# AC31: Authenticated user can search for a learner and navigate to their profile
+#
+# Test data assumptions:
+#   - Logged-in user: test@learnimo.net / TestPass123 (handle: "alice")
+#   - Another learner with handle "bob" exists in the backend with a public profile
+#   - The search backend returns "bob" when the query is "bo"
+
+# Start fresh and log in
+- launchApp:
+    clearState: true
+
+- assertVisible: "Welcome back"
+
+- tapOn:
+    text: "Email"
+- inputText: "test@learnimo.net"
+- tapOn:
+    text: "Password"
+- inputText: "TestPass123"
+- tapOn:
+    text: "Sign in"
+
+# Verify: land on the social feed
+- assertVisible: "Feed"
+
+# Tap the discover icon in the feed header (accessibilityLabel: "Discover learners")
+- tapOn:
+    text: "🔍"
+
+# Verify: DiscoverScreen is visible
+- assertVisible: "Discover Learners"
+- assertVisible: "Type at least 2 characters to search"
+
+# Type a search query (minimum 2 chars to trigger the search)
+- tapOn:
+    text: "Search by name or handle"
+- inputText: "bo"
+
+- waitForAnimationToEnd:
+
+# Verify: a result card for "bob" appears
+- assertVisible: "@bob"
+
+# Tap the result card body to navigate to LearnerProfile
+- tapOn:
+    text: "@bob"
+
+- waitForAnimationToEnd:
+
+# Verify: LearnerProfileScreen is visible (header shows handle or display name)
+- assertVisible: "@bob"
+- assertVisible: "Learnings"

@@ -108,6 +108,15 @@
 - Web: `/feed` page (FeedList + FeedEmptyState + ReLearningCard wired), `/discover` page (LearnerSearchBar + LearnerResultCard + FollowButton), NavLinks updated, home redirect `/` → `/feed`; 17 new E2E tests
 - Mobile: `learnerApi.ts` (FeedItem/PokShare types + getFeed()), `useSocialFeedData` hook, FeedScreen updated to show social feed with author attribution
 
+**Mobile Social Discovery extension (2026-03-10):**
+- `learnerApi.ts` extended: `getLearnerProfile(handle)`, `followLearner(handle)`, `unfollowLearner(handle)`, `searchLearners(query, params?)`
+- New hooks: `useLearnerProfile` (profile + learnings fetch), `useLearnerSearch` (debounced learner search)
+- New components: `FollowButton` (4-state: NONE/FOLLOWING/FOLLOWED_BY/COLLEAGUE with loading + error), `LearnerResultCard` (discover search result row)
+- New screens: `LearnerProfileScreen` (avatar, bio, learnings list, FollowButton, private-profile shell), `DiscoverScreen` (debounced search, ≥2 char trigger, empty state)
+- Navigation: `AppStack` gains `LearnerProfile: { handle: string }` route; `DiscoverScreen` reachable from Feed header icon and empty-state CTA; feed author name/avatar tappable
+- Maestro E2E flows: follow/unfollow, discover search, profile navigation
+- Test coverage: 147 mobile tests (13 suites); spec: `docs/specs/features/mobile-social-discovery.md`
+
 ## Milestone 6.6: Community Principles & Content Moderation
 
 | # | Feature | Priority |
