@@ -6,6 +6,7 @@
  * to preview the Create Learning form redesign.
  */
 
+import { useState } from 'react';
 import { CreateLearningForm } from '@/components/learnings/CreateLearningForm';
 import { LearningPageHeader } from '@/components/learnings/LearningPageHeader';
 import { useParams } from 'next/navigation';
@@ -13,62 +14,58 @@ import { useParams } from 'next/navigation';
 export default function DemoCreateLearningPage() {
   const params = useParams();
   const locale = (params?.locale as string) || 'en';
+  const [isDark, setIsDark] = useState(true);
 
   const handleSubmit = async (data: { title: string; content: string }) => {
-    // Simulate API call
-    console.log('[DEMO] Form submitted:', data);
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    // In demo mode, we just log and show success
     return;
   };
 
-  const handleCancel = () => {
-    console.log('[DEMO] Form cancelled');
-    alert('Cancel clicked - would navigate back to feed');
-  };
-
-  const handleSuccess = () => {
-    console.log('[DEMO] Success callback triggered');
-    alert('Success! In production, this would redirect to the feed.');
-  };
-
   return (
-    <div className="min-h-screen bg-background dark">
-      <div className="mx-auto max-w-2xl px-4 py-8">
-        {/* Demo banner */}
-        <div className="mb-6 rounded-lg border border-amber-500/50 bg-amber-500/10 p-4">
-          <p className="text-sm font-medium text-amber-400">
-            DEMO MODE - This page is for preview only. Do not include in PR.
-          </p>
-          <p className="mt-1 text-xs text-amber-400/70">
-            Locale: {locale} | Route: /demo/create-learning
-          </p>
-        </div>
+    <div className={isDark ? 'dark' : ''}>
+      <div className="min-h-screen bg-background text-foreground">
+        <div className="mx-auto max-w-2xl px-4 py-8">
+          {/* Demo banner */}
+          <div className="mb-6 flex items-start justify-between gap-4 rounded-lg border border-amber-500/50 bg-amber-500/10 p-4">
+            <div>
+              <p className="text-sm font-medium text-amber-600 dark:text-amber-400">
+                DEMO MODE — não incluir no PR.
+              </p>
+              <p className="mt-1 text-xs text-amber-600/70 dark:text-amber-400/70">
+                Locale: {locale} | Rota: /demo/create-learning
+              </p>
+            </div>
+            <button
+              onClick={() => setIsDark((d) => !d)}
+              className="shrink-0 rounded-md border border-amber-500/40 px-3 py-1.5 text-xs font-medium text-amber-700 transition-colors hover:bg-amber-500/10 dark:text-amber-300"
+            >
+              {isDark ? 'Light mode' : 'Dark mode'}
+            </button>
+          </div>
 
-        {/* Page Header */}
-        <LearningPageHeader locale={locale} />
+          {/* Page Header */}
+          <LearningPageHeader locale={locale} />
 
-        {/* Create Learning Form */}
-        <div className="mt-6">
-          <CreateLearningForm
-            locale={locale}
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            onSuccess={handleSuccess}
-          />
-        </div>
+          {/* Create Learning Form */}
+          <div className="mt-6">
+            <CreateLearningForm
+              locale={locale}
+              onSubmit={handleSubmit}
+            />
+          </div>
 
-        {/* Demo instructions */}
-        <div className="mt-8 rounded-lg border border-mid-blue/30 bg-deep-navy/50 p-4">
-          <h3 className="text-sm font-semibold text-parchment">Demo Features:</h3>
-          <ul className="mt-2 space-y-1 text-xs text-slate-400">
-            <li>- Auto-expanding textarea (type to see it grow)</li>
-            <li>- Live character counters (title: 200 max, content: 50K max)</li>
-            <li>- Submit button disabled until content is entered</li>
-            <li>- Keyboard shortcuts: Cmd/Ctrl+Enter to submit, Escape to cancel</li>
-            <li>- Try submitting to see loading state and success toast</li>
-            <li>- Try exceeding character limits to see validation errors</li>
-          </ul>
+          {/* Demo instructions */}
+          <div className="mt-8 rounded-lg border border-border bg-muted/40 p-4">
+            <h3 className="text-sm font-semibold text-foreground">Funcionalidades para testar:</h3>
+            <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+              <li>- Textarea se expande automaticamente ao digitar</li>
+              <li>- Contadores de caracteres ao vivo (título: 200 máx, conteúdo: 50K máx)</li>
+              <li>- Botão de salvar desabilitado até haver conteúdo</li>
+              <li>- Atalhos: Cmd/Ctrl+Enter para salvar, Escape para cancelar</li>
+              <li>- Submeta o formulário para ver o estado de loading e o toast de sucesso</li>
+              <li>- Ultrapasse o limite de caracteres para ver os erros de validação</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
