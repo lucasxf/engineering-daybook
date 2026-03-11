@@ -252,7 +252,7 @@ Report:
 
 ## 9. Trigger Automation Sentinel
 
-After compilation, automatically run the automation-sentinel agent to analyze the freshly updated metrics. Use the Task tool with `subagent_type: general-purpose` and the full automation-sentinel prompt from `.claude/agents/automation-sentinel.md`.
+After compilation, automatically run the automation-sentinel agent to analyze the freshly updated metrics. Use the Agent tool with `subagent_type: automation-sentinel` and the full automation-sentinel prompt from `.claude/agents/automation-sentinel.md`.
 
 The agent should:
 1. Read `.claude/metrics/usage-stats.toml`

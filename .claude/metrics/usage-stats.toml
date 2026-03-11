@@ -61,6 +61,10 @@ last_used = "2026-03-08T20:11:38Z"
 invocations = 0
 last_used = ""
 
+[agent_usage.keepr]
+invocations = 0
+last_used = ""
+
 # Command Usage Metrics
 [command_usage.compile-metrics]
 invocations = 6
@@ -106,6 +110,10 @@ last_used = "2026-03-11T07:49:54Z"
 invocations = 5
 last_used = "2026-03-08T09:15:57Z"
 
+[command_usage.review-spec]
+invocations = 0
+last_used = ""
+
 # Productivity Metrics
 [productivity]
 current_total_locs = 49353
@@ -119,5 +127,5 @@ net_locs = 0
 # Health Metrics
 [health]
 schema_errors = 0
-total_agents = 13
-total_commands = 11
+total_agents = 14
+total_commands = 12

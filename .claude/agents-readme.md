@@ -17,7 +17,7 @@ This project includes **11 custom agents** designed for full-stack development a
 | `automation-sentinel` | Use this agent to monitor, analyze, and optimize the automation ecosystem (agents, comm | Sonnet | On-demand |
 | `hedy` | mobile engineering decisions in Expo/React Native | Sonnet | On-demand |
 | `imhotep` | starting new projects, extracting reusable patterns from existing p | Sonnet | On-demand |
-| `keepr` | Use this agent to evaluate PR review comments and classify them into actionable recomme | Sonnet | On-demand |
+| `keepr` | Use this agent to evaluate PR review comments and classify them into actionable recomme | Sonnet | Delegated (/review-pr) |
 | `nexus` | frontend engineering decisions in Next | Sonnet | On-demand |
 | `pixl` | designing web or mobile app UI/UX, creating Next | Sonnet | On-demand |
 | `professor-x` | user wants to learn new concepts, understand patterns, study best p | Sonnet | On-demand |

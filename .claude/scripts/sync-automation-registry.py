@@ -226,6 +226,7 @@ AGENT_TRIGGERS = {
     "professor-x":         "On-demand",
     "session-optimizer":   "On-demand",
     "sous-chef":           "On-demand",
+    "keepr":               "Delegated (/review-pr)",
     "steward":             "Auto (/finish-session < 90% coverage)",
     "tech-writer":         "Delegated (/finish-session, /implement-spec)",
     "virgil":              "On-demand",

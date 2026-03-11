@@ -105,7 +105,7 @@ git log HEAD..origin/develop --oneline
 
 1. Read the spec's Status field
 2. **If "Implemented":** STOP. Ask: "This spec is already implemented. Re-implement? (y/n)"
-3. **If "Draft":** Ask: "Spec is in Draft. Has it been reviewed? Consider running `/review-spec` first."
+3. **If "Draft":** STOP. Tell the user: "Spec status is Draft — it has not been reviewed. Run `/review-spec $ARGUMENTS` first to get a quality gate and approval. Proceed anyway? (y/n)" If the user confirms yes, continue. Otherwise stop.
 4. **If "Approved" or user confirms:** Proceed
 
 ### 1.3 Update Status
