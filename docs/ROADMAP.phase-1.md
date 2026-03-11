@@ -255,6 +255,16 @@ Tooling session: evaluated the Anthropic open-source skills library (17 skills) 
 | Installed `doc-coauthoring` skill (`.claude/skills/doc-coauthoring/`) — 3-stage collaborative document creation workflow | ✅ Done |
 | Enhanced `/review-spec` with new Phase 5 (Reader Testing) adapted from `doc-coauthoring` Stage 3 — spawns sub-agent with spec content only to catch blind spots | ✅ Done |
 
+### Automation Sentinel Recommendations 2, 3, 4 (chore/automation-sentinel-recs, 2026-03-11) ✅
+
+Tooling session: applied three recommendations from the automation-sentinel audit report.
+
+| Task | Status |
+|------|--------|
+| **Rec 2** — Extended agent tracking heuristic in `track-usage.py`: added `resolve_agent_key()` helper that searches `description` + `prompt` fields across all subagent types (not just `general-purpose`); unified duplicate Task/Agent branches into one | ✅ Done |
+| **Rec 4** — `/review-spec` auto-sets Status=Approved when verdict is READY; `/implement-spec` trusts Approved specs and adds a 12-point structural completeness gate when bypassing Draft status | ✅ Done |
+| **Rec 3** — `/review-pr` Step 6.5 extracts keepr verdict counts into session delta; `/compile-metrics` Step 4C aggregates `[pr_review_quality]` deltas; `usage-stats.toml` `[pr_review_quality]` scaffold added | ✅ Done |
+
 ---
 
 ## Active / Pending
