@@ -107,10 +107,17 @@ export function LearningDetailScreen() {
     try {
       const tags = await tagApi.list();
       setAllTags(tags);
+      setTagModalVisible(true);
     } catch {
-      setAllTags([]);
+      Alert.alert(
+        t('learnings.detail.tagListLoadErrorTitle'),
+        t('learnings.detail.tagListLoadErrorMessage'),
+        [
+          { text: t('common.retry'), onPress: openTagModal },
+          { text: t('common.cancel'), style: 'cancel' },
+        ]
+      );
     }
-    setTagModalVisible(true);
   }
 
   async function handleAddTag(tag: Tag) {
@@ -265,7 +272,7 @@ export function LearningDetailScreen() {
                 <Text variant="bodySm">{tag.displayName}</Text>
                 <TouchableOpacity
                   accessibilityRole="button"
-                  accessibilityLabel={`Remove tag ${tag.displayName}`}
+                  accessibilityLabel={t('learnings.detail.removeTagAccessibilityLabel', { tagName: tag.displayName })}
                   onPress={() => handleRemoveTag(tag)}
                   disabled={tagActionLoading}
                   hitSlop={{ top: 8, right: 8, bottom: 8, left: 4 }}
@@ -326,7 +333,7 @@ export function LearningDetailScreen() {
           onPress={() => setTagModalVisible(false)}
         >
           <View style={{ flex: 1 }} />
-          <TouchableOpacity activeOpacity={1}>
+          <View onStartShouldSetResponder={() => true}>
             <View style={{
               backgroundColor: theme.colors.background,
               borderTopLeftRadius: theme.radii.lg,
@@ -370,7 +377,7 @@ export function LearningDetailScreen() {
 
               <View style={{ height: theme.spacing.xl }} />
             </View>
-          </TouchableOpacity>
+          </View>
         </TouchableOpacity>
       </Modal>
     </SafeAreaView>

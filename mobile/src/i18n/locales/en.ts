@@ -116,6 +116,9 @@ export default {
       tagAddError: 'Failed to add tag',
       tagRemoveError: 'Failed to remove tag',
       noTagsAvailable: 'No tags available. Create tags on the web.',
+      tagListLoadErrorTitle: 'Could not load tags',
+      tagListLoadErrorMessage: 'Failed to load your tags. Please try again.',
+      removeTagAccessibilityLabel: 'Remove tag {tagName}',
     },
     visibility: {
       private: 'Private',
