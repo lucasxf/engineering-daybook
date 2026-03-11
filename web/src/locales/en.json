@@ -101,16 +101,16 @@
   },
   "learnings": {
     "create": {
-      "title": "New Learning",
-      "pageHeader": "New Learning",
+      "title": "New learning",
+      "pageHeader": "New learning",
       "form": {
         "titleLabel": "Title",
-        "titlePlaceholder": "Optional — add a title if useful",
+        "titlePlaceholder": "Optional — add a title if you prefer",
         "titleCharCounter": "{current} / 200",
         "contentLabel": "Content",
         "contentPlaceholder": "What did you learn?",
         "contentCharCounter": "{current} / 50,000",
-        "saveButton": "Save Learning",
+        "saveButton": "save learning",
         "savingButton": "Saving...",
         "cancelButton": "Cancel"
       },
