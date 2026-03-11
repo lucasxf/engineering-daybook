@@ -231,18 +231,18 @@ function FormFieldV2({ label, htmlFor, error, hint, children }: FormFieldV2Props
     <div className="space-y-1.5">
       <label
         htmlFor={htmlFor}
-        className="block text-sm font-medium text-[var(--foreground)]"
+        className="block text-sm font-medium text-foreground"
       >
         {label}
       </label>
       <div>{children}</div>
       {hint && !error && (
-        <p id={hintId} className="text-xs text-[var(--muted)]">
+        <p id={hintId} className="text-xs text-muted-foreground">
           {hint}
         </p>
       )}
       {error && (
-        <p id={errorId} role="alert" className="text-xs text-[var(--error)]">
+        <p id={errorId} role="alert" className="text-xs text-destructive">
           {error}
         </p>
       )}
