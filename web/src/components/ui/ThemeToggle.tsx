@@ -17,7 +17,7 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <Button variant="ghost" size="sm" aria-label="Toggle theme">
+      <Button variant="ghost" size="sm" aria-label="Toggle theme" className="text-muted-foreground hover:text-foreground">
         <span className="h-5 w-5" />
       </Button>
     );
@@ -46,6 +46,7 @@ export function ThemeToggle() {
       size="sm"
       onClick={toggleTheme}
       aria-label={ariaLabel}
+      className="text-muted-foreground hover:text-foreground"
     >
       {theme === 'dark' && (
         <svg

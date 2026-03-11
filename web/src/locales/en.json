@@ -20,7 +20,7 @@
   },
   "auth": {
     "loginTitle": "Welcome back",
-    "loginSubtitle": "Sign in to your learnimo",
+    "loginSubtitle": "Log in to your account",
     "registerTitle": "Create your account",
     "registerSubtitle": "Capture what you learn \u2014 your future self will thank you",
     "email": "Email",

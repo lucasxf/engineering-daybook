@@ -4,59 +4,74 @@
 
 @layer base {
   :root {
-    /* Light Mode - Learnimo "Library at Dusk" Palette */
-    --deep-navy: 221.8 28% 8.6%;
-    --primary-blue: 220 41% 36%;
-    --mid-blue: 220 41% 48%;
-    --branch-brown: 28 42% 42%;
-    --dark-leather: 28 36% 33%;
-    --ember-cta: 20 58% 61%;
-    --parchment: 36 44% 93%;
-    --ink: 220 40% 11%;
+    /* Library at Dusk - Light Mode */
+    --background: 245 240 232; /* parchment #F5F0E8 */
+    --foreground: 26 26 46; /* ink #1A1A2E */
 
-    --background: 0 0% 96%;
-    --foreground: 220 40% 11%;
-    --card: 0 0% 100%;
-    --card-foreground: 220 40% 11%;
-    --primary: 220 41% 36%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 28 42% 42%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 220 14% 91%;
-    --muted-foreground: 0 0% 33%;
-    --accent: 20 58% 61%;
-    --accent-foreground: 0 0% 100%;
-    --border: 220 14% 90%;
-    --input: 0 0% 100%;
+    --card: 255 255 255;
+    --card-foreground: 26 26 46;
+    --card-border: 232 228 223; /* #E8E4DF */
+    --border: 232 228 223; /* alias for card-border */
+
+    --primary: 212 133 74; /* ember-cta #D4854A */
+    --primary-foreground: 255 255 255;
+    --primary-hover: 192 115 64; /* #C07340 */
+
+    --muted: 237 233 228; /* #EDE9E4 — subtle warm surface */
+    --muted-foreground: 102 102 102; /* #666666 — secondary text */
+
+    --input: 255 255 255;
+    --input-border: 204 204 204; /* #CCC */
+    --input-placeholder: 153 153 153; /* #999 */
+
+    --destructive: 192 57 43; /* #C0392B */
+    --destructive-background: 255 240 240; /* #FFF0F0 */
+    --destructive-border: 245 198 198; /* #F5C6C6 */
+
+    --ring: 212 133 74;
     --radius: 0.5rem;
+
+    --btn-disabled: 224 216 208; /* #E0D8D0 */
+    --btn-disabled-text: 153 153 153; /* #999999 */
   }
 
   .dark {
-    /* Dark Mode - Primary */
-    --background: 221.8 28% 8.6%;
-    --foreground: 0 0% 96%;
-    --card: 220 41% 36%;
-    --card-foreground: 0 0% 96%;
-    --primary: 220 41% 36%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 28 42% 42%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 220 20% 50%;
-    --muted-foreground: 220 20% 50%;
-    --accent: 20 58% 61%;
-    --accent-foreground: 0 0% 100%;
-    --border: 220 41% 48%;
-    --input: 221.8 28% 8.6%;
-  }
-}
+    /* Library at Dusk - Dark Mode (Primary) */
+    --background: 15 27 45; /* deep-navy #0F1B2D */
+    --foreground: 245 240 232; /* parchment #F5F0E8 */
 
-@layer base {
+    --card: 26 54 93; /* primary-blue #1A365D */
+    --card-foreground: 245 240 232;
+    --card-border: 43 74 120; /* mid-blue #2B4A78 */
+    --border: 43 74 120; /* alias for card-border */
+
+    --primary: 212 133 74; /* ember-cta #D4854A */
+    --primary-foreground: 255 255 255;
+    --primary-hover: 192 115 64; /* #C07340 */
+
+    --muted: 20 36 58; /* #14243A — subtle dark surface */
+    --muted-foreground: 136 153 170; /* #8899AA — secondary text */
+
+    --input: 15 27 45; /* deep-navy */
+    --input-border: 43 74 120; /* mid-blue */
+    --input-placeholder: 74 90 106; /* #4A5A6A */
+
+    --destructive: 255 138 138; /* #FF8A8A */
+    --destructive-background: 45 26 26; /* #2D1A1A */
+    --destructive-border: 90 42 42; /* #5A2A2A */
+
+    --ring: 212 133 74;
+
+    --btn-disabled: 58 74 90; /* #3A4A5A */
+    --btn-disabled-text: 106 122 138; /* #6A7A8A */
+  }
+
   * {
     @apply border-border;
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
   }
 
   h1,
