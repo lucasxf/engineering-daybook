@@ -100,7 +100,7 @@ Delegate to the `virgil` agent via the Agent tool with `subagent_type: virgil`. 
 > 5. **Out-of-scope explicit:** The Technical Constraints section must have a non-empty 'Out of Scope' list. Flag if missing.
 > 6. **Context quality:** The Context section must explain *why* this feature exists (user problem / product decision), not just *what* it does. Flag if it only describes the feature."
 
-Use virgil's output directly in the Phase 5 report.
+Use virgil's output directly in the Phase 6 report.
 
 ---
 
@@ -139,7 +139,43 @@ Scan the spec text for patterns that conflict with project-wide rules. Flag any 
 
 ---
 
-## Phase 5: Report & Verdict
+## Phase 5: Reader Testing
+
+Adapted from the `doc-coauthoring` skill's Stage 3. The goal is to verify the spec actually communicates clearly to someone with no prior context — catching blind spots before the spec is handed off to `/implement-spec` or a human reviewer.
+
+### 5.1 Generate Reader Questions
+
+Produce 5–8 questions a developer would realistically ask when reading this spec cold — things like "What exactly changes in the DB schema?", "How does this interact with X existing feature?", or "What happens if the user does Y?". Focus on places where the spec glosses over detail or relies on implicit knowledge.
+
+### 5.2 Test with Sub-Agent
+
+Use the Agent tool with `subagent_type: general-purpose`. Pass **only the spec file content** as the prompt — no CLAUDE.md, no roadmap, no conversation history. Include all 5–8 reader questions in a **single call** (do not make one call per question).
+
+Prompt for the sub-agent:
+> "You are a developer who has just been handed this spec for the first time. You have no other context. Answer each of the following questions using only the spec content:
+> [list of 5-8 questions]
+> For each question: give your best answer, then note if anything was ambiguous, missing, or assumed."
+
+### 5.3 Ambiguity Check
+
+In the same sub-agent call (or a second one), also ask:
+- "What concepts or terms in this spec might be unfamiliar to a developer new to the codebase?"
+- "Are there any internal contradictions or inconsistencies?"
+- "What implementation decisions does this spec leave up to the developer that probably should be specified?"
+
+### 5.4 Report Issues and Resolve
+
+Summarize what the sub-agent struggled with. For each gap found:
+- **Minor** (the sub-agent inferred correctly but noted ambiguity) → note as WARN, no blocking
+- **Major** (the sub-agent gave a wrong answer or couldn't answer) → note as FAIL; handle by mode:
+  - **Revise + Review mode:** loop back to Phase 1 to apply fixes, then re-run Phases 2–5 (edits to the spec may affect structural completeness, product review, and technical validation — all checks must reflect the updated content)
+  - **Review Only mode:** record as FAIL in the Phase 6 verdict; do NOT loop (no revision mandate). The user must re-run with revision instructions: `/review-spec <path> "fix: <gap description>"`
+
+If no sub-agent access is available, skip this phase and note it in the report.
+
+---
+
+## Phase 6: Report & Verdict
 
 Output the review report:
 
@@ -177,6 +213,12 @@ Output the review report:
   - WARN: path/to/unknown/File.java (parent dir not found)
 - [PASS/FAIL] Dependency order: no issues / cycle detected: Task 3 → Task 1 → Task 3
 - [PASS/FAIL] CLAUDE.md conflicts: none / [list each conflict]
+
+### Reader Testing
+- [PASS/WARN/FAIL/SKIPPED] N questions tested; N answered correctly
+  - WARN/FAIL: [question that surfaced a gap] — [what the sub-agent got wrong or flagged]
+- [PASS/WARN/FAIL] Ambiguity check: none / [specific issues found]
+- [PASS/WARN/FAIL] Contradiction check: none / [specific issues found]
 
 ### Verdict
 ```
