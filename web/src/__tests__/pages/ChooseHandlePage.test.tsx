@@ -44,7 +44,7 @@ describe('ChooseHandlePage', () => {
 
     it('renders the choose handle heading', () => {
       renderChooseHandlePage();
-      expect(screen.getByRole('heading', { name: /choose your handle/i })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: /one last step/i })).toBeInTheDocument();
     });
 
     it('renders the handle form', () => {

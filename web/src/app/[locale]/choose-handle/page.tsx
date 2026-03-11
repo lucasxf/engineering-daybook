@@ -76,7 +76,15 @@ function ChooseHandleContent() {
         </div>
 
         {/* Form */}
-        <ChooseHandleForm tempToken={decodeURIComponent(tempToken)} />
+        <ChooseHandleForm
+          tempToken={(() => {
+            try {
+              return decodeURIComponent(tempToken);
+            } catch {
+              return tempToken;
+            }
+          })()}
+        />
       </div>
 
       {/* Footer */}

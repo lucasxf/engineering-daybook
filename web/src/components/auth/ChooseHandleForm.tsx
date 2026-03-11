@@ -7,23 +7,16 @@ import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { z } from 'zod';
-import { HANDLE_PATTERN } from '@/lib/validations';
+import { chooseHandleSchema } from '@/lib/validations';
 import { ApiRequestError } from '@/lib/api';
 import { Spinner } from '@/components/ui/Spinner';
 import { HandleInput } from './HandleInput';
 import { useHandleAvailability } from '@/hooks/useHandleAvailability';
 
-// Minimal schema: only handle is required on this screen
-const handleOnlySchema = z.object({
-  handle: z
-    .string()
-    .min(3, 'auth.errors.handleMinLength')
-    .max(30, 'auth.errors.handleMaxLength')
-    .regex(HANDLE_PATTERN, 'auth.errors.handleFormat'),
-});
+// Derive from shared schema to stay in sync with global handle validation rules
+const handleOnlySchema = chooseHandleSchema.pick({ handle: true });
 
-type HandleOnlyFormData = z.infer<typeof handleOnlySchema>;
+type HandleOnlyFormData = { handle: string };
 
 interface ChooseHandleFormProps {
   tempToken: string;
@@ -56,9 +49,12 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
   const handleValue = watch('handle');
   const { isChecking, isAvailable } = useHandleAvailability(handleValue);
 
-  // CTA is only enabled when server confirmed availability and no validation errors
+  // CTA is enabled when no validation errors and the handle is not known-taken.
+  // isAvailable === null means the check hasn't completed or failed transiently —
+  // allow submission so a transient availability-check outage doesn't block all OAuth signups.
+  // The server will validate definitively and return 409 if the handle is taken.
   const canSubmit =
-    !isSubmitting && isAvailable === true && !errors.handle;
+    !isSubmitting && isAvailable !== false && !errors.handle;
 
   const resolveError = (key: string): string => {
     try {
