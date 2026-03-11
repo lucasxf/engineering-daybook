@@ -23,7 +23,7 @@ export function Button({
       className={cn(
         'inline-flex items-center justify-center rounded-md font-medium transition-all',
         'active:scale-[0.98]',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         {
           /* Primary: ember-cta with proper disabled state */
           'bg-primary text-primary-foreground hover:bg-primary-hover': variant === 'primary' && !disabled,
