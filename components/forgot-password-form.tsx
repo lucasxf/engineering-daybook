@@ -32,9 +32,11 @@ export function ForgotPasswordForm({ loginHref = "#" }: ForgotPasswordFormProps)
     try {
       // Simula chamada ao backend — em produção usar a API real
       await new Promise((res) => setTimeout(res, 1400));
-      setState("success");
     } catch {
-      setState("error");
+      // Silencia o erro intencionalmente
+    } finally {
+      // Sempre transiciona para sucesso para prevenir enumeração de contas via e-mail
+      setState("success");
     }
   }
 

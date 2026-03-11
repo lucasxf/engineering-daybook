@@ -8,7 +8,7 @@
   /* Light mode */
   --color-background: #F5F0E8;
   --color-foreground: #1A1A2E;
-  --color-muted-foreground: #666666;
+  --color-muted-foreground: 102 102 102;
 
   --color-card: #FFFFFF;
   --color-card-border: #E8E4DF;
@@ -22,7 +22,7 @@
   --color-input-border: #CCCCCC;
   --color-input-focus: #D4854A;
 
-  --color-error: #CC3333;
+  --color-error: 204 51 51;
 
   --color-link: #666666;
   --color-link-hover: #1A1A2E;
@@ -36,7 +36,7 @@
   /* Dark mode */
   --color-background: #0F1B2D;
   --color-foreground: #F5F0E8;
-  --color-muted-foreground: #8899AA;
+  --color-muted-foreground: 136 153 170;
 
   --color-card: #1A365D;
   --color-card-border: #2B4A78;
@@ -50,7 +50,7 @@
   --color-input-border: #2B4A78;
   --color-input-focus: #D4854A;
 
-  --color-error: #FF8080;
+  --color-error: 255 128 128;
 
   --color-link: #8899AA;
   --color-link-hover: #F5F0E8;

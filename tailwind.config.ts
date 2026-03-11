@@ -16,7 +16,7 @@ const config: Config = {
       colors: {
         background: "var(--color-background)",
         foreground: "var(--color-foreground)",
-        "muted-foreground": "var(--color-muted-foreground)",
+        "muted-foreground": "rgb(var(--color-muted-foreground) / <alpha-value>)",
         card: {
           DEFAULT: "var(--color-card)",
           border: "var(--color-card-border)",
@@ -32,7 +32,7 @@ const config: Config = {
           border: "var(--color-input-border)",
           focus: "var(--color-input-focus)",
         },
-        error: "var(--color-error)",
+        error: "rgb(var(--color-error) / <alpha-value>)",
         link: {
           DEFAULT: "var(--color-link)",
           hover: "var(--color-link-hover)",

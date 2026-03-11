@@ -35,7 +35,7 @@ function ForgotPasswordScreen({ theme, onToggle }: { theme: "dark" | "light"; on
         <header className="flex items-center justify-between px-6 py-4">
           <a
             href="#"
-            aria-label="Ir para a página de login do learnimo"
+            aria-label="learnimo"
             className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-input-focus)] rounded"
           >
             <LearnimoWordmark className="text-xl" />
