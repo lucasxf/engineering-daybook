@@ -304,7 +304,7 @@ You are implementing Task {N} of the "{spec_name}" spec.
 - Return a brief summary of what you created/modified (file names and key additions).
 ```
 
-3. **Spawn subagent** via Task tool with `subagent_type` set by stack: `sous-chef` for `backend`, `nexus` for `web`, `hedy` for `mobile`. Use `general-purpose` only for `infra` or multi-stack tasks — if using `general-purpose`, include the agent name(s) in the task description.
+3. **Spawn subagent** via the Agent tool with `subagent_type` set by stack: `sous-chef` for `backend`, `nexus` for `web`, `hedy` for `mobile`. Use `general-purpose` only for `infra` or multi-stack tasks — if using `general-purpose`, include the agent name(s) in the task description.
 
 4. **Verify after return:**
    - Run stack-specific tests for the affected files
