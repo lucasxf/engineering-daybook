@@ -71,7 +71,7 @@ export function GoogleLoginButton({ mode }: GoogleLoginButtonProps) {
       {error && (
         <p
           role="alert"
-          className="mt-2 text-center text-sm text-[#C0392B] dark:text-[#FF8A8A]"
+          className="mt-2 text-center text-sm text-destructive"
         >
           {error}
         </p>
