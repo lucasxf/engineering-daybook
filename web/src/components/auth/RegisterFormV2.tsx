@@ -501,7 +501,7 @@ export function RegisterFormV2({ locale }: RegisterFormV2Props) {
           <div className="w-full border-t border-[var(--input-border)]" />
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="bg-card px-3 text-muted">
+          <span className="bg-card px-3 text-muted-foreground">
             {t('orContinueWith')}
           </span>
         </div>
