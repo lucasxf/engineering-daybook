@@ -1,0 +1,28 @@
+[metadata]
+session_branch = "develop"
+session_start = "2026-03-11T15:42:45Z"
+last_updated = "2026-03-11T21:21:27Z"
+
+[agent_usage.Explore]
+invocations = 3
+last_used = "2026-03-11T16:31:23Z"
+
+[command_usage.start-session]
+invocations = 2
+last_used = "2026-03-11T17:16:54Z"
+
+[command_usage.review-pr]
+invocations = 1
+last_used = "2026-03-11T20:59:25Z"
+
+[command_usage.fix-pr]
+invocations = 1
+last_used = "2026-03-11T21:12:08Z"
+
+[command_usage.finish-session]
+invocations = 1
+last_used = "2026-03-11T21:19:52Z"
+
+[agent_usage.general-purpose]
+invocations = 1
+last_used = "2026-03-11T21:21:27Z"
