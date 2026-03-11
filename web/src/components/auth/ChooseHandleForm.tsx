@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
+import { useTheme } from 'next-themes';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { z } from 'zod';
@@ -34,11 +35,14 @@ type FormView = 'form' | 'sessionExpired';
 
 export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
   const t = useTranslations('auth');
+  const { resolvedTheme } = useTheme();
   const params = useParams<{ locale: string }>();
   const router = useRouter();
   const { completeGoogleSignup } = useAuth();
   const [genericError, setGenericError] = useState<string | null>(null);
   const [view, setView] = useState<FormView>('form');
+
+  const isDark = resolvedTheme === 'dark';
 
   const {
     register,
@@ -97,14 +101,19 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
     return (
       <div
         role="alert"
-        className={cn(
-          'rounded-xl border p-6 text-center space-y-5',
-          'bg-[#1A365D] border-[#2B4A78] dark:bg-[#1A365D] dark:border-[#2B4A78]',
-          'light:bg-white light:border-[#E8E4DF]'
-        )}
+        className="rounded-xl border p-6 text-center space-y-5"
+        style={{
+          backgroundColor: isDark ? '#1A365D' : 'white',
+          borderColor: isDark ? '#2B4A78' : '#E8E4DF',
+        }}
       >
         <div className="flex flex-col items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0F1B2D] dark:bg-[#0F1B2D] light:bg-gray-100">
+          <div
+            className="flex h-12 w-12 items-center justify-center rounded-full"
+            style={{
+              backgroundColor: isDark ? '#0F1B2D' : 'rgb(243, 244, 246)',
+            }}
+          >
             <svg
               width="24"
               height="24"
@@ -118,32 +127,35 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
                 r="10"
                 stroke="currentColor"
                 strokeWidth="1.5"
-                className="text-[#F87171] dark:text-[#F87171] light:text-[#DC2626]"
+                style={{ color: isDark ? '#F87171' : '#DC2626' }}
               />
               <path
                 d="M12 7v5M12 16h.01"
                 stroke="currentColor"
                 strokeWidth="1.5"
                 strokeLinecap="round"
-                className="text-[#F87171] dark:text-[#F87171] light:text-[#DC2626]"
+                style={{ color: isDark ? '#F87171' : '#DC2626' }}
               />
             </svg>
           </div>
-          <p className="text-sm leading-relaxed text-[#8899AA] dark:text-[#8899AA] light:text-[#666666]">
+          <p
+            className="text-sm leading-relaxed"
+            style={{
+              color: isDark ? '#8899AA' : '#666666',
+            }}
+          >
             {t('chooseHandleSessionExpired')}
           </p>
         </div>
         <button
           type="button"
           onClick={() => router.push(`/${params.locale}/login` as never)}
-          className={cn(
-            'w-full rounded-md py-2.5 text-sm font-medium transition-all',
-            'bg-[#D4854A] text-[#F5F0E8]',
-            'dark:bg-[#D4854A] dark:text-[#F5F0E8]',
-            'light:bg-[#D4854A] light:text-white',
-            'hover:opacity-90 active:scale-[0.98]',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4854A]'
-          )}
+          className="w-full rounded-md py-2.5 text-sm font-medium transition-all hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2"
+          style={{
+            backgroundColor: '#D4854A',
+            color: isDark ? '#F5F0E8' : 'white',
+            outlineColor: '#D4854A',
+          }}
         >
           {t('googleSignIn')}
         </button>
@@ -161,7 +173,10 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
       <div className="space-y-1.5">
         <label
           htmlFor="choose-handle"
-          className="block text-sm font-medium text-[#F5F0E8] dark:text-[#F5F0E8] light:text-[#1A1A2E]"
+          className="block text-sm font-medium"
+          style={{
+            color: isDark ? '#F5F0E8' : '#1A1A2E',
+          }}
         >
           {t('chooseHandleLabel')}
         </label>
@@ -183,7 +198,12 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
         />
 
         {/* Format hint */}
-        <p className="text-xs text-[#8899AA] dark:text-[#8899AA] light:text-[#666666] leading-relaxed">
+        <p
+          className="text-xs leading-relaxed"
+          style={{
+            color: isDark ? '#8899AA' : '#666666',
+          }}
+        >
           {t('chooseHandleFormatHint')}
         </p>
       </div>
@@ -192,7 +212,12 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
       {genericError && (
         <div
           role="alert"
-          className="rounded-md border border-[#F87171]/30 bg-[#F87171]/10 px-3 py-2.5 text-sm text-[#F87171] dark:border-[#F87171]/30 dark:bg-[#F87171]/10 dark:text-[#F87171] light:border-[#DC2626]/30 light:bg-[#DC2626]/10 light:text-[#DC2626]"
+          className="rounded-md border px-3 py-2.5 text-sm"
+          style={{
+            borderColor: isDark ? 'rgba(248, 113, 113, 0.3)' : 'rgba(220, 38, 38, 0.3)',
+            backgroundColor: isDark ? 'rgba(248, 113, 113, 0.1)' : 'rgba(220, 38, 38, 0.1)',
+            color: isDark ? '#F87171' : '#DC2626',
+          }}
         >
           <div className="flex items-center justify-between gap-2">
             <span>{genericError}</span>
@@ -203,7 +228,7 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
               }}
               className="shrink-0 text-xs underline opacity-70 hover:opacity-100"
             >
-              {t('errors.unexpected').includes('retry') ? 'Retry' : '×'}
+              ×
             </button>
           </div>
         </div>
@@ -214,14 +239,15 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
         type="submit"
         disabled={!canSubmit}
         aria-disabled={!canSubmit}
-        className={cn(
-          'w-full rounded-md py-2.5 text-sm font-medium transition-all',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4854A]',
-          'active:scale-[0.98]',
-          canSubmit
-            ? 'bg-[#D4854A] text-[#F5F0E8] dark:bg-[#D4854A] dark:text-[#F5F0E8] light:bg-[#D4854A] light:text-white hover:opacity-90 cursor-pointer'
-            : 'bg-[#4A3020] text-[#6B5040] dark:bg-[#4A3020] dark:text-[#6B5040] light:bg-[#E8C8B0] light:text-[#A0785A] cursor-not-allowed pointer-events-none'
-        )}
+        className="w-full rounded-md py-2.5 text-sm font-medium transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2"
+        style={{
+          backgroundColor: canSubmit ? '#D4854A' : isDark ? '#4A3020' : '#E8C8B0',
+          color: canSubmit ? (isDark ? '#F5F0E8' : 'white') : isDark ? '#6B5040' : '#A0785A',
+          cursor: canSubmit ? 'pointer' : 'not-allowed',
+          opacity: canSubmit ? 1 : 0.6,
+          outlineColor: '#D4854A',
+          pointerEvents: canSubmit ? 'auto' : 'none',
+        }}
       >
         {isSubmitting ? (
           <span className="inline-flex items-center justify-center gap-2">
@@ -235,3 +261,4 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
     </form>
   );
 }
+

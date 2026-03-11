@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useTheme } from 'next-themes';
+import { useEffect, useState } from 'react';
 import { NextIntlClientProvider } from 'next-intl';
 import { ChooseHandleForm } from '@/components/auth/ChooseHandleForm';
 import messages from '@/locales/en.json';
@@ -11,35 +12,28 @@ import messages from '@/locales/en.json';
  * Safe to delete - not tracked by Git
  */
 export default function DemoChooseHandlePage() {
-  const [isDark, setIsDark] = useState(() => {
-    // Initialize from localStorage or default to dark
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('demo-theme');
-      return stored ? stored === 'dark' : true;
-    }
-    return true;
-  });
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Save preference
-    localStorage.setItem('demo-theme', isDark ? 'dark' : 'light');
-    
-    // Apply to document
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDark]);
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  const isDark = resolvedTheme === 'dark';
 
   return (
     <NextIntlClientProvider locale="en" messages={messages}>
-      <div className="min-h-screen bg-[#0F1B2D] dark:bg-[#0F1B2D] light:bg-[#F5F0E8] text-[#F5F0E8] dark:text-[#F5F0E8] light:text-[#1A1A2E] transition-colors">
+      <div className="min-h-screen bg-[#0F1B2D] dark:bg-[#0F1B2D] text-[#F5F0E8] dark:text-[#F5F0E8] transition-colors"
+           style={!isDark ? { backgroundColor: '#F5F0E8', color: '#1A1A2E' } : {}}>
         {/* Theme Toggle */}
         <div className="fixed top-4 right-4 z-50">
           <button
-            onClick={() => setIsDark(!isDark)}
-            className="px-4 py-2 rounded-lg bg-[#D4854A] text-[#F5F0E8] dark:bg-[#D4854A] dark:text-[#F5F0E8] light:bg-[#D4854A] light:text-white font-medium text-sm hover:opacity-90 transition-opacity active:scale-95"
+            onClick={() => setTheme(isDark ? 'light' : 'dark')}
+            className="px-4 py-2 rounded-lg bg-[#D4854A] text-[#F5F0E8] font-medium text-sm hover:opacity-90 transition-opacity active:scale-95"
             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {isDark ? '☀️ Light' : '🌙 Dark'}
@@ -50,7 +44,8 @@ export default function DemoChooseHandlePage() {
         <div className="flex items-center justify-center min-h-screen p-4">
           <div className="w-full max-w-md">
             {/* Card container */}
-            <div className="rounded-xl border bg-[#1A365D] dark:bg-[#1A365D] light:bg-white border-[#2B4A78] dark:border-[#2B4A78] light:border-[#E8E4DF] p-8 shadow-lg dark:shadow-lg light:shadow-md">
+            <div className="rounded-xl border bg-[#1A365D] dark:bg-[#1A365D] border-[#2B4A78] dark:border-[#2B4A78] p-8 shadow-lg dark:shadow-lg"
+                 style={!isDark ? { backgroundColor: 'white', borderColor: '#E8E4DF' } : {}}>
               <ChooseHandleForm
                 tempToken="demo-token"
               />
@@ -61,4 +56,5 @@ export default function DemoChooseHandlePage() {
     </NextIntlClientProvider>
   );
 }
+
 

@@ -2,6 +2,7 @@
 
 import { forwardRef, type InputHTMLAttributes } from 'react';
 import { useTranslations } from 'next-intl';
+import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 import { Spinner } from '@/components/ui/Spinner';
 import { useHandleAvailability } from '@/hooks/useHandleAvailability';
@@ -43,6 +44,7 @@ function getStatus(
 export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
   ({ value, hasError, validationError, className, id, ...props }, ref) => {
     const t = useTranslations('auth');
+    const { resolvedTheme } = useTheme();
     const { isChecking, isAvailable } = useHandleAvailability(value as string);
 
     const hasValidationError = !!(hasError || validationError);
@@ -61,20 +63,42 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
     const inputHasError = status === 'taken' || status === 'invalid';
 
     const statusId = id ? `${id}-status` : undefined;
+    const isDark = resolvedTheme === 'dark';
+
+    // Color palette
+    const prefixBg = isDark ? '#2B4A78' : '#F0EDE8';
+    const prefixText = isDark ? '#8899AA' : '#888888';
+    const inputBg = isDark ? '#0F1B2D' : 'white';
+    const inputText = isDark ? '#F5F0E8' : '#1A1A2E';
+    const inputPlaceholder = isDark ? '#8899AA' : 'rgb(107, 114, 128)';
+    const inputBorder = isDark ? '#2B4A78' : '#CCC';
+    const focusRing = isDark ? '#D4854A' : '#D4854A';
+    
+    const errorBorder = isDark ? '#F87171' : '#DC2626';
+    const availableBorder = isDark ? '#4ADE80' : '#16A34A';
+    
+    const statusText = isDark ? '#8899AA' : '#999999';
+    const availableText = isDark ? '#4ADE80' : '#16A34A';
+    const errorText = isDark ? '#F87171' : '#DC2626';
+    const warningText = isDark ? '#FBBF24' : '#D97706';
+    
+    const pillBg = isDark ? '#2B4A78' : '#E0E8F2';
+    const pillText = isDark ? '#8899AA' : '#888888';
+    const pillAccent = '#8B5E3C';
 
     return (
       <div className="space-y-2">
         {/* Input row */}
         <div className="relative flex items-stretch">
-          {/* @ prefix — dark: #2B4A78 bg, light: #F0EDE8 bg */}
+          {/* @ prefix */}
           <span
             aria-hidden="true"
-            className={cn(
-              'flex items-center rounded-l-md border border-r-0 px-3 text-sm select-none',
-              'bg-[#2B4A78] text-[#8899AA]',
-              'dark:bg-[#2B4A78] dark:text-[#8899AA]',
-              'light:bg-[#F0EDE8] light:text-[#888888]'
-            )}
+            className="flex items-center rounded-l-md border border-r-0 px-3 text-sm select-none"
+            style={{
+              backgroundColor: prefixBg,
+              color: prefixText,
+              borderColor: inputBorder,
+            }}
           >
             @
           </span>
@@ -93,21 +117,16 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
             value={value}
             className={cn(
               'block w-full rounded-r-md border py-2 pr-10 pl-3 text-sm transition-colors',
-              'bg-[#0F1B2D] text-[#F5F0E8]',
-              'dark:bg-[#0F1B2D] dark:text-[#F5F0E8]',
-              'light:bg-white light:text-[#1A1A2E]',
-              'placeholder:text-[#8899AA]',
-              'dark:placeholder:text-[#8899AA]',
-              'light:placeholder:text-gray-500',
               'focus:outline-none focus:ring-2',
               'disabled:cursor-not-allowed disabled:opacity-50',
-              inputHasError
-                ? 'border-[#F87171] focus:ring-[#F87171] dark:border-[#F87171] dark:focus:ring-[#F87171] light:border-[#DC2626] light:focus:ring-[#DC2626]'
-                : status === 'available'
-                  ? 'border-[#4ADE80] focus:ring-[#4ADE80] dark:border-[#4ADE80] dark:focus:ring-[#4ADE80] light:border-[#16A34A] light:focus:ring-[#16A34A]'
-                  : 'border-[#2B4A78] focus:ring-[#D4854A] dark:border-[#2B4A78] dark:focus:ring-[#D4854A] light:border-[#CCC] light:focus:ring-[#D4854A]',
               className
             )}
+            style={{
+              backgroundColor: inputBg,
+              color: inputText,
+              borderColor: inputHasError ? errorBorder : status === 'available' ? availableBorder : inputBorder,
+              outlineColor: focusRing,
+            }}
             {...props}
           />
 
@@ -122,7 +141,8 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
           {status === 'available' && (
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#4ADE80] dark:text-[#4ADE80] light:text-[#16A34A]"
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2"
+              style={{ color: availableText }}
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path
@@ -140,7 +160,8 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
           {status === 'taken' && (
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#F87171] dark:text-[#F87171] light:text-[#DC2626]"
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2"
+              style={{ color: errorText }}
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path
@@ -157,7 +178,8 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
           {status === 'invalid' && (
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#FBBF24] dark:text-[#FBBF24] light:text-[#D97706]"
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2"
+              style={{ color: warningText }}
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path
@@ -186,22 +208,22 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
           className="min-h-[1.25rem] text-xs"
         >
           {status === 'checking' && (
-            <span className="text-[#8899AA] dark:text-[#8899AA] light:text-[#999999] animate-pulse">
+            <span className="animate-pulse" style={{ color: statusText }}>
               {t('chooseHandleChecking')}
             </span>
           )}
           {status === 'available' && (
-            <span className="text-[#4ADE80] dark:text-[#4ADE80] light:text-[#16A34A] font-medium">
+            <span className="font-medium" style={{ color: availableText }}>
               {t('chooseHandleAvailable', { handle: value as string })}
             </span>
           )}
           {status === 'taken' && (
-            <span className="text-[#F87171] dark:text-[#F87171] light:text-[#DC2626]">
+            <span style={{ color: errorText }}>
               {t('chooseHandleTaken', { handle: value as string })}
             </span>
           )}
           {status === 'invalid' && validationError && (
-            <span className="text-[#FBBF24] dark:text-[#FBBF24] light:text-[#D97706]">
+            <span style={{ color: warningText }}>
               {validationError}
             </span>
           )}
@@ -210,19 +232,15 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
         {/* Handle preview pill */}
         {showPreviewPill && (
           <div className="flex items-center gap-2">
-            <span className="text-xs text-[#8899AA] dark:text-[#8899AA] light:text-[#666666]">
+            <span className="text-xs" style={{ color: statusText }}>
               Preview:
             </span>
             <span
-              className={cn(
-                'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-                'bg-[#2B4A78] text-[#8899AA]',
-                'dark:bg-[#2B4A78] dark:text-[#8899AA]',
-                'light:bg-[#E0E8F2] light:text-[#888888]',
-                status === 'available'
-                  ? 'dark:text-[#8B5E3C] light:text-[#8B5E3C]'
-                  : ''
-              )}
+              className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+              style={{
+                backgroundColor: pillBg,
+                color: status === 'available' ? pillAccent : pillText,
+              }}
             >
               @{value}
             </span>
@@ -234,5 +252,6 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
 );
 
 HandleInput.displayName = 'HandleInput';
+
 
 
