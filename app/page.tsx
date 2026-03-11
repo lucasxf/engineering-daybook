@@ -30,7 +30,7 @@ function ThemeToggle({
 function ForgotPasswordScreen({ theme, onToggle }: { theme: "dark" | "light"; onToggle: () => void }) {
   return (
     <div className={theme === "dark" ? "dark" : ""}>
-      <div className="flex min-h-screen flex-col bg-background font-sans">
+      <div className="flex min-h-full flex-col bg-background font-sans">
         {/* Header */}
         <header className="flex items-center justify-between px-6 py-4">
           <a
