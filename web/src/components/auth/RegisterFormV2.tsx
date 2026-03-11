@@ -290,8 +290,8 @@ function ButtonV2({ className, variant = 'primary', isLoading, children, disable
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2',
         'disabled:pointer-events-none disabled:opacity-50',
         variant === 'primary' && 'bg-[var(--primary)] text-[var(--primary-foreground)] hover:brightness-110 active:scale-[0.98]',
-        variant === 'secondary' && 'bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:brightness-95 active:scale-[0.98]',
-        variant === 'outline' && 'border border-[var(--input-border)] bg-transparent text-[var(--foreground)] hover:bg-[var(--secondary)] active:scale-[0.98]',
+        variant === 'secondary' && 'bg-card text-card-foreground border border-card-border hover:bg-muted/10 active:scale-[0.98]',
+        variant === 'outline' && 'border border-input-border bg-transparent text-foreground hover:bg-muted/10 active:scale-[0.98]',
         className
       )}
       disabled={disabled || isLoading}
