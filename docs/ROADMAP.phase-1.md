@@ -204,6 +204,19 @@ Tooling chore: audited the full `.claude/` automation ecosystem based on an auto
 | Regenerated `agents-readme.md` and `commands/README.md` tables | ✅ Done |
 | Removed stale `/update-roadmap` reference from `CLAUDE.md` Task Management section | ✅ Done |
 
+### PR #177 Review Fixes (fix-pr/177, 2026-03-11) ✅
+
+PR review fixes for PR #177 (feat: Library at Dusk login redesign + mobile social discovery, develop → main). No new features. Three Copilot review comments approved in triage, two pre-existing CI failures resolved.
+
+| Area | Fix |
+|------|-----|
+| `web/RegisterFormV2.tsx` | Replaced undefined CSS custom properties (`--input-bg`, `--input-text`, `--error`) with established Tailwind design tokens (`bg-input`, `text-foreground`, `border-destructive`) |
+| `web/tailwind.config.ts` | Restored primary numeric scale (50–950) mapped to ember-cta palette (had been accidentally dropped in an earlier commit) |
+| `mobile/useLearnerProfile.ts` | Wired `controller.signal` through to `getLearnerProfile()` call; removed stale `cancelled` flag pattern |
+| `web/RegisterPage.test.tsx` | Updated mock target from `RegisterForm` → `RegisterFormV2`; removed stale login-link assertion matching old component |
+| `mobile/` — coverage 57% → 80.4% | Added `Button.test.tsx` (100% line coverage) and `Text.test.tsx` (100% line coverage) to `src/components/ui/__tests__/`; expanded `LearnerResultCard.test.tsx` with direct function-call tests |
+| Claude GitHub Action follow-ups | 10 additional auto-committed fixes: CSS token cleanup in `RegisterFormV2`, `Alert.tsx`, `layout.tsx`, `globals.css` |
+
 ### Command Context Optimization (chore/command-context-optimization, 2026-03-10) ✅
 
 Tooling chore: reduced token footprint across three slash commands by moving repeated inline logic into agents.
