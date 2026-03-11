@@ -72,8 +72,10 @@ export const authMessages = {
     resetPasswordSuccess: 'Password reset successfully. You can now log in.',
     resetPasswordInvalid: 'This password reset link is invalid or has already been used.',
     requestNewLink: 'Request a new link',
-    chooseHandleTitle: 'Choose your handle',
-    chooseHandleSubtitle: 'Pick a unique handle to complete your registration',
+    chooseHandleTitle: 'One last step',
+    chooseHandleSubtitle: 'Choose a handle to identify yourself on learnimo.',
+    chooseHandlePermanentNote: "Your handle is permanent and can't be changed later. Choose wisely.",
+    chooseHandleWrongAccount: 'Wrong account? Sign in again',
     errors: {
       sessionExpired: 'Session expired. Please try again.',
       unexpected: 'Something went wrong. Please try again.',
