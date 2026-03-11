@@ -71,7 +71,7 @@ The runner-up names in that exploration were **daftari** (Swahili for "notebook"
 │   ├── ARCHITECTURE.md
 │   ├── GLOSSARY.md
 │   ├── ROADMAP.md              # Phase index (source of truth for active phase)
-│   └── ROADMAP.phase-{N}.md   # Per-phase details (0–7)
+│   └── ROADMAP.phase-{N}.md   # Per-phase details (0–8)
 ├── prompts/                  # AI assistant prompts
 │   ├── claude-ai/
 │   └── ignore/

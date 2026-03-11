@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ——— Learnimo Design Tokens — Library at Dusk ——— */
+
+:root {
+  /* Light mode */
+  --color-background: #F5F0E8;
+  --color-foreground: #1A1A2E;
+  --color-muted-foreground: 102 102 102;
+
+  --color-card: #FFFFFF;
+  --color-card-border: #E8E4DF;
+  --color-card-foreground: #1A1A2E;
+
+  --color-primary: #D4854A;
+  --color-primary-hover: #BF7440;
+  --color-primary-foreground: #FFFFFF;
+
+  --color-input: #FFFFFF;
+  --color-input-border: #CCCCCC;
+  --color-input-focus: #D4854A;
+
+  --color-error: 204 51 51;
+
+  --color-link: #666666;
+  --color-link-hover: #1A1A2E;
+
+  --color-confirmation-bg: #FFF8F3;
+  --color-confirmation-border: #E8DDD5;
+  --color-ember-stroke: #D4854A;
+}
+
+.dark {
+  /* Dark mode */
+  --color-background: #0F1B2D;
+  --color-foreground: #F5F0E8;
+  --color-muted-foreground: 136 153 170;
+
+  --color-card: #1A365D;
+  --color-card-border: #2B4A78;
+  --color-card-foreground: #F5F0E8;
+
+  --color-primary: #D4854A;
+  --color-primary-hover: #E89560;
+  --color-primary-foreground: #FFFFFF;
+
+  --color-input: #0F1B2D;
+  --color-input-border: #2B4A78;
+  --color-input-focus: #D4854A;
+
+  --color-error: 255 128 128;
+
+  --color-link: #8899AA;
+  --color-link-hover: #F5F0E8;
+
+  --color-confirmation-bg: #1A365D;
+  --color-confirmation-border: #2B4A78;
+  --color-ember-stroke: #D4854A;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  min-height: 100dvh;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
