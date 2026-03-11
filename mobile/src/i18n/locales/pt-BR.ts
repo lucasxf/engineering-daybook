@@ -107,6 +107,11 @@ export default {
       deleteConfirmCancel: 'Cancelar',
       tags: 'Etiquetas',
       noTags: 'Sem etiquetas',
+      addTag: 'Adicionar etiqueta',
+      addTagTitle: 'Adicionar etiqueta',
+      tagAddError: 'Falha ao adicionar etiqueta',
+      tagRemoveError: 'Falha ao remover etiqueta',
+      noTagsAvailable: 'Nenhuma etiqueta disponível. Crie etiquetas no site.',
     },
     visibility: {
       private: 'Privado',

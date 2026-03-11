@@ -109,6 +109,11 @@ export default {
       deleteConfirmCancel: 'Cancel',
       tags: 'Tags',
       noTags: 'No tags',
+      addTag: 'Add tag',
+      addTagTitle: 'Add a tag',
+      tagAddError: 'Failed to add tag',
+      tagRemoveError: 'Failed to remove tag',
+      noTagsAvailable: 'No tags available. Create tags on the web.',
     },
     visibility: {
       private: 'Private',
