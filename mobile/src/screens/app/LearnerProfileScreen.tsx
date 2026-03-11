@@ -29,6 +29,7 @@ type AppNav = NativeStackNavigationProp<AppStackParamList>;
 function mapToPok(learning: LearnerPokSummary, ownerHandle: string): Pok {
   return {
     ...learning,
+    title: learning.title ?? null,
     userId: ownerHandle,
     visibility: learning.visibility ?? 'PUBLIC',
     deletedAt: null,

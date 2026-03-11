@@ -148,7 +148,7 @@ const PasswordInputV2 = forwardRef<HTMLInputElement, PasswordInputV2Props>(
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition-colors"
           aria-label={visible ? t('hidePassword') : t('showPassword')}
         >
           {visible ? (
@@ -179,7 +179,7 @@ const HandleInputV2 = forwardRef<HTMLInputElement, HandleInputV2Props>(
     return (
       <div>
         <div className="relative">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[var(--muted)]">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
             @
           </span>
           <InputV2
@@ -192,17 +192,17 @@ const HandleInputV2 = forwardRef<HTMLInputElement, HandleInputV2Props>(
           />
           {isChecking && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <SpinnerIcon className="h-4 w-4 text-[var(--muted)]" />
+              <SpinnerIcon className="h-4 w-4 text-muted-foreground" />
             </div>
           )}
         </div>
         {!hasError && isAvailable === true && (
-          <p className="mt-1.5 text-xs text-[var(--success)]">
+          <p className="mt-1.5 text-xs text-success">
             {t('handleAvailable')}
           </p>
         )}
         {!hasError && isAvailable === false && (
-          <p className="mt-1.5 text-xs text-[var(--error)]">
+          <p className="mt-1.5 text-xs text-destructive">
             {t('handleTaken')}
           </p>
         )}
@@ -289,7 +289,7 @@ function ButtonV2({ className, variant = 'primary', isLoading, children, disable
         'relative inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2',
         'disabled:pointer-events-none disabled:opacity-50',
-        variant === 'primary' && 'bg-[var(--primary)] text-[var(--primary-foreground)] hover:brightness-110 active:scale-[0.98]',
+        variant === 'primary' && 'bg-primary text-primary-foreground hover:bg-primary-hover active:scale-[0.98]',
         variant === 'secondary' && 'bg-card text-card-foreground border border-card-border hover:bg-muted/10 active:scale-[0.98]',
         variant === 'outline' && 'border border-input-border bg-transparent text-foreground hover:bg-muted/10 active:scale-[0.98]',
         className
@@ -498,7 +498,7 @@ export function RegisterFormV2({ locale }: RegisterFormV2Props) {
 
       <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-[var(--input-border)]" />
+          <div className="w-full border-t border-input-border" />
         </div>
         <div className="relative flex justify-center text-xs">
           <span className="bg-card px-3 text-muted-foreground">
@@ -513,7 +513,7 @@ export function RegisterFormV2({ locale }: RegisterFormV2Props) {
         {t('hasAccount')}{' '}
         <Link
           href={`/${locale}/login` as never}
-          className="font-medium text-[var(--primary)] hover:underline"
+          className="font-medium text-primary hover:underline"
         >
           {t('logInLink')}
         </Link>
