@@ -31,7 +31,6 @@ export function useLearnerSearch(query: string): UseLearnerSearchResult {
       return;
     }
 
-    let cancelled = false;
     const controller = new AbortController();
 
     setLoading(true);
@@ -39,19 +38,16 @@ export function useLearnerSearch(query: string): UseLearnerSearchResult {
 
     searchLearners(debouncedQuery, undefined, controller.signal)
       .then((page) => {
-        if (cancelled) return;
         setResults(page.content);
         setLoading(false);
       })
       .catch((e: unknown) => {
-        if (cancelled) return;
         if ((e as Error).name === 'AbortError') return;
         setError((e as Error).message ?? 'Search failed');
         setLoading(false);
       });
 
     return () => {
-      cancelled = true;
       controller.abort();
     };
   }, [debouncedQuery]);
