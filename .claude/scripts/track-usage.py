@@ -134,6 +134,32 @@ def update_delta_metadata(content: str, timestamp: str) -> str:
     return content
 
 
+def resolve_agent_key(tool_input: dict, subagent_type: str) -> str:
+    """
+    Determine the effective agent key for a Task or Agent tool event.
+
+    Resolution order:
+    1. If subagent_type is itself a known custom agent name → use it directly.
+    2. Search description + prompt text for a known agent name (longest first
+       to avoid prefix collisions, e.g. "automation-sentinel" before "sentinel").
+    3. Fall back to subagent_type (built-in type like "general-purpose").
+    """
+    # Sorted longest-first so more-specific names win over shorter prefixes.
+    sorted_agents = sorted(KNOWN_AGENTS, key=len, reverse=True)
+
+    if subagent_type in sorted_agents:
+        return subagent_type
+
+    search_text = (
+        tool_input.get("description", "") + " " + tool_input.get("prompt", "")
+    ).lower()
+    for agent_name in sorted_agents:
+        if agent_name in search_text:
+            return agent_name
+
+    return subagent_type
+
+
 def detect_slash_command(prompt: str) -> Optional[str]:
     """
     Detect a /command-name at the very start of a user prompt.
@@ -186,35 +212,12 @@ def main():
                 section = "command_usage"
                 key = cmd
 
-        elif tool_name == "Task":
-            # Claude spawned a subagent
+        elif tool_name in ("Task", "Agent"):
+            # Claude spawned a subagent (Task or Agent tool)
             subagent_type = tool_input.get("subagent_type", "").strip()
             if subagent_type:
                 section = "agent_usage"
-                key = subagent_type
-                # When a custom agent is invoked via general-purpose, detect it
-                # by scanning the task description for a known agent name.
-                if subagent_type == "general-purpose":
-                    description = tool_input.get("description", "").lower()
-                    for agent_name in KNOWN_AGENTS:
-                        if agent_name in description:
-                            key = agent_name
-                            break
-
-        elif tool_name == "Agent":
-            # Claude spawned a subagent via Agent tool
-            subagent_type = tool_input.get("subagent_type", "").strip()
-            if subagent_type:
-                section = "agent_usage"
-                key = subagent_type
-                # When a custom agent is invoked via general-purpose, detect it
-                # by scanning the task description for a known agent name.
-                if subagent_type == "general-purpose":
-                    description = tool_input.get("description", "").lower()
-                    for agent_name in KNOWN_AGENTS:
-                        if agent_name in description:
-                            key = agent_name
-                            break
+                key = resolve_agent_key(tool_input, subagent_type)
 
         elif tool_name == "Skill":
             # Claude programmatically invoked a slash command
