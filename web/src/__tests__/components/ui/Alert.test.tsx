@@ -20,9 +20,9 @@ describe('Alert', () => {
   it('applies error variant classes', () => {
     render(<Alert variant="error">Error</Alert>);
     const el = screen.getByRole('alert');
-    expect(el.className).toContain('border-[#F5C6C6]');
-    expect(el.className).toContain('bg-[#FFF0F0]');
-    expect(el.className).toContain('text-[#C0392B]');
+    expect(el.className).toContain('border-destructive-border');
+    expect(el.className).toContain('bg-destructive-background');
+    expect(el.className).toContain('text-destructive');
   });
 
   it('applies success variant classes', () => {

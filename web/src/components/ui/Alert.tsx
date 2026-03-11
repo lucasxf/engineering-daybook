@@ -16,9 +16,9 @@ export function Alert({ variant, children, className, role = 'alert' }: AlertPro
       role={role}
       className={cn(
         'rounded-md border p-3 text-sm',
-        /* Error: red/alert styling per spec */
+        /* Error: destructive token styling — dark mode handled by CSS variable swap */
         variant === 'error' &&
-          'border-[#F5C6C6] bg-[#FFF0F0] text-[#C0392B] dark:border-[#5A2A2A] dark:bg-[#2D1A1A] dark:text-[#FF8A8A]',
+          'border-destructive-border bg-destructive-background text-destructive',
         /* Success: green variant */
         variant === 'success' &&
           'border-green-300 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950 dark:text-green-400',
