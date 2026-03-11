@@ -167,7 +167,9 @@ In the same sub-agent call (or a second one), also ask:
 
 Summarize what the sub-agent struggled with. For each gap found:
 - **Minor** (the sub-agent inferred correctly but noted ambiguity) → note as WARN, no blocking
-- **Major** (the sub-agent gave a wrong answer or couldn't answer) → note as FAIL, loop back to Phase 1 (revise) to fix before continuing
+- **Major** (the sub-agent gave a wrong answer or couldn't answer) → note as FAIL; handle by mode:
+  - **Revise + Review mode:** loop back to Phase 1 to apply fixes, then re-run Phase 5
+  - **Review Only mode:** record as FAIL in the Phase 6 verdict; do NOT loop (no revision mandate). The user must re-run with revision instructions: `/review-spec <path> "fix: <gap description>"`
 
 If no sub-agent access is available, skip this phase and note it in the report.
 
