@@ -93,6 +93,8 @@ Root cause: three combined bugs prevented logged-in users from seeing their lear
 | 1.6.2 | E2E tests with Playwright — 4 critical user journeys | Should Have | ✅ Done (2026-02-25, chore/web-e2e-integration-tests) |
 
 > **Phase B (Playwright E2E):** Completed. `@playwright/test` installed; `web/e2e/` has 5 passing tests covering all 4 journeys. Uses `page.route()` to mock all backend API calls — no live backend needed. Also added auth redirect to poks list page (unauthenticated users redirected to /login).
+>
+> **2026-03-11 — E2E quality gates expansion:** Suite grown to 46 tests across 6 spec files covering all major flows (create/edit/delete/timeline/tags/visibility/search/semantic search/profile/settings). Fixed 5 previously-broken tests (were never run as quality gates). Added `@vitest/coverage-v8` with 50% line threshold (baseline ~54%; target 80%). CI now enforces Playwright E2E + Vitest coverage on every PR. `/finish-session` and `/fix-pr` commands run E2E as a blocking gate.
 
 ### Milestone 1.7: MVP UX Review ✅
 
