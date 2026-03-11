@@ -138,7 +138,7 @@ Re-parse `jacoco.xml` to confirm the gap is closed before committing.
 ## 3. Implement Approved Review Changes
 
 Read the "Approved for implementation" section of the triage report. Each item has an assigned agent.
-Route each group to the appropriate specialist agent via the Task tool.
+Route each group to the appropriate specialist agent via the Agent tool.
 
 ### Agent Routing Table
 
