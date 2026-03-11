@@ -243,6 +243,18 @@ Tooling session: refactored the Spec-Driven Development workflow to eliminate co
 | Updated `docs/CLAUDE.md` SDD section — documented orchestrator + subagent pattern, `## Implementation Plan` section shape, and the "context rot" problem it solves | ✅ Done |
 | Added output truncation guidance to `/finish-session` Step 1 to prevent oversized session summaries | ✅ Done |
 
+### Anthropic Skills Adoption (feat/improving-automation-workflow-with-skills, 2026-03-11) ✅
+
+Tooling session: evaluated the Anthropic open-source skills library (17 skills) and adopted 3 into the project.
+
+| Task | Status |
+|------|--------|
+| Analyzed all 17 Anthropic skills against our 12 commands + 11 agents; produced audit table with adopt/redundant/adapt/skip verdicts | ✅ Done |
+| Installed `frontend-design` skill (`.claude/skills/frontend-design/`) — production-grade UI with intentional aesthetics; fills our weakest area | ✅ Done |
+| Installed `skill-creator` skill (`.claude/skills/skill-creator/`) — structured 8-phase workflow for building, testing, and evaluating new skills | ✅ Done |
+| Installed `doc-coauthoring` skill (`.claude/skills/doc-coauthoring/`) — 3-stage collaborative document creation workflow | ✅ Done |
+| Enhanced `/review-spec` with new Phase 5 (Reader Testing) adapted from `doc-coauthoring` Stage 3 — spawns sub-agent with spec content only to catch blind spots | ✅ Done |
+
 ---
 
 ## Active / Pending
