@@ -38,6 +38,7 @@ function getStatus(
 /**
  * Handle input with real-time availability check and rich status states.
  * Follows the Choose Handle design spec: idle, checking, available, taken, invalid.
+ * Colors follow the "Library at Dusk" palette with dark/light mode support.
  */
 export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
   ({ value, hasError, validationError, className, id, ...props }, ref) => {
@@ -65,13 +66,14 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
       <div className="space-y-2">
         {/* Input row */}
         <div className="relative flex items-stretch">
-          {/* @ prefix */}
+          {/* @ prefix — dark: #2B4A78 bg, light: #F0EDE8 bg */}
           <span
             aria-hidden="true"
             className={cn(
               'flex items-center rounded-l-md border border-r-0 px-3 text-sm select-none',
-              'bg-muted text-muted-foreground',
-              'border-border'
+              'bg-[#2B4A78] text-[#8899AA]',
+              'dark:bg-[#2B4A78] dark:text-[#8899AA]',
+              'light:bg-[#F0EDE8] light:text-[#888888]'
             )}
           >
             @
@@ -91,15 +93,19 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
             value={value}
             className={cn(
               'block w-full rounded-r-md border py-2 pr-10 pl-3 text-sm transition-colors',
-              'bg-card text-card-foreground',
-              'placeholder:text-muted-foreground',
+              'bg-[#0F1B2D] text-[#F5F0E8]',
+              'dark:bg-[#0F1B2D] dark:text-[#F5F0E8]',
+              'light:bg-white light:text-[#1A1A2E]',
+              'placeholder:text-[#8899AA]',
+              'dark:placeholder:text-[#8899AA]',
+              'light:placeholder:text-gray-500',
               'focus:outline-none focus:ring-2',
               'disabled:cursor-not-allowed disabled:opacity-50',
               inputHasError
-                ? 'border-red-500 focus:ring-red-500 dark:border-red-400 dark:focus:ring-red-400'
+                ? 'border-[#F87171] focus:ring-[#F87171] dark:border-[#F87171] dark:focus:ring-[#F87171] light:border-[#DC2626] light:focus:ring-[#DC2626]'
                 : status === 'available'
-                  ? 'border-green-500 focus:ring-green-500 dark:border-green-400 dark:focus:ring-green-400'
-                  : 'border-border focus:ring-accent',
+                  ? 'border-[#4ADE80] focus:ring-[#4ADE80] dark:border-[#4ADE80] dark:focus:ring-[#4ADE80] light:border-[#16A34A] light:focus:ring-[#16A34A]'
+                  : 'border-[#2B4A78] focus:ring-[#D4854A] dark:border-[#2B4A78] dark:focus:ring-[#D4854A] light:border-[#CCC] light:focus:ring-[#D4854A]',
               className
             )}
             {...props}
@@ -116,7 +122,7 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
           {status === 'available' && (
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-green-500 dark:text-green-400"
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#4ADE80] dark:text-[#4ADE80] light:text-[#16A34A]"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path
@@ -134,7 +140,7 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
           {status === 'taken' && (
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-red-500 dark:text-red-400"
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#F87171] dark:text-[#F87171] light:text-[#DC2626]"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path
@@ -151,7 +157,7 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
           {status === 'invalid' && (
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-amber-500 dark:text-amber-400"
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#FBBF24] dark:text-[#FBBF24] light:text-[#D97706]"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path
@@ -180,22 +186,22 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
           className="min-h-[1.25rem] text-xs"
         >
           {status === 'checking' && (
-            <span className="text-muted-foreground animate-pulse">
+            <span className="text-[#8899AA] dark:text-[#8899AA] light:text-[#999999] animate-pulse">
               {t('chooseHandleChecking')}
             </span>
           )}
           {status === 'available' && (
-            <span className="text-green-600 dark:text-green-400 font-medium">
+            <span className="text-[#4ADE80] dark:text-[#4ADE80] light:text-[#16A34A] font-medium">
               {t('chooseHandleAvailable', { handle: value as string })}
             </span>
           )}
           {status === 'taken' && (
-            <span className="text-red-600 dark:text-red-400">
+            <span className="text-[#F87171] dark:text-[#F87171] light:text-[#DC2626]">
               {t('chooseHandleTaken', { handle: value as string })}
             </span>
           )}
           {status === 'invalid' && validationError && (
-            <span className="text-amber-600 dark:text-amber-400">
+            <span className="text-[#FBBF24] dark:text-[#FBBF24] light:text-[#D97706]">
               {validationError}
             </span>
           )}
@@ -204,13 +210,17 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
         {/* Handle preview pill */}
         {showPreviewPill && (
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Preview:</span>
+            <span className="text-xs text-[#8899AA] dark:text-[#8899AA] light:text-[#666666]">
+              Preview:
+            </span>
             <span
               className={cn(
                 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-                'bg-muted text-muted-foreground',
+                'bg-[#2B4A78] text-[#8899AA]',
+                'dark:bg-[#2B4A78] dark:text-[#8899AA]',
+                'light:bg-[#E0E8F2] light:text-[#888888]',
                 status === 'available'
-                  ? 'text-secondary dark:text-secondary'
+                  ? 'dark:text-[#8B5E3C] light:text-[#8B5E3C]'
                   : ''
               )}
             >
@@ -224,4 +234,5 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
 );
 
 HandleInput.displayName = 'HandleInput';
+
 

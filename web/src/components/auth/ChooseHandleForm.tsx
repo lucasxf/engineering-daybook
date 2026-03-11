@@ -99,11 +99,12 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
         role="alert"
         className={cn(
           'rounded-xl border p-6 text-center space-y-5',
-          'bg-card border-border'
+          'bg-[#1A365D] border-[#2B4A78] dark:bg-[#1A365D] dark:border-[#2B4A78]',
+          'light:bg-white light:border-[#E8E4DF]'
         )}
       >
         <div className="flex flex-col items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0F1B2D] dark:bg-[#0F1B2D] light:bg-gray-100">
             <svg
               width="24"
               height="24"
@@ -117,18 +118,18 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
                 r="10"
                 stroke="currentColor"
                 strokeWidth="1.5"
-                className="text-red-500 dark:text-red-400"
+                className="text-[#F87171] dark:text-[#F87171] light:text-[#DC2626]"
               />
               <path
                 d="M12 7v5M12 16h.01"
                 stroke="currentColor"
                 strokeWidth="1.5"
                 strokeLinecap="round"
-                className="text-red-500 dark:text-red-400"
+                className="text-[#F87171] dark:text-[#F87171] light:text-[#DC2626]"
               />
             </svg>
           </div>
-          <p className="text-sm leading-relaxed text-muted-foreground">
+          <p className="text-sm leading-relaxed text-[#8899AA] dark:text-[#8899AA] light:text-[#666666]">
             {t('chooseHandleSessionExpired')}
           </p>
         </div>
@@ -137,9 +138,11 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
           onClick={() => router.push(`/${params.locale}/login` as never)}
           className={cn(
             'w-full rounded-md py-2.5 text-sm font-medium transition-all',
-            'bg-accent text-accent-foreground',
+            'bg-[#D4854A] text-[#F5F0E8]',
+            'dark:bg-[#D4854A] dark:text-[#F5F0E8]',
+            'light:bg-[#D4854A] light:text-white',
             'hover:opacity-90 active:scale-[0.98]',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent'
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4854A]'
           )}
         >
           {t('googleSignIn')}
@@ -158,7 +161,7 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
       <div className="space-y-1.5">
         <label
           htmlFor="choose-handle"
-          className="block text-sm font-medium text-foreground"
+          className="block text-sm font-medium text-[#F5F0E8] dark:text-[#F5F0E8] light:text-[#1A1A2E]"
         >
           {t('chooseHandleLabel')}
         </label>
@@ -180,7 +183,7 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
         />
 
         {/* Format hint */}
-        <p className="text-xs text-muted-foreground leading-relaxed">
+        <p className="text-xs text-[#8899AA] dark:text-[#8899AA] light:text-[#666666] leading-relaxed">
           {t('chooseHandleFormatHint')}
         </p>
       </div>
@@ -189,7 +192,7 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
       {genericError && (
         <div
           role="alert"
-          className="rounded-md border border-red-500/30 bg-red-500/10 dark:border-red-400/30 dark:bg-red-400/10 px-3 py-2.5 text-sm text-red-600 dark:text-red-400"
+          className="rounded-md border border-[#F87171]/30 bg-[#F87171]/10 px-3 py-2.5 text-sm text-[#F87171] dark:border-[#F87171]/30 dark:bg-[#F87171]/10 dark:text-[#F87171] light:border-[#DC2626]/30 light:bg-[#DC2626]/10 light:text-[#DC2626]"
         >
           <div className="flex items-center justify-between gap-2">
             <span>{genericError}</span>
@@ -213,11 +216,11 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
         aria-disabled={!canSubmit}
         className={cn(
           'w-full rounded-md py-2.5 text-sm font-medium transition-all',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4854A]',
           'active:scale-[0.98]',
           canSubmit
-            ? 'bg-accent text-accent-foreground hover:opacity-90 cursor-pointer'
-            : 'bg-muted text-muted-foreground cursor-not-allowed pointer-events-none'
+            ? 'bg-[#D4854A] text-[#F5F0E8] dark:bg-[#D4854A] dark:text-[#F5F0E8] light:bg-[#D4854A] light:text-white hover:opacity-90 cursor-pointer'
+            : 'bg-[#4A3020] text-[#6B5040] dark:bg-[#4A3020] dark:text-[#6B5040] light:bg-[#E8C8B0] light:text-[#A0785A] cursor-not-allowed pointer-events-none'
         )}
       >
         {isSubmitting ? (
