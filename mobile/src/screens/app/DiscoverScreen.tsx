@@ -119,7 +119,7 @@ export function DiscoverScreen() {
     if (query.length < 2) {
       return (
         <View style={styles.centeredFeedback}>
-          <Text variant="body" color="muted">
+          <Text variant="body" color={theme.colors.textSecondary}>
             {t('discover.minCharsPrompt')}
           </Text>
         </View>
@@ -145,7 +145,7 @@ export function DiscoverScreen() {
     if (results.length === 0) {
       return (
         <View style={styles.centeredFeedback}>
-          <Text variant="body" color="muted">
+          <Text variant="body" color={theme.colors.textSecondary}>
             {t('discover.noResults')}
           </Text>
         </View>
