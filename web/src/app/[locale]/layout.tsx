@@ -32,7 +32,7 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages}>
       <div className="min-h-screen bg-background">
-        <header className="border-b border-[#E8E4DF] bg-parchment dark:border-primary-blue dark:bg-deep-navy">
+        <header className="border-b border-border bg-background">
           <div className="container mx-auto flex h-16 items-center justify-between px-4">
             <div className="flex items-center gap-6">
               <h1><LogoLink /></h1>
