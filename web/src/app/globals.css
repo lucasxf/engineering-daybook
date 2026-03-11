@@ -28,7 +28,8 @@
     --destructive-background: 255 240 240; /* #FFF0F0 */
     --destructive-border: 245 198 198; /* #F5C6C6 */
 
-    --success: 42 109 58; /* #2A6D3A — forest green */
+    --success: 39 174 96; /* #27AE60 */
+    --warning: 230 126 34; /* #E67E22 */
 
     --ring: 212 133 74;
     --radius: 0.5rem;
@@ -62,7 +63,8 @@
     --destructive-background: 45 26 26; /* #2D1A1A */
     --destructive-border: 90 42 42; /* #5A2A2A */
 
-    --success: 123 201 126; /* #7BC97E — soft forest green for dark mode */
+    --success: 80 200 120; /* #50C878 */
+    --warning: 240 160 60; /* #F0A03C */
 
     --ring: 212 133 74;
 

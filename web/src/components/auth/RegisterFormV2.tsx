@@ -290,8 +290,8 @@ function ButtonV2({ className, variant = 'primary', isLoading, children, disable
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2',
         'disabled:pointer-events-none disabled:opacity-50',
         variant === 'primary' && 'bg-[var(--primary)] text-[var(--primary-foreground)] hover:brightness-110 active:scale-[0.98]',
-        variant === 'secondary' && 'bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:brightness-95 active:scale-[0.98]',
-        variant === 'outline' && 'border border-[var(--input-border)] bg-transparent text-[var(--foreground)] hover:bg-[var(--secondary)] active:scale-[0.98]',
+        variant === 'secondary' && 'bg-card text-card-foreground border border-card-border hover:bg-muted/10 active:scale-[0.98]',
+        variant === 'outline' && 'border border-input-border bg-transparent text-foreground hover:bg-muted/10 active:scale-[0.98]',
         className
       )}
       disabled={disabled || isLoading}
@@ -312,9 +312,9 @@ function PasswordStrengthIndicator({ strength }: { strength: 'weak' | 'medium' |
   const t = useTranslations('auth');
 
   const strengthConfig = {
-    weak: { bars: 1, color: 'var(--error)', label: t('passwordStrength.weak') },
-    medium: { bars: 2, color: 'var(--warning)', label: t('passwordStrength.medium') },
-    strong: { bars: 3, color: 'var(--success)', label: t('passwordStrength.strong') },
+    weak: { bars: 1, color: 'rgb(var(--destructive))', label: t('passwordStrength.weak') },
+    medium: { bars: 2, color: 'rgb(var(--warning))', label: t('passwordStrength.medium') },
+    strong: { bars: 3, color: 'rgb(var(--success))', label: t('passwordStrength.strong') },
   };
 
   const config = strengthConfig[strength];
@@ -327,12 +327,12 @@ function PasswordStrengthIndicator({ strength }: { strength: 'weak' | 'medium' |
             key={bar}
             className="h-full flex-1 rounded-full transition-colors duration-200"
             style={{
-              backgroundColor: bar <= config.bars ? config.color : 'var(--input-border)',
+              backgroundColor: bar <= config.bars ? config.color : 'rgb(var(--input-border))',
             }}
           />
         ))}
       </div>
-      <span className="text-xs text-[var(--muted)]">{config.label}</span>
+      <span className="text-xs text-muted-foreground">{config.label}</span>
     </div>
   );
 }
@@ -501,7 +501,7 @@ export function RegisterFormV2({ locale }: RegisterFormV2Props) {
           <div className="w-full border-t border-[var(--input-border)]" />
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="bg-card px-3 text-muted">
+          <span className="bg-card px-3 text-muted-foreground">
             {t('orContinueWith')}
           </span>
         </div>
@@ -509,7 +509,7 @@ export function RegisterFormV2({ locale }: RegisterFormV2Props) {
 
       <GoogleLoginButton mode="register" />
 
-      <p className="text-center text-sm text-[var(--muted)]">
+      <p className="text-center text-sm text-muted-foreground">
         {t('hasAccount')}{' '}
         <Link
           href={`/${locale}/login` as never}

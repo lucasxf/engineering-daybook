@@ -75,14 +75,14 @@ export function LearnerResultCard({
         size={40}
       />
       <View style={styles.infoColumn}>
-        <Text variant="body" color="primary">
+        <Text variant="body" color={theme.colors.textPrimary}>
           {displayName}
         </Text>
-        <Text variant="caption" color="muted" style={styles.handle}>
+        <Text variant="caption" color={theme.colors.textSecondary} style={styles.handle}>
           @{result.handle}
         </Text>
         {result.bio != null && result.bio.length > 0 && (
-          <Text variant="caption" color="secondary" numberOfLines={2}>
+          <Text variant="caption" color={theme.colors.textSecondary} numberOfLines={2}>
             {result.bio}
           </Text>
         )}
