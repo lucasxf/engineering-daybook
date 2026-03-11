@@ -1,0 +1,136 @@
+"use client";
+
+import { useState } from "react";
+import { LearnimoWordmark } from "@/components/learnimo-wordmark";
+import { LearningNavBar } from "@/components/view-learning/learning-nav-bar";
+import { LearningBreadcrumb } from "@/components/view-learning/learning-breadcrumb";
+import { LearningContent } from "@/components/view-learning/learning-content";
+import { LearningLoading } from "@/components/view-learning/learning-loading";
+import { LearningError } from "@/components/view-learning/learning-error";
+import { DeleteConfirmDialog } from "@/components/view-learning/delete-confirm-dialog";
+
+export type ScreenState =
+  | "loaded"
+  | "no-title"
+  | "loading"
+  | "not-found"
+  | "forbidden"
+  | "delete-open";
+
+interface ViewLearningScreenProps {
+  theme: "dark" | "light";
+  screenState?: ScreenState;
+}
+
+const MOCK_LEARNING = {
+  id: "abc123",
+  title: "Princípio da Inversão de Dependência (DIP)",
+  content: `O **DIP** afirma que módulos de alto nível não devem depender de módulos de baixo nível — ambos devem depender de **abstrações**.
+
+Isso significa que, ao invés de uma classe instanciar diretamente suas dependências, ela deve recebê-las via injeção (construtor, propriedade ou método).
+
+### Exemplo em TypeScript
+
+\`\`\`ts
+interface Logger {
+  log(message: string): void;
+}
+
+class ConsoleLogger implements Logger {
+  log(message: string) {
+    console.log(message);
+  }
+}
+
+class UserService {
+  constructor(private logger: Logger) {}
+
+  createUser(name: string) {
+    this.logger.log(\`Criando usuário: \${name}\`);
+  }
+}
+\`\`\`
+
+Benefícios:
+- Facilita **testes unitários** com mocks
+- Reduz acoplamento entre camadas
+- Permite trocar implementações sem alterar o código cliente
+
+> "Depend upon abstractions, not concretions." — Robert C. Martin`,
+  createdAt: "2026-02-14T18:30:00.000Z",
+  updatedAt: "2026-02-15T12:00:00.000Z",
+  tags: ["SOLID", "TypeScript", "Design Patterns", "Clean Code"],
+};
+
+const MOCK_NO_TITLE = {
+  ...MOCK_LEARNING,
+  title: "",
+  content: `Descobri que usar \`useMemo\` indiscriminadamente pode na verdade piorar a performance em componentes simples, porque o React ainda precisa comparar as dependências a cada render. A otimização prematura é o inimigo da clareza — só use quando o profiling confirmar o gargalo.`,
+};
+
+export function ViewLearningScreen({ theme, screenState = "loaded" }: ViewLearningScreenProps) {
+  const [deleteOpen, setDeleteOpen] = useState(screenState === "delete-open");
+
+  const isDark = theme === "dark";
+  const isDeleteOpen = deleteOpen || screenState === "delete-open";
+
+  const handleDeleteClick = () => setDeleteOpen(true);
+  const handleDeleteCancel = () => setDeleteOpen(false);
+  const handleDeleteConfirm = () => setDeleteOpen(false);
+
+  return (
+    <div className={isDark ? "dark" : ""}>
+      <div className="flex min-h-screen flex-col bg-background font-sans">
+        {/* Skip to main content */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-card focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-card-foreground focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-input-focus)]"
+        >
+          Ir para o conteúdo principal
+        </a>
+
+        {/* Nav bar */}
+        <LearningNavBar />
+
+        {/* Main */}
+        <main id="main-content" className="flex flex-1 flex-col px-4 py-8">
+          <div className="mx-auto w-full max-w-[720px]">
+            {screenState === "loading" ? (
+              <LearningLoading />
+            ) : screenState === "not-found" ? (
+              <LearningError type="not-found" />
+            ) : screenState === "forbidden" ? (
+              <LearningError type="forbidden" />
+            ) : (
+              <>
+                {/* Breadcrumb */}
+                <LearningBreadcrumb />
+
+                {/* Content */}
+                <LearningContent
+                  learning={screenState === "no-title" ? MOCK_NO_TITLE : MOCK_LEARNING}
+                  onDeleteClick={handleDeleteClick}
+                />
+              </>
+            )}
+          </div>
+        </main>
+
+        {/* Footer */}
+        <footer className="py-4 text-center">
+          <p className="text-xs text-muted-foreground">
+            © {new Date().getFullYear()} learnimo
+          </p>
+        </footer>
+
+        {/* Delete confirmation dialog */}
+        {isDeleteOpen && (
+          <DeleteConfirmDialog
+            onCancel={handleDeleteCancel}
+            onConfirm={handleDeleteConfirm}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
