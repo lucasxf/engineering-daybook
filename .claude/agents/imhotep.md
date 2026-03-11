@@ -1,6 +1,6 @@
 ---
 name: imhotep
-description: Use this agent when starting new projects, extracting reusable patterns from existing projects, making architectural decisions that affect multiple projects, or creating project templates. Trigger when user says "start new project", "extract this pattern", "apply this to another project", "create template". Examples - User: "I want to start a new project with similar structure" → Use this agent. User: "Extract the authentication pattern for reuse" → Use this agent.
+description: Use this agent when starting new projects, extracting reusable patterns from existing projects, making architectural decisions that affect multiple projects, or creating project templates. Trigger when user says "start new project", "extract this pattern", "apply this to another project", "create template", "could we reuse this elsewhere", "I want to build something similar", "how would I spin up another project like this", "package this up". Examples - User: "I want to start a new project with similar structure" → Use this agent. User: "Extract the authentication pattern for reuse" → Use this agent. User: "How would I spin up another app with this same stack?" → Use this agent. User: "Could we package the auth flow as a template?" → Use this agent. Note: this agent is most useful once 2+ projects exist — if only learnimo is active, trigger only when explicitly requested.
 model: sonnet
 color: orange
 ---

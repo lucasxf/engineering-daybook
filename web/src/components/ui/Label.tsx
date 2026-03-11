@@ -4,13 +4,13 @@ import { cn } from '@/lib/utils';
 type LabelProps = LabelHTMLAttributes<HTMLLabelElement>;
 
 /**
- * Reusable form label component.
+ * Reusable form label using Library at Dusk design tokens.
  */
 export function Label({ className, ...props }: LabelProps) {
   return (
     <label
       className={cn(
-        'block text-sm font-medium text-slate-700 dark:text-slate-300',
+        'block text-sm font-medium text-muted-foreground',
         className
       )}
       {...props}

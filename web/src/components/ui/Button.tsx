@@ -8,26 +8,38 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 /**
  * Reusable button component with variants and sizes.
+ * Uses Library at Dusk design tokens with ember-cta as primary.
  */
 export function Button({
   className,
   variant = 'primary',
   size = 'md',
+  disabled,
   ...props
 }: ButtonProps) {
   return (
     <button
+      disabled={disabled}
       className={cn(
         'inline-flex items-center justify-center rounded-md font-medium transition-all',
         'active:scale-[0.98]',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
-        'disabled:pointer-events-none disabled:opacity-50',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         {
-          'bg-primary-600 text-white hover:bg-primary-700': variant === 'primary',
-          'bg-slate-200 text-slate-900 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600':
-            variant === 'secondary',
-          'hover:bg-slate-100 dark:hover:bg-slate-800': variant === 'ghost',
-          'bg-red-600 text-white hover:bg-red-700': variant === 'danger',
+          /* Primary: ember-cta with proper disabled state */
+          'bg-primary text-primary-foreground hover:bg-primary-hover': variant === 'primary' && !disabled,
+          'bg-btn-disabled text-btn-disabled-text cursor-not-allowed':
+            variant === 'primary' && disabled,
+          /* Secondary */
+          'bg-card text-card-foreground border border-card-border hover:bg-muted/10':
+            variant === 'secondary' && !disabled,
+          'bg-card text-card-foreground border border-card-border opacity-50 cursor-not-allowed':
+            variant === 'secondary' && disabled,
+          /* Ghost */
+          'hover:bg-muted/10 text-muted-foreground': variant === 'ghost' && !disabled,
+          'text-muted-foreground opacity-50 cursor-not-allowed': variant === 'ghost' && disabled,
+          /* Danger */
+          'bg-destructive text-white hover:bg-destructive/90': variant === 'danger' && !disabled,
+          'bg-destructive text-white opacity-50 cursor-not-allowed': variant === 'danger' && disabled,
         },
         {
           'h-8 px-3 text-sm': size === 'sm',

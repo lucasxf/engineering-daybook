@@ -1,6 +1,6 @@
 # Web vs Mobile Feature Parity
 
-> Last updated: 2026-03-09 (session: chore/publish-mobile-app)
+> Last updated: 2026-03-11 (session: develop — mobile feature parity: My Learnings tab, search bar, tag management)
 
 | Feature | Web | Mobile | Gap |
 |---------|:---:|:------:|-----|
@@ -20,7 +20,7 @@
 | **Markdown: Content rendering** | ✅ | ✅ | — |
 | **Markdown: Strip for card preview** | ✅ | ✅ | — |
 | **Tags: Display on cards/detail** | ✅ | ✅ read-only | — |
-| **Tags: Add/remove on existing learning** | ✅ | ❌ | API exists, no UI |
+| **Tags: Add/remove on existing learning** | ✅ | ✅ | Tag chips with ✕ remove + bottom-sheet picker in detail screen |
 | **Tags: Tag-at-creation** | ✅ | ❌ | Not in mobile `CreatePokDto` |
 | **Tags: AI suggestion approve/reject** | ✅ | ❌ | API exists, no UI |
 | **Tags: Filter feed by tag** | ✅ | ❌ | API supports `tagId` param, no UI |
@@ -38,8 +38,8 @@
 | **Settings: Language toggle** | ✅ | ✅ | — |
 | **Settings: Privacy (profile visibility)** | ✅ 4-tier | ✅ 2-tier | FOLLOWERS_ONLY / COLLEAGUES_ONLY missing |
 | **Settings: Default learning visibility** | ✅ 4-tier | ✅ 2-tier | FOLLOWERS_ONLY / COLLEAGUES_ONLY missing |
-| **My Learnings (personal feed)** | ✅ | ❌ | `useFeedData` hook exists but unused; FeedScreen shows social feed only |
-| **Search bar UI** | ✅ | ❌ | API supports keyword/semantic search; no mobile search bar |
+| **My Learnings (personal feed)** | ✅ | ✅ | FeedScreen tab toggle: "Feed" (social) ↔ "My Learnings" (personal, via `useFeedData`) |
+| **Search bar UI** | ✅ | ✅ | Debounced search bar in My Learnings tab |
 | **Social: Discovery feed (following feed)** | ✅ | ✅ | Both done — mobile FeedScreen uses `useSocialFeedData` |
 | **Social: Discover page (learner search)** | ✅ | ❌ | Web has Discover page; `searchLearners` not in mobile `learnerApi` |
 | **Social: Follow/unfollow** | ✅ | ❌ | No follow endpoints in mobile `learnerApi` |

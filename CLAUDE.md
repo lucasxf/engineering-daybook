@@ -198,4 +198,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-03-10 (session: feat/mobile-social-discovery — mobile social discovery: LearnerProfileScreen, DiscoverScreen, FollowButton, useLearnerProfile, useLearnerSearch, Maestro E2E flows)*
+*Last updated: 2026-03-11 (session: develop — Playwright E2E gates + Vitest coverage thresholds + CI enforcement + 5 E2E test fixes)*

@@ -6,13 +6,13 @@ interface SpinnerProps {
 }
 
 /**
- * Loading spinner component.
+ * Loading spinner component with Library at Dusk styling.
  */
 export function Spinner({ className, size = 'md' }: SpinnerProps) {
   return (
     <svg
       className={cn(
-        'animate-spin',
+        'animate-spin text-current',
         {
           'h-4 w-4': size === 'sm',
           'h-5 w-5': size === 'md',

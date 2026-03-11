@@ -1,6 +1,6 @@
 import { type Page } from '@playwright/test';
 
-const API = 'http://localhost:8080/api/v1';
+export const API = 'http://localhost:8080/api/v1';
 
 // ---------------------------------------------------------------------------
 // Shared test data
