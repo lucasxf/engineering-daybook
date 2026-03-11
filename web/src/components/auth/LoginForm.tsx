@@ -90,7 +90,7 @@ export function LoginForm({ locale, redirectTo }: LoginFormProps) {
           id="login-email"
           type="email"
           autoComplete="email"
-          placeholder="you@example.com"
+          placeholder={t('emailPlaceholder')}
           hasError={!!errors.email}
           aria-describedby={errors.email ? 'login-email-error' : undefined}
           {...register('email')}
