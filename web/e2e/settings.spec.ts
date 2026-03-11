@@ -13,8 +13,9 @@ test.describe('Settings page', () => {
     await page.goto('/en/settings');
 
     await expect(page.getByText('Privacy')).toBeVisible();
-    await expect(page.getByText('Profile visibility')).toBeVisible();
-    await expect(page.getByText('Default learning visibility')).toBeVisible();
+    // 'Profile visibility' appears in both the <label> and the Select's sr-only span — use first()
+    await expect(page.getByText('Profile visibility').first()).toBeVisible();
+    await expect(page.getByText('Default learning visibility').first()).toBeVisible();
   });
 
   test('renders "View my profile" link pointing to own profile', async ({ page }) => {
@@ -32,16 +33,9 @@ test.describe('Settings page', () => {
 
     await page.goto('/en/settings');
 
-    // Click "Public" button in the profile visibility select
-    const publicOption = page.getByRole('option', { name: 'Public' }).first();
-    if (await publicOption.isVisible()) {
-      await publicOption.click();
-    } else {
-      // Select dropdown — open and choose
-      const profileSelect = page.getByRole('button').filter({ hasText: /private|public/i }).first();
-      await profileSelect.click();
-      await page.getByRole('option', { name: 'Public' }).first().click();
-    }
+    // Select renders role="combobox" — open the profile visibility dropdown and choose Public
+    await page.getByRole('combobox').first().click();
+    await page.getByRole('option', { name: 'Public' }).first().click();
 
     await expect(page.getByText(/settings saved/i)).toBeVisible();
   });

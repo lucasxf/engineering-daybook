@@ -98,9 +98,10 @@ test.describe('Timeline view', () => {
       'true',
     );
 
-    // Month group headings (locale-aware via Intl.DateTimeFormat)
-    await expect(page.getByRole('heading', { name: /january 2026/i })).toBeVisible();
-    await expect(page.getByRole('heading', { name: /february 2026/i })).toBeVisible();
+    // Month group headings — MonthGroup uses year: '2-digit' ("January 26" not "January 2026")
+    // level: 2 narrows to <h2> month group headings, excluding <h3> POK title headings
+    await expect(page.getByRole('heading', { name: /january/i, level: 2 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /february/i, level: 2 })).toBeVisible();
 
     // Learning cards visible
     await expect(page.getByRole('heading', { name: MOCK_POK.title! })).toBeVisible();
@@ -112,7 +113,8 @@ test.describe('Tag-grouped view', () => {
   test('shows learnings grouped by tag when ?view=tags param is active', async ({ page }) => {
     const POK_WITH_TAG: MockPok = {
       ...MOCK_POK,
-      tags: [{ id: 'tag-1', name: 'React' }] as MockPok['tags'],
+      // TagGroupedView reads tag.tagId and tag.displayName (not id/name)
+      tags: [{ tagId: 'tag-1', displayName: 'React' }] as MockPok['tags'],
     };
 
     await setupApiMocks(page, { authenticated: true, poks: [POK_WITH_TAG] });
@@ -153,19 +155,20 @@ test.describe('Semantic search', () => {
     // Wait for the feed to render
     await expect(page.getByRole('heading', { name: MOCK_POK.title! })).toBeVisible();
 
-    // Listen for the next GET /poks request that has a keyword param
-    const searchRequest = page.waitForRequest(
-      (req) =>
-        req.url().includes('/poks') &&
-        req.method() === 'GET' &&
-        new URL(req.url()).searchParams.has('keyword'),
-    );
-
-    // Type into the search bar (SearchBar role="search" wraps the textbox)
-    await page.getByRole('search').getByRole('textbox').fill('react');
-
-    // Capture the debounced request
-    const req = await searchRequest;
+    // Capture the debounced search request — Promise.all avoids the race condition where
+    // waitForRequest is registered AFTER fill fires the debounced request.
+    // Must match the API host (localhost:8080) to avoid capturing Next.js RSC navigation
+    // requests to localhost:3001/en/poks?keyword=... which also match '/poks' + 'keyword'.
+    const [req] = await Promise.all([
+      page.waitForRequest(
+        (r) =>
+          r.url().startsWith('http://localhost:8080/api/v1/poks') &&
+          r.method() === 'GET' &&
+          new URL(r.url()).searchParams.has('keyword'),
+        { timeout: 10000 },
+      ),
+      page.getByRole('textbox', { name: /search your learnings/i }).fill('react'),
+    ]);
     const url = new URL(req.url());
     expect(url.searchParams.get('searchMode')).toBe('hybrid');
   });
