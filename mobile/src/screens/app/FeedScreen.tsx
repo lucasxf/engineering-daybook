@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -10,26 +11,28 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { useSocialFeedData } from '@/hooks/useSocialFeedData';
+import { useFeedData } from '@/hooks/useFeedData';
+import { useDebounce } from '@/hooks/useDebounce';
 import type { FeedItem } from '@/lib/learnerApi';
 import type { Pok } from '@/lib/pokApi';
 import type { AppStackParamList } from '@/navigation/AppStack';
 import { LearningCard } from '@/components/feed/LearningCard';
 import { Text } from '@/components/ui/Text';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { TextInput } from '@/components/ui/TextInput';
 
 type AppNav = NativeStackNavigationProp<AppStackParamList>;
 
-export function FeedScreen() {
+// ---------------------------------------------------------------------------
+// Social feed content (extracted so the hook only runs when this tab is shown)
+// ---------------------------------------------------------------------------
+
+function SocialContent({ onPokPress }: { onPokPress: (pok: Pok) => void }) {
   const { theme } = useTheme();
   const { t } = useI18n();
-  const nav = useNavigation<AppNav>();
 
   const { items, loading, refreshing, loadingMore, hasMore, error, refresh, loadMore } =
     useSocialFeedData();
-
-  function handlePokPress(pok: Pok) {
-    nav.navigate('LearningDetail', { pokId: pok.id });
-  }
 
   function renderItem({ item }: { item: FeedItem }) {
     if (item.type === 'shared') {
@@ -47,7 +50,6 @@ export function FeedScreen() {
           borderColor: theme.colors.border,
           overflow: 'hidden',
         }}>
-          {/* Re-learning header */}
           <View style={{
             paddingHorizontal: theme.spacing.md,
             paddingVertical: theme.spacing.xs,
@@ -61,12 +63,9 @@ export function FeedScreen() {
           </View>
           <LearningCard
             pok={{ ...originalPok, tags: originalPok.tags ?? [], pendingSuggestions: originalPok.pendingSuggestions ?? [] }}
-            onPress={handlePokPress}
+            onPress={onPokPress}
           />
-          <View style={{
-            paddingHorizontal: theme.spacing.md,
-            paddingBottom: theme.spacing.xs,
-          }}>
+          <View style={{ paddingHorizontal: theme.spacing.md, paddingBottom: theme.spacing.xs }}>
             <Text variant="caption" color={theme.colors.textSecondary}>
               {t('learnings.socialFeed.by')} {authorName}
             </Text>
@@ -75,7 +74,6 @@ export function FeedScreen() {
       );
     }
 
-    // Owned feed item
     const authorHandle = item.authorHandle ?? '';
     const authorName = item.authorDisplayName ?? `@${authorHandle}`;
 
@@ -89,15 +87,11 @@ export function FeedScreen() {
             paddingBottom: theme.spacing.xs,
             gap: theme.spacing.xs,
           }}>
-            <Text variant="caption" color={theme.colors.textSecondary}>
-              {authorName}
-            </Text>
-            <Text variant="caption" color={theme.colors.textSecondary}>
-              @{authorHandle}
-            </Text>
+            <Text variant="caption" color={theme.colors.textSecondary}>{authorName}</Text>
+            <Text variant="caption" color={theme.colors.textSecondary}>@{authorHandle}</Text>
           </View>
         ) : null}
-        <LearningCard pok={item} onPress={handlePokPress} />
+        <LearningCard pok={item} onPress={onPokPress} />
       </View>
     );
   }
@@ -114,31 +108,14 @@ export function FeedScreen() {
     );
   }
 
-  function renderFooter() {
-    if (!loadingMore) return null;
-    return (
-      <ActivityIndicator
-        size="small"
-        color={theme.colors.primary}
-        style={{ paddingVertical: theme.spacing.md }}
-      />
-    );
-  }
-
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      {/* Header */}
-      <View style={{ paddingHorizontal: theme.spacing.md, paddingTop: theme.spacing.md, paddingBottom: theme.spacing.sm }}>
-        <Text variant="heading">{t('learnings.socialFeed.title')}</Text>
-      </View>
-
+    <>
       {error && (
         <ErrorMessage
           message={t('learnings.socialFeed.loadError')}
-          style={{ marginHorizontal: theme.spacing.md, marginTop: theme.spacing.sm }}
+          style={{ marginHorizontal: theme.spacing.md, marginBottom: theme.spacing.sm }}
         />
       )}
-
       {loading && !refreshing ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
@@ -149,18 +126,154 @@ export function FeedScreen() {
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           ListEmptyComponent={renderEmpty}
-          ListFooterComponent={renderFooter}
+          ListFooterComponent={loadingMore ? (
+            <ActivityIndicator size="small" color={theme.colors.primary} style={{ paddingVertical: theme.spacing.md }} />
+          ) : null}
           onRefresh={refresh}
           refreshing={refreshing}
           onEndReached={hasMore ? loadMore : undefined}
           onEndReachedThreshold={0.3}
-          contentContainerStyle={{
-            padding: theme.spacing.md,
-            gap: theme.spacing.sm,
-            flexGrow: 1,
-          }}
+          contentContainerStyle={{ padding: theme.spacing.md, gap: theme.spacing.sm, flexGrow: 1 }}
         />
       )}
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// My Learnings content with search bar (hook only runs when this tab is shown)
+// ---------------------------------------------------------------------------
+
+function MyLearningsContent({ onPokPress }: { onPokPress: (pok: Pok) => void }) {
+  const { theme } = useTheme();
+  const { t } = useI18n();
+  const [keyword, setKeyword] = useState('');
+  const debouncedKeyword = useDebounce(keyword, 300);
+
+  const { poks, loading, refreshing, loadingMore, hasMore, error, refresh, loadMore, setParams } =
+    useFeedData();
+
+  useEffect(() => {
+    setParams({ keyword: debouncedKeyword || undefined });
+  }, [debouncedKeyword, setParams]);
+
+  function renderEmpty() {
+    if (loading) return null;
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: theme.spacing.xl }}>
+        <Text variant="bodySm">{t('learnings.feed.empty')}</Text>
+      </View>
+    );
+  }
+
+  return (
+    <>
+      {/* Search bar */}
+      <View style={{ paddingHorizontal: theme.spacing.md, paddingBottom: theme.spacing.sm }}>
+        <TextInput
+          value={keyword}
+          onChangeText={setKeyword}
+          placeholder={t('learnings.feed.searchPlaceholder')}
+          returnKeyType="search"
+          clearButtonMode="while-editing"
+          autoCorrect={false}
+          autoCapitalize="none"
+        />
+      </View>
+
+      {error && (
+        <ErrorMessage
+          message={t('learnings.errors.loadFailed')}
+          style={{ marginHorizontal: theme.spacing.md, marginBottom: theme.spacing.sm }}
+        />
+      )}
+
+      {loading && !refreshing ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+        </View>
+      ) : (
+        <FlatList
+          data={poks}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <LearningCard pok={item} onPress={onPokPress} />}
+          ListEmptyComponent={renderEmpty}
+          ListFooterComponent={loadingMore ? (
+            <ActivityIndicator size="small" color={theme.colors.primary} style={{ paddingVertical: theme.spacing.md }} />
+          ) : null}
+          onRefresh={refresh}
+          refreshing={refreshing}
+          onEndReached={hasMore ? loadMore : undefined}
+          onEndReachedThreshold={0.3}
+          contentContainerStyle={{ padding: theme.spacing.md, gap: theme.spacing.sm, flexGrow: 1 }}
+        />
+      )}
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// FeedScreen — tab toggle between social feed and personal feed
+// ---------------------------------------------------------------------------
+
+type TabKey = 'social' | 'mine';
+
+export function FeedScreen() {
+  const { theme } = useTheme();
+  const { t } = useI18n();
+  const nav = useNavigation<AppNav>();
+  const [activeTab, setActiveTab] = useState<TabKey>('social');
+
+  function handlePokPress(pok: Pok) {
+    nav.navigate('LearningDetail', { pokId: pok.id });
+  }
+
+  const tabs: { key: TabKey; label: string }[] = [
+    { key: 'social', label: t('learnings.socialFeed.title') },
+    { key: 'mine', label: t('learnings.feed.title') },
+  ];
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      {/* Tab toggle header */}
+      <View style={{
+        flexDirection: 'row',
+        paddingHorizontal: theme.spacing.md,
+        paddingTop: theme.spacing.md,
+        paddingBottom: theme.spacing.sm,
+        gap: theme.spacing.sm,
+      }}>
+        {tabs.map((tab) => {
+          const active = activeTab === tab.key;
+          return (
+            <TouchableOpacity
+              key={tab.key}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: active }}
+              onPress={() => setActiveTab(tab.key)}
+              style={{
+                paddingHorizontal: theme.spacing.md,
+                paddingVertical: theme.spacing.xs + 2,
+                borderRadius: theme.radii.full,
+                backgroundColor: active ? theme.colors.primary : theme.colors.surfaceAlt,
+              }}
+            >
+              <Text
+                variant="bodySm"
+                style={{ fontWeight: active ? '600' : '400' }}
+                color={active ? '#fff' : theme.colors.textSecondary}
+              >
+                {tab.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      {activeTab === 'social'
+        ? <SocialContent onPokPress={handlePokPress} />
+        : <MyLearningsContent onPokPress={handlePokPress} />
+      }
     </SafeAreaView>
   );
 }
