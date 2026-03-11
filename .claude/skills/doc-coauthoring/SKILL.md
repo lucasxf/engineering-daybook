@@ -140,8 +140,8 @@ Create artifact with all section headers and brief placeholder text like "[To be
 
 Provide the scaffold link and indicate it's time to fill in each section.
 
-**If no access to artifacts:**
-Create a markdown file in the working directory. Name it appropriately (e.g., `decision-doc.md`, `technical-spec.md`).
+**If no access to artifacts (e.g., Claude Code):**
+Use the `Write` tool to create a markdown file in the working directory. Name it appropriately (e.g., `decision-doc.md`, `technical-spec.md`).
 
 Inform them that the initial structure with placeholders for all sections will be created.
 
@@ -185,7 +185,7 @@ Based on what they've selected, ask if there's anything important missing for th
 
 ### Step 5: Drafting
 
-Use `str_replace` to replace the placeholder text for this section with the actual drafted content.
+Use the `Edit` tool to replace the placeholder text for this section with the actual drafted content.
 
 Announce the [SECTION NAME] section will be drafted now based on what they've selected.
 
@@ -205,7 +205,7 @@ Provide a note: Instead of editing the doc directly, ask them to indicate what t
 ### Step 6: Iterative Refinement
 
 As user provides feedback:
-- Use `str_replace` to make edits (never reprint the whole doc)
+- Use the `Edit` tool to make edits (never reprint the whole doc)
 - **If using artifacts:** Provide link to artifact after each edit
 - **If using files:** Just confirm edits are complete
 - If user edits doc directly and asks to read it: mentally note the changes they made and keep them in mind for future sections (this shows their preferences)
@@ -364,10 +364,10 @@ Announce document completion. Provide a few final tips:
 - Don't let gaps accumulate - address them as they come up
 
 **Artifact Management:**
-- Use `create_file` for drafting full sections
-- Use `str_replace` for all edits
-- Provide artifact link after every change
-- Never use artifacts for brainstorming lists - that's just conversation
+- In Claude.ai: use `create_file` for drafting full sections; in Claude Code: use the `Write` tool to create the file
+- Use the `Edit` tool for all edits (never reprint the whole doc)
+- In Claude.ai: provide artifact link after every change; in Claude Code: confirm the filename
+- Never use artifacts or files for brainstorming lists - that's just conversation
 
 **Quality over Speed:**
 - Don't rush through stages

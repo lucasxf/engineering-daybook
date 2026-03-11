@@ -149,7 +149,7 @@ Produce 5–8 questions a developer would realistically ask when reading this sp
 
 ### 5.2 Test with Sub-Agent
 
-Spawn a single sub-agent (general-purpose) with **only the spec file content** as context — no CLAUDE.md, no roadmap, no conversation history. Pass each reader question and ask it to answer from the spec alone.
+Use the Agent tool with `subagent_type: general-purpose`. Pass **only the spec file content** as the prompt — no CLAUDE.md, no roadmap, no conversation history. Include all 5–8 reader questions in a **single call** (do not make one call per question).
 
 Prompt for the sub-agent:
 > "You are a developer who has just been handed this spec for the first time. You have no other context. Answer each of the following questions using only the spec content:
@@ -168,7 +168,7 @@ In the same sub-agent call (or a second one), also ask:
 Summarize what the sub-agent struggled with. For each gap found:
 - **Minor** (the sub-agent inferred correctly but noted ambiguity) → note as WARN, no blocking
 - **Major** (the sub-agent gave a wrong answer or couldn't answer) → note as FAIL; handle by mode:
-  - **Revise + Review mode:** loop back to Phase 1 to apply fixes, then re-run Phase 5
+  - **Revise + Review mode:** loop back to Phase 1 to apply fixes, then re-run Phases 2–5 (edits to the spec may affect structural completeness, product review, and technical validation — all checks must reflect the updated content)
   - **Review Only mode:** record as FAIL in the Phase 6 verdict; do NOT loop (no revision mandate). The user must re-run with revision instructions: `/review-spec <path> "fix: <gap description>"`
 
 If no sub-agent access is available, skip this phase and note it in the report.
