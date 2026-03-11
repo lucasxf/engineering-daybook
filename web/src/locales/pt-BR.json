@@ -99,6 +99,31 @@
       "unexpected": "Algo deu errado. Tente novamente."
     }
   },
+  "learnings": {
+    "create": {
+      "title": "Novo aprendizado",
+      "pageHeader": "Novo aprendizado",
+      "form": {
+        "titleLabel": "Título",
+        "titlePlaceholder": "Opcional — adicione um título se preferir",
+        "titleCharCounter": "{current} / 200",
+        "contentLabel": "Conteúdo",
+        "contentPlaceholder": "O que você aprendeu?",
+        "contentCharCounter": "{current} / 50.000",
+        "saveButton": "Salvar aprendizado",
+        "savingButton": "Salvando...",
+        "cancelButton": "Cancelar"
+      },
+      "errors": {
+        "contentRequired": "Conteúdo é obrigatório",
+        "titleTooLong": "O título deve ter no máximo 200 caracteres",
+        "contentTooLong": "O conteúdo deve ter entre 1 e 50.000 caracteres"
+      },
+      "success": {
+        "message": "Aprendizado salvo!"
+      }
+    }
+  },
   "poks": {
     "create": {
       "title": "Novo aprendizado"

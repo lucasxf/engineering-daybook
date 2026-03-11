@@ -99,6 +99,31 @@
       "unexpected": "Something went wrong. Please try again."
     }
   },
+  "learnings": {
+    "create": {
+      "title": "New Learning",
+      "pageHeader": "New Learning",
+      "form": {
+        "titleLabel": "Title",
+        "titlePlaceholder": "Optional — add a title if useful",
+        "titleCharCounter": "{current} / 200",
+        "contentLabel": "Content",
+        "contentPlaceholder": "What did you learn?",
+        "contentCharCounter": "{current} / 50,000",
+        "saveButton": "Save Learning",
+        "savingButton": "Saving...",
+        "cancelButton": "Cancel"
+      },
+      "errors": {
+        "contentRequired": "Content is required",
+        "titleTooLong": "Title must be 200 characters or less",
+        "contentTooLong": "Content must be between 1 and 50,000 characters"
+      },
+      "success": {
+        "message": "Learning saved!"
+      }
+    }
+  },
   "poks": {
     "create": {
       "title": "New learning"
