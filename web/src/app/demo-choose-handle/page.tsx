@@ -11,23 +11,26 @@ import messages from '@/locales/en.json';
  * Safe to delete - not tracked by Git
  */
 export default function DemoChooseHandlePage() {
-  const [isDark, setIsDark] = useState(true);
-  const [mounted, setMounted] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    // Initialize from localStorage or default to dark
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('demo-theme');
+      return stored ? stored === 'dark' : true;
+    }
+    return true;
+  });
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
+    // Save preference
+    localStorage.setItem('demo-theme', isDark ? 'dark' : 'light');
+    
+    // Apply to document
     if (isDark) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, [isDark, mounted]);
-
-  if (!mounted) return null;
+  }, [isDark]);
 
   return (
     <NextIntlClientProvider locale="en" messages={messages}>
@@ -36,7 +39,7 @@ export default function DemoChooseHandlePage() {
         <div className="fixed top-4 right-4 z-50">
           <button
             onClick={() => setIsDark(!isDark)}
-            className="px-4 py-2 rounded-lg bg-[#D4854A] text-[#F5F0E8] dark:bg-[#D4854A] dark:text-[#F5F0E8] light:bg-[#D4854A] light:text-white font-medium text-sm hover:opacity-90 transition-opacity"
+            className="px-4 py-2 rounded-lg bg-[#D4854A] text-[#F5F0E8] dark:bg-[#D4854A] dark:text-[#F5F0E8] light:bg-[#D4854A] light:text-white font-medium text-sm hover:opacity-90 transition-opacity active:scale-95"
             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {isDark ? '☀️ Light' : '🌙 Dark'}
@@ -58,3 +61,4 @@ export default function DemoChooseHandlePage() {
     </NextIntlClientProvider>
   );
 }
+
