@@ -264,9 +264,9 @@ function AlertV2({ variant, children }: AlertV2Props) {
       role="alert"
       className={cn(
         'rounded-lg border p-3 text-sm',
-        variant === 'error' && 'border-[var(--error)]/30 bg-[var(--error)]/10 text-[var(--error)]',
-        variant === 'success' && 'border-[var(--success)]/30 bg-[var(--success)]/10 text-[var(--success)]',
-        variant === 'info' && 'border-[var(--muted)]/30 bg-[var(--muted)]/10 text-[var(--foreground)]'
+        variant === 'error' && 'border-destructive/30 bg-destructive/10 text-destructive',
+        variant === 'success' && 'border-success/30 bg-success/10 text-success',
+        variant === 'info' && 'border-muted/30 bg-muted/10 text-foreground'
       )}
     >
       {children}

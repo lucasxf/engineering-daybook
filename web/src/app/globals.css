@@ -28,6 +28,8 @@
     --destructive-background: 255 240 240; /* #FFF0F0 */
     --destructive-border: 245 198 198; /* #F5C6C6 */
 
+    --success: 42 109 58; /* #2A6D3A — forest green */
+
     --ring: 212 133 74;
     --radius: 0.5rem;
 
@@ -59,6 +61,8 @@
     --destructive: 255 138 138; /* #FF8A8A */
     --destructive-background: 45 26 26; /* #2D1A1A */
     --destructive-border: 90 42 42; /* #5A2A2A */
+
+    --success: 123 201 126; /* #7BC97E — soft forest green for dark mode */
 
     --ring: 212 133 74;
 
