@@ -118,7 +118,7 @@ export default {
       noTagsAvailable: 'No tags available. Create tags on the web.',
       tagListLoadErrorTitle: 'Could not load tags',
       tagListLoadErrorMessage: 'Failed to load your tags. Please try again.',
-      removeTagAccessibilityLabel: 'Remove tag {tagName}',
+      removeTagAccessibilityLabel: 'Remove tag %{tagName}',
     },
     visibility: {
       private: 'Private',

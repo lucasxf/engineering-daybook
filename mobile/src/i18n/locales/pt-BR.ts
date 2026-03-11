@@ -116,7 +116,7 @@ export default {
       noTagsAvailable: 'Nenhuma etiqueta disponível. Crie etiquetas no site.',
       tagListLoadErrorTitle: 'Não foi possível carregar etiquetas',
       tagListLoadErrorMessage: 'Falha ao carregar suas etiquetas. Tente novamente.',
-      removeTagAccessibilityLabel: 'Remover etiqueta {tagName}',
+      removeTagAccessibilityLabel: 'Remover etiqueta %{tagName}',
     },
     visibility: {
       private: 'Privado',
