@@ -228,6 +228,11 @@ Output the review report:
 ✅ READY — All checks pass. Safe to run /implement-spec <spec-path>
 ```
 
+Then:
+1. Update the spec's `Status` field from `Draft` to `Approved` using the Edit tool
+2. Commit: `docs: approve spec [spec-name] after review`
+3. Report: "Status updated to **Approved** — ready for `/implement-spec`."
+
 **If any FAIL items exist:**
 ```
 ⚠️ NEEDS WORK — N issue(s) found. Fix before running /implement-spec.
@@ -236,6 +241,8 @@ Issues to fix:
 - [FAIL item 1]
 - [FAIL item 2]
 ```
+
+Do NOT update the spec Status on NEEDS WORK — leave it as Draft.
 
 > WARNs (missing Implementation Plan, unknown file paths) do not block implementation — they are informational.
 

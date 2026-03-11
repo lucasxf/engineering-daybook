@@ -101,12 +101,42 @@ git log HEAD..origin/develop --oneline
 3. **If sections are missing:** STOP. Tell the user which sections are missing and ask them to complete the spec before proceeding.
 4. Note whether an optional `## Screens` section is present (web/full-stack specs). When present, use it in Phase 2 to inform component hierarchy and file planning — it is the authoritative source for UI structure.
 
-### 1.2 Check Status
+### 1.2 Check Status & Structural Gate
 
 1. Read the spec's Status field
 2. **If "Implemented":** STOP. Ask: "This spec is already implemented. Re-implement? (y/n)"
-3. **If "Draft":** STOP. Tell the user: "Spec status is Draft — it has not been reviewed. Run `/review-spec $ARGUMENTS` first to get a quality gate and approval. Proceed anyway? (y/n)" If the user confirms yes, continue. Otherwise stop.
-4. **If "Approved" or user confirms:** Proceed
+3. **If "Approved":** Proceed to Phase 1.3 — skip structural check (already reviewed by `/review-spec`)
+4. **If "Draft":** Warn the user:
+   ```
+   Spec status is Draft — it has not been reviewed.
+   Run `/review-spec $ARGUMENTS` first to get a quality gate and approval.
+   Proceed anyway? (y/n)
+   ```
+   - If **no** → STOP
+   - If **yes** → run the **Structural Completeness Check** below before proceeding
+
+**Structural Completeness Check (Draft bypass only):**
+
+Check the spec for structural completeness. For each row, report PASS, FAIL, or WARN:
+
+| Check | Rule | Severity |
+|-------|------|----------|
+| Status / Created header | Must not be placeholder | FAIL |
+| `## Context` | Must not be placeholder text | FAIL |
+| `## Requirements` > `### Functional` | At least 1 FR | FAIL |
+| `## Requirements` > `### Non-Functional` | At least 1 NFR | FAIL |
+| `## Technical Constraints` | Stack field must be set | FAIL |
+| `## Acceptance Criteria` | At least 1 AC with GIVEN/WHEN/THEN | FAIL |
+| `## Screens` | Required if Stack includes Web or Mobile; N/A otherwise | FAIL or N/A |
+| `## Implementation Approach` > `### Architecture` | Must not be placeholder | FAIL |
+| `## Implementation Approach` > `### Test Strategy` | At least one checkbox selected | FAIL |
+| `## Implementation Approach` > `### File Changes` | At least 1 file path listed | FAIL |
+| `## Implementation Plan` | Recommended for orchestrator mode | WARN |
+| `## Dependencies` | "Blocked by" and "Blocks" fields present | FAIL |
+
+- **If any FAIL:** Print the table with per-row status. STOP with: "Spec has N structural issue(s). Fix before implementing, or run `/review-spec $ARGUMENTS` for detailed feedback and auto-approval."
+- **If only WARNs:** Print the table, proceed.
+- **If all PASS:** Proceed silently.
 
 ### 1.3 Update Status
 
