@@ -509,7 +509,7 @@ export function RegisterFormV2({ locale }: RegisterFormV2Props) {
 
       <GoogleLoginButton mode="register" />
 
-      <p className="text-center text-sm text-[var(--muted)]">
+      <p className="text-center text-sm text-muted-foreground">
         {t('hasAccount')}{' '}
         <Link
           href={`/${locale}/login` as never}
