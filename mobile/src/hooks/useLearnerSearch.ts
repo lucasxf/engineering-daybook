@@ -37,7 +37,7 @@ export function useLearnerSearch(query: string): UseLearnerSearchResult {
     setLoading(true);
     setError(null);
 
-    searchLearners(debouncedQuery)
+    searchLearners(debouncedQuery, undefined, controller.signal)
       .then((page) => {
         if (cancelled) return;
         setResults(page.content);
