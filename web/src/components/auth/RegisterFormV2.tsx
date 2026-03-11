@@ -312,9 +312,9 @@ function PasswordStrengthIndicator({ strength }: { strength: 'weak' | 'medium' |
   const t = useTranslations('auth');
 
   const strengthConfig = {
-    weak: { bars: 1, color: 'var(--error)', label: t('passwordStrength.weak') },
-    medium: { bars: 2, color: 'var(--warning)', label: t('passwordStrength.medium') },
-    strong: { bars: 3, color: 'var(--success)', label: t('passwordStrength.strong') },
+    weak: { bars: 1, color: 'rgb(var(--destructive))', label: t('passwordStrength.weak') },
+    medium: { bars: 2, color: 'rgb(var(--warning))', label: t('passwordStrength.medium') },
+    strong: { bars: 3, color: 'rgb(var(--success))', label: t('passwordStrength.strong') },
   };
 
   const config = strengthConfig[strength];
@@ -327,12 +327,12 @@ function PasswordStrengthIndicator({ strength }: { strength: 'weak' | 'medium' |
             key={bar}
             className="h-full flex-1 rounded-full transition-colors duration-200"
             style={{
-              backgroundColor: bar <= config.bars ? config.color : 'var(--input-border)',
+              backgroundColor: bar <= config.bars ? config.color : 'rgb(var(--input-border))',
             }}
           />
         ))}
       </div>
-      <span className="text-xs text-[var(--muted)]">{config.label}</span>
+      <span className="text-xs text-muted-foreground">{config.label}</span>
     </div>
   );
 }

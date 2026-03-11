@@ -58,6 +58,8 @@ const config: Config = {
           background: 'rgb(var(--destructive-background) / <alpha-value>)',
           border: 'rgb(var(--destructive-border) / <alpha-value>)',
         },
+        success: 'rgb(var(--success) / <alpha-value>)',
+        warning: 'rgb(var(--warning) / <alpha-value>)',
         ring: 'rgb(var(--ring) / <alpha-value>)',
         /* Brand accents */
         'deep-navy': '#0F1B2D',
