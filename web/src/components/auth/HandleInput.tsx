@@ -70,9 +70,8 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
             aria-hidden="true"
             className={cn(
               'flex items-center rounded-l-md border border-r-0 px-3 text-sm select-none',
-              'border-[#2B4A78] bg-[#2B4A78] text-[#8899AA]',
-              'dark:border-[#2B4A78] dark:bg-[#2B4A78] dark:text-[#8899AA]',
-              'light:border-[#CCC] light:bg-[#F0EDE8] light:text-[#888]'
+              'bg-muted text-muted-foreground',
+              'border-border'
             )}
           >
             @
@@ -92,15 +91,15 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
             value={value}
             className={cn(
               'block w-full rounded-r-md border py-2 pr-10 pl-3 text-sm transition-colors',
-              'bg-[#0F1B2D] text-[#F5F0E8]',
-              'placeholder:text-[#8899AA]',
+              'bg-card text-card-foreground',
+              'placeholder:text-muted-foreground',
               'focus:outline-none focus:ring-2',
               'disabled:cursor-not-allowed disabled:opacity-50',
               inputHasError
-                ? 'border-[#F87171] focus:ring-[#F87171]'
+                ? 'border-red-500 focus:ring-red-500 dark:border-red-400 dark:focus:ring-red-400'
                 : status === 'available'
-                  ? 'border-[#4ADE80] focus:ring-[#4ADE80]'
-                  : 'border-[#2B4A78] focus:ring-[#D4854A]',
+                  ? 'border-green-500 focus:ring-green-500 dark:border-green-400 dark:focus:ring-green-400'
+                  : 'border-border focus:ring-accent',
               className
             )}
             {...props}
@@ -117,7 +116,7 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
           {status === 'available' && (
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#4ADE80]"
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-green-500 dark:text-green-400"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path
@@ -135,7 +134,7 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
           {status === 'taken' && (
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#F87171]"
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-red-500 dark:text-red-400"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path
@@ -152,7 +151,7 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
           {status === 'invalid' && (
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#FBBF24]"
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-amber-500 dark:text-amber-400"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path
@@ -181,22 +180,22 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
           className="min-h-[1.25rem] text-xs"
         >
           {status === 'checking' && (
-            <span className="text-[#8899AA] animate-pulse">
+            <span className="text-muted-foreground animate-pulse">
               {t('chooseHandleChecking')}
             </span>
           )}
           {status === 'available' && (
-            <span className="text-[#4ADE80] dark:text-[#4ADE80] font-medium">
+            <span className="text-green-600 dark:text-green-400 font-medium">
               {t('chooseHandleAvailable', { handle: value as string })}
             </span>
           )}
           {status === 'taken' && (
-            <span className="text-[#F87171] dark:text-[#F87171]">
+            <span className="text-red-600 dark:text-red-400">
               {t('chooseHandleTaken', { handle: value as string })}
             </span>
           )}
           {status === 'invalid' && validationError && (
-            <span className="text-[#FBBF24] dark:text-[#FBBF24]">
+            <span className="text-amber-600 dark:text-amber-400">
               {validationError}
             </span>
           )}
@@ -205,14 +204,14 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
         {/* Handle preview pill */}
         {showPreviewPill && (
           <div className="flex items-center gap-2">
-            <span className="text-xs text-[#8899AA]">Preview:</span>
+            <span className="text-xs text-muted-foreground">Preview:</span>
             <span
               className={cn(
                 'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
-                'bg-[#2B4A78]',
+                'bg-muted text-muted-foreground',
                 status === 'available'
-                  ? 'text-[#8B5E3C]'
-                  : 'text-[#8899AA]'
+                  ? 'text-secondary dark:text-secondary'
+                  : ''
               )}
             >
               @{value}
@@ -225,3 +224,4 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
 );
 
 HandleInput.displayName = 'HandleInput';
+
