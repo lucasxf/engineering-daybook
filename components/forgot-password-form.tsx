@@ -15,7 +15,7 @@ interface ForgotPasswordFormProps {
   loginHref?: string;
 }
 
-export function ForgotPasswordForm({ loginHref = "/login" }: ForgotPasswordFormProps) {
+export function ForgotPasswordForm({ loginHref = "#" }: ForgotPasswordFormProps) {
   const emailId = useId();
   const [email, setEmail] = useState("");
   const [touched, setTouched] = useState(false);
