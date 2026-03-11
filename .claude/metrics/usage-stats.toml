@@ -2,7 +2,7 @@
 # Compiled by /compile-metrics, analyzed by automation-sentinel agent
 
 [metadata]
-timestamp = "2026-03-11T07:51:03Z"
+timestamp = "2026-03-11T15:24:54Z"
 commit_sha = ""
 branch = "develop"
 schema_version = "1.0.0"
@@ -10,16 +10,16 @@ updated_by = "compile-metrics"
 
 # Agent Usage Metrics
 [agent_usage.Explore]
-invocations = 51
-last_used = "2026-03-10T10:22:02Z"
+invocations = 60
+last_used = "2026-03-11T12:27:15Z"
 
 [agent_usage.Plan]
-invocations = 9
+invocations = 11
 last_used = "2026-03-09T23:37:53Z"
 
 [agent_usage.general-purpose]
-invocations = 42
-last_used = "2026-03-10T10:40:34Z"
+invocations = 62
+last_used = "2026-03-10T10:40:53Z"
 
 [agent_usage.automation-sentinel]
 invocations = 0
@@ -54,7 +54,7 @@ invocations = 0
 last_used = ""
 
 [agent_usage.tech-writer]
-invocations = 4
+invocations = 5
 last_used = "2026-03-08T20:11:38Z"
 
 [agent_usage.virgil]
@@ -67,24 +67,24 @@ last_used = ""
 
 # Command Usage Metrics
 [command_usage.compile-metrics]
-invocations = 6
-last_used = "2026-03-11T07:49:08Z"
+invocations = 7
+last_used = "2026-03-11T15:24:07Z"
 
 [command_usage.create-pr]
-invocations = 21
-last_used = "2026-03-11T07:46:06Z"
+invocations = 26
+last_used = "2026-03-11T08:04:52Z"
 
 [command_usage.directive]
 invocations = 1
 last_used = "2026-03-06T18:44:46Z"
 
 [command_usage.finish-session]
-invocations = 32
-last_used = "2026-03-11T07:39:57Z"
+invocations = 40
+last_used = "2026-03-11T13:10:40Z"
 
 [command_usage.fix-pr]
-invocations = 5
-last_used = "2026-03-08T22:02:39Z"
+invocations = 6
+last_used = "2026-03-11T11:46:27Z"
 
 [command_usage.generate-v0-prompt]
 invocations = 1
@@ -95,11 +95,11 @@ invocations = 6
 last_used = "2026-03-08T09:44:25Z"
 
 [command_usage.review-pr]
-invocations = 5
-last_used = "2026-03-08T15:59:46Z"
+invocations = 7
+last_used = "2026-03-11T11:21:25Z"
 
 [command_usage.save-response]
-invocations = 3
+invocations = 4
 last_used = "2026-03-09T23:53:05Z"
 
 [command_usage.start-session]
@@ -116,10 +116,10 @@ last_used = ""
 
 # Productivity Metrics
 [productivity]
-current_total_locs = 49353
-current_production_locs = 23096
-current_test_locs = 26257
-test_ratio_percent = 113.7
+current_total_locs = 54121
+current_production_locs = 24937
+current_test_locs = 29184
+test_ratio_percent = 117.0
 total_locs_added = 0
 total_locs_deleted = 0
 net_locs = 0
