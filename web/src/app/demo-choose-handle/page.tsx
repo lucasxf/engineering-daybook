@@ -4,7 +4,8 @@ import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { NextIntlClientProvider } from 'next-intl';
 import { ChooseHandleForm } from '@/components/auth/ChooseHandleForm';
-import messages from '@/locales/en.json';
+import enMessages from '@/locales/en.json';
+import ptBrMessages from '@/locales/pt-BR.json';
 
 /**
  * DEMO PAGE - For preview purposes only
@@ -14,6 +15,7 @@ import messages from '@/locales/en.json';
 export default function DemoChooseHandlePage() {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [locale, setLocale] = useState<'en' | 'pt-BR'>('en');
 
   useEffect(() => {
     setMounted(true);
@@ -24,19 +26,30 @@ export default function DemoChooseHandlePage() {
   }
 
   const isDark = resolvedTheme === 'dark';
+  const messages = locale === 'en' ? enMessages : ptBrMessages;
 
   return (
-    <NextIntlClientProvider locale="en" messages={messages}>
+    <NextIntlClientProvider locale={locale} messages={messages}>
       <div className="min-h-screen bg-[#0F1B2D] dark:bg-[#0F1B2D] text-[#F5F0E8] dark:text-[#F5F0E8] transition-colors"
            style={!isDark ? { backgroundColor: '#F5F0E8', color: '#1A1A2E' } : {}}>
-        {/* Theme Toggle */}
-        <div className="fixed top-4 right-4 z-50">
+        {/* Controls */}
+        <div className="fixed top-4 right-4 z-50 flex gap-2">
+          {/* Theme Toggle */}
           <button
             onClick={() => setTheme(isDark ? 'light' : 'dark')}
             className="px-4 py-2 rounded-lg bg-[#D4854A] text-[#F5F0E8] font-medium text-sm hover:opacity-90 transition-opacity active:scale-95"
             aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {isDark ? '☀️ Light' : '🌙 Dark'}
+          </button>
+
+          {/* Language Toggle */}
+          <button
+            onClick={() => setLocale(locale === 'en' ? 'pt-BR' : 'en')}
+            className="px-4 py-2 rounded-lg bg-[#D4854A] text-[#F5F0E8] font-medium text-sm hover:opacity-90 transition-opacity active:scale-95"
+            aria-label={locale === 'en' ? 'Switch to Portuguese' : 'Switch to English'}
+          >
+            {locale === 'en' ? '🇧🇷 PT' : '🇺🇸 EN'}
           </button>
         </div>
 
@@ -56,5 +69,6 @@ export default function DemoChooseHandlePage() {
     </NextIntlClientProvider>
   );
 }
+
 
 
