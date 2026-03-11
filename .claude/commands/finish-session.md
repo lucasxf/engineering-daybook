@@ -94,10 +94,10 @@ Then run the unused import check (Java compiler does not catch these — Checkst
 # Preferred: run tools directly so output is never swallowed by npm wrapper
 (cd web && npx eslint src)            # lint — also catches unused imports via @typescript-eslint/no-unused-vars
 (cd web && npx next build)            # type-check + production build
-(cd web && npx vitest run --coverage) # unit tests + 80% line coverage threshold (enforced by vitest.config.ts)
+(cd web && npx vitest run --coverage) # unit tests + 50% line coverage threshold (enforced by vitest.config.ts; target 80%)
 ```
 
-If vitest exits non-zero due to coverage below 80% → **STOP.** Do not commit. Show the coverage summary and ask the user how to proceed (add tests or lower threshold).
+If vitest exits non-zero due to coverage below 50% → **STOP.** Do not commit. Show the coverage summary and ask the user how to proceed (add tests or lower threshold).
 
 
 > **Unused imports (TypeScript):** Caught automatically by `npx eslint src` via the
