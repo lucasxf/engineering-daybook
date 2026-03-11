@@ -13,7 +13,6 @@ import { ApiRequestError } from '@/lib/api';
 import { Spinner } from '@/components/ui/Spinner';
 import { HandleInput } from './HandleInput';
 import { useHandleAvailability } from '@/hooks/useHandleAvailability';
-import { cn } from '@/lib/utils';
 
 // Minimal schema: only handle is required on this screen
 const handleOnlySchema = z.object({
@@ -28,7 +27,6 @@ type HandleOnlyFormData = z.infer<typeof handleOnlySchema>;
 
 interface ChooseHandleFormProps {
   tempToken: string;
-  defaultDisplayName?: string;
 }
 
 type FormView = 'form' | 'sessionExpired';
@@ -56,7 +54,7 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
   });
 
   const handleValue = watch('handle');
-  const { isAvailable } = useHandleAvailability(handleValue);
+  const { isChecking, isAvailable } = useHandleAvailability(handleValue);
 
   // CTA is only enabled when server confirmed availability and no validation errors
   const canSubmit =
@@ -192,6 +190,8 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
               ? resolveError(errors.handle.message!)
               : undefined
           }
+          isChecking={isChecking}
+          isAvailable={isAvailable}
           disabled={isSubmitting}
           placeholder={t('chooseHandlePlaceholder')}
           {...register('handle')}
@@ -226,6 +226,7 @@ export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
               onClick={() => {
                 setGenericError(null);
               }}
+              aria-label={t('errors.dismiss')}
               className="shrink-0 text-xs underline opacity-70 hover:opacity-100"
             >
               ×

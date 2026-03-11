@@ -5,7 +5,6 @@ import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
 import { Spinner } from '@/components/ui/Spinner';
-import { useHandleAvailability } from '@/hooks/useHandleAvailability';
 import { HANDLE_PATTERN } from '@/lib/validations';
 
 interface HandleInputProps
@@ -17,6 +16,9 @@ interface HandleInputProps
    * When set, suppresses the availability status indicator.
    */
   validationError?: string;
+  /** Lifted from parent's useHandleAvailability — avoids duplicate hook calls. */
+  isChecking?: boolean;
+  isAvailable?: boolean | null;
 }
 
 type StatusState = 'idle' | 'checking' | 'available' | 'taken' | 'invalid';
@@ -42,10 +44,9 @@ function getStatus(
  * Colors follow the "Library at Dusk" palette with dark/light mode support.
  */
 export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
-  ({ value, hasError, validationError, className, id, ...props }, ref) => {
+  ({ value, hasError, validationError, isChecking = false, isAvailable = null, className, id, ...props }, ref) => {
     const t = useTranslations('auth');
     const { resolvedTheme } = useTheme();
-    const { isChecking, isAvailable } = useHandleAvailability(value as string);
 
     const hasValidationError = !!(hasError || validationError);
     const status = getStatus(
@@ -70,10 +71,8 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
     const prefixText = isDark ? '#8899AA' : '#888888';
     const inputBg = isDark ? '#0F1B2D' : 'white';
     const inputText = isDark ? '#F5F0E8' : '#1A1A2E';
-    const inputPlaceholder = isDark ? '#8899AA' : 'rgb(107, 114, 128)';
     const inputBorder = isDark ? '#2B4A78' : '#CCC';
-    const focusRing = isDark ? '#D4854A' : '#D4854A';
-    
+
     const errorBorder = isDark ? '#F87171' : '#DC2626';
     const availableBorder = isDark ? '#4ADE80' : '#16A34A';
     
@@ -117,7 +116,7 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
             value={value}
             className={cn(
               'block w-full rounded-r-md border py-2 pr-10 pl-3 text-sm transition-colors',
-              'focus:outline-none focus:ring-2',
+              'focus:outline-none focus:ring-2 focus:ring-[#D4854A]',
               'disabled:cursor-not-allowed disabled:opacity-50',
               className
             )}
@@ -125,7 +124,6 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
               backgroundColor: inputBg,
               color: inputText,
               borderColor: inputHasError ? errorBorder : status === 'available' ? availableBorder : inputBorder,
-              outlineColor: focusRing,
             }}
             {...props}
           />
@@ -233,7 +231,7 @@ export const HandleInput = forwardRef<HTMLInputElement, HandleInputProps>(
         {showPreviewPill && (
           <div className="flex items-center gap-2">
             <span className="text-xs" style={{ color: statusText }}>
-              Preview:
+              {t('chooseHandlePreview')}
             </span>
             <span
               className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"

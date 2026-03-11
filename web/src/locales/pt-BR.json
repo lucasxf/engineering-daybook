@@ -57,6 +57,7 @@
     "chooseHandleCta": "Confirmar identificador",
     "chooseHandleSubmitting": "Confirmando…",
     "chooseHandleSessionExpired": "Sua sessão do Google expirou. Por favor, faça login novamente.",
+    "chooseHandlePreview": "Visualização:",
     "chooseHandleWrongAccount": "Conta errada? Entre novamente",
     "completeRegistration": "Confirmar identificador",
     "completingRegistration": "Confirmando…",
@@ -107,7 +108,8 @@
       "googleEmailConflict": "Este e-mail j\u00e1 est\u00e1 cadastrado com senha. Fa\u00e7a login com e-mail e senha.",
       "googleCancelled": "Login cancelado. Tente novamente.",
       "sessionExpired": "Sess\u00e3o expirada. Tente novamente.",
-      "unexpected": "Algo deu errado. Tente novamente."
+      "unexpected": "Algo deu errado. Tente novamente.",
+      "dismiss": "Fechar"
     }
   },
   "poks": {

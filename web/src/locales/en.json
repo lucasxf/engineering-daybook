@@ -57,6 +57,7 @@
     "chooseHandleCta": "Claim my handle",
     "chooseHandleSubmitting": "Claiming…",
     "chooseHandleSessionExpired": "Your Google sign-in session has expired. Please sign in again.",
+    "chooseHandlePreview": "Preview:",
     "chooseHandleWrongAccount": "Wrong account? Sign in again",
     "completeRegistration": "Claim my handle",
     "completingRegistration": "Claiming…",
@@ -107,7 +108,8 @@
       "googleEmailConflict": "This email is already registered with a password. Please sign in with email and password.",
       "googleCancelled": "Sign-in cancelled. Please try again.",
       "sessionExpired": "Session expired. Please try again.",
-      "unexpected": "Something went wrong. Please try again."
+      "unexpected": "Something went wrong. Please try again.",
+      "dismiss": "Dismiss"
     }
   },
   "poks": {
