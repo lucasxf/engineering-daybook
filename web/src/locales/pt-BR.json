@@ -65,6 +65,14 @@
     "resetPasswordTitle": "Defina uma nova senha",
     "resetPasswordSubtitle": "Escolha uma senha forte para sua conta",
     "newPassword": "Nova senha",
+    "validatingResetLink": "Validando link de redefinição...",
+    "passwordRequirements": {
+      "title": "Requisitos da senha:",
+      "length": "8–128 caracteres",
+      "uppercase": "Pelo menos uma letra maiúscula",
+      "lowercase": "Pelo menos uma letra minúscula",
+      "number": "Pelo menos um número"
+    },
     "resetPasswordButton": "Redefinir senha",
     "resettingPassword": "Redefinindo...",
     "resetPasswordSuccess": "Senha atualizada. Faça login com sua nova senha.",

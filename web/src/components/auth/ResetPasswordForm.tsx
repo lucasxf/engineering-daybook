@@ -99,19 +99,19 @@ export function ResetPasswordForm({ token, locale }: ResetPasswordFormProps) {
         error={errors.newPassword ? resolveError(errors.newPassword.message!) : undefined}
         hint={
           <div className="space-y-2 text-xs text-muted-foreground">
-            <p className="font-medium">Password requirements:</p>
+            <p className="font-medium">{t('passwordRequirements.title')}</p>
             <ul className="space-y-1 pl-4">
-              <li className={passwordRequirements.minLength ? 'text-success' : ''}>
-                • 8–128 characters
+              <li className={passwordRequirements.minLength && passwordRequirements.maxLength ? 'text-success' : ''}>
+                • {t('passwordRequirements.length')}
               </li>
               <li className={passwordRequirements.hasUppercase ? 'text-success' : ''}>
-                • At least one uppercase letter
+                • {t('passwordRequirements.uppercase')}
               </li>
               <li className={passwordRequirements.hasLowercase ? 'text-success' : ''}>
-                • At least one lowercase letter
+                • {t('passwordRequirements.lowercase')}
               </li>
               <li className={passwordRequirements.hasNumber ? 'text-success' : ''}>
-                • At least one number
+                • {t('passwordRequirements.number')}
               </li>
             </ul>
           </div>

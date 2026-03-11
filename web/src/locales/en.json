@@ -65,6 +65,14 @@
     "resetPasswordTitle": "Set a new password",
     "resetPasswordSubtitle": "Choose a strong password for your account",
     "newPassword": "New password",
+    "validatingResetLink": "Validating reset link...",
+    "passwordRequirements": {
+      "title": "Password requirements:",
+      "length": "8–128 characters",
+      "uppercase": "At least one uppercase letter",
+      "lowercase": "At least one lowercase letter",
+      "number": "At least one number"
+    },
     "resetPasswordButton": "Set new password",
     "resettingPassword": "Setting password...",
     "resetPasswordSuccess": "Password updated. Please sign in with your new password.",

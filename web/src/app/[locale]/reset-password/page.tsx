@@ -52,8 +52,8 @@ function ResetPasswordContent() {
         {tokenState === 'loading' && (
           <div className="flex flex-col items-center justify-center py-12">
             <Spinner size="md" className="mb-3" />
-            <p className="text-sm text-muted-foreground" aria-label="Validating reset link...">
-              Validating reset link...
+            <p className="text-sm text-muted-foreground">
+              {t('validatingResetLink')}
             </p>
           </div>
         )}
