@@ -1,0 +1,73 @@
+appId: net.learnimo.app
+---
+# AC32: User can view a learner's profile, follow them, and tap into a learning
+#
+# Test data assumptions:
+#   - Logged-in user: test@learnimo.net / TestPass123 (handle: "alice")
+#   - Another learner with handle "bob" exists with a public profile, a bio, and at
+#     least one public learning titled "My First Learning"
+#   - "alice" does not follow "bob" at the start of this flow
+#     (reset the follow relationship before running, or use a dedicated test account)
+
+# Start fresh and log in
+- launchApp:
+    clearState: true
+
+- assertVisible: "Welcome back"
+
+- tapOn:
+    text: "Email"
+- inputText: "test@learnimo.net"
+- tapOn:
+    text: "Password"
+- inputText: "TestPass123"
+- tapOn:
+    text: "Sign in"
+
+# Verify: land on the social feed
+- assertVisible: "Feed"
+
+# Navigate to Discover to reach the learner profile
+- tapOn:
+    text: "🔍"
+
+- assertVisible: "Discover Learners"
+
+- tapOn:
+    text: "Search by name or handle"
+- inputText: "bo"
+
+- waitForAnimationToEnd:
+
+# Tap card body to navigate to bob's profile
+- tapOn:
+    text: "@bob"
+
+- waitForAnimationToEnd:
+
+# Verify: profile header is visible (display name / handle, bio)
+- assertVisible: "@bob"
+
+# Verify: Follow button is shown in NONE state
+- assertVisible: "Follow"
+
+# Tap Follow
+- tapOn:
+    text: "Follow"
+
+- waitForAnimationToEnd:
+
+# Verify: button label changes to "Following"
+- assertVisible: "Following"
+
+# Verify: learnings section is present
+- assertVisible: "Learnings"
+
+# Tap a learning card to navigate to LearningDetail
+- tapOn:
+    text: "My First Learning"
+
+- waitForAnimationToEnd:
+
+# Verify: LearningDetailScreen is visible (title is shown on the detail screen)
+- assertVisible: "My First Learning"

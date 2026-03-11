@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Pressable,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -18,6 +19,7 @@ import type { Pok } from '@/lib/pokApi';
 import type { AppStackParamList } from '@/navigation/AppStack';
 import { LearningCard } from '@/components/feed/LearningCard';
 import { Text } from '@/components/ui/Text';
+import { Button } from '@/components/ui/Button';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { TextInput } from '@/components/ui/TextInput';
 
@@ -30,9 +32,16 @@ type AppNav = NativeStackNavigationProp<AppStackParamList>;
 function SocialContent({ onPokPress }: { onPokPress: (pok: Pok) => void }) {
   const { theme } = useTheme();
   const { t } = useI18n();
+  const nav = useNavigation<AppNav>();
 
   const { items, loading, refreshing, loadingMore, hasMore, error, refresh, loadMore } =
     useSocialFeedData();
+
+  function handleAuthorPress(handle: string) {
+    if (handle) {
+      nav.navigate('LearnerProfile', { handle });
+    }
+  }
 
   function renderItem({ item }: { item: FeedItem }) {
     if (item.type === 'shared') {
@@ -50,46 +59,71 @@ function SocialContent({ onPokPress }: { onPokPress: (pok: Pok) => void }) {
           borderColor: theme.colors.border,
           overflow: 'hidden',
         }}>
-          <View style={{
-            paddingHorizontal: theme.spacing.md,
-            paddingVertical: theme.spacing.xs,
-            backgroundColor: theme.colors.surfaceAlt,
-            flexDirection: 'row',
-            gap: theme.spacing.xs,
-          }}>
+          {/* Re-learning header — sharer attribution is tappable */}
+          <Pressable
+            onPress={() => handleAuthorPress(item.sharedByHandle)}
+            accessibilityRole="button"
+            accessibilityLabel={`@${item.sharedByHandle}`}
+            style={{
+              paddingHorizontal: theme.spacing.md,
+              paddingVertical: theme.spacing.xs,
+              backgroundColor: theme.colors.surfaceAlt,
+              flexDirection: 'row',
+              gap: theme.spacing.xs,
+            }}
+          >
             <Text variant="caption" color={theme.colors.textSecondary}>
               {t('learnings.socialFeed.relearning')} @{item.sharedByHandle}
             </Text>
-          </View>
+          </Pressable>
           <LearningCard
             pok={{ ...originalPok, tags: originalPok.tags ?? [], pendingSuggestions: originalPok.pendingSuggestions ?? [] }}
             onPress={onPokPress}
           />
-          <View style={{ paddingHorizontal: theme.spacing.md, paddingBottom: theme.spacing.xs }}>
+          {/* Original author attribution is tappable */}
+          <Pressable
+            onPress={() => handleAuthorPress(authorHandle)}
+            accessibilityRole="button"
+            accessibilityLabel={authorName}
+            style={{
+              paddingHorizontal: theme.spacing.md,
+              paddingBottom: theme.spacing.xs,
+            }}
+          >
             <Text variant="caption" color={theme.colors.textSecondary}>
               {t('learnings.socialFeed.by')} {authorName}
             </Text>
-          </View>
+          </Pressable>
         </View>
       );
     }
 
+    // Owned feed item — author attribution row is tappable
     const authorHandle = item.authorHandle ?? '';
     const authorName = item.authorDisplayName ?? `@${authorHandle}`;
 
     return (
       <View>
         {authorHandle ? (
-          <View style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingHorizontal: theme.spacing.xs,
-            paddingBottom: theme.spacing.xs,
-            gap: theme.spacing.xs,
-          }}>
-            <Text variant="caption" color={theme.colors.textSecondary}>{authorName}</Text>
-            <Text variant="caption" color={theme.colors.textSecondary}>@{authorHandle}</Text>
-          </View>
+          <Pressable
+            onPress={() => handleAuthorPress(authorHandle)}
+            accessibilityRole="button"
+            accessibilityLabel={authorName}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingHorizontal: theme.spacing.xs,
+              paddingBottom: theme.spacing.xs,
+              gap: theme.spacing.xs,
+            }}
+          >
+            <Text variant="caption" color={theme.colors.textSecondary}>
+              {authorName}
+            </Text>
+            <Text variant="caption" color={theme.colors.textSecondary}>
+              @{authorHandle}
+            </Text>
+          </Pressable>
         ) : null}
         <LearningCard pok={item} onPress={onPokPress} />
       </View>
@@ -104,6 +138,12 @@ function SocialContent({ onPokPress }: { onPokPress: (pok: Pok) => void }) {
         <Text variant="caption" color={theme.colors.textSecondary} style={{ marginTop: theme.spacing.sm, textAlign: 'center' }}>
           {t('learnings.socialFeed.emptyHint')}
         </Text>
+        <Button
+          label={t('learnings.socialFeed.findLearners')}
+          variant="secondary"
+          onPress={() => nav.navigate('Discover')}
+          style={{ marginTop: theme.spacing.md }}
+        />
       </View>
     );
   }
@@ -242,32 +282,44 @@ export function FeedScreen() {
         paddingTop: theme.spacing.md,
         paddingBottom: theme.spacing.sm,
         gap: theme.spacing.sm,
+        alignItems: 'center',
       }}>
-        {tabs.map((tab) => {
-          const active = activeTab === tab.key;
-          return (
-            <TouchableOpacity
-              key={tab.key}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: active }}
-              onPress={() => setActiveTab(tab.key)}
-              style={{
-                paddingHorizontal: theme.spacing.md,
-                paddingVertical: theme.spacing.xs + 2,
-                borderRadius: theme.radii.full,
-                backgroundColor: active ? theme.colors.primary : theme.colors.surfaceAlt,
-              }}
-            >
-              <Text
-                variant="bodySm"
-                style={{ fontWeight: active ? '600' : '400' }}
-                color={active ? '#fff' : theme.colors.textSecondary}
+        <View style={{ flex: 1, flexDirection: 'row', gap: theme.spacing.sm }}>
+          {tabs.map((tab) => {
+            const active = activeTab === tab.key;
+            return (
+              <TouchableOpacity
+                key={tab.key}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: active }}
+                onPress={() => setActiveTab(tab.key)}
+                style={{
+                  paddingHorizontal: theme.spacing.md,
+                  paddingVertical: theme.spacing.xs + 2,
+                  borderRadius: theme.radii.full,
+                  backgroundColor: active ? theme.colors.primary : theme.colors.surfaceAlt,
+                }}
               >
-                {tab.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
+                <Text
+                  variant="bodySm"
+                  style={{ fontWeight: active ? '600' : '400' }}
+                  color={active ? '#fff' : theme.colors.textSecondary}
+                >
+                  {tab.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        {activeTab === 'social' && (
+          <Pressable
+            onPress={() => nav.navigate('Discover')}
+            accessibilityRole="button"
+            accessibilityLabel={t('learnings.socialFeed.discover')}
+          >
+            <Text variant="label" color={theme.colors.primary}>🔍</Text>
+          </Pressable>
+        )}
       </View>
 
       {activeTab === 'social'

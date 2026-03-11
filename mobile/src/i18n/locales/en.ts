@@ -85,6 +85,8 @@ export default {
       relearning: 're-learned by',
       by: 'by',
       loadError: 'Failed to load feed',
+      discover: 'Discover learners',
+      findLearners: 'Find Learners',
     },
     new: {
       title: 'Save Learning',
@@ -164,6 +166,36 @@ export default {
       public: 'Public',
       saveSuccess: 'Settings saved',
       saveError: 'Failed to save. Please try again.',
+    },
+  },
+
+  // Learner Profile screen
+  learnerProfile: {
+    title: 'Profile',
+    learnings: 'Learnings',
+    noLearnings: 'No learnings yet',
+    privateProfile: 'This profile is private',
+    loadError: 'Failed to load profile',
+    retry: 'Retry',
+  },
+
+  // Discover screen
+  discover: {
+    title: 'Discover Learners',
+    searchPlaceholder: 'Search by name or handle',
+    minCharsPrompt: 'Type at least 2 characters to search',
+    noResults: 'No learners found',
+    loadError: 'Something went wrong. Try again.',
+  },
+
+  // Learners (social discovery)
+  learners: {
+    social: {
+      follow: 'Follow',
+      following: 'Following',
+      followBack: 'Follow back',
+      colleague: 'Colleague',
+      unexpectedError: 'Something went wrong',
     },
   },
 

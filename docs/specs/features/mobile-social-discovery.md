@@ -1,8 +1,8 @@
 # Mobile Social Discovery
 
-> **Status:** Draft
+> **Status:** Implemented
 > **Created:** 2026-03-09
-> **Implemented:** _pending_
+> **Implemented:** 2026-03-10
 
 ---
 
@@ -524,13 +524,27 @@ Extend `mobile/src/lib/learnerApi.ts` with:
 > _This section is filled AFTER implementation._
 
 ### Commits
-_pending_
+- `983c0be` — feat: add getLearnerProfile, follow/unfollow, searchLearners to mobile learnerApi
+- `c4c69fd` — feat: add useLearnerProfile and useLearnerSearch hooks
+- `249d3df` — feat: add mobile FollowButton component with 4-state relationship logic
+- `238360d` — feat: add LearnerResultCard component for discover search results
+- `4ca639b` — feat: add LearnerProfileScreen with profile, learnings, and FollowButton
+- `6bcf979` — feat: add DiscoverScreen with debounced learner search
+- `86e744e` — feat: wire LearnerProfile and Discover routes; make feed author attribution tappable
+- `cbb68f1` — test: add Maestro E2E flows for social discovery
+- `a9e6af4` — fix: address code review issues in social discovery implementation
 
 ### Architectural Decisions
-_pending_
+- **3-jest-project strategy retained**: hooks tests (`lib` project, node env) test API integration logic as pure state machines rather than rendering hooks directly. Full hook behavior tested via Maestro E2E. This avoids jest-expo/Node 22 compatibility issues.
+- **`ProfileHeader` extracted to module scope**: prevents React from creating a new component type on every render, avoiding remount loops when FollowButton triggers state updates.
+- **`DiscoverScreen` owns relationship state**: search results are mirrored into local state and updated in-place on relationship changes, so follow/unfollow from the search list is reflected immediately without re-fetching.
+- **DiscoverScreen as stack screen (not tab)**: per spec's Technical Constraints, Discover is a stack screen navigated from FeedScreen header icon, not a 4th bottom tab (FR16 deferred as "Could Have").
+- **AbortSignal plumbing**: all 4 new API functions accept optional `signal` parameter forwarded to `apiFetch`, enabling proper request cancellation in hooks.
 
 ### Deviations from Spec
-_pending_
+- i18n keys for `learnerProfile.*`, `discover.*`, and `learners.social.*` were added across multiple tasks (Tasks 3, 5, 7) rather than in a single atomic commit. Keys are all present and correct.
+- `LearnerProfileScreen` unit tests were not written (deferred to Maestro E2E per spec's test strategy note).
 
 ### Lessons Learned
-_pending_
+- Subagents may add i18n keys in earlier tasks even when the spec assigns i18n work to a later task. The orchestrator must check for duplicate keys before committing combined i18n changes.
+- The `as any` navigation cast in screens is a code smell that surfaces when routes haven't been added to `AppStackParamList` yet. Future task ordering should add navigation types before implementing screens that use them.
