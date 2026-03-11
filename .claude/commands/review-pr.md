@@ -89,6 +89,39 @@ gh pr list --state open --json number,title,headRefName,author \
 
 ---
 
+## 1A. Check for Claude GitHub Action Review
+
+Before fetching comments, detect whether the Claude GitHub Action's automatic PR review is currently
+running or has already posted. The Action runs as `claude[bot]` and fires on every PR open/synchronize.
+
+```bash
+# Check for in-progress "Claude Code" workflow runs targeting this PR
+RUNNING=$(gh api repos/$REPO/actions/runs \
+  --jq "[.workflow_runs[] | select(.name == \"Claude Code\" and .status != \"completed\")] | length")
+```
+
+**If `$RUNNING > 0` (Action in progress):**
+
+Use AskUserQuestion: "The Claude GitHub Action PR review is still running.
+  - **Wait for it** (recommended) — poll every 30 s up to 5 min, then proceed. Its comments will be included.
+  - **Proceed now** — continue without its comments. Any `claude[bot]` feedback posted later will be missed by this triage."
+
+If user chooses wait: poll every 30 s:
+```bash
+while true; do
+  STATUS=$(gh api repos/$REPO/actions/runs \
+    --jq "[.workflow_runs[] | select(.name == \"Claude Code\" and .status != \"completed\")] | length")
+  [ "$STATUS" -eq 0 ] && break
+  echo "Still running… waiting 30s"
+  sleep 30
+done
+```
+Stop polling after 5 min (10 iterations) and warn: "Claude Action did not finish in 5 min — proceeding without waiting."
+
+**If `$RUNNING == 0` (Action complete or not triggered):** proceed normally.
+
+---
+
 ## 1B. Check and Enrich PR Description
 
 ```bash
@@ -203,8 +236,10 @@ gh api repos/$REPO/pulls/$PR_NUMBER/reviews --paginate
 ```
 
 **Filter out noise:**
-- Exclude bots: `release-please`, `dependabot`, `github-actions`
-- Keep: GitHub Copilot, human reviewers, Claude
+- Exclude bots: `release-please`, `dependabot`, `github-actions`, `vercel[bot]`
+- Keep: `Copilot`, `copilot-pull-request-reviewer[bot]`, `chatgpt-codex-connector[bot]`, human reviewers
+- **Special handling for `claude[bot]`** — do NOT exclude. Tag these comments with `source: claude-action`
+  so Step 4 can apply a lightweight fast-path instead of full four-axis evaluation.
 - Exclude empty review bodies (approvals without comment)
 - Note the `outdated` field on each inline comment — used in Step 4 for delta detection
 
@@ -284,6 +319,14 @@ Display one entry per comment, grouped by recommendation:
   Suggested reply: bcrypt is Spring Security's default and well-tested in production; argon2 has no
   practical advantage at current user scale.
 
+#### From Claude Action — auto-verified (N)
+- :wrench: **AuthController.java:175** (by claude[bot]) — "Use constructor injection"
+  Auto-verified: aligns with CLAUDE.md §Coding Conventions.
+
+- :bug: **PokService.java:42** (by claude[bot]) — "Null check missing before stream()"
+  Full evaluation required — CONFLICTS with existing null-safe wrapper pattern.
+  Verdict: Reject — see NullSafeCollections utility at PokService.java:12.
+
 #### Informational — no action (N)
 - :information_source: "Great use of records for DTOs!" (by copilot)
 ```
@@ -342,6 +385,10 @@ The report must include:
 
 ### Previously addressed (skipped)
 - [path:line] ([author]) — [summary] — outdated: true, in prior triage dated <date>
+
+### From Claude Action (auto-verified)
+- [file:line] (claude[bot]) — [summary]
+  Auto-verified: [aligns with CLAUDE.md §section | Full evaluation — see reason]
 
 ### Informational
 - [summary]

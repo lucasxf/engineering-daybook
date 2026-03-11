@@ -115,6 +115,11 @@ invocations = 0
 last_used = ""
 
 # Productivity Metrics
+
+[agent_usage.Explore]
+invocations = 1
+last_used = "2026-03-06T01:14:12Z"
+
 [productivity]
 current_total_locs = 49353
 current_production_locs = 23096
