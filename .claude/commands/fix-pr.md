@@ -113,69 +113,32 @@ Add missing type annotations, fix incorrect types, add type guards. Re-run to co
 
 ### Coverage Failures (Backend)
 
-> Start with the JaCoCo XML report — it tells you exactly which classes are under-covered
-> in seconds, without re-running the full suite.
-
-1. Generate the report if it doesn't exist yet:
+First, verify Docker is running (required for Testcontainers integration tests):
 ```bash
-test -f backend/target/site/jacoco/jacoco.xml \
-  && echo "Report exists" \
-  || (cd backend && mvn jacoco:report -q)
+docker info > /dev/null 2>&1 && echo "DOCKER_OK" || echo "DOCKER_DOWN"
 ```
 
-2. Parse the report:
-```bash
-python3 -c "
-import xml.etree.ElementTree as ET
-tree = ET.parse('backend/target/site/jacoco/jacoco.xml')
-root = tree.getroot()
+**If DOCKER_DOWN:** STOP. Ask the user to start Docker before proceeding — without Docker,
+integration tests are silently skipped via `disabledWithoutDocker = true`, leaving coverage
+data incomplete and integration regressions undetected.
 
-print('=== Bundle Totals ===')
-for c in root.findall('counter'):
-    missed = int(c.get('missed', 0))
-    covered = int(c.get('covered', 0))
-    total = missed + covered
-    pct = (covered / total * 100) if total else 0
-    print(f'{c.get(\"type\"):15} {covered}/{total} ({pct:.1f}%)')
+**If DOCKER_OK:** Delegate to the `steward` agent via the Agent tool with `subagent_type: steward`. Pass:
+- The current coverage percentage and the configured threshold (check `backend/pom.xml` →
+  `<jacoco-minimum-coverage>` or `<minimum>` in the JaCoCo plugin config)
+- Report path: `backend/target/site/jacoco/jacoco.xml`
 
-print()
-print('=== Classes by Missed Lines (worst first) ===')
-classes = []
-for cls in root.findall('package/class'):
-    for c in cls.findall('counter[@type=\"LINE\"]'):
-        missed = int(c.get('missed', 0))
-        covered = int(c.get('covered', 0))
-        if missed > 0:
-            classes.append((missed, cls.get('name'), covered))
-for missed, name, covered in sorted(classes, reverse=True)[:20]:
-    print(f'  missed={missed:4d}  covered={covered:4d}  {name}')
-"
-```
-
-2. Check the configured threshold: `backend/pom.xml` → `<jacoco-minimum-coverage>` or `<minimum>` in the JaCoCo plugin config.
-
-3. Write targeted tests for classes with the most missed lines.
-   Follow project conventions: JUnit 5 + Mockito for unit tests, Testcontainers for integration tests.
-
-4. **Check Docker is running before `mvn verify`** (required for Testcontainers):
-```bash
-docker info > /dev/null 2>&1 && echo "Docker running" || echo "Docker NOT running"
-```
-   If Docker is not running → attempt to start Docker Desktop and wait ~20s before retrying.
-   If still unavailable → STOP and ask the user. Do not silently skip integration tests.
-
-5. Verify coverage locally:
+Wait for the agent to complete. Then verify locally:
 ```bash
 (cd backend && mvn verify -q)
 ```
-   Re-parse `jacoco.xml` to confirm the gap is closed before committing.
+Re-parse `jacoco.xml` to confirm the gap is closed before committing.
 
 ---
 
 ## 3. Implement Approved Review Changes
 
 Read the "Approved for implementation" section of the triage report. Each item has an assigned agent.
-Route each group to the appropriate specialist agent via the Task tool.
+Route each group to the appropriate specialist agent via the Agent tool.
 
 ### Agent Routing Table
 
@@ -195,7 +158,7 @@ Route each group to the appropriate specialist agent via the Task tool.
 
 ### Launch Agents
 
-For each group, launch the specialist agent via the Task tool with:
+For each group, launch the specialist agent via the Agent tool with `subagent_type` matching the agent name from the routing table above (e.g., `subagent_type: sous-chef` for backend files). Pass:
 - The exact comment text and file/line reference
 - The recommendation from the triage report (accept / accept with modification — include the deviation if applicable)
 - Relevant conventions from `CLAUDE.md` or the stack-specific `CLAUDE.md`
@@ -245,6 +208,15 @@ Skip for docs-only changes (`.md`, Javadoc, i18n `.json`).
 
 **If any targeted tests fail** → STOP. Show the failure. Ask user whether to revert or debug.
 
+**E2E regression check — Web:**
+
+If any `web/` files were changed in Step 3, run the full Playwright suite:
+```bash
+(cd web && npx playwright test --reporter=line 2>&1 | tail -20)
+```
+
+If E2E tests fail → STOP. Show the failing tests. Ask user whether to revert or debug.
+
 ---
 
 ## 4. Commit and Push
@@ -268,7 +240,7 @@ git push origin $PR_BRANCH
 ## 5. Extract and Save Coding Style Learnings
 
 Review what each accepted fix revealed. For each one that exposes a pitfall, convention, or
-anti-pattern not already documented, delegate documentation to the `tech-writer` agent via the Task tool.
+anti-pattern not already documented, delegate documentation to the `tech-writer` agent via the Agent tool with `subagent_type: tech-writer`.
 
 **What qualifies:**
 - A missing annotation/config that silently breaks intended behavior (e.g., `@EnableAsync`, `@Transactional`)
@@ -282,19 +254,9 @@ anti-pattern not already documented, delegate documentation to the `tech-writer`
 - Suggestions that were Rejected or Deferred
 - Things already in CLAUDE.md
 
-**How to delegate:** Launch `tech-writer` via the Task tool with:
-- The list of qualifying learnings (one per bullet): what the pitfall is, why it matters, the correct pattern
-- The target file for each entry:
-
-| Fix touches | Target |
-|-------------|--------|
-| Java / Spring / Maven | `backend/CLAUDE.md` → `## Known Pitfalls` |
-| TypeScript / Next.js / React | `web/CLAUDE.md` → extend `## Coding Conventions` |
-| Expo / React Native | `mobile/CLAUDE.md` → `## Known Pitfalls` |
-| Cross-cutting or architectural | Root `CLAUDE.md` → relevant section |
-
-The agent will write each entry (2–4 sentences + code example where it aids clarity) and append it
-to the correct section.
+**How to delegate:** Launch `tech-writer` via the Agent tool with `subagent_type: tech-writer`. Pass the list of qualifying learnings
+(one per bullet): what the pitfall is, why it matters, the correct pattern. The agent applies its
+own routing rules to place each entry in the right file and section.
 
 After the agent completes, report what was documented in the §7 Summary under "Coding Style Tips Saved".
 

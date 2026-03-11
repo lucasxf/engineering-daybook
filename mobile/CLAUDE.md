@@ -172,6 +172,8 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
 
 - **`eas init` requires local `eas-cli` install before `npx eas init`** — Running `npx eas init` without a prior local install fails because npx cannot locate the binary in ephemeral environments. Fix: run `npm install eas-cli` inside the `mobile/` directory first to add it to `node_modules/.bin/`, then run `npx eas init`. (Added 2026-03-08)
 
+- **Wire `AbortController.signal` all the way through to the API call — a stale `cancelled` flag is not equivalent:** When a hook creates an `AbortController` and passes its `signal` to a cleanup-triggered abort, the signal must be forwarded to the actual `fetch` call (or `apiFetch` wrapper) as a parameter. A local `let cancelled = false` flag set in the cleanup function does not propagate the abort to the in-flight network request — it only stops the hook from setting state after the fact. Result: the network request completes, the backend processes it, and only the state update is skipped. Pattern: `const controller = new AbortController(); return () => controller.abort();` paired with `apiCall({ signal: controller.signal })` at the call site. Seen in `useLearnerProfile.ts` (Copilot review fix, PR #177, 2026-03-11).
+
 ---
 
-*Last updated: 2026-03-08 (session: chore/publish-mobile-app — Milestone 3.4 in progress: EAS build, Play Store setup, privacy policy, store metadata)*
+*Last updated: 2026-03-11 (session: fix-pr/177 — PR #177 review fixes: useLearnerProfile AbortController signal wiring, Button/Text unit tests, LearnerResultCard coverage; mobile coverage 57% → 80.4%)*

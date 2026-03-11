@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, Suspense } from 'react';
+import { useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter, useParams } from 'next/navigation';
 import PageHeader from '@/components/learning-feed/PageHeader';
 import SearchSortToolbar from '@/components/learning-feed/SearchSortToolbar';
@@ -10,8 +10,8 @@ import EmptyState from '@/components/learning-feed/EmptyState';
 import LoadingState from '@/components/learning-feed/LoadingState';
 import ErrorState from '@/components/learning-feed/ErrorState';
 import NoResultsState from '@/components/learning-feed/NoResultsState';
-import { pokApi, type FeedItem } from '@/lib/pokApi';
-import { useAuth } from '@/hooks/useAuth';
+import { usePoksData } from '@/hooks/usePoksData';
+import type { OwnedPok } from '@/lib/pokApi';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -19,98 +19,46 @@ function LearningFeedContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const params = useParams<{ locale: string }>();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
 
-  // State management
-  const [learnings, setLearnings] = useState<FeedItem[]>([]);
-  const [totalItems, setTotalItems] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    isReady,
+    poks: learnings,
+    totalElements: totalItems,
+    loading: isLoading,
+    error,
+    keyword,
+    sortOption,
+    page,
+    handleSearch,
+    handleSortChange,
+    handleClearSearch,
+  } = usePoksData({ fetchSize: ITEMS_PER_PAGE, ownedOnly: true });
 
-  // Query parameters
-  const keyword = searchParams.get('keyword') ?? '';
-  const sortBy = (searchParams.get('sortBy') ?? 'createdAt') as 'createdAt' | 'updatedAt';
-  const sortDirection = (searchParams.get('sortDirection') ?? 'DESC') as 'ASC' | 'DESC';
-  const pageStr = searchParams.get('page') ?? '1';
-  const page = Math.max(1, parseInt(pageStr, 10));
-
+  // usePoksData.page is 0-indexed; PaginationControls expects 1-indexed
+  const currentPage = page + 1;
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-  const isEmpty = !isLoading && totalItems === 0 && !keyword;
-  const hasNoResults = !isLoading && learnings.length === 0 && keyword !== '';
 
-  // Auth guard — redirect to login if unauthenticated
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push(`/${params.locale}/login`);
-    }
-  }, [authLoading, isAuthenticated, router, params.locale]);
+  // ownedOnly: true ensures the backend returns owned POKs only (no re-learnings),
+  // so totalItems and totalPages are accurate for this page's scope.
+  const ownedLearnings = learnings.filter((l): l is OwnedPok => l.type === 'owned');
 
-  // Load data from real API
-  useEffect(() => {
-    if (!isAuthenticated) return;
+  const isEmpty = !isLoading && ownedLearnings.length === 0 && !keyword;
+  const hasNoResults = !isLoading && ownedLearnings.length === 0 && keyword !== '';
 
-    let cancelled = false;
-    setIsLoading(true);
-
-    pokApi
-      .getAll({
-        keyword: keyword || undefined,
-        sortBy,
-        sortDirection,
-        page: page - 1, // backend is 0-indexed
-        size: ITEMS_PER_PAGE,
-        searchMode: 'hybrid',
-      })
-      .then((result) => {
-        if (cancelled) return;
-        setLearnings(result.content);
-        setTotalItems(result.totalElements);
-        setError(null);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setError('failed');
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [isAuthenticated, keyword, sortBy, sortDirection, page]);
-
-  const handleSearch = useCallback(
-    (query: string) => {
-      const p = new URLSearchParams();
-      if (query) {
-        p.set('keyword', query);
-        p.set('page', '1');
-      }
-      router.push(`?${p.toString()}`);
-    },
-    [router]
-  );
-
+  // Adapter: SearchSortToolbar passes (sortBy, sortDirection) separately;
+  // usePoksData.handleSortChange expects a SortOption object
   const handleSort = useCallback(
     (newSortBy: string, newSortDirection: 'ASC' | 'DESC') => {
-      const p = new URLSearchParams(searchParams);
-      p.set('sortBy', newSortBy);
-      p.set('sortDirection', newSortDirection);
-      p.set('page', '1');
-      router.push(`?${p.toString()}`);
+      handleSortChange({ sortBy: newSortBy as 'createdAt' | 'updatedAt', sortDirection: newSortDirection });
     },
-    [router, searchParams]
+    [handleSortChange]
   );
 
-  const handleClearSearch = useCallback(() => {
-    router.push('?');
-  }, [router]);
-
+  // Page navigation: PaginationControls gives 1-indexed pages; usePoksData stores 0-indexed in URL
   const handlePageChange = useCallback(
-    (newPage: number) => {
+    (newDisplayPage: number) => {
       const p = new URLSearchParams(searchParams);
-      p.set('page', newPage.toString());
+      p.set('page', (newDisplayPage - 1).toString());
       router.push(`?${p.toString()}`);
     },
     [router, searchParams]
@@ -120,8 +68,7 @@ function LearningFeedContent() {
     router.push(`/${params.locale}/poks/new`);
   }, [router, params.locale]);
 
-  // Show loading while auth is initializing
-  if (authLoading) {
+  if (!isReady) {
     return <LoadingState />;
   }
 
@@ -138,8 +85,8 @@ function LearningFeedContent() {
           <>
             <SearchSortToolbar
               keyword={keyword}
-              sortBy={sortBy}
-              sortDirection={sortDirection}
+              sortBy={sortOption.sortBy}
+              sortDirection={sortOption.sortDirection}
               onSearch={handleSearch}
               onSort={handleSort}
               onClearSearch={handleClearSearch}
@@ -158,10 +105,10 @@ function LearningFeedContent() {
               />
             ) : (
               <>
-                <LearningCardList learnings={learnings} />
+                <LearningCardList learnings={ownedLearnings} />
                 {totalPages > 1 && (
                   <PaginationControls
-                    currentPage={page}
+                    currentPage={currentPage}
                     totalPages={totalPages}
                     onPageChange={handlePageChange}
                   />
@@ -176,7 +123,7 @@ function LearningFeedContent() {
 
 export default function LearningFeedPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<LoadingState />}>
       <LearningFeedContent />
     </Suspense>
   );

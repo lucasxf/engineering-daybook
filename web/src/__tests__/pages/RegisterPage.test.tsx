@@ -3,8 +3,8 @@ import { NextIntlClientProvider } from 'next-intl';
 import RegisterPage from '@/app/[locale]/register/page';
 import { createMockAuth, createMockRouter, authMessages } from '@/test/page-test-utils';
 
-vi.mock('@/components/auth/RegisterForm', () => ({
-  RegisterForm: () => <form data-testid="register-form" />,
+vi.mock('@/components/auth/RegisterFormV2', () => ({
+  RegisterFormV2: () => <form data-testid="register-form" />,
 }));
 
 vi.mock('next/dynamic', () => ({
@@ -45,12 +45,6 @@ describe('RegisterPage', () => {
     it('renders the registration form', () => {
       renderRegisterPage();
       expect(screen.getByTestId('register-form')).toBeInTheDocument();
-    });
-
-    it('renders a link to the login page', () => {
-      renderRegisterPage();
-      const loginLink = screen.getByRole('link', { name: /log in/i });
-      expect(loginLink).toHaveAttribute('href', '/en/login');
     });
 
     it('does not redirect', () => {

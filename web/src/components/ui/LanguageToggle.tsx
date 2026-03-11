@@ -28,6 +28,7 @@ export function LanguageToggle() {
       size="sm"
       onClick={toggleLanguage}
       aria-label={ariaLabel}
+      className="text-muted-foreground hover:text-foreground"
     >
       {locale === 'en' ? 'EN' : 'PT'}
     </Button>

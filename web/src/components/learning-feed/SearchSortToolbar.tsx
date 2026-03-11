@@ -27,6 +27,11 @@ export default function SearchSortToolbar({
   const t = useTranslations('poks');
   const [searchInput, setSearchInput] = useState(keyword);
 
+  // Sync local input when keyword changes externally (e.g. clear button, URL navigation)
+  useEffect(() => {
+    setSearchInput(keyword);
+  }, [keyword]);
+
   const sortOptions = [
     { value: 'createdAt:DESC', label: t('feed.sortOptions.newestFirst') },
     { value: 'createdAt:ASC', label: t('feed.sortOptions.oldestFirst') },
@@ -71,7 +76,7 @@ export default function SearchSortToolbar({
           placeholder={t('search.placeholder')}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
-          className="w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent focus:outline-none dark:border-mid-blue dark:bg-deep-navy dark:text-parchment dark:focus:border-ember-cta"
+          className="w-full rounded-md border border-input-border bg-background pl-9 pr-3 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-accent focus:outline-none dark:border-mid-blue dark:bg-deep-navy dark:text-parchment dark:focus:border-ember-cta"
           aria-label={t('search.placeholder')}
         />
       </div>

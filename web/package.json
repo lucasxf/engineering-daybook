@@ -9,6 +9,7 @@
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
@@ -18,7 +19,6 @@
     "@react-oauth/google": "^0.13.4",
     "@tailwindcss/typography": "^0.5.19",
     "clsx": "^2.1.1",
-    "date-fns": "^3.0.0",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.487.0",
     "next": "^16.1.6",
@@ -44,6 +44,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.4",
+    "@vitest/coverage-v8": "^4.0.18",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.0.0",
     "eslint-config-next": "^15.0.0",

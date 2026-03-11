@@ -1,5 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, ScrollView, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import {
+  Alert,
+  FlatList,
+  Modal,
+  ScrollView,
+  TouchableOpacity,
+  View,
+  ActivityIndicator,
+} from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { AppStackParamList } from '@/navigation/AppStack';
@@ -7,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { pokApi, type Pok, type PokVisibility } from '@/lib/pokApi';
+import { tagApi, type Tag } from '@/lib/tagApi';
 import { ApiRequestError } from '@/lib/api';
 import type { PokFormData } from '@/lib/validations';
 import { Text } from '@/components/ui/Text';
@@ -30,6 +39,11 @@ export function LearningDetailScreen() {
   const [error, setError] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
   const [editVisibility, setEditVisibility] = useState<PokVisibility>('PRIVATE');
+
+  // Tag management
+  const [allTags, setAllTags] = useState<Tag[]>([]);
+  const [tagModalVisible, setTagModalVisible] = useState(false);
+  const [tagActionLoading, setTagActionLoading] = useState(false);
 
   const loadPok = useCallback(async () => {
     setLoading(true);
@@ -89,6 +103,56 @@ export function LearningDetailScreen() {
     );
   }
 
+  async function openTagModal() {
+    try {
+      const tags = await tagApi.list();
+      setAllTags(tags);
+      setTagModalVisible(true);
+    } catch {
+      Alert.alert(
+        t('learnings.detail.tagListLoadErrorTitle'),
+        t('learnings.detail.tagListLoadErrorMessage'),
+        [
+          { text: t('common.retry'), onPress: openTagModal },
+          { text: t('common.cancel'), style: 'cancel' },
+        ]
+      );
+    }
+  }
+
+  async function handleAddTag(tag: Tag) {
+    if (!pok) return;
+    setTagActionLoading(true);
+    try {
+      await tagApi.assign(pok.id, tag.tagId);
+      setPok((prev) => prev
+        ? { ...prev, tags: [...prev.tags, tag] }
+        : prev
+      );
+      setTagModalVisible(false);
+    } catch {
+      Alert.alert(t('learnings.detail.tagAddError'));
+    } finally {
+      setTagActionLoading(false);
+    }
+  }
+
+  async function handleRemoveTag(tag: Tag) {
+    if (!pok) return;
+    setTagActionLoading(true);
+    try {
+      await tagApi.remove(pok.id, tag.tagId);
+      setPok((prev) => prev
+        ? { ...prev, tags: prev.tags.filter((existing) => existing.tagId !== tag.tagId) }
+        : prev
+      );
+    } catch {
+      Alert.alert(t('learnings.detail.tagRemoveError'));
+    } finally {
+      setTagActionLoading(false);
+    }
+  }
+
   if (loading) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background, justifyContent: 'center', alignItems: 'center' }}>
@@ -115,7 +179,6 @@ export function LearningDetailScreen() {
           {t('learnings.edit.title')}
         </Text>
 
-        {/* Visibility toggle (only shown when current visibility is PRIVATE) */}
         {pok.visibility === 'PRIVATE' && (
           <View style={{ paddingHorizontal: theme.spacing.md, paddingBottom: theme.spacing.sm, gap: theme.spacing.xs }}>
             <Text variant="label">{t('learnings.visibility.pickerLabel')}</Text>
@@ -172,6 +235,9 @@ export function LearningDetailScreen() {
     );
   }
 
+  const assignedTagIds = new Set(pok.tags.map((t) => t.tagId));
+  const availableTags = allTags.filter((tag) => !assignedTagIds.has(tag.tagId));
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <ScrollView contentContainerStyle={{ padding: theme.spacing.md, gap: theme.spacing.md }}>
@@ -185,26 +251,58 @@ export function LearningDetailScreen() {
             : `🔒 ${t('learnings.visibility.private')}`}
         </Text>
 
-        {pok.tags.length > 0 && (
-          <View style={{ gap: theme.spacing.xs }}>
-            <Text variant="label">{t('learnings.detail.tags')}</Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
-              {pok.tags.map((tag) => (
-                <View
-                  key={tag.id}
-                  style={{
-                    backgroundColor: theme.colors.surfaceAlt,
-                    borderRadius: theme.radii.full,
-                    paddingHorizontal: theme.spacing.md,
-                    paddingVertical: theme.spacing.xs,
-                  }}
+        {/* Tags section */}
+        <View style={{ gap: theme.spacing.xs }}>
+          <Text variant="label">{t('learnings.detail.tags')}</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
+            {pok.tags.map((tag) => (
+              <View
+                key={tag.tagId}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: theme.colors.surfaceAlt,
+                  borderRadius: theme.radii.full,
+                  paddingLeft: theme.spacing.md,
+                  paddingRight: theme.spacing.xs,
+                  paddingVertical: theme.spacing.xs,
+                  gap: theme.spacing.xs,
+                }}
+              >
+                <Text variant="bodySm">{tag.displayName}</Text>
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel={t('learnings.detail.removeTagAccessibilityLabel', { tagName: tag.displayName })}
+                  onPress={() => handleRemoveTag(tag)}
+                  disabled={tagActionLoading}
+                  hitSlop={{ top: 8, right: 8, bottom: 8, left: 4 }}
                 >
-                  <Text variant="bodySm">{tag.displayName}</Text>
-                </View>
-              ))}
-            </View>
+                  <Text variant="bodySm" color={theme.colors.textSecondary}>✕</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+
+            {/* Add tag button */}
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={openTagModal}
+              disabled={tagActionLoading}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                borderRadius: theme.radii.full,
+                paddingHorizontal: theme.spacing.md,
+                paddingVertical: theme.spacing.xs,
+                borderWidth: 1,
+                borderStyle: 'dashed',
+                borderColor: theme.colors.border,
+                gap: theme.spacing.xs,
+              }}
+            >
+              <Text variant="bodySm" color={theme.colors.textSecondary}>+ {t('learnings.detail.addTag')}</Text>
+            </TouchableOpacity>
           </View>
-        )}
+        </View>
 
         <View style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.md }}>
           <Button
@@ -221,6 +319,67 @@ export function LearningDetailScreen() {
           />
         </View>
       </ScrollView>
+
+      {/* Tag picker modal */}
+      <Modal
+        visible={tagModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setTagModalVisible(false)}
+      >
+        <TouchableOpacity
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }}
+          activeOpacity={1}
+          onPress={() => setTagModalVisible(false)}
+        >
+          <View style={{ flex: 1 }} />
+          <View onStartShouldSetResponder={() => true}>
+            <View style={{
+              backgroundColor: theme.colors.background,
+              borderTopLeftRadius: theme.radii.lg,
+              borderTopRightRadius: theme.radii.lg,
+              paddingTop: theme.spacing.md,
+              maxHeight: 400,
+            }}>
+              <Text variant="label" style={{ paddingHorizontal: theme.spacing.md, paddingBottom: theme.spacing.sm }}>
+                {t('learnings.detail.addTagTitle')}
+              </Text>
+
+              {tagActionLoading ? (
+                <ActivityIndicator size="small" color={theme.colors.primary} style={{ paddingVertical: theme.spacing.lg }} />
+              ) : availableTags.length === 0 ? (
+                <Text
+                  variant="bodySm"
+                  color={theme.colors.textSecondary}
+                  style={{ padding: theme.spacing.md, textAlign: 'center' }}
+                >
+                  {t('learnings.detail.noTagsAvailable')}
+                </Text>
+              ) : (
+                <FlatList
+                  data={availableTags}
+                  keyExtractor={(item) => item.tagId}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      onPress={() => handleAddTag(item)}
+                      style={{
+                        paddingHorizontal: theme.spacing.md,
+                        paddingVertical: theme.spacing.sm + 2,
+                        borderBottomWidth: 1,
+                        borderBottomColor: theme.colors.border,
+                      }}
+                    >
+                      <Text variant="bodySm">{item.displayName}</Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              )}
+
+              <View style={{ height: theme.spacing.xl }} />
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   );
 }

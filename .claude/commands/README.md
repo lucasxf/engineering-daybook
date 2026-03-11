@@ -15,6 +15,7 @@
 | `/generate-v0-prompt` | Convert a spec file into a self-contained v0.dev prompt | `/generate-v0-prompt <screen-name>` |
 | `/implement-spec` | Implement a feature from a specification file with TDD and approval gates | `/implement-spec <path-to-spec-file>` |
 | `/review-pr` | Triage an open PR — check CI/CD status, fetch and evaluate review comments, save structured report for /fix-pr | `/review-pr <optional-pr-number>` |
+| `/review-spec` | Review a feature specification for completeness, consistency, and implementability before /implement-spec | `/review-spec <path-to-spec-file> [optional: "revision instructions"]` |
 | `/save-response` | Save Claude's last response to a file | `/save-response <filename>` |
 | `/start-session` | Start a new development session with stack-specific context loading | `/start-session <optional: --stack=backend|web|mobile|docs|full or context description>` |
 | `/write-spec` | Write a feature specification using the spec template with product and technical analysis | `/write-spec <feature-name-or-description>` |

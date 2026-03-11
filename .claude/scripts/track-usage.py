@@ -4,8 +4,9 @@ Hook script — tracks agent and slash-command invocations in real-time.
 
 Wired to two hook events in settings.json:
 
-1. PostToolUse (Task | Skill):
+1. PostToolUse (Task | Agent | Skill):
    - Task: reads subagent_type → increments [agent_usage.<name>]
+   - Agent: reads subagent_type → increments [agent_usage.<name>]
    - Skill: reads skill name → increments [command_usage.<name>]
      (fires when Claude programmatically invokes a slash command)
 
@@ -43,7 +44,7 @@ SESSIONS_DIR = Path(__file__).parent.parent / "metrics" / "sessions"
 
 # --- BEGIN AUTO-GENERATED: KNOWN_AGENTS ---
 KNOWN_AGENTS = {
-    "automation-sentinel", "hedy", "imhotep", "nexus", "pixl",
+    "automation-sentinel", "hedy", "imhotep", "keepr", "nexus", "pixl",
     "professor-x", "sous-chef", "steward", "tech-writer", "virgil",
 }
 # --- END AUTO-GENERATED: KNOWN_AGENTS ---
@@ -52,7 +53,7 @@ KNOWN_AGENTS = {
 KNOWN_COMMANDS = {
     "compile-metrics", "create-pr", "directive", "finish-session",
     "fix-pr", "generate-v0-prompt", "implement-spec", "review-pr",
-    "save-response", "start-session", "write-spec",
+    "review-spec", "save-response", "start-session", "write-spec",
 }
 # --- END AUTO-GENERATED: KNOWN_COMMANDS ---
 
@@ -187,6 +188,21 @@ def main():
 
         elif tool_name == "Task":
             # Claude spawned a subagent
+            subagent_type = tool_input.get("subagent_type", "").strip()
+            if subagent_type:
+                section = "agent_usage"
+                key = subagent_type
+                # When a custom agent is invoked via general-purpose, detect it
+                # by scanning the task description for a known agent name.
+                if subagent_type == "general-purpose":
+                    description = tool_input.get("description", "").lower()
+                    for agent_name in KNOWN_AGENTS:
+                        if agent_name in description:
+                            key = agent_name
+                            break
+
+        elif tool_name == "Agent":
+            # Claude spawned a subagent via Agent tool
             subagent_type = tool_input.get("subagent_type", "").strip()
             if subagent_type:
                 section = "agent_usage"

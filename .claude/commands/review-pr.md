@@ -89,6 +89,39 @@ gh pr list --state open --json number,title,headRefName,author \
 
 ---
 
+## 1A. Check for Claude GitHub Action Review
+
+Before fetching comments, detect whether the Claude GitHub Action's automatic PR review is currently
+running or has already posted. The Action runs as `claude[bot]` and fires on every PR open/synchronize.
+
+```bash
+# Check for in-progress "Claude Code" workflow runs targeting this PR
+RUNNING=$(gh api repos/$REPO/actions/runs \
+  --jq "[.workflow_runs[] | select(.name == \"Claude Code\" and .status != \"completed\")] | length")
+```
+
+**If `$RUNNING > 0` (Action in progress):**
+
+Use AskUserQuestion: "The Claude GitHub Action PR review is still running.
+  - **Wait for it** (recommended) — poll every 30 s up to 5 min, then proceed. Its comments will be included.
+  - **Proceed now** — continue without its comments. Any `claude[bot]` feedback posted later will be missed by this triage."
+
+If user chooses wait: poll every 30 s:
+```bash
+while true; do
+  STATUS=$(gh api repos/$REPO/actions/runs \
+    --jq "[.workflow_runs[] | select(.name == \"Claude Code\" and .status != \"completed\")] | length")
+  [ "$STATUS" -eq 0 ] && break
+  echo "Still running… waiting 30s"
+  sleep 30
+done
+```
+Stop polling after 5 min (10 iterations) and warn: "Claude Action did not finish in 5 min — proceeding without waiting."
+
+**If `$RUNNING == 0` (Action complete or not triggered):** proceed normally.
+
+---
+
 ## 1B. Check and Enrich PR Description
 
 ```bash
@@ -203,18 +236,16 @@ gh api repos/$REPO/pulls/$PR_NUMBER/reviews --paginate
 ```
 
 **Filter out noise:**
-- Exclude bots: `release-please`, `dependabot`, `github-actions`
-- Keep: GitHub Copilot, human reviewers, Claude
+- Exclude bots: `release-please`, `dependabot`, `github-actions`, `vercel[bot]`
+- Keep: `Copilot`, `copilot-pull-request-reviewer[bot]`, `chatgpt-codex-connector[bot]`, human reviewers
+- **Special handling for `claude[bot]`** — do NOT exclude. Tag these comments with `source: claude-action`
+  so Step 4 can apply a lightweight fast-path instead of full four-axis evaluation.
 - Exclude empty review bodies (approvals without comment)
 - Note the `outdated` field on each inline comment — used in Step 4 for delta detection
 
 ---
 
 ## 4. Evaluate Each Review Comment
-
-> **Mindset:** You are a second reviewer deciding whether each comment is *correct*, *worth the cost*,
-> and *consistent with this project's goals*. Treat every comment — including Copilot's — as a
-> proposal that may or may not be right.
 
 **Before evaluating, apply the delta skip check for each inline comment:**
 
@@ -229,51 +260,15 @@ so there is a clear audit trail. Include: file:line, author, original comment su
 If only one signal is present — outdated but not in the skip list, or in the skip list but not
 outdated — **do not skip**. Evaluate normally and note the discrepancy.
 
-For each remaining comment:
+**Delegate evaluation of all remaining comments to the `keepr` agent via the Agent tool with `subagent_type: keepr`.**
 
-**Step A — Read context first.** Before evaluating, read:
-- The exact file and surrounding lines (inline comments: ±20 lines)
-- The spec in `docs/specs/` if the comment touches a recently implemented feature
-- The relevant section of `CLAUDE.md` if the comment is about style or conventions
+Pass to keepr:
+- The full list of non-skipped comments (file:line, author, body, outdated flag)
+- `$REPO` so keepr can read source files for context
 
-**Step B — Evaluate on four axes:**
-
-1. **Correctness** — Is the claim accurate? Does the fix actually solve the problem, or does it introduce a new one?
-2. **Consistency** — Does it align with CLAUDE.md conventions, existing patterns, and ADRs?
-3. **Proportionality** — Is the scope of change proportional to the benefit?
-4. **Timing** — Is this the right moment? Some suggestions are valid but wrong for this PR's scope.
-
-**Step C — Classify and recommend:**
-
-| Category | Description | Icon |
-|----------|-------------|------|
-| **Bug / Correctness fix** | The current code is wrong; the suggestion fixes a real defect | :bug: |
-| **Convention / Style** | Aligns with CLAUDE.md or project patterns; low-risk change | :wrench: |
-| **Suggestion** | Valid improvement but optional; trade-offs exist | :bulb: |
-| **Question** | Requires a reply, not a code change | :question: |
-| **Informational** | Praise, acknowledgment, FYI — no action needed | :information_source: |
-
-**Recommendation options:**
-- **Accept** — Correct, proportional, consistent. Implement it.
-- **Accept with modification** — Real issue, but suggested fix is wrong or incomplete. Implement a corrected version.
-- **Reject** — Factually wrong, conflicts with a project directive, or introduces more complexity than it solves. Cite the reason (CLAUDE.md section, ADR, or specific counter-argument).
-- **Defer** — Valid but belongs in a separate PR or future milestone.
-
-**For grey-area comments, show the trade-off explicitly:**
-
-```
-Trade-off analysis:
-  FOR applying: [concrete benefit — what problem it solves, who benefits, how much]
-  AGAINST applying: [concrete cost — complexity, consistency violation, risk, scope creep]
-  Verdict: [Accept / Reject / Defer] — [one-sentence rationale]
-```
-
-Grey-area examples that require trade-off analysis:
-- Suggestions that improve readability but increase indirection
-- Security hardening that goes beyond the threat model in scope for this PR
-- Refactors that are valid but widen the PR's blast radius
-- Suggestions that conflict with a project guideline but have merit in this specific case
-- Copilot suggestions that are technically correct but miss the intent of the code
+keepr returns grouped results (Accept / Accept with modification / Reject / Defer / Questions /
+Informational) with classification, rationale, agent assignment, and trade-off analysis for grey
+areas. Use its output directly in Step 5 and the triage report.
 
 ---
 
@@ -323,6 +318,14 @@ Display one entry per comment, grouped by recommendation:
 - :question: **PR comment** (by @reviewer) — "Why did you choose bcrypt over argon2?"
   Suggested reply: bcrypt is Spring Security's default and well-tested in production; argon2 has no
   practical advantage at current user scale.
+
+#### From Claude Action — auto-verified (N)
+- :wrench: **AuthController.java:175** (by claude[bot]) — "Use constructor injection"
+  Auto-verified: aligns with CLAUDE.md §Coding Conventions.
+
+- :bug: **PokService.java:42** (by claude[bot]) — "Null check missing before stream()"
+  Full evaluation required — CONFLICTS with existing null-safe wrapper pattern.
+  Verdict: Reject — see NullSafeCollections utility at PokService.java:12.
 
 #### Informational — no action (N)
 - :information_source: "Great use of records for DTOs!" (by copilot)
@@ -382,6 +385,10 @@ The report must include:
 
 ### Previously addressed (skipped)
 - [path:line] ([author]) — [summary] — outdated: true, in prior triage dated <date>
+
+### From Claude Action (auto-verified)
+- [file:line] (claude[bot]) — [summary]
+  Auto-verified: [aligns with CLAUDE.md §section | Full evaluation — see reason]
 
 ### Informational
 - [summary]

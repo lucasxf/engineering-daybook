@@ -93,6 +93,8 @@ Root cause: three combined bugs prevented logged-in users from seeing their lear
 | 1.6.2 | E2E tests with Playwright — 4 critical user journeys | Should Have | ✅ Done (2026-02-25, chore/web-e2e-integration-tests) |
 
 > **Phase B (Playwright E2E):** Completed. `@playwright/test` installed; `web/e2e/` has 5 passing tests covering all 4 journeys. Uses `page.route()` to mock all backend API calls — no live backend needed. Also added auth redirect to poks list page (unauthenticated users redirected to /login).
+>
+> **2026-03-11 — E2E quality gates expansion:** Suite grown to 46 tests across 6 spec files covering all major flows (create/edit/delete/timeline/tags/visibility/search/semantic search/profile/settings). Fixed 5 previously-broken tests (were never run as quality gates). Added `@vitest/coverage-v8` with 50% line threshold (baseline ~54%; target 80%). CI now enforces Playwright E2E + Vitest coverage on every PR. `/finish-session` and `/fix-pr` commands run E2E as a blocking gate.
 
 ### Milestone 1.7: MVP UX Review ✅
 
@@ -202,6 +204,33 @@ Tooling chore: audited the full `.claude/` automation ecosystem based on an auto
 | Regenerated `agents-readme.md` and `commands/README.md` tables | ✅ Done |
 | Removed stale `/update-roadmap` reference from `CLAUDE.md` Task Management section | ✅ Done |
 
+### PR #177 Review Fixes (fix-pr/177, 2026-03-11) ✅
+
+PR review fixes for PR #177 (feat: Library at Dusk login redesign + mobile social discovery, develop → main). No new features. Three Copilot review comments approved in triage, two pre-existing CI failures resolved.
+
+| Area | Fix |
+|------|-----|
+| `web/RegisterFormV2.tsx` | Replaced undefined CSS custom properties (`--input-bg`, `--input-text`, `--error`) with established Tailwind design tokens (`bg-input`, `text-foreground`, `border-destructive`) |
+| `web/tailwind.config.ts` | Restored primary numeric scale (50–950) mapped to ember-cta palette (had been accidentally dropped in an earlier commit) |
+| `mobile/useLearnerProfile.ts` | Wired `controller.signal` through to `getLearnerProfile()` call; removed stale `cancelled` flag pattern |
+| `web/RegisterPage.test.tsx` | Updated mock target from `RegisterForm` → `RegisterFormV2`; removed stale login-link assertion matching old component |
+| `mobile/` — coverage 57% → 80.4% | Added `Button.test.tsx` (100% line coverage) and `Text.test.tsx` (100% line coverage) to `src/components/ui/__tests__/`; expanded `LearnerResultCard.test.tsx` with direct function-call tests |
+| Claude GitHub Action follow-ups | 10 additional auto-committed fixes: CSS token cleanup in `RegisterFormV2`, `Alert.tsx`, `layout.tsx`, `globals.css` |
+
+### Command Context Optimization (chore/command-context-optimization, 2026-03-10) ✅
+
+Tooling chore: reduced token footprint across three slash commands by moving repeated inline logic into agents.
+
+| Task | Status |
+|------|--------|
+| Added `keepr` agent (`.claude/agents/keepr.md`) — owns PR review evaluation framework (4-axis rubric: correctness, consistency, proportionality, timing; Accept/Reject/Defer/Question verdicts) | ✅ Done |
+| Slimmed `review-pr` Step 4 from ~70 lines to ~15 lines — evaluation logic delegated to keepr | ✅ Done |
+| Replaced 45-line inline JaCoCo analysis in `fix-pr` with steward delegation; Docker gate reinstated before delegation (guard for Testcontainers silent-skip) | ✅ Done |
+| Removed duplicated tech-writer routing tables from `fix-pr` and `finish-session` — routing now lives in tech-writer agent | ✅ Done |
+| Added Learning Routing section to `tech-writer` agent | ✅ Done |
+| Registered keepr in `sync-automation-registry.py` and `agents-readme.md` | ✅ Done |
+| Net reduction: ~140 lines / ~1,100 tokens across three commands | ✅ Done |
+
 ### SDD Automation Workflow Enhancement (chore/enhance-spec-driven-development-automation-workflow, 2026-03-08) ✅
 
 Tooling session: refactored the Spec-Driven Development workflow to eliminate context rot during multi-task implementations.
@@ -213,6 +242,18 @@ Tooling session: refactored the Spec-Driven Development workflow to eliminate co
 | Rewrote `/implement-spec` with dual-mode orchestrator + subagent pattern — specs with `## Implementation Plan` dispatch one subagent per task (fresh context window each); specs without it fall back to legacy monolithic mode for backward compatibility | ✅ Done |
 | Updated `docs/CLAUDE.md` SDD section — documented orchestrator + subagent pattern, `## Implementation Plan` section shape, and the "context rot" problem it solves | ✅ Done |
 | Added output truncation guidance to `/finish-session` Step 1 to prevent oversized session summaries | ✅ Done |
+
+### Anthropic Skills Adoption (feat/improving-automation-workflow-with-skills, 2026-03-11) ✅
+
+Tooling session: evaluated the Anthropic open-source skills library (17 skills) and adopted 3 into the project.
+
+| Task | Status |
+|------|--------|
+| Analyzed all 17 Anthropic skills against our 12 commands + 11 agents; produced audit table with adopt/redundant/adapt/skip verdicts | ✅ Done |
+| Installed `frontend-design` skill (`.claude/skills/frontend-design/`) — production-grade UI with intentional aesthetics; fills our weakest area | ✅ Done |
+| Installed `skill-creator` skill (`.claude/skills/skill-creator/`) — structured 8-phase workflow for building, testing, and evaluating new skills | ✅ Done |
+| Installed `doc-coauthoring` skill (`.claude/skills/doc-coauthoring/`) — 3-stage collaborative document creation workflow | ✅ Done |
+| Enhanced `/review-spec` with new Phase 5 (Reader Testing) adapted from `doc-coauthoring` Stage 3 — spawns sub-agent with spec content only to catch blind spots | ✅ Done |
 
 ---
 
