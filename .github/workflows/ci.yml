@@ -112,11 +112,35 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
+      - name: Cache Playwright Browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('web/package-lock.json') }}
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
       - name: Lint
         run: npm run lint
 
       - name: Build
         run: npm run build
+
+      - name: Unit Tests
+        run: npx vitest run --coverage
+
+      - name: E2E Tests
+        run: npx playwright test --reporter=line
+
+      - name: Upload Playwright Report
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-report
+          path: |
+            web/playwright-report/
+            web/test-results/
 
   mobile:
     name: Mobile (Expo)
@@ -143,3 +167,6 @@ jobs:
 
       - name: Type Check
         run: npm run typecheck --if-present
+
+      - name: Unit Tests
+        run: npm run test:coverage

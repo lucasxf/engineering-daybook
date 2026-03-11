@@ -203,3 +203,11 @@ npm run test     # Run tests (Vitest)
   // ✅ Correct: include the discriminant
   items.filter((item): item is Pok & { type: 'owned' } => item.type === 'owned')
   ```
+
+- **`waitForRequest` captures Next.js RSC navigation requests too:** A filter like `r.url().includes('/poks')` matches BOTH API calls to `localhost:8080/api/v1/poks?keyword=react&searchMode=hybrid` AND Next.js RSC navigation fetches to `localhost:3001/en/poks?keyword=react`. The RSC request never has `searchMode`, so any assertion depending on API-specific params will fail. Always scope `waitForRequest` filters to the API host: `r.url().startsWith('http://localhost:8080/api/v1/poks')`. (Added 2026-03-11)
+
+- **`Select` renders `role="combobox"`, not `role="button"`:** When testing custom Select dropdowns in E2E tests, use `getByRole('combobox')` to target the trigger, not `getByRole('button')`. The options inside render as `role="option"` within a listbox. (Added 2026-03-11)
+
+- **`MonthGroup` uses `year: '2-digit'` → "January 26" not "January 2026":** When testing month group headings, match `/january/i` (not `/january 2026/i`). Also use `level: 2` to avoid matching `h3` PokCard title headings that share the month name. (Added 2026-03-11)
+
+- **Web coverage baseline:** Current measured line coverage is ~54%. `vitest.config.ts` threshold set to 50% (safe baseline). Target is 80% — raise incrementally as new tests are added. `@vitest/coverage-v8` is the provider. (Added 2026-03-11)
