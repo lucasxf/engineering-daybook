@@ -2,10 +2,14 @@ package com.lucasxf.ed.service;
 
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -19,11 +23,15 @@ import org.springframework.transaction.annotation.Transactional;
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.PokAuditLog;
 import com.lucasxf.ed.domain.PokAuditLog.Action;
+import com.lucasxf.ed.domain.PokShare;
 import com.lucasxf.ed.domain.PokTag;
+import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.domain.UserTag;
 import com.lucasxf.ed.dto.CreatePokRequest;
+import com.lucasxf.ed.dto.FeedItemResponse;
 import com.lucasxf.ed.dto.PokAuditLogResponse;
 import com.lucasxf.ed.dto.PokResponse;
+import com.lucasxf.ed.dto.PokShareResponse;
 import com.lucasxf.ed.dto.TagResponse;
 import com.lucasxf.ed.dto.TagSuggestionResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
@@ -33,6 +41,7 @@ import com.lucasxf.ed.exception.PokNotFoundException;
 import com.lucasxf.ed.exception.PokVisibilityImmutableException;
 import com.lucasxf.ed.repository.PokAuditLogRepository;
 import com.lucasxf.ed.repository.PokRepository;
+import com.lucasxf.ed.repository.PokShareRepository;
 import com.lucasxf.ed.repository.PokTagRepository;
 import com.lucasxf.ed.repository.PokTagSuggestionRepository;
 import com.lucasxf.ed.repository.UserTagRepository;
@@ -67,6 +76,9 @@ public class PokService {
     private final EmbeddingService embeddingService;
     private final TagService tagService;
     private final UserService userService;
+    private final FollowService followService;
+    private final PokShareRepository pokShareRepository;
+    private final PokShareService pokShareService;
 
     public PokService(PokRepository pokRepository,
                       PokAuditLogRepository pokAuditLogRepository,
@@ -77,7 +89,10 @@ public class PokService {
                       EmbeddingGenerationService embeddingGenerationService,
                       EmbeddingService embeddingService,
                       TagService tagService,
-                      UserService userService) {
+                      UserService userService,
+                      FollowService followService,
+                      PokShareRepository pokShareRepository,
+                      @Lazy PokShareService pokShareService) {
         this.pokRepository = requireNonNull(pokRepository);
         this.pokAuditLogRepository = requireNonNull(pokAuditLogRepository);
         this.pokTagRepository = requireNonNull(pokTagRepository);
@@ -88,6 +103,9 @@ public class PokService {
         this.embeddingService = requireNonNull(embeddingService);
         this.tagService = requireNonNull(tagService);
         this.userService = requireNonNull(userService);
+        this.followService = requireNonNull(followService);
+        this.pokShareRepository = requireNonNull(pokShareRepository);
+        this.pokShareService = requireNonNull(pokShareService);
     }
 
     /**
@@ -130,7 +148,7 @@ public class PokService {
      * Retrieves a POK by ID.
      *
      * @param id     the POK ID
-     * @param userId the ID of the user requesting the POK
+     * @param userId the ID of the requesting user (used for access check only — not the owner)
      * @return the POK
      * @throws PokNotFoundException       if the POK is not found or soft-deleted
      * @throws PokAccessDeniedException   if the POK belongs to another user
@@ -144,7 +162,7 @@ public class PokService {
 
         verifyAccess(pok, userId);
 
-        List<TagResponse> tags = buildTagResponses(pok.getId(), userId);
+        List<TagResponse> tags = buildTagResponses(pok.getId(), pok.getUserId());
         List<TagSuggestionResponse> suggestions = buildSuggestionResponses(pok.getId());
 
         return PokResponse.from(pok, tags, suggestions);
@@ -168,6 +186,90 @@ public class PokService {
 
         List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
         return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()));
+    }
+
+    /**
+     * Returns a mixed feed of the authenticated user's own learnings and re-learnings.
+     *
+     * <p>Owned POKs and re-learnings are merged in memory and paginated. This method
+     * is used for the no-filter case of {@code GET /api/v1/poks} (no keyword, tagId, or
+     * date filters). Optional sort params are respected; default is {@code createdAt DESC}.
+     *
+     * @param userId        the authenticated user's ID
+     * @param page          zero-based page number
+     * @param size          page size
+     * @param sortBy        optional sort field ({@code "createdAt"} or {@code "updatedAt"}); defaults to createdAt
+     * @param sortDirection optional sort direction ({@code "ASC"} or {@code "DESC"}); defaults to DESC
+     * @return a page of {@link FeedItemResponse} items (mix of owned and shared)
+     */
+    @Transactional(readOnly = true)
+    public Page<FeedItemResponse> getOwnFeed(UUID userId, int page, int size, String sortBy, String sortDirection) {
+        List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
+
+        // Bounded fetch: load only enough rows to satisfy this page.
+        // Fetching top (page+1)*size per source (sorted DESC) guarantees the merged
+        // result is accurate for all positions up to (page+1)*size in the full union.
+        int fetchLimit = Math.max((page + 1) * size, size);
+        Sort.Direction direction = "ASC".equalsIgnoreCase(sortDirection) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        String pokSortField = "updatedAt".equals(sortBy) ? "updatedAt" : "createdAt";
+        Pageable poksBounded = PageRequest.of(0, fetchLimit, Sort.by(direction, pokSortField));
+        // PokShare has no updatedAt — always sort shares by createdAt
+        Pageable sharesBounded = PageRequest.of(0, fetchLimit, Sort.by(direction, "createdAt"));
+
+        // Fetch owned (non-deleted) POKs for this user with bounded pagination
+        List<Pok> ownedPoks = pokRepository.findByUserIdAndDeletedAtIsNull(userId, poksBounded).getContent();
+
+        // Fetch re-learnings created by this user with bounded pagination
+        List<PokShare> shares = pokShareRepository.findBySharedByUserId(userId, sharesBounded).getContent();
+
+        // Accurate totals from COUNT queries (no full table scan)
+        long total = pokRepository.countByUserIdAndDeletedAtIsNull(userId)
+            + pokShareRepository.countBySharedByUserId(userId);
+
+        // Build feed items — owned POKs first
+        List<FeedItemResponse> feedItems = new ArrayList<>();
+        for (Pok pok : ownedPoks) {
+            feedItems.add(PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()));
+        }
+
+        // Append re-learnings (batch-fetch originals to avoid N+1)
+        if (!shares.isEmpty()) {
+            Set<UUID> originalPokIds = shares.stream()
+                .map(PokShare::getOriginalPokId)
+                .collect(Collectors.toSet());
+            Map<UUID, Pok> originalsById = pokRepository.findAllById(originalPokIds).stream()
+                .collect(Collectors.toMap(Pok::getId, p -> p));
+
+            User sharer = userService.findById(userId);
+            String sharerHandle = sharer.getHandle();
+
+            for (PokShare share : shares) {
+                Pok original = originalsById.get(share.getOriginalPokId());
+                if (original != null) {
+                    feedItems.add(PokShareResponse.from(share, PokResponse.from(original), sharerHandle));
+                }
+            }
+        }
+
+        // Sort by the requested field/direction (default: createdAt DESC)
+        boolean byUpdatedAt = "updatedAt".equals(sortBy);
+        boolean asc = "ASC".equalsIgnoreCase(sortDirection);
+        Comparator<FeedItemResponse> comparator = byUpdatedAt
+            ? Comparator.comparing(item -> {
+                // PokShareResponse has no updatedAt — fall back to createdAt for consistent ordering
+                if (item instanceof PokResponse pr) return pr.updatedAt();
+                return item.createdAt();
+              })
+            : Comparator.comparing(FeedItemResponse::createdAt);
+        feedItems.sort(asc ? comparator : comparator.reversed());
+
+        int fromIndex = page * size;
+        int toIndex = Math.min(fromIndex + size, feedItems.size());
+        List<FeedItemResponse> pageContent = fromIndex >= feedItems.size()
+            ? List.of()
+            : feedItems.subList(fromIndex, toIndex);
+
+        return new PageImpl<>(pageContent, PageRequest.of(page, size), total);
     }
 
     /**
@@ -204,6 +306,7 @@ public class PokService {
         UUID userId,
         String keyword,
         String searchMode,
+        UUID tagId,
         String sortBy,
         String sortDirection,
         String createdFrom,
@@ -213,10 +316,24 @@ public class PokService {
         int page,
         int size
     ) {
-        log.debug("Searching POKs for user {} with keyword='{}', searchMode={}, page={}, size={}",
-            userId, keyword, searchMode, page, size);
+        log.debug("Searching POKs for user {} with keyword='{}', searchMode={}, tagId={}, page={}, size={}",
+            userId, keyword, searchMode, tagId, page, size);
 
         List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
+
+        // Tag filter takes precedence — bypass semantic search when a tag filter is active.
+        // Date-range filters are supported alongside tagId via the combined repository query.
+        if (tagId != null) {
+            Instant createdFromInstant = parseInstant(createdFrom);
+            Instant createdToInstant = parseInstant(createdTo);
+            Instant updatedFromInstant = parseInstant(updatedFrom);
+            Instant updatedToInstant = parseInstant(updatedTo);
+            Sort sort = buildSort(sortBy, sortDirection);
+            Pageable pageable = PageRequest.of(page, size, sort);
+            Page<Pok> poks = pokRepository.findByUserIdAndTagId(userId, tagId,
+                createdFromInstant, createdToInstant, updatedFromInstant, updatedToInstant, pageable);
+            return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()));
+        }
 
         boolean hasKeyword = keyword != null && !keyword.isBlank();
         if (hasKeyword && ("semantic".equals(searchMode) || "hybrid".equals(searchMode))) {
@@ -386,11 +503,11 @@ public class PokService {
 
         verifyOwnership(pok, userId);
 
-        // Enforce irreversible visibility: PUBLIC → PRIVATE is forbidden
-        if (request.visibility() == Pok.Visibility.PRIVATE
-                && pok.getVisibility() == Pok.Visibility.PUBLIC) {
+        // Enforce widening-only rule: visibility can only increase (ordinal ≥ current)
+        if (request.visibility() != null
+                && request.visibility().ordinal() < pok.getVisibility().ordinal()) {
             throw new PokVisibilityImmutableException(
-                "A public learning cannot be reverted to private");
+                "Visibility can only be widened, not narrowed");
         }
 
         String oldTitle = pok.getTitle();
@@ -398,8 +515,9 @@ public class PokService {
 
         pok.updateTitle(request.title());
         pok.updateContent(request.content());
-        if (request.visibility() == Pok.Visibility.PUBLIC) {
-            pok.makePublic();
+        if (request.visibility() != null
+                && request.visibility().ordinal() > pok.getVisibility().ordinal()) {
+            pok.widenVisibility(request.visibility());
         }
         pok.clearEmbedding();  // Mark stale; will be regenerated async below
 
@@ -448,25 +566,46 @@ public class PokService {
 
         log.info("POK soft deleted: id={}, userId={}", id, userId);
 
+        // FR5: cascade-delete all re-learnings referencing this POK (soft-delete means ON DELETE CASCADE
+        // won't fire, so we do it explicitly within this transaction)
+        pokShareService.cascadeDeleteByOriginalPok(id);
+
         logDelete(pok, userId, oldTitle, oldContent);
     }
 
     /**
-     * Verifies read access to a POK.
+     * Verifies read access to a POK based on visibility tier.
      *
-     * <p>PUBLIC learnings are accessible to any authenticated user.
-     * PRIVATE learnings are accessible only to the owner.
-     * Always returns 403 (never 404) to prevent confirming resource existence.
+     * <ul>
+     *   <li>PUBLIC — any authenticated user</li>
+     *   <li>FOLLOWERS_ONLY — owner or anyone who follows the owner</li>
+     *   <li>COLLEAGUES_ONLY — owner or mutual follows (colleagues)</li>
+     *   <li>PRIVATE — owner only</li>
+     * </ul>
+     *
+     * <p>Always throws 403 (never 404) to prevent confirming resource existence.
      *
      * @param pok    the POK to check
      * @param userId the requesting user's ID
-     * @throws PokAccessDeniedException if the POK is private and belongs to another user
+     * @throws PokAccessDeniedException if the requester does not have access
      */
     private void verifyAccess(Pok pok, UUID userId) {
         if (pok.getVisibility() == Pok.Visibility.PUBLIC) return;
         if (pok.getUserId().equals(userId)) return;
-        log.warn("Access denied: user {} attempted to read PRIVATE POK {} owned by {}",
-            userId, pok.getId(), pok.getUserId());
+
+        UUID ownerId = pok.getUserId();
+        switch (pok.getVisibility()) {
+            case FOLLOWERS_ONLY -> {
+                if (followService.isFollowing(userId, ownerId)) return;
+            }
+            case COLLEAGUES_ONLY -> {
+                if (followService.areColleagues(userId, ownerId)) return;
+            }
+            default -> { /* PRIVATE — only owner, already checked above */ }
+        }
+
+        log.warn("Access denied: user {} attempted to read {} POK {} owned by {}",
+            userId, pok.getVisibility(), pok.getId(), ownerId);
         throw new PokAccessDeniedException("You do not have permission to access this learning");
     }
 

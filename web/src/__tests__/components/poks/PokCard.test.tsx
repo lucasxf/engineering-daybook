@@ -13,7 +13,10 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('next-intl', () => ({
   useTranslations: () => (key: string) => {
-    const keys: Record<string, string> = { 'view.editButton': 'Edit' };
+    const keys: Record<string, string> = {
+      'view.editButton': 'Edit',
+      'share.button': 'Re-learn',
+    };
     return keys[key] ?? key;
   },
 }));
@@ -24,6 +27,7 @@ describe('PokCard', () => {
   });
 
   const basePok: Pok = {
+    type: 'owned',
     id: '123',
     userId: 'user-1',
     title: 'Test Title',
@@ -50,6 +54,16 @@ describe('PokCard', () => {
 
     // Should show first 100 chars + ellipsis
     expect(screen.getByText(/a{100}/)).toBeInTheDocument();
+  });
+
+  it('strips markdown syntax from the content preview', () => {
+    const pok = { ...basePok, content: '**bold** and *italic* text' };
+
+    render(<PokCard pok={pok} />);
+
+    // Markdown markers should be stripped — raw syntax should not appear
+    expect(screen.getByText(/bold and italic text/)).toBeInTheDocument();
+    expect(screen.queryByText(/\*\*/)).not.toBeInTheDocument();
   });
 
   it('displays first 50 chars of content as header when no title', () => {
@@ -107,5 +121,40 @@ describe('PokCard', () => {
     await user.click(screen.getByRole('button', { name: /edit/i }));
 
     expect(mockPush).toHaveBeenCalledWith('/en/poks/123/edit');
+  });
+
+  it('does not show Re-learn button when onShare is not provided', () => {
+    render(<PokCard pok={basePok} />);
+
+    expect(screen.queryByRole('button', { name: 'Re-learn' })).not.toBeInTheDocument();
+  });
+
+  it('does not show Re-learn button for non-PUBLIC pok even when onShare is provided', () => {
+    const mockOnShare = vi.fn();
+    render(<PokCard pok={basePok} onShare={mockOnShare} />);
+
+    // basePok.visibility is PRIVATE
+    expect(screen.queryByRole('button', { name: 'Re-learn' })).not.toBeInTheDocument();
+  });
+
+  it('shows Re-learn button for PUBLIC pok when onShare is provided', () => {
+    const mockOnShare = vi.fn();
+    const publicPok = { ...basePok, visibility: 'PUBLIC' as const };
+
+    render(<PokCard pok={publicPok} onShare={mockOnShare} />);
+
+    expect(screen.getByRole('button', { name: 'Re-learn' })).toBeInTheDocument();
+  });
+
+  it('calls onShare when Re-learn button is clicked', async () => {
+    const user = userEvent.setup();
+    const mockOnShare = vi.fn();
+    const publicPok = { ...basePok, visibility: 'PUBLIC' as const };
+
+    render(<PokCard pok={publicPok} onShare={mockOnShare} />);
+    await user.click(screen.getByRole('button', { name: 'Re-learn' }));
+
+    expect(mockOnShare).toHaveBeenCalledTimes(1);
+    expect(mockPush).not.toHaveBeenCalled();
   });
 });

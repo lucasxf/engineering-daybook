@@ -96,6 +96,16 @@ cd backend
 
 ## Known Pitfalls
 
+- **Use `replaceAll("\\s+", "-")` not `replace(' ', '-')` for slug/name normalisation:** `String.replace(char, char)` operates character-by-character, so `"spring  boot"` produces `"spring--boot"` instead of `"spring-boot"`, and tabs/newlines are silently ignored. This causes deduplication bugs when the normalised form is used as a unique key. Always use `.replaceAll("\\s+", "-").replaceAll("-+", "-")` to collapse all whitespace runs and consecutive dashes in one pass. (Added 2026-03-06)
+
+  ```java
+  // WRONG — double spaces and tabs produce consecutive dashes
+  String normalised = input.trim().replace(' ', '-').toLowerCase();
+
+  // CORRECT — all whitespace runs → single dash, consecutive dashes collapsed
+  String normalised = input.trim().replaceAll("\\s+", "-").replaceAll("-+", "-").toLowerCase();
+  ```
+
 - **Package-private inter-service methods for atomic cross-service operations:** When `ServiceA` needs to call a helper on `ServiceB` that is only valid in the context of an ongoing operation in `ServiceA` (e.g. assigning tags immediately after POK creation), declare the helper as package-private (no access modifier) rather than `public`. This prevents callers outside the `service` package from invoking a method that has preconditions only `ServiceA` can satisfy. Example: `TagService.assignTagsToNewPok(UUID pokId, List<UUID> userTagIds, UUID userId)` is package-private — only `PokService` (same package) can call it. Both services must live in the same package for this to work. Keep these methods small and single-purpose; if the logic grows complex, extract to a dedicated orchestration service.
 
 - **`@Lazy` to break circular constructor injection:** When two services depend on each other via constructor injection, Spring throws `BeanCurrentlyInCreationException`. Fix: annotate one of the injected parameters with `@Lazy` — Spring injects a proxy instead of the real bean, breaking the cycle. Keep `@Lazy` on the less-frequently-used dependency. Never use field injection (`@Autowired`) just to avoid this; `@Lazy` preserves constructor injection semantics.
@@ -263,6 +273,33 @@ cd backend
   long totalCount = pokRepository.countByUserIdAndDeletedAtIsNull(userId);
   return LearnerProfileResponse.full(user, learnings, isOwner, (int) totalCount);
   ```
+
+- **Java `byte` literal range — hex values > 0x7F require an explicit `(byte)` cast:** Java's `byte` type is signed (-128 to 127). Hex literals above `0x7F` (e.g. `0xB5` = 181) are `int`, so assigning them to a `byte[]` without a cast produces `incompatible types: possible lossy conversion from int to byte`. Fix: add an explicit cast: `(byte) 0xB5`. (Added 2026-03-07)
+
+  ```java
+  // WRONG — compile error: 0xB5 = 181 > Byte.MAX_VALUE (127)
+  byte[] arr = { 0xB5 };
+
+  // CORRECT
+  byte[] arr = { (byte) 0xB5 };
+  ```
+
+- **Mockito `UnnecessaryStubbingException` — remove stubs that are unreachable due to early validation throws:** Mockito strict mode (default with `@ExtendWith(MockitoExtension.class)`) flags any stub that is set up but never invoked as a test error. When a service method throws `IllegalArgumentException` (or similar) before reaching the repository, stubs like `when(userRepository.findById(userId))` are never exercised and trigger `UnnecessaryStubbingException`. Fix: remove stubs for dependencies that are bypassed by the code path under test — only stub what will actually be called. (Added 2026-03-07)
+
+- **Generate valid JPEG bytes for tests using `BufferedImage + ImageIO.write()` — do not hand-craft byte arrays:** Hand-crafted JPEG byte arrays (even with correct SOI/EOI markers) are not fully valid JPEG streams that Java's `ImageIO`/`javax.imageio` can decode. Image processing libraries like Thumbnailator throw `IIOException: Not a JPEG file`. Fix: generate a real 1×1 JPEG in a static helper: (Added 2026-03-07)
+
+  ```java
+  private static byte[] makeJpeg() {
+      BufferedImage img = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+      img.setRGB(0, 0, 0xFFFFFF);
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      ImageIO.write(img, "jpeg", out);
+      return out.toByteArray();
+  }
+  private static final byte[] MINIMAL_JPEG = makeJpeg();
+  ```
+
+- **Flyway backfill migrations that introduce a new UNIQUE constraint must deduplicate before the bulk UPDATE:** When normalising a column that previously allowed two values to coexist (e.g. `"machine learning"` and `"machine-learning"` were distinct under `LOWER(name)` but both normalise to `"machine-learning"` after a spaces→dashes transform), the bulk `UPDATE` will produce duplicate values and the subsequent `ALTER TABLE … ADD CONSTRAINT … UNIQUE` (or the UPDATE itself if a unique index already exists) will fail with a uniqueness violation — aborting Flyway before startup. Fix: add a dedup step before the bulk UPDATE that (1) elects a winner per collision group using `ROW_NUMBER() OVER (PARTITION BY canonical ORDER BY created_at, id::text)` — **do NOT use `MIN(id)`, as PostgreSQL does not support `MIN()` on UUID columns** (no ordering aggregate registered for that type), (2) reassigns all FK references in every dependent table from loser to winner (using `NOT EXISTS` guards where the target table has a unique index), and (3) deletes the now-orphaned loser rows. Apply this pattern to any backfill that transforms a column used as a unique key. (Added 2026-03-06)
 
 ---
 

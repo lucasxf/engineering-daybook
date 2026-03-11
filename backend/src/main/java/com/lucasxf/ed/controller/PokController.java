@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 import com.lucasxf.ed.dto.CreatePokRequest;
+import com.lucasxf.ed.dto.FeedItemResponse;
 import com.lucasxf.ed.dto.PokAuditLogResponse;
 import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
@@ -121,6 +122,7 @@ public class PokController {
      * <ul>
      *   <li>Keyword search (case-insensitive, searches title and content)</li>
      *   <li>Semantic / hybrid search via pgvector cosine distance ({@code searchMode})</li>
+     *   <li>Tag filtering by global tag ID ({@code tagId}) — bypasses semantic search</li>
      *   <li>Sorting by createdAt or updatedAt (ASC/DESC, default: updatedAt DESC)</li>
      *   <li>Date range filtering (creation and update dates)</li>
      *   <li>Pagination (default: page 0, size 20, max 100)</li>
@@ -128,6 +130,7 @@ public class PokController {
      *
      * @param keyword        optional keyword to search in title and content
      * @param searchMode     optional search mode: {@code keyword} (default), {@code semantic}, or {@code hybrid}
+     * @param tagId          optional global tag ID to filter by; when present, only POKs tagged with this tag are returned
      * @param sortBy         optional sort field (createdAt or updatedAt, default: updatedAt)
      * @param sortDirection  optional sort direction (ASC or DESC, default: DESC)
      * @param createdFrom    optional minimum creation date (ISO 8601)
@@ -145,13 +148,13 @@ public class PokController {
         description = "Retrieves and searches active POKs for the authenticated user. " +
                       "Supports keyword search, semantic search (pgvector cosine distance), and hybrid " +
                       "(keyword + semantic blended) search modes via the `searchMode` parameter. " +
-                      "Also supports sorting, date range filters, and pagination. " +
+                      "Also supports tag filtering (tagId), sorting, date range filters, and pagination. " +
                       "Default sort: most recently updated (updatedAt DESC)."
     )
     @ApiResponse(responseCode = "200", description = "POKs retrieved successfully")
     @ApiResponse(responseCode = "400", description = "Invalid query parameters (e.g., malformed dates)")
     @ApiResponse(responseCode = "401", description = "Unauthorized")
-    public ResponseEntity<Page<PokResponse>> list(
+    public ResponseEntity<Page<FeedItemResponse>> list(
         @Parameter(description = "Keyword to search in title and content (case-insensitive). " +
                                  "When combined with searchMode=hybrid or searchMode=semantic, " +
                                  "also drives vector similarity ranking.")
@@ -159,6 +162,8 @@ public class PokController {
         @Parameter(description = "Search mode: 'keyword' (ILIKE only), 'semantic' (vector similarity only), " +
                                  "or 'hybrid' (keyword + semantic blended). Defaults to 'keyword' when omitted.")
         @RequestParam(required = false) String searchMode,
+        @Parameter(description = "Filter by global tag ID. When present, returns only POKs tagged with this tag.")
+        @RequestParam(required = false) UUID tagId,
         @Parameter(description = "Sort field: 'createdAt' or 'updatedAt'. Default: 'updatedAt'.")
         @RequestParam(required = false) String sortBy,
         @Parameter(description = "Sort direction: 'ASC' or 'DESC'. Default: 'DESC'.")
@@ -182,21 +187,23 @@ public class PokController {
         // Enforce max page size
         int pageSize = Math.min(size, 100);
 
-        Page<PokResponse> response = pokService.search(
-            userId,
-            keyword,
-            searchMode,
-            sortBy,
-            sortDirection,
-            createdFrom,
-            createdTo,
-            updatedFrom,
-            updatedTo,
-            page,
-            pageSize
-        );
+        // No content filters → return mixed feed (owned POKs + re-learnings).
+        // sortBy/sortDirection and searchMode are not content filters — they control ordering and
+        // search mode, not which items are included. Only keyword, tagId, and date ranges trigger
+        // the search path (owned POKs only). Sort params are forwarded to getOwnFeed() so the
+        // user can order their mixed feed.
+        boolean hasFilters = (keyword != null && !keyword.isBlank()) || tagId != null
+            || createdFrom != null || createdTo != null || updatedFrom != null || updatedTo != null;
 
-        return ResponseEntity.ok(response);
+        if (!hasFilters) {
+            return ResponseEntity.ok(pokService.getOwnFeed(userId, page, pageSize, sortBy, sortDirection));
+        }
+
+        // Filters present → keyword/tag/semantic search over owned POKs only
+        Page<PokResponse> searchResult = pokService.search(
+            userId, keyword, searchMode, tagId, sortBy, sortDirection,
+            createdFrom, createdTo, updatedFrom, updatedTo, page, pageSize);
+        return ResponseEntity.ok(searchResult.map(r -> (FeedItemResponse) r));
     }
 
     /**

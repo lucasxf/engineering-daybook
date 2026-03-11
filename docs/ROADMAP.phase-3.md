@@ -1,6 +1,6 @@
 # Phase 3: AI & Mobile
 
-> Status: **🔄 In Progress** (3.1, 3.3 complete)
+> Status: **🔄 In Progress** (3.1, 3.3 complete; 3.4 in progress)
 
 ---
 
@@ -54,6 +54,49 @@
 
 ---
 
+### Milestone 3.4: App Store Publishing — Android (In Progress, 2026-03-08)
+
+| # | Feature | Priority | Status |
+|---|---------|----------|--------|
+| 3.4.1 | Apple Developer Program enrollment + provisioning profiles | Must Have | ⏳ Deferred (iOS-second strategy) |
+| 3.4.2 | Google Play Console setup + signing keystore | Must Have | ✅ Done (2026-03-08) |
+| 3.4.3 | App store metadata: screenshots, descriptions, privacy policy (EN + PT-BR) | Must Have | ✅ Done (2026-03-08) |
+| 3.4.4 | EAS Build production profile — Android `.aab` | Must Have | ✅ Done — Android (2026-03-08); iOS deferred |
+| 3.4.5 | TestFlight internal distribution (iOS) | Must Have | ⏳ Deferred (no Apple Developer enrollment yet) |
+| 3.4.6 | Play Store internal track distribution (Android) | Must Have | 🔄 In Progress — Play Console forms being filled |
+| 3.4.7 | Apple App Store Review submission + approval | Should Have | ⏳ Deferred |
+| 3.4.8 | Google Play Store public release | Should Have | ⏳ Deferred |
+
+**Implementation notes:**
+- EAS Build cloud service (Expo Application Services) used for managed signing and CI builds — no local Gradle invocation needed
+- `appVersionSource: remote` in `eas.json` — EAS manages Android `versionCode` automatically; do not set it in `app.json`
+- Root `mobile/App.tsx` required by `expo/AppEntry.js` — `node_modules/expo/AppEntry.js` resolves `../../App` (two levels up from inside `node_modules/expo/`). Project has `src/App.tsx`; root `App.tsx` re-exports it: `export { default } from './src/App';`
+- `mobile/.npmrc` with `legacy-peer-deps=true` required — EAS runs `npm ci` in strict mode; without `.npmrc`, peer dep conflicts (e.g. `react-test-renderer` version mismatch) cause `ERESOLVE` failures on the build server
+- Package upgrades applied for SDK 53 compatibility: React 18→19, React Native 0.76→0.79, all Expo SDK 53 packages; `npm install --legacy-peer-deps` used (not `expo install --check`, which itself fails with ERESOLVE)
+- Privacy policy deployed at `https://learnimo.net/en/privacy` (and `/pt-BR/privacy`); includes `#delete-account` anchor as required by Play Store data safety form
+- Android package name: `net.learnimo.app`; EAS project: `@lucasxf/learnimo` (UUID `9c453fb8-107d-40db-bb84-4cd9ca18c3a7`)
+- Production `.aab` artifact: `https://expo.dev/artifacts/eas/2svV1cBny8Fri4ULvGYnC5.aab`
+- Android-first strategy: iOS deferred pending Apple Developer Program enrollment
+
+**Progress update (2026-03-09):**
+- Mobile feature parity table (`mobile/store-assets/web-mobile-feature-parity.md`) audited and updated: social discovery feed row corrected (split into social following feed ✅/✅ and Discover page ✅/❌); 3 new rows added (My Learnings personal feed, Search bar UI, Social: Discover page learner search); gap descriptions sharpened for follow/unfollow, learner profiles, and re-learning.
+- Six mobile feature parity specs written and ready for implementation via `/implement-spec`:
+  1. `docs/specs/features/mobile-profile-editing.md` — edit displayName, bio, and avatar on ProfileScreen
+  2. `docs/specs/features/mobile-my-learnings.md` — personal feed tab with search and sort controls
+  3. `docs/specs/features/mobile-social-discovery.md` — follow/unfollow, LearnerProfileScreen, DiscoverScreen, FollowButton
+  4. `docs/specs/features/mobile-tag-management.md` — tag add/remove, tag-at-creation, AI suggestions, tag filter
+  5. `docs/specs/features/mobile-4-tier-visibility.md` — expand 2-tier to 4-tier visibility on mobile (FOLLOWERS_ONLY, COLLEAGUES_ONLY)
+  6. `docs/specs/features/mobile-re-learning.md` — share/unshare learnings, ReLearningModal, attribution display
+- Recommended implementation order: (1) mobile-profile-editing → (2) mobile-my-learnings → (3) mobile-4-tier-visibility → (4) mobile-tag-management → (5) mobile-social-discovery → (6) mobile-re-learning. Social discovery depends on follow/unfollow wiring that lands in step 5; re-learning depends on visibility cascade enforcement from step 3.
+
+**Progress update (2026-03-10 — spec orchestration prep):**
+- Added `## Implementation Plan` sections (orchestrator/subagent task breakdown) to two mobile specs that were previously in legacy mode, making them ready for `/implement-spec` dispatch:
+  - `docs/specs/features/mobile-tag-management.md` — 7-task implementation plan (useTags hook → TagPicker → TagSuggestionBanner → post-save navigation → tag operations on detail → tag filter on My Learnings → i18n keys)
+  - `docs/specs/features/mobile-4-tier-visibility.md` — 6-task implementation plan (type cleanup → VisibilityPicker/Badge components → 4-tier pickers on new/detail/profile screens → i18n keys)
+- Other two specs (`mobile-social-discovery.md` and `mobile-re-learning.md`) already had proper Implementation Plan sections and required no changes.
+
+---
+
 ## Milestone 3.2: AI Connections
 
 | # | Feature | Priority |
@@ -62,28 +105,10 @@
 | 3.2.2 | "Related learnings" section on POK view | Should Have |
 | 3.2.3 | Connection strength indicators | Could Have |
 
-## Milestone 3.4: App Store Publishing
-
-| # | Feature | Priority |
-|---|---------|----------|
-| 3.4.1 | Apple Developer Program enrollment + provisioning profiles | Must Have |
-| 3.4.2 | Google Play Console setup + signing keystore | Must Have |
-| 3.4.3 | App store metadata: screenshots, descriptions, privacy policy (EN + PT-BR) | Must Have |
-| 3.4.4 | EAS Build production profile — iOS `.ipa` + Android `.aab` | Must Have |
-| 3.4.5 | TestFlight internal distribution (iOS) | Must Have |
-| 3.4.6 | Play Store internal track distribution (Android) | Must Have |
-| 3.4.7 | Apple App Store Review submission + approval | Should Have |
-| 3.4.8 | Google Play Store public release | Should Have |
-
-**Notes:**
-- 3.4.5 and 3.4.6 (internal distribution) are the immediate goal — real devices, real testing, no public commitment yet
-- 3.4.7 and 3.4.8 (public publishing) require stable UX, store review compliance, and Apple/Google policy adherence
-- Android-first is reasonable (Lucas is an Android user, Play Store review is faster than App Store review)
-- Spec: `docs/specs/features/app-store-publishing.md` (to be written)
-
 ## Exit Criteria
 
 - [ ] Semantic search returns relevant results
 - [ ] Related POKs are surfaced automatically
-- [x] Mobile app is on TestFlight (iOS) and Play Store internal track (Android) *(Milestone 3.4 in progress)*
+- [ ] Mobile app is on Play Store internal track (Android) *(3.4.6 in progress — Play Console forms being filled)*
+- [ ] Mobile app is on TestFlight (iOS) *(deferred — no Apple Developer enrollment yet)*
 - [ ] Author uses mobile app to capture learnings on-the-go

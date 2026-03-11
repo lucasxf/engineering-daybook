@@ -78,6 +78,14 @@ export default {
       searchPlaceholder: 'Search learnings…',
       searchModeLabel: 'Search mode',
     },
+    socialFeed: {
+      title: 'Feed',
+      empty: 'Your feed is empty',
+      emptyHint: 'Follow learners to see their updates here.',
+      relearning: 're-learned by',
+      by: 'by',
+      loadError: 'Failed to load feed',
+    },
     new: {
       title: 'Save Learning',
       titleLabel: 'Title',
@@ -137,6 +145,8 @@ export default {
       en: 'English',
       ptBR: 'Português (BR)',
     },
+    displayName: 'Display name',
+    bio: 'Bio',
     logoutButton: 'Sign out',
     logoutConfirmTitle: 'Sign out?',
     logoutConfirmOk: 'Sign out',

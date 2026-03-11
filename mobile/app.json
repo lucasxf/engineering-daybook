@@ -24,7 +24,8 @@
         "backgroundColor": "#0f172a"
       },
       "package": "net.learnimo.app",
-      "softwareKeyboardLayoutMode": "resize"
+      "softwareKeyboardLayoutMode": "resize",
+      "permissions": []
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -35,10 +36,12 @@
       "expo-localization"
     ],
     "extra": {
+      "apiUrl": "http://localhost:8080/api/v1",
+      "googleClientId": "",
       "eas": {
-        "projectId": "learnimo-mobile"
+        "projectId": "9c453fb8-107d-40db-bb84-4cd9ca18c3a7"
       }
     },
-    "_comment_eas": "TODO (Milestone 3.4): Replace projectId with the real EAS UUID from `eas init`."
+    "owner": "lucasxf"
   }
 }

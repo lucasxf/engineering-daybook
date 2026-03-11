@@ -144,6 +144,34 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
 - **`silentRefresh()` must be guarded by a promise mutex when called from `apiFetch`:** Multiple in-flight API calls that simultaneously receive a 401 will each invoke `silentRefresh()` concurrently. The first rotation invalidates the refresh token, causing all subsequent refresh calls to fail and triggering `authFailureListener()` — a spurious logout. Use a module-scoped `let refreshPromise: Promise<boolean> | null = null` to deduplicate: `if (!refreshPromise) refreshPromise = silentRefresh(); const result = await refreshPromise; refreshPromise = null;`
 - **Screen in a tab navigator must use `BottomTabNavigationProp<TabParamList>`, not `NativeStackNavigationProp<StackParamList>`:** Even when a tab screen is nested inside a stack navigator, `useNavigation()` returns the navigation object of the closest parent navigator (the tab). Typing it as the stack's navigation prop makes TypeScript accept incorrect route names. A screen inside `AppTabs` should import `BottomTabNavigationProp` from `@react-navigation/bottom-tabs` and type the hook with `AppTabsParamList` — routes like `'Feed'` are then checked at compile time. Attempting to navigate to a tab route (`'Feed'`) through a stack nav type (`AppStackParamList`) silently succeeds at runtime but TypeScript cannot catch renames.
 
+- **Component unit tests that cannot run under `jest-expo` on Node 22 require a 3rd jest project with `testEnvironment: 'node'`:** The existing two-project setup (`lib` + `rn`) covers pure TypeScript logic (node env) and full React Native rendering (jest-expo). However, `jest-expo`'s setup calls `Object.defineProperty` on RN internals that fail under Node 22 + RN 0.76, which means any component test importing native modules (e.g., `react-native-markdown-display`) cannot run in the `rn` project either. The workaround is to add a 3rd jest project (`components`) with `testEnvironment: 'node'`, a `moduleNameMapper` that stubs out native modules, and manual mocks placed in `src/__mocks__/`. This project covers `src/components/**/__tests__/` files. The `rn` project remains for full-integration screen tests that need the Expo runtime setup. See `jest.config.js` for the configuration. **Important:** the `rn` project's `testRegex` must exclude `components/` via a negative lookahead (e.g. `src/(?!components/).*/__tests__/`) to prevent `MarkdownContent.test.tsx` (and any future component tests) from running in both `rn` and `components` when no `--selectProjects` flag is used. Without the exclusion, component tests are executed twice — once in each project — wasting time and causing confusing duplicate output. (Added 2026-03-06)
+
+  ```js
+  // jest.config.js — third project entry
+  {
+    displayName: 'components',
+    testEnvironment: 'node',
+    testRegex: 'src/components/.*/__tests__/.*\\.test\\.[jt]sx?$',
+    moduleNameMapper: {
+      '^react-native-markdown-display$': '<rootDir>/src/__mocks__/react-native-markdown-display.tsx',
+      // ... other native module stubs
+    },
+    preset: 'ts-jest',
+  }
+  ```
+
+- **`stripMarkdown` italic regex must use word-boundary guards for underscore, not asterisk:** A single pattern `(\*|_)(.*?)\1` incorrectly strips underscores from `snake_case_variable` (e.g., `_case_` matches and removes the surrounding underscores, yielding `snakecase_variable`). Fix: split into two patterns — `\*([^*\n]+)\*` for asterisk (safe — `*` is not used in identifiers) and `(?<!\w)_([^_\n]+)_(?!\w)` for underscore (word-boundary safe). Apply both to web and mobile versions of `stripMarkdown`. (Added 2026-03-06)
+
+- **EAS init: Invalid UUID appId from placeholder** — If `app.json` contains a placeholder `"extra": { "eas": { "projectId": "learnimo-mobile" } }` (or any non-UUID string), `eas init` fails with "Invalid UUID appId". Fix: remove the entire `extra.eas` block from `app.json` before running `eas init`. EAS will regenerate it with the real UUID after authenticating. (Added 2026-03-08)
+
+- **EAS build: "Unable to resolve module ../../App"** — `expo/AppEntry.js` (inside `node_modules/expo/`) hard-codes a two-level-up relative import for the root `App` file. If the project keeps its root component at `src/App.tsx` without a root-level re-export, Metro fails with "Unable to resolve module ../../App from node_modules/expo/AppEntry.js". Fix: create `mobile/App.tsx` at the project root containing `export { default } from './src/App';`. (Added 2026-03-08)
+
+- **Gradle: "Could not set unknown property 'enableBundleCompression'"** — Occurs when EAS resolves a newer React Native Gradle plugin (RN 0.77+) during build while `package.json` still pins RN 0.76. The `enableBundleCompression` property was removed in the RN 0.77 Gradle plugin. Fix: upgrade all packages to Expo SDK 53 expected versions (React 18→19, RN 0.76→0.79). Use `npm install --legacy-peer-deps` rather than `expo install --check`, which itself fails with ERESOLVE on SDK 53. (Added 2026-03-08)
+
+- **EAS `npm ci` fails with ERESOLVE** — EAS runs `npm ci` (strict lockfile mode) on the build server. Two common causes: (1) `react-test-renderer` is on a different major version than `react` (e.g., `react@19` + `react-test-renderer@18`); (2) peer dep conflicts that local `npm install --legacy-peer-deps` masks. Fix: (a) ensure `react-test-renderer` version matches `react` version exactly; (b) create `mobile/.npmrc` with `legacy-peer-deps=true` so that EAS's `npm ci` uses legacy resolution — EAS copies `.npmrc` from the repo into the build environment. Without `.npmrc`, the build server uses npm defaults (strict), diverging from the local install. (Added 2026-03-08)
+
+- **`eas init` requires local `eas-cli` install before `npx eas init`** — Running `npx eas init` without a prior local install fails because npx cannot locate the binary in ephemeral environments. Fix: run `npm install eas-cli` inside the `mobile/` directory first to add it to `node_modules/.bin/`, then run `npx eas init`. (Added 2026-03-08)
+
 ---
 
-*Last updated: 2026-02-27 (session: fix/pr-94-review)*
+*Last updated: 2026-03-08 (session: chore/publish-mobile-app — Milestone 3.4 in progress: EAS build, Play Store setup, privacy policy, store metadata)*

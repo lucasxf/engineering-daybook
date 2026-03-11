@@ -46,6 +46,20 @@ echo "Base branch: $BASE_BRANCH"
 
 ## 3. Check for Uncommitted Changes
 
+First, commit the session metrics delta file if dirty or untracked (written live by the PostToolUse hook — expected to have changes).
+The canonical `usage-stats.toml` is NOT touched by individual sessions — only `/compile-metrics` on `develop` updates it:
+```bash
+# Stage any modified or untracked session delta files
+SESSIONS_MODIFIED=$(git diff --name-only -- .claude/metrics/sessions/ 2>/dev/null)
+SESSIONS_UNTRACKED=$(git ls-files --others --exclude-standard .claude/metrics/sessions/ 2>/dev/null | grep '\.toml$')
+
+if [[ -n "$SESSIONS_MODIFIED" || -n "$SESSIONS_UNTRACKED" ]]; then
+  git add .claude/metrics/sessions/
+  git commit --only .claude/metrics/sessions/ -m "chore: update session metrics delta"
+fi
+```
+
+Then check for any remaining uncommitted changes:
 ```bash
 UNCOMMITTED=$(git status --porcelain | grep -v '.claude/settings.local.json' || true)
 
@@ -131,4 +145,12 @@ Next Steps:
 1. Review PR at: $PR_URL
 2. Address any CI/CD failures
 3. Wait for approval and merge
+```
+
+After the summary, output this exact closing banner so the user knows the command has finished:
+
+```
+---
+✅ /create-pr complete — PR #$PR_NUMBER: $PR_URL
+---
 ```

@@ -55,6 +55,45 @@
 
 ---
 
+## Screens
+
+> _This section describes the user-facing screens introduced or modified by this feature.
+> Each screen block is self-contained and tool-agnostic — it can be consumed directly
+> by design tools, UI generation tools, or implementation agents._
+> _Omit this section for backend-only specs._
+
+### Screen: [Screen Name]
+
+**Purpose:** [What the user accomplishes on this screen]
+
+**Route:** `/[locale]/path/to/page`
+
+**Layout:**
+1. [Section] — [description]
+2. [Section] — [description]
+
+**Components:**
+- `<PageComponent>` → `<ChildA />`, `<ChildB>` → `<Grandchild />`
+
+**States:**
+- Empty: [description]
+- Loading: [description]
+- Error: [description]
+- Populated: [description]
+
+**i18n:**
+| Key | EN | PT-BR |
+|-----|-----|-------|
+| `namespace.key` | English text | Portuguese text |
+
+**Interactions:**
+- [click/tap target] → [what happens]
+
+**Accessibility:**
+- [requirement]
+
+---
+
 ## Implementation Approach
 
 ### Architecture
@@ -77,6 +116,26 @@
 
 **Migrations (if applicable):**
 - `db/migration/V___description.sql` — [schema changes]
+
+---
+
+## Implementation Plan
+
+> _Ordered list of atomic tasks for subagent execution.
+> Optional for simple specs; recommended for multi-commit features.
+> `/implement-spec` uses this as the execution contract when present._
+
+### Task 1: [Brief description]
+- **Files:** `path/to/file1`, `path/to/file2`
+- **Depends on:** _none_ | Task N
+- **Commit:** `type: commit message`
+- **Stack:** backend | web | mobile | infra
+
+### Task 2: [Brief description]
+- **Files:** `path/to/file3`
+- **Depends on:** Task 1
+- **Commit:** `type: commit message`
+- **Stack:** backend | web | mobile | infra
 
 ---
 

@@ -8,7 +8,7 @@ argument-hint: <feature-name-or-description>
 Feature: $ARGUMENTS
 
 **Anti-Cyclic Dependency Note:**
-This command delegates to `virgil` agent (and optionally `frontend-ux-specialist`). These agents MUST NEVER call `/write-spec` back.
+This command delegates to `virgil`, `nexus`, `sous-chef`, and `pixl` agents. These agents MUST NEVER call `/write-spec` back.
 
 @CLAUDE.md
 
@@ -105,7 +105,7 @@ ls docs/specs/features/
 
 ## Phase 2: Product Sections
 
-**Delegate to `virgil` agent** with this prompt:
+**Delegate to `virgil` agent via the Agent tool with `subagent_type: virgil`** using this prompt:
 
 > "Define the product requirements for the following feature in Engineering Daybook: **[feature name/description]**.
 >
@@ -123,7 +123,57 @@ ls docs/specs/features/
 > - Reference the Engineering Daybook domain model: User, POK, Tag, PokTag, PokAuditLog
 > - Mark deferred/out-of-scope items explicitly"
 
-Review the agent's output for completeness and consistency. Extract the **Scope** field — you will need it in Phase 3.
+Review the agent's output for completeness and consistency. Extract the **Scope** field — you will need it in Phases 2.1 and 3.
+
+### 2.1 Screen Definition (web or full-stack only)
+
+If the Scope includes `web` or `full-stack`, delegate to the `pixl` agent via the Agent tool with `subagent_type: pixl`:
+
+> "Define the UI screens for the following feature in Engineering Daybook: **[feature name]**.
+>
+> Functional requirements: [paste FR list]
+> UI-related acceptance criteria: [paste ACs that describe visual/interactive behavior]
+>
+> For each screen introduced or significantly modified by this feature, produce a `### Screen:` block following this exact format:
+>
+> ```
+> ### Screen: [Screen Name]
+>
+> **Purpose:** [What the user accomplishes on this screen]
+>
+> **Route:** `/[locale]/path/to/page`
+>
+> **Layout:**
+> 1. [Section] — [description]
+> 2. [Section] — [description]
+>
+> **Components:**
+> - `<PageComponent>` → `<ChildA />`, `<ChildB>` → `<Grandchild />`
+>
+> **States:**
+> - Empty: [description]
+> - Loading: [description]
+> - Error: [description]
+> - Populated: [description]
+>
+> **i18n:**
+> | Key | EN | PT-BR |
+> |-----|-----|-------|
+> | `namespace.key` | English text | Portuguese text |
+>
+> **Interactions:**
+> - [click/tap target] → [what happens]
+>
+> **Accessibility:**
+> - [requirement]
+> ```
+>
+> Rules:
+> - Do NOT include brand colors, design tokens, or tool-specific directives. Keep it tool-agnostic.
+> - Do NOT duplicate business rules that belong in FR/NFR — reference them (e.g., 'validation per FR3')
+> - Cover every screen that has visible user-facing changes; skip screens with backend-only changes"
+
+Include the `pixl` agent's output as the `## Screens` section of the spec.
 
 ---
 
@@ -139,7 +189,7 @@ Review the agent's output for completeness and consistency. Extract the **Scope*
 
 Delegate to specialists in parallel based on the **Scope** from Phase 2. Each specialist receives: feature name, functional requirements list, and the codebase brief from 3.1.
 
-**Web or Full-stack:** Delegate to `nexus` agent:
+**Web or Full-stack:** Delegate to `nexus` agent via the Agent tool with `subagent_type: nexus`:
 > "You are reviewing the frontend engineering approach for: **[feature name]**.
 >
 > Functional requirements: [paste FR list]
@@ -147,7 +197,7 @@ Delegate to specialists in parallel based on the **Scope** from Phase 2. Each sp
 >
 > Provide: recommended routing/URL structure, component architecture, state strategy, data fetching approach, TypeScript patterns, and a list of files to create or modify. Call out any risks or data strategy decisions that need resolving before implementation."
 
-**Backend or Full-stack:** Delegate to `sous-chef` agent:
+**Backend or Full-stack:** Delegate to `sous-chef` agent via the Agent tool with `subagent_type: sous-chef`:
 > "You are reviewing the backend engineering approach for: **[feature name]**.
 >
 > Functional requirements: [paste FR list]
@@ -155,7 +205,7 @@ Delegate to specialists in parallel based on the **Scope** from Phase 2. Each sp
 >
 > Provide: API endpoint design (method, path, request/response shape), service layer changes, repository queries, Flyway migration needs, and a list of files to create or modify. Call out any data model decisions that affect the frontend."
 
-**Web features with new screens:** Optionally delegate to `frontend-ux-specialist` for screen layout and interaction patterns.
+**Web features with new screens:** Screen layout and interaction patterns are handled by the `pixl` delegation in Phase 2.1.
 
 ### 3.3 Assemble and Reconcile (main session)
 
@@ -165,6 +215,29 @@ Then write:
 - **Technical Constraints** — Stack, technologies, integration points, out of scope
 - **Implementation Approach** — Architecture summary from specialist outputs, test strategy, concrete file changes list
 - **Dependencies** — Blocked by, blocks, external requirements
+
+### 3.4 Generate Implementation Plan
+
+Using the `File Changes` list and `Test Strategy` from 3.3, produce an ordered task breakdown for the `## Implementation Plan` section. Group files into coherent atomic tasks — small enough for a single subagent to implement in a fresh context.
+
+**Ordering heuristics (apply in this order):**
+1. Migrations before entities/repositories
+2. Entities/repositories before services
+3. Services before controllers
+4. Backend tasks before frontend tasks (full-stack specs)
+5. Unit tests co-located with their production code (same task)
+6. Integration tests after the components they integrate
+7. E2E tests last
+8. i18n changes grouped with the components that consume them
+
+**For each task, specify:**
+- A brief, imperative description (e.g., "Add PokShare entity and repository")
+- The exact files to create or modify (use full relative paths)
+- Dependencies on prior tasks (or `_none_` for the first tasks)
+- A conventional commit message (`feat:`, `test:`, `chore:`, etc.)
+- Stack label: `backend`, `web`, `mobile`, or `infra`
+
+**Aim for 3–8 tasks per spec.** If fewer than 3 tasks are sufficient, a single implementation pass may be simpler than orchestration — note this to the user.
 
 ---
 
@@ -198,8 +271,14 @@ Combine all sections into the template format from `docs/specs/template.md`:
 ## Acceptance Criteria
 [From Phase 2]
 
+## Screens
+[From Phase 2.1 — omit this section for backend-only specs]
+
 ## Implementation Approach
 [From Phase 3]
+
+## Implementation Plan
+[From Phase 3.4]
 
 ## Dependencies
 [From Phase 3]

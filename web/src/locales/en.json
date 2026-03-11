@@ -16,13 +16,13 @@
   },
   "language": {
     "en": "English",
-    "pt-BR": "Português (Brasil)"
+    "pt-BR": "Portugu\u00eas (Brasil)"
   },
   "auth": {
     "loginTitle": "Welcome back",
     "loginSubtitle": "Sign in to your learnimo",
     "registerTitle": "Create your account",
-    "registerSubtitle": "Capture what you learn — your future self will thank you",
+    "registerSubtitle": "Capture what you learn \u2014 your future self will thank you",
     "email": "Email",
     "password": "Password",
     "confirmPassword": "Confirm password",
@@ -107,7 +107,7 @@
       "button": "Search",
       "noResults": "No learnings found matching your search",
       "noResultsHint": "Try adjusting your search terms or filters",
-      "noResultsSemanticHint": "Try rephrasing your search — semantic search looks for meaning, not exact words",
+      "noResultsSemanticHint": "Try rephrasing your search \u2014 semantic search looks for meaning, not exact words",
       "clearButton": "Clear search",
       "error": "Failed to search learnings. Please try again."
     },
@@ -182,6 +182,8 @@
     },
     "visibility": {
       "private": "Private",
+      "colleaguesOnly": "Colleagues only",
+      "followersOnly": "Followers only",
       "public": "Public",
       "pickerLabel": "Visibility",
       "publicWarning": "Public learnings cannot be made private again."
@@ -194,10 +196,91 @@
       "contentTooLong": "Content must be 50,000 characters or less",
       "unexpected": "Something went wrong. Please try again.",
       "visibilityImmutable": "A public learning cannot be made private."
+    },
+    "feed": {
+      "empty": {
+        "title": "Your knowledge journey starts here",
+        "hint": "Save your first learning to start building your personal journal.",
+        "button": "Save first learning"
+      },
+      "error": {
+        "title": "Failed to load your learnings",
+        "hint": "Please try again in a moment.",
+        "retry": "Try again"
+      },
+      "noResults": {
+        "title": "No learnings found",
+        "hint": "No results for \"{query}\". Try adjusting your search terms.",
+        "clearSearch": "Clear search",
+        "newLearning": "New learning"
+      },
+      "sortOptions": {
+        "newestFirst": "Newest first",
+        "oldestFirst": "Oldest first",
+        "recentlyUpdated": "Recently updated",
+        "updatedOldestFirst": "Updated oldest first"
+      },
+      "pagination": {
+        "previous": "Previous",
+        "next": "Next",
+        "page": "Page",
+        "of": "of"
+      },
+      "card": {
+        "createdAt": "Created {date}",
+        "updatedAt": "Updated {relativeTime}"
+      },
+      "count": "{count, plural, =1 {1 learning} other {# learnings}}"
+    },
+    "share": {
+      "button": "Re-learn",
+      "modalTitle": "Re-learn this learning",
+      "noteLabel": "Your note",
+      "notePlaceholder": "Why did this learning resonate with you? (optional)",
+      "noteHint": "Add context or personal reflection. Max 500 characters.",
+      "visibilityLabel": "Visibility",
+      "submitButton": "Re-learn",
+      "submitting": "Saving...",
+      "success": "Re-learning saved",
+      "remove": "Remove re-learning",
+      "removeConfirmTitle": "Remove re-learning?",
+      "removeConfirmMessage": "This will remove your re-learning. The original learning is not affected.",
+      "removeConfirmButton": "Remove",
+      "cancelButton": "Cancel",
+      "removing": "Removing...",
+      "removeSuccess": "Re-learning removed",
+      "errors": {
+        "selfShare": "You cannot re-learn your own learning",
+        "duplicate": "You have already re-learned this learning",
+        "notPublic": "Only public learnings can be re-learned",
+        "noteTooLong": "Note must not exceed 500 characters",
+        "notFound": "Learning not found",
+        "unexpected": "Something went wrong. Please try again."
+      }
     }
   },
   "settings": {
     "title": "Settings",
+    "profile": {
+      "heading": "Profile",
+      "avatar": "Avatar",
+      "uploadAvatar": "Upload photo",
+      "removeAvatar": "Remove photo",
+      "uploading": "Uploading...",
+      "avatarHint": "JPG, PNG, or WebP \u00b7 max 2 MB",
+      "avatarTooLarge": "File too large. Maximum size is 2 MB.",
+      "avatarInvalidType": "Unsupported format. Use JPG, PNG, or WebP.",
+      "displayName": "Display name",
+      "displayNamePlaceholder": "Your name",
+      "displayNameSave": "Save",
+      "displayNameSaving": "Saving...",
+      "bio": "Bio",
+      "bioPlaceholder": "Tell others about yourself (no URLs allowed)",
+      "bioSave": "Save",
+      "bioSaving": "Saving...",
+      "saveSuccess": "Changes saved",
+      "saveError": "Failed to save. Please try again."
+    },
     "privacy": {
       "heading": "Privacy",
       "profileVisibility": "Profile visibility",
@@ -205,6 +288,8 @@
       "defaultPokVisibility": "Default learning visibility",
       "defaultPokVisibilityHint": "New learnings will use this visibility by default.",
       "private": "Private",
+      "colleaguesOnly": "Colleagues only",
+      "followersOnly": "Followers only",
       "public": "Public",
       "saveSuccess": "Settings saved",
       "saveError": "Failed to save settings. Please try again.",
@@ -217,7 +302,32 @@
     "noLearnings": "No public learnings yet.",
     "notFound": "Learner not found",
     "notFoundHint": "There is no learner with this handle.",
-    "publicLearnings": "Public learnings"
+    "publicLearnings": "Public learnings",
+    "learningCount": "{count, plural, one {# learning} other {# learnings}}",
+    "unexpectedError": "Something went wrong.",
+    "social": {
+      "follow": "Follow",
+      "following": "Following",
+      "followBack": "Follow back",
+      "colleague": "Colleague",
+      "unfollow": "Unfollow @{handle}",
+      "followerCount": "{count, plural, one {# follower} other {# followers}}",
+      "followingCount": "{count, plural, one {# following} other {# following}}",
+      "colleagueCount": "{count, plural, one {# colleague} other {# colleagues}}"
+    }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: March 2026",
+    "sections": {
+      "intro": "Introduction",
+      "dataCollected": "What data we collect",
+      "howWeUse": "How we use your data",
+      "storage": "Data storage",
+      "thirdParties": "Third-party services",
+      "yourRights": "Your rights",
+      "contact": "Contact"
+    }
   },
   "tags": {
     "addTag": "Add tag",
@@ -234,6 +344,34 @@
       "loadFailed": "Failed to load tags",
       "createFailed": "Failed to create tag",
       "deleteFailed": "Failed to delete tag"
+    }
+  },
+  "nav": {
+    "feed": "Feed",
+    "discover": "Discover",
+    "myLearnings": "My Learnings"
+  },
+  "feed": {
+    "title": "Feed",
+    "empty": {
+      "title": "Your feed is empty",
+      "description": "Follow learners to see their knowledge in your feed.",
+      "discoverCta": "Find learners to follow"
+    },
+    "itemCount": "{count, plural, one {# item} other {# items}}",
+    "errors": {
+      "loadFailed": "Failed to load feed. Please try again."
+    }
+  },
+  "discover": {
+    "title": "Discover",
+    "searchLabel": "Search learners",
+    "searchPlaceholder": "Search by name or handle…",
+    "noResults": "No learners found",
+    "noResultsHint": "Try a different search term.",
+    "minCharsHint": "Type at least 2 characters to search",
+    "errors": {
+      "searchFailed": "Search failed. Please try again."
     }
   }
 }

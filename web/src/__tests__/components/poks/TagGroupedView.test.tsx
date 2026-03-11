@@ -20,6 +20,7 @@ import { TagGroupedView } from '@/components/poks/TagGroupedView';
 
 function makePok(id: string, title: string, tagNames: string[]): Pok {
   return {
+    type: 'owned',
     id,
     userId: 'u1',
     title,
@@ -30,11 +31,12 @@ function makePok(id: string, title: string, tagNames: string[]): Pok {
     updatedAt: '2026-02-01T10:00:00Z',
     pendingSuggestions: [],
     tags: tagNames.map((name, i) => ({
-      id: `tag-${name}-${i}`,
-      name,
-      userId: 'u1',
+      id: `ut-${name}-${i}`,
+      tagId: `tag-${name}-${i}`,
+      name: name.toLowerCase(),
+      displayName: name,
+      color: 'blue',
       createdAt: '2026-02-01T10:00:00Z',
-      updatedAt: '2026-02-01T10:00:00Z',
     })),
   };
 }

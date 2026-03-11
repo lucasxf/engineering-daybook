@@ -58,7 +58,8 @@ public class AuthMobileController {
         AuthResult result = authService.register(request);
         return ResponseEntity.ok(new AuthResponse(
             result.handle(), result.userId(), result.email(),
-            result.accessToken(), result.refreshToken()));
+            result.accessToken(), result.refreshToken(),
+            result.defaultPokVisibility(), result.profileVisibility()));
     }
 
     @PostMapping("/login")
@@ -70,7 +71,8 @@ public class AuthMobileController {
         AuthResult result = authService.login(request);
         return ResponseEntity.ok(new AuthResponse(
             result.handle(), result.userId(), result.email(),
-            result.accessToken(), result.refreshToken()));
+            result.accessToken(), result.refreshToken(),
+            result.defaultPokVisibility(), result.profileVisibility()));
     }
 
     @PostMapping("/refresh")
@@ -86,7 +88,8 @@ public class AuthMobileController {
         AuthResult result = authService.refreshToken(body.refreshToken());
         return ResponseEntity.ok(new AuthResponse(
             result.handle(), result.userId(), result.email(),
-            result.accessToken(), result.refreshToken()));
+            result.accessToken(), result.refreshToken(),
+            result.defaultPokVisibility(), result.profileVisibility()));
     }
 
     @PostMapping("/google")
@@ -120,6 +123,7 @@ public class AuthMobileController {
             request.tempToken(), request.handle(), request.displayName());
         return ResponseEntity.ok(new AuthResponse(
             result.handle(), result.userId(), result.email(),
-            result.accessToken(), result.refreshToken()));
+            result.accessToken(), result.refreshToken(),
+            result.defaultPokVisibility(), result.profileVisibility()));
     }
 }

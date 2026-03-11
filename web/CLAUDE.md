@@ -167,3 +167,47 @@ npm run test     # Run tests (Vitest)
   await updateUserSettings({ defaultPokVisibility: value });
   updateUser({ defaultPokVisibility: value });
   ```
+
+- **`rehype-sanitize` default schema strips `input` elements and raw HTML blocks:** The default `defaultSchema` from `rehype-sanitize` removes `<input>` tags, which means GFM task list checkboxes (`- [x] item`) are not rendered — only the text label appears. It also strips raw HTML blocks entirely. This is intentional for XSS safety. If task list checkbox rendering is required, a custom schema allowing `input[type=checkbox][disabled]` must be provided. Tests asserting on markdown output must not expect checkboxes or raw HTML to appear when using the default schema. (Added 2026-03-06)
+
+- **`jest.mock()` factory cannot reference variables imported in the outer module scope — use `require()` inside the factory:** Vitest (and Jest) hoist `vi.mock()` / `jest.mock()` calls to the top of the file before any imports are evaluated. Any variable from the outer scope that the factory function closes over will be `undefined` at the time the factory runs (temporal dead zone). The fix is to use `require()` inside the factory body to get the value at call time, or to use `vi.hoisted()` to declare shared values that are initialized before hoisting occurs. This is distinct from the `vi.hoisted()` pitfall above, which covers shared mock functions — this one covers any imported constant or module export referenced directly in a factory. (Added 2026-03-06)
+
+- **`stripMarkdown` italic regex must use word-boundary guards for underscore, not asterisk:** A single pattern `(\*|_)(.*?)\1` incorrectly strips underscores from `snake_case_variable` (e.g., `_case_` matches and removes the surrounding underscores, yielding `snakecase_variable`). Fix: split into two patterns — `\*([^*\n]+)\*` for asterisk (safe — `*` is not used in identifiers) and `(?<!\w)_([^_\n]+)_(?!\w)` for underscore (word-boundary safe). Apply both to web and mobile versions of `stripMarkdown`. (Added 2026-03-06)
+
+- **Align tag name input masks with backend `normalise()` — use `/\s+/g`, not `/ /g`:** The backend `TagService.normalise()` uses `replaceAll("\\s+", "-")` to convert all whitespace (spaces, tabs, non-breaking spaces) to dashes. Frontend `onChange` handlers in tag components must use the same pattern — `value.replace(/\s+/g, '-')` — so that the client-side mask collapses every whitespace run consistently, not just literal ASCII spaces. Using `/ /g` (literal space only) leaves tabs and consecutive spaces unconverted, producing a mismatch between what the user sees and what the backend stores. Applies to `TagPicker.tsx` and `TagSection.tsx` (and any future tag input component). (Added 2026-03-06)
+
+- **Stale dev server reuse in E2E tests when using worktrees:** Playwright's `reuseExistingServer: !process.env.CI` in `playwright.config.ts` reuses any process already listening on port 3001, regardless of which directory it was started from. When working in a git worktree, a dev server started from the main repo's `web/` directory will be reused — serving stale code that doesn't include the worktree's changes. This causes E2E tests for new features to fail with "waiting for locator(...)". Fix: before running E2E in a worktree, kill any existing server on the port: `netstat -ano | grep :3001` to find the PID, then `taskkill //F //PID <pid>` to kill it. Playwright will then start a fresh server from the correct directory. (Added 2026-03-07)
+
+- **`screen.queryByRole()` with non-ARIA element names is vacuous — always returns null:** HTML element names like `'blockquote'` are not recognized ARIA roles in aria-query, so `screen.queryByRole('blockquote')` always returns null regardless of what is rendered. The assertion never fails, making the test meaningless. Use `container.querySelector()` (DOM query) for elements without ARIA roles. (Added 2026-03-08)
+
+  ```ts
+  // ❌ vacuous — always returns null
+  expect(screen.queryByRole('blockquote')).not.toBeInTheDocument();
+  // ✅ actual DOM check
+  const { container } = render(<Component />);
+  expect(container.querySelector('blockquote')).not.toBeInTheDocument();
+  ```
+
+- **Two `absolute right-2 top-2` buttons on the same card overlap — use the `onShare` prop as a discriminant:** When a card conditionally shows an edit button (for owners) and a share button (for non-owners), both positioned `absolute right-2 top-2`, they will visually collide if both can appear simultaneously. Use the presence of `onShare` as the discriminant: when `onShare` is provided the viewer is a non-owner, so hide the edit button with `{!onShare && <EditButton />}`. This keeps the two actions mutually exclusive without additional state. (Added 2026-03-08)
+
+- **Map HTTP 400 share errors by `err.message`, not by status code alone:** A 400 from the share API covers multiple distinct failure reasons (self-share, non-PUBLIC original, visibility-tier violation, note length validation). Mapping all 400s to a single error key (e.g. `selfShare`) suppresses the real cause. Inspect `err.message` (populated from the backend's `ApiError.message`) and route to the correct i18n key: `errors.selfShare` for self-share, `errors.notPublic` for sharing not allowed, `errors.noteTooLong` for validation failures. Each new error key must be added to both `en.json` and `pt-BR.json`. (Added 2026-03-08)
+
+- **`getAll()` in `pokApi.ts` must return `Promise<PokListPage>`, not `Promise<PokPage>`:** When the backend can return a mixed feed (`FeedPage` containing `FeedItem[]`), a return type of `PokPage` causes TypeScript to silently accept type mismatches. Downstream hooks typed as `Pok[]` will receive `FeedItem[]` at runtime without any compile-time error. Fix: use the already-defined union return type `Promise<PokListPage>`. Callers that only want plain POKs should filter defensively: `result.content.filter((item): item is Pok => !('originalPokId' in item))`. (Added 2026-03-08)
+
+- **Type predicates on union types must be assignable to the parameter type:** When filtering `FeedItem[]` (a union of `Pok & { type: 'owned' }` and `PokShare`) with a type predicate like `(item): item is Pok`, TypeScript errors because `Pok` is not assignable to `FeedItem` — the union member requires the `type` discriminant field. Fix: include the discriminant in the predicate: `(item): item is Pok & { type: 'owned' }`. This preserves type narrowing while keeping the predicate assignable to the parameter type. (Added 2026-03-08)
+
+  ```typescript
+  // ❌ TypeScript error: Pok is not assignable to FeedItem
+  items.filter((item): item is Pok => item.type === 'owned')
+
+  // ✅ Correct: include the discriminant
+  items.filter((item): item is Pok & { type: 'owned' } => item.type === 'owned')
+  ```
+
+- **`waitForRequest` captures Next.js RSC navigation requests too:** A filter like `r.url().includes('/poks')` matches BOTH API calls to `localhost:8080/api/v1/poks?keyword=react&searchMode=hybrid` AND Next.js RSC navigation fetches to `localhost:3001/en/poks?keyword=react`. The RSC request never has `searchMode`, so any assertion depending on API-specific params will fail. Always scope `waitForRequest` filters to the API host: `r.url().startsWith('http://localhost:8080/api/v1/poks')`. (Added 2026-03-11)
+
+- **`Select` renders `role="combobox"`, not `role="button"`:** When testing custom Select dropdowns in E2E tests, use `getByRole('combobox')` to target the trigger, not `getByRole('button')`. The options inside render as `role="option"` within a listbox. (Added 2026-03-11)
+
+- **`MonthGroup` uses `year: '2-digit'` → "January 26" not "January 2026":** When testing month group headings, match `/january/i` (not `/january 2026/i`). Also use `level: 2` to avoid matching `h3` PokCard title headings that share the month name. (Added 2026-03-11)
+
+- **Web coverage baseline:** Current measured line coverage is ~54%. `vitest.config.ts` threshold set to 50% (safe baseline). Target is 80% — raise incrementally as new tests are added. `@vitest/coverage-v8` is the provider. (Added 2026-03-11)

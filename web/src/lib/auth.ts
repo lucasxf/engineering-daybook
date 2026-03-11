@@ -1,7 +1,7 @@
 import { apiPublicFetch, apiFetch } from './api';
 import type { PokVisibility } from './pokApi';
 
-export type ProfileVisibility = 'PRIVATE' | 'PUBLIC';
+export type ProfileVisibility = 'PRIVATE' | 'COLLEAGUES_ONLY' | 'FOLLOWERS_ONLY' | 'PUBLIC';
 
 export interface AuthResponse {
   handle: string;
@@ -11,6 +11,12 @@ export interface AuthResponse {
   defaultPokVisibility?: PokVisibility;
   /** Populated only on /auth/me responses. Absent on login/register/refresh. */
   profileVisibility?: ProfileVisibility;
+  /** Populated only on /auth/me responses. */
+  avatarUrl?: string;
+  /** Populated only on /auth/me responses. */
+  bio?: string;
+  /** Populated only on /auth/me responses. */
+  displayName?: string;
 }
 
 export interface HandleAvailabilityResponse {

@@ -93,6 +93,8 @@ Root cause: three combined bugs prevented logged-in users from seeing their lear
 | 1.6.2 | E2E tests with Playwright — 4 critical user journeys | Should Have | ✅ Done (2026-02-25, chore/web-e2e-integration-tests) |
 
 > **Phase B (Playwright E2E):** Completed. `@playwright/test` installed; `web/e2e/` has 5 passing tests covering all 4 journeys. Uses `page.route()` to mock all backend API calls — no live backend needed. Also added auth redirect to poks list page (unauthenticated users redirected to /login).
+>
+> **2026-03-11 — E2E quality gates expansion:** Suite grown to 46 tests across 6 spec files covering all major flows (create/edit/delete/timeline/tags/visibility/search/semantic search/profile/settings). Fixed 5 previously-broken tests (were never run as quality gates). Added `@vitest/coverage-v8` with 50% line threshold (baseline ~54%; target 80%). CI now enforces Playwright E2E + Vitest coverage on every PR. `/finish-session` and `/fix-pr` commands run E2E as a blocking gate.
 
 ### Milestone 1.7: MVP UX Review ✅
 
@@ -149,6 +151,84 @@ Automation/tooling chore: `track-usage.py` PostToolUse hook extended and usage s
 | Added `fix-pr` to `KNOWN_COMMANDS` list in `track-usage.py` | ✅ Done |
 | Added `Skill` to PostToolUse hook matcher in `.claude/settings.json` | ✅ Done |
 | Reorganized `.claude/metrics/usage-stats.toml` — pre-seeded missing commands, cleaned up test entries | ✅ Done |
+
+### Cross-Session Metrics Safety (chore/cross-session-metrics, 2026-03-06) ✅
+
+Tooling fix: resolved a concurrency bug where parallel Claude Code sessions in separate worktrees would conflict on `usage-stats.toml` by writing to it simultaneously. (PR review: collision-safe encoding + --only flag fix)
+
+| Task | Status |
+|------|--------|
+| Modified `.claude/scripts/track-usage.py` to write per-session delta files to `.claude/metrics/sessions/{branch}.toml` instead of updating `usage-stats.toml` in-place | ✅ Done |
+| Created `.claude/commands/compile-metrics.md` — new `/compile-metrics` slash command that aggregates session delta files into the canonical `usage-stats.toml` on `develop` | ✅ Done |
+| Updated `.claude/commands/finish-session.md` and `.claude/commands/create-pr.md` to stage session delta files instead of the canonical file | ✅ Done |
+| Added 15 unit tests in `.claude/scripts/test_track_usage.py` (all passing) | ✅ Done |
+
+### v0.dev Prompt Generation + Spec-to-Screen Workflow (chore/generate-v0-prompt-command, 2026-03-07) ✅
+
+Tooling enhancement: added `/generate-v0-prompt` slash command and redesigned the spec-to-screen workflow so UI/UX is a first-class, structured section in specs rather than re-extracted each time.
+
+| Task | Status |
+|------|--------|
+| Created `.claude/commands/generate-v0-prompt.md` with YAML frontmatter | ✅ Done |
+| Registered in `KNOWN_COMMANDS` (track-usage.py) via sync script | ✅ Done |
+| Added entry to `usage-stats.toml`, bumped `total_commands` to 21 | ✅ Done |
+| Updated `commands/README.md` table | ✅ Done |
+| Added `## Screens` section to `docs/specs/template.md` (tool-agnostic, self-contained screen blocks) | ✅ Done |
+| Updated `/write-spec` to delegate to `pixl` agent for screen definition (Phase 2.1); removed phantom `frontend-ux-specialist` reference | ✅ Done |
+| Simplified `/generate-v0-prompt` Rule 2 to read `## Screens` directly; added legacy fallback for old specs; removed hard-coded screen mapping table | ✅ Done |
+| Updated `/implement-spec` to recognize `## Screens` as optional section for component planning | ✅ Done |
+
+### Automation Registry Sync (chore/tooling, 2026-03-06) ✅
+
+Tooling chore: improved custom-agent tracking accuracy and automated registry maintenance for `.claude/` commands and agents.
+
+| Task | Status |
+|------|--------|
+| Fixed `track-usage.py` custom-agent tracking — added `KNOWN_AGENTS` set with marker comments; when `subagent_type == "general-purpose"`, hook now scans `tool_input["description"]` for known agent names so `tech-writer`, `steward`, etc. are tracked correctly instead of falling through as generic subagents | ✅ Done |
+| Created `.claude/scripts/sync-automation-registry.py` — auto-sync script that scans frontmatter from `.claude/agents/*.md` and `.claude/commands/*.md` and regenerates `KNOWN_AGENTS`/`KNOWN_COMMANDS` blocks in `track-usage.py`, commands table in `commands/README.md`, and agents table in `agents-readme.md` | ✅ Done |
+| Updated `.claude/agents-readme.md` — removed archived `pulse` agent row, added auto-generated table markers, added Name Origins table, renumbered sections 8–11 | ✅ Done |
+| Updated `.claude/agents/automation-sentinel.md` — added `Type` column (Built-in/Custom) requirement to report template; updated data source reference from `pulse` to `/compile-metrics` | ✅ Done |
+| Updated `.claude/commands/compile-metrics.md` — added Step 0 to run sync script before compilation; updated Step 8 to require `Type` column in sentinel Agent Usage table | ✅ Done |
+
+### Automation Ecosystem Housecleaning (chore/automation-workflow-housecleaning, 2026-03-08) ✅
+
+Tooling chore: audited the full `.claude/` automation ecosystem based on an automation-sentinel critical review report and archived redundant / low-value artifacts.
+
+| Task | Status |
+|------|--------|
+| Archived `session-optimizer` agent (redundant with `/start-session`) | ✅ Done |
+| Archived 10 slash commands: `quick-test`, `build-quiet`, `verify-quiet`, `test-service`, `update-roadmap`, `review-code`, `api-doc`, `docker-start`, `docker-stop`, `resume-session` | ✅ Done |
+| Added delegated invocation tracking limitation note to `automation-sentinel.md` | ✅ Done |
+| Removed archived entries from `usage-stats.toml`; updated health counters | ✅ Done |
+| Regenerated `KNOWN_AGENTS` / `KNOWN_COMMANDS` in `track-usage.py` | ✅ Done |
+| Regenerated `agents-readme.md` and `commands/README.md` tables | ✅ Done |
+| Removed stale `/update-roadmap` reference from `CLAUDE.md` Task Management section | ✅ Done |
+
+### Command Context Optimization (chore/command-context-optimization, 2026-03-10) ✅
+
+Tooling chore: reduced token footprint across three slash commands by moving repeated inline logic into agents.
+
+| Task | Status |
+|------|--------|
+| Added `keepr` agent (`.claude/agents/keepr.md`) — owns PR review evaluation framework (4-axis rubric: correctness, consistency, proportionality, timing; Accept/Reject/Defer/Question verdicts) | ✅ Done |
+| Slimmed `review-pr` Step 4 from ~70 lines to ~15 lines — evaluation logic delegated to keepr | ✅ Done |
+| Replaced 45-line inline JaCoCo analysis in `fix-pr` with steward delegation; Docker gate reinstated before delegation (guard for Testcontainers silent-skip) | ✅ Done |
+| Removed duplicated tech-writer routing tables from `fix-pr` and `finish-session` — routing now lives in tech-writer agent | ✅ Done |
+| Added Learning Routing section to `tech-writer` agent | ✅ Done |
+| Registered keepr in `sync-automation-registry.py` and `agents-readme.md` | ✅ Done |
+| Net reduction: ~140 lines / ~1,100 tokens across three commands | ✅ Done |
+
+### SDD Automation Workflow Enhancement (chore/enhance-spec-driven-development-automation-workflow, 2026-03-08) ✅
+
+Tooling session: refactored the Spec-Driven Development workflow to eliminate context rot during multi-task implementations.
+
+| Task | Status |
+|------|--------|
+| Added optional `## Implementation Plan` section to `docs/specs/template.md` — structured task list specifying files to touch, dependencies, commit message, and stack label per task | ✅ Done |
+| Extended `/write-spec` Phase 3.4 to auto-generate ordered `## Implementation Plan` task breakdowns in the spec output | ✅ Done |
+| Rewrote `/implement-spec` with dual-mode orchestrator + subagent pattern — specs with `## Implementation Plan` dispatch one subagent per task (fresh context window each); specs without it fall back to legacy monolithic mode for backward compatibility | ✅ Done |
+| Updated `docs/CLAUDE.md` SDD section — documented orchestrator + subagent pattern, `## Implementation Plan` section shape, and the "context rot" problem it solves | ✅ Done |
+| Added output truncation guidance to `/finish-session` Step 1 to prevent oversized session summaries | ✅ Done |
 
 ---
 

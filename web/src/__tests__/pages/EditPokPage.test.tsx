@@ -62,10 +62,12 @@ const mockGetById = vi.mocked(pokApi.getById);
 const mockUpdate = vi.mocked(pokApi.update);
 
 const existingPok: Pok = {
+  type: 'owned',
   id: 'pok-456',
   userId: 'user-1',
   title: 'Original title',
   content: 'Original content',
+  visibility: 'PRIVATE',
   deletedAt: null,
   createdAt: '2026-02-14T10:00:00Z',
   updatedAt: '2026-02-15T12:00:00Z',
@@ -136,7 +138,7 @@ describe('EditPokPage', () => {
 
     it('refreshes tags without unmounting the form when a tag changes', async () => {
       const user = userEvent.setup();
-      const updatedPok = { ...existingPok, tags: [{ id: 'ut-1', tagId: 'tag-1', name: 'react', color: 'blue', createdAt: '2026-02-14T10:00:00Z' }] };
+      const updatedPok = { ...existingPok, tags: [{ id: 'ut-1', tagId: 'tag-1', name: 'react', displayName: 'react', color: 'blue', createdAt: '2026-02-14T10:00:00Z' }] };
       mockGetById.mockResolvedValueOnce(existingPok).mockResolvedValueOnce(updatedPok);
       renderEditPage();
       await waitFor(() => screen.getByTestId('submit-form'));

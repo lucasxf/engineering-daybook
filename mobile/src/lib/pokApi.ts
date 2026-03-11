@@ -5,7 +5,7 @@ import type { Tag, TagSuggestion } from './tagApi';
 // Types (mirror web/src/lib/pokApi.ts)
 // ---------------------------------------------------------------------------
 
-export type PokVisibility = 'PRIVATE' | 'PUBLIC';
+export type PokVisibility = 'PRIVATE' | 'COLLEAGUES_ONLY' | 'FOLLOWERS_ONLY' | 'PUBLIC';
 
 export interface Pok {
   id: string;
@@ -18,6 +18,12 @@ export interface Pok {
   updatedAt: string;
   tags: Tag[];
   pendingSuggestions: TagSuggestion[];
+  /** Author's handle — populated in discovery feed context; absent in My Learnings. */
+  authorHandle?: string | null;
+  /** Author's display name — populated in discovery feed context; absent in My Learnings. */
+  authorDisplayName?: string | null;
+  /** Author's avatar URL — populated in discovery feed context; absent in My Learnings. */
+  authorAvatarUrl?: string | null;
 }
 
 export interface CreatePokDto {
@@ -46,6 +52,7 @@ export type SearchMode = 'hybrid' | 'semantic' | 'keyword';
 export interface PokSearchParams {
   keyword?: string;
   searchMode?: SearchMode;
+  tagId?: string;
   sortBy?: 'createdAt' | 'updatedAt';
   sortDirection?: 'ASC' | 'DESC';
   createdFrom?: string;
@@ -73,6 +80,7 @@ export const pokApi = {
     const qs = new URLSearchParams();
     if (params?.keyword) qs.set('keyword', params.keyword);
     if (params?.searchMode) qs.set('searchMode', params.searchMode);
+    if (params?.tagId) qs.set('tagId', params.tagId);
     if (params?.sortBy) qs.set('sortBy', params.sortBy);
     if (params?.sortDirection) qs.set('sortDirection', params.sortDirection);
     if (params?.createdFrom) qs.set('createdFrom', params.createdFrom);

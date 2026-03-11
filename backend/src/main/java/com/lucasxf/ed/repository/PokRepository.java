@@ -53,6 +53,20 @@ public interface PokRepository extends JpaRepository<Pok, UUID> {
     Page<Pok> findByUserIdAndVisibilityAndDeletedAtIsNull(UUID userId, Pok.Visibility visibility, Pageable pageable);
 
     /**
+     * Finds all active (non-deleted) POKs for a user whose visibility is one of the given tiers.
+     *
+     * <p>Used by the learner profile service to return only the POKs visible to the requesting
+     * user based on their relationship (follower, colleague, etc.).
+     *
+     * @param userId       the POK owner's user ID
+     * @param visibilities the set of visibility levels to include
+     * @param pageable     pagination and sorting parameters
+     * @return a page of matching active POKs
+     */
+    Page<Pok> findByUserIdAndVisibilityInAndDeletedAtIsNull(
+        UUID userId, java.util.Collection<Pok.Visibility> visibilities, Pageable pageable);
+
+    /**
      * Counts all active (non-deleted) POKs for a specific user.
      *
      * <p>Used to return the accurate total learning count to a profile owner,
@@ -62,6 +76,19 @@ public interface PokRepository extends JpaRepository<Pok, UUID> {
      * @return the total number of active POKs for the user
      */
     long countByUserIdAndDeletedAtIsNull(UUID userId);
+
+    /**
+     * Counts all active (non-deleted) POKs for a user whose visibility is one of the given tiers.
+     *
+     * <p>Used alongside a bounded fetch in learner feed pagination to compute the accurate
+     * total element count without loading all rows into memory.
+     *
+     * @param userId       the POK owner's user ID
+     * @param visibilities the set of visibility levels to include
+     * @return the total count of matching active POKs
+     */
+    long countByUserIdAndVisibilityInAndDeletedAtIsNull(
+        UUID userId, java.util.Collection<Pok.Visibility> visibilities);
 
     /**
      * Returns the IDs of all active (non-deleted) POKs belonging to a user.
@@ -134,6 +161,39 @@ public interface PokRepository extends JpaRepository<Pok, UUID> {
     Page<Pok> searchPoks(
         @Param("userId") UUID userId,
         @Param("keyword") String keyword,
+        @Param("createdFrom") Instant createdFrom,
+        @Param("createdTo") Instant createdTo,
+        @Param("updatedFrom") Instant updatedFrom,
+        @Param("updatedTo") Instant updatedTo,
+        Pageable pageable
+    );
+
+    /**
+     * Returns active POKs for a user that are tagged with the given global tag ID,
+     * with optional date-range filters.
+     *
+     * <p>Uses a subquery against {@code PokTag} (no JPA relationship declared) to
+     * leverage the existing {@code idx_pok_tags_tag_id} index. Date filters follow
+     * the same COALESCE pattern as {@link #searchPoks} — null values are ignored.
+     *
+     * @param userId      the user's ID
+     * @param tagId       the global tag's ID to filter by
+     * @param createdFrom optional minimum creation date (inclusive)
+     * @param createdTo   optional maximum creation date (inclusive)
+     * @param updatedFrom optional minimum update date (inclusive)
+     * @param updatedTo   optional maximum update date (inclusive)
+     * @param pageable    pagination and sorting parameters
+     * @return a page of matching active POKs
+     */
+    @Query("SELECT p FROM Pok p WHERE p.userId = :userId AND p.deletedAt IS NULL " +
+           "AND p.id IN (SELECT pt.pokId FROM PokTag pt WHERE pt.tagId = :tagId) " +
+           "AND p.createdAt >= COALESCE(:createdFrom, p.createdAt) " +
+           "AND p.createdAt <= COALESCE(:createdTo, p.createdAt) " +
+           "AND p.updatedAt >= COALESCE(:updatedFrom, p.updatedAt) " +
+           "AND p.updatedAt <= COALESCE(:updatedTo, p.updatedAt)")
+    Page<Pok> findByUserIdAndTagId(
+        @Param("userId") UUID userId,
+        @Param("tagId") UUID tagId,
         @Param("createdFrom") Instant createdFrom,
         @Param("createdTo") Instant createdTo,
         @Param("updatedFrom") Instant updatedFrom,

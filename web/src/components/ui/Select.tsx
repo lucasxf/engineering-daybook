@@ -14,6 +14,7 @@ interface SelectProps {
   onChange: (value: string) => void;
   label?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 /**
@@ -23,7 +24,7 @@ interface SelectProps {
  * - Arrow keys to navigate, Enter/Space to select, Escape to close
  * - Closes on outside click
  */
-export function Select({ options, value, onChange, label, className }: SelectProps) {
+export function Select({ options, value, onChange, label, className, disabled = false }: SelectProps) {
   const [open, setOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -125,12 +126,13 @@ export function Select({ options, value, onChange, label, className }: SelectPro
         aria-activedescendant={open && focusedIndex >= 0 ? `${optionId}-${focusedIndex}` : undefined}
         onClick={handleToggle}
         onKeyDown={handleKeyDown}
-        className="inline-flex min-w-[10rem] items-center justify-between gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-slate-500"
+        disabled={disabled}
+        className="inline-flex min-w-[10rem] items-center justify-between gap-2 rounded-md border border-border bg-card px-3 py-2 text-sm text-foreground transition-colors hover:border-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-60"
       >
         <span>{selectedOption?.label}</span>
         <svg
           aria-hidden="true"
-          className={cn('h-4 w-4 shrink-0 text-slate-500 transition-transform duration-150', open && 'rotate-180')}
+          className={cn('h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-150', open && 'rotate-180')}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -145,7 +147,7 @@ export function Select({ options, value, onChange, label, className }: SelectPro
           id={listId}
           role="listbox"
           aria-label={label}
-          className="absolute left-0 top-full z-10 mt-1 max-h-48 w-full min-w-[10rem] overflow-y-auto rounded-md border border-slate-200 bg-white py-1 shadow-lg animate-slideUp dark:border-slate-700 dark:bg-slate-800"
+          className="absolute left-0 top-full z-10 mt-1 max-h-48 w-full min-w-[10rem] overflow-y-auto rounded-md border border-border bg-card py-1 shadow-lg animate-slideUp"
         >
           {options.map((option, idx) => (
             <li
@@ -157,8 +159,8 @@ export function Select({ options, value, onChange, label, className }: SelectPro
               className={cn(
                 'cursor-pointer px-3 py-2 text-sm transition-colors',
                 idx === focusedIndex
-                  ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300'
-                  : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700',
+                  ? 'bg-primary/10 text-foreground'
+                  : 'text-foreground hover:bg-muted/20',
                 option.value === value && idx !== focusedIndex && 'font-medium'
               )}
             >

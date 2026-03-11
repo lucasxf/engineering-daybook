@@ -1,28 +1,40 @@
 # Agent Suite — learnimo
 
 > **Developer:** Lucas Xavier Ferreira
-> **Last updated:** 2026-02-27
+> **Last updated:** 2026-03-11
 
 ---
 
 ## Agent Overview
 
-This project includes **12 custom agents** designed for full-stack development across web, mobile, and backend stacks.
+This project includes **11 custom agents** designed for full-stack development across web, mobile, and backend stacks.
 
-| Agent | Role | Model | Name Origin |
-|-------|------|-------|-------------|
-| `automation-sentinel` | Meta-agent: automation health, metrics, optimization | Sonnet | — |
-| `sous-chef` | Java/Spring Boot code review, best practices | Sonnet | The kitchen metaphor: the backend is the kitchen. You are the chef; sous-chef enforces quality where users never see. |
-| `imhotep` | Pattern extraction, templates, new projects | Sonnet | Imhotep (~2650 BC) — Egyptian polymath, architect of the Step Pyramid of Djoser (first large stone structure in history), physician, scribe, vizier. The only non-royal Egyptian ever deified. |
-| `pixl` | Next.js/Expo UI/UX design, accessibility | Sonnet | — |
-| `hedy` | Expo/React Native mobile engineering | Sonnet | Hedy Lamarr (1914–2000) — co-inventor of frequency-hopping spread spectrum, the foundational technology behind WiFi, Bluetooth, and GPS. |
-| `professor-x` | Teaching concepts, structured learning, exercises | Sonnet | Charles Xavier (X-Men) + Lucas **Xavier** Ferreira. |
-| `virgil` | Product sense, requirements, user stories | Sonnet | Virgil Abloh (1980–2021) — Ghanaian-American creative director of Off-White and Louis Vuitton Men's. Defined what products should be and why, across disciplines. |
-| `pulse` | Metrics collection agent (agent/command usage) | Haiku | — |
-| `session-optimizer` | Token efficiency, session planning, workflow | Haiku | — |
-| `steward` | Backend quality — identifies coverage gaps, writes targeted tests | Sonnet | — |
-| `tech-writer` | Documentation (external + in-code), ADRs, Javadoc, OpenAPI | Sonnet | — |
-| `nexus` | Next.js frontend engineering — routing, architecture, state | Sonnet | — |
+<!-- BEGIN AUTO-GENERATED: AGENTS_TABLE -->
+> **11 custom agents** — last auto-updated 2026-03-11
+
+| Agent | Role | Model | Trigger |
+|-------|------|-------|---------|
+| `automation-sentinel` | Use this agent to monitor, analyze, and optimize the automation ecosystem (agents, comm | Sonnet | On-demand |
+| `hedy` | mobile engineering decisions in Expo/React Native | Sonnet | On-demand |
+| `imhotep` | starting new projects, extracting reusable patterns from existing p | Sonnet | On-demand |
+| `keepr` | Use this agent to evaluate PR review comments and classify them into actionable recomme | Sonnet | Delegated (/review-pr) |
+| `nexus` | frontend engineering decisions in Next | Sonnet | On-demand |
+| `pixl` | designing web or mobile app UI/UX, creating Next | Sonnet | On-demand |
+| `professor-x` | user wants to learn new concepts, understand patterns, study best p | Sonnet | On-demand |
+| `sous-chef` | reviewing Java/Spring Boot code, checking best practices, validatin | Sonnet | On-demand |
+| `steward` | backend test coverage is below the JaCoCo threshold | Sonnet | Auto (/finish-session < 90% coverage) |
+| `tech-writer` | creating or updating documentation (CLAUDE | Sonnet | Delegated (/finish-session, /implement-spec) |
+| `virgil` | defining features, prioritizing backlog, writing user stories, maki | Sonnet | On-demand |
+<!-- END AUTO-GENERATED: AGENTS_TABLE -->
+
+**Name Origins:**
+| Agent | Name Origin |
+|-------|-------------|
+| `sous-chef` | Kitchen metaphor: the backend is the kitchen. You are the chef; sous-chef enforces quality where users never see. |
+| `imhotep` | Imhotep (~2650 BC) — Egyptian polymath, architect of the Step Pyramid of Djoser, physician, scribe, vizier. The only non-royal Egyptian ever deified. |
+| `hedy` | Hedy Lamarr (1914–2000) — co-inventor of frequency-hopping spread spectrum, the foundational technology behind WiFi, Bluetooth, and GPS. |
+| `professor-x` | Charles Xavier (X-Men) + Lucas **Xavier** Ferreira. |
+| `virgil` | Virgil Abloh (1980–2021) — Ghanaian-American creative director of Off-White and Louis Vuitton Men's. Defined what products should be and why, across disciplines. |
 
 > **Naming principle:** Homages use Black, African, Brazilian, or women names — people whose contributions are often undertold.
 
@@ -173,18 +185,7 @@ Slash Commands (would create cycle)
 
 ---
 
-### 8. Pulse (Metrics Collection Agent)
-
-**Use when:**
-- Manually collecting automation metrics
-- Before running automation-sentinel analysis
-- Updating usage data
-
-**Note:** This agent is ON-DEMAND. Usage is tracked automatically via hooks (see `.claude/scripts/track-usage.py`).
-
----
-
-### 9. Session Optimizer
+### 8. Session Optimizer
 
 **Use when:**
 - Starting a new work session
@@ -201,7 +202,7 @@ Slash Commands (would create cycle)
 
 ---
 
-### 10. Steward (Backend Quality)
+### 9. Steward (Backend Quality)
 
 **Use when:**
 - Backend test coverage falls below the project threshold (90% line coverage)
@@ -216,7 +217,7 @@ Slash Commands (would create cycle)
 
 ---
 
-### 11. Tech Writer
+### 10. Tech Writer
 
 **Use when:**
 - Creating/updating documentation
@@ -233,7 +234,7 @@ Slash Commands (would create cycle)
 
 ---
 
-### 12. Nexus (Web Engineer)
+### 11. Nexus (Web Engineer)
 
 **Use when:**
 - Making Next.js App Router architecture decisions
@@ -254,7 +255,7 @@ Slash Commands (would create cycle)
 ```
 What's your task?
 │
-├─ Checking automation health / metrics → pulse → automation-sentinel
+├─ Checking automation health / metrics → automation-sentinel
 │
 ├─ Reviewing backend/Java code → sous-chef
 │
@@ -268,8 +269,6 @@ What's your task?
 │
 ├─ Defining product features → virgil
 │
-├─ Starting session / optimizing tokens → session-optimizer
-│
 ├─ Creating docs / ADRs / Javadoc / OpenAPI → tech-writer
 │
 ├─ Backend coverage below threshold → steward
@@ -282,7 +281,8 @@ What's your task?
 ## Status & Maintenance
 
 ### Current Status
-- 12 agents total (last updated 2026-02-27)
+- 10 agents total (pulse archived 2026-03-06 — superseded by /compile-metrics; session-optimizer archived 2026-03-08)
+- Agent table auto-generated by `.claude/scripts/sync-automation-registry.py`
 - Tailored to learnimo (Java/Spring Boot + Next.js + Expo/React Native)
 - Integrated with project conventions (CLAUDE.md, CODING_STYLE files)
 - Anti-cyclic dependency rule documented and enforced

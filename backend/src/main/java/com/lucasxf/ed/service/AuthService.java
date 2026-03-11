@@ -210,6 +210,7 @@ public class AuthService {
         var refreshToken = new RefreshToken(user, refreshHash, expiresAt);
         refreshTokenRepository.save(refreshToken);
 
-        return new AuthResult(accessToken, rawRefreshToken, user.getHandle(), user.getId(), user.getEmail());
+        return new AuthResult(accessToken, rawRefreshToken, user.getHandle(), user.getId(), user.getEmail(),
+            user.getDefaultPokVisibility(), user.getProfileVisibility());
     }
 }

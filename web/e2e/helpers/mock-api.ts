@@ -1,6 +1,6 @@
 import { type Page } from '@playwright/test';
 
-const API = 'http://localhost:8080/api/v1';
+export const API = 'http://localhost:8080/api/v1';
 
 // ---------------------------------------------------------------------------
 // Shared test data
@@ -19,12 +19,15 @@ export interface MockPok {
   userId: string;
   title: string | null;
   content: string;
-  visibility: 'PRIVATE' | 'PUBLIC';
+  visibility: 'PRIVATE' | 'PUBLIC' | 'FOLLOWERS_ONLY' | 'COLLEAGUES_ONLY';
   deletedAt: string | null;
   createdAt: string;
   updatedAt: string;
   tags: unknown[];
   pendingSuggestions: unknown[];
+  authorHandle: string | null;
+  authorDisplayName: string | null;
+  authorAvatarUrl: string | null;
 }
 
 export const MOCK_POK: MockPok = {
@@ -38,6 +41,9 @@ export const MOCK_POK: MockPok = {
   updatedAt: '2026-01-01T10:00:00Z',
   tags: [],
   pendingSuggestions: [],
+  authorHandle: null,
+  authorDisplayName: null,
+  authorAvatarUrl: null,
 };
 
 function makePokPage(poks: MockPok[]) {
@@ -58,9 +64,96 @@ function makePokPage(poks: MockPok[]) {
 export interface MockLearnerProfile {
   handle: string;
   displayName?: string;
-  profileVisibility?: 'PRIVATE' | 'PUBLIC';
+  profileVisibility?: 'PRIVATE' | 'COLLEAGUES_ONLY' | 'FOLLOWERS_ONLY' | 'PUBLIC';
   learnings?: MockPok[];
   learningCount?: number;
+  relationshipStatus?: 'NONE' | 'FOLLOWING' | 'FOLLOWED_BY' | 'COLLEAGUE';
+  followerCount?: number;
+  followingCount?: number;
+  colleagueCount?: number;
+}
+
+export interface MockPokShare {
+  type: 'shared';
+  id: string;
+  originalPokId: string;
+  originalPok: MockPok | null;
+  sharedByHandle: string;
+  note: string | null;
+  visibility: string;
+  createdAt: string;
+  originalAuthorHandle: string | null;
+  originalAuthorDisplayName: string | null;
+  originalAuthorAvatarUrl: string | null;
+}
+
+export const MOCK_POK_SHARE: MockPokShare = {
+  type: 'shared',
+  id: 'share-1',
+  originalPokId: 'pok-1',
+  originalPok: MOCK_POK,
+  sharedByHandle: MOCK_USER.handle,
+  note: null,
+  visibility: 'PUBLIC',
+  createdAt: '2026-03-07T12:00:00Z',
+  originalAuthorHandle: null,
+  originalAuthorDisplayName: null,
+  originalAuthorAvatarUrl: null,
+};
+
+export interface MockFeedItem {
+  type: 'owned' | 'shared';
+  id: string;
+  userId?: string;
+  title?: string | null;
+  content?: string;
+  visibility?: string;
+  deletedAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  tags?: unknown[];
+  pendingSuggestions?: unknown[];
+  authorHandle?: string | null;
+  authorDisplayName?: string | null;
+  authorAvatarUrl?: string | null;
+  // For shared items
+  originalPokId?: string;
+  originalPok?: MockPok | null;
+  sharedByHandle?: string;
+  note?: string | null;
+  originalAuthorHandle?: string | null;
+  originalAuthorDisplayName?: string | null;
+  originalAuthorAvatarUrl?: string | null;
+}
+
+export interface MockLearnerSearchResult {
+  handle: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  relationship: 'NONE' | 'FOLLOWING' | 'FOLLOWED_BY' | 'COLLEAGUE';
+}
+
+function makeFeedPage(items: MockFeedItem[]) {
+  return {
+    content: items,
+    page: 0,
+    size: 20,
+    totalElements: items.length,
+    totalPages: Math.ceil(items.length / 20) || 1,
+    number: 0,
+  };
+}
+
+function makeLearnerSearchPage(results: MockLearnerSearchResult[]) {
+  return {
+    content: results,
+    page: 0,
+    size: 20,
+    totalElements: results.length,
+    totalPages: Math.ceil(results.length / 20) || 1,
+    number: 0,
+  };
 }
 
 export interface ApiMockConfig {
@@ -80,6 +173,18 @@ export interface ApiMockConfig {
   createdPok?: MockPok;
   /** POK returned by PUT /poks/{id} (update). Defaults to pok. */
   updatedPok?: MockPok;
+  /**
+   * If true, follow/unfollow endpoints return 204.
+   * If false, follow returns 409, unfollow returns 409.
+   * Defaults to true.
+   */
+  followEnabled?: boolean;
+  /** Response returned by POST /poks/{id}/share. Defaults to MOCK_POK_SHARE. */
+  createdShare?: MockPokShare;
+  /** Items returned by GET /feed. Defaults to []. */
+  feedItems?: MockFeedItem[];
+  /** Learner search results returned by GET /learners/search. Defaults to []. */
+  learnerSearchResults?: MockLearnerSearchResult[];
 }
 
 // ---------------------------------------------------------------------------
@@ -106,6 +211,10 @@ export async function setupApiMocks(page: Page, config: ApiMockConfig = {}) {
     createdPok = MOCK_POK,
     updatedPok,
     learnerProfiles = {},
+    followEnabled = true,
+    createdShare = MOCK_POK_SHARE,
+    feedItems = [],
+    learnerSearchResults = [],
   } = config;
 
   await page.route(`${API}/**`, async (route) => {
@@ -180,6 +289,13 @@ export async function setupApiMocks(page: Page, config: ApiMockConfig = {}) {
       return;
     }
 
+    // --- Learner search (must come before learnerProfileMatch to avoid /learners/search being swallowed) ---
+
+    if (path === '/learners/search' && method === 'GET') {
+      await route.fulfill({ json: makeLearnerSearchPage(learnerSearchResults) });
+      return;
+    }
+
     // --- Learner profiles ---
 
     const learnerProfileMatch = path.match(/^\/learners\/([^/]+)$/);
@@ -204,6 +320,47 @@ export async function setupApiMocks(page: Page, config: ApiMockConfig = {}) {
         await route.fulfill({ status: 403, json: { message: 'Forbidden' } });
       }
       return;
+    }
+
+    // --- Follow / unfollow ---
+
+    const learnerFollowMatch = path.match(/^\/learners\/([^/]+)\/follow$/);
+    if (learnerFollowMatch) {
+      if (method === 'POST' || method === 'DELETE') {
+        if (followEnabled) {
+          await route.fulfill({ status: 204 });
+        } else {
+          await route.fulfill({ status: 409, json: { message: 'Conflict' } });
+        }
+        return;
+      }
+    }
+
+    // --- Discovery feed ---
+
+    if (path === '/feed' && method === 'GET') {
+      await route.fulfill({ json: makeFeedPage(feedItems) });
+      return;
+    }
+
+    // --- Re-learning (PokShare) endpoints ---
+
+    const pokShareCreateMatch = path.match(/^\/poks\/([^/]+)\/share$/);
+    if (pokShareCreateMatch && method === 'POST') {
+      await route.fulfill({ status: 201, json: createdShare });
+      return;
+    }
+
+    const pokSharedItemMatch = path.match(/^\/poks\/shared\/([^/]+)$/);
+    if (pokSharedItemMatch) {
+      if (method === 'GET') {
+        await route.fulfill({ json: createdShare });
+        return;
+      }
+      if (method === 'DELETE') {
+        await route.fulfill({ status: 204 });
+        return;
+      }
     }
 
     // Unrecognized route — abort to avoid connection errors to localhost:8080

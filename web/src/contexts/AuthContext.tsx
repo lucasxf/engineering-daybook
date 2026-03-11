@@ -17,6 +17,7 @@ import {
   googleLoginApi,
   completeGoogleSignupApi,
   type AuthResponse,
+  type ProfileVisibility,
   type LoginPayload,
   type RegisterPayload,
   type GoogleLoginResponse,
@@ -24,14 +25,15 @@ import {
 } from '@/lib/auth';
 import type { PokVisibility } from '@/lib/pokApi';
 
-export type ProfileVisibility = 'PRIVATE' | 'PUBLIC';
-
 export interface AuthUser {
   userId: string;
   email: string;
   handle: string;
   defaultPokVisibility: PokVisibility;
   profileVisibility: ProfileVisibility;
+  avatarUrl?: string;
+  bio?: string;
+  displayName?: string;
 }
 
 export interface AuthContextValue {
@@ -59,6 +61,9 @@ function toAuthUser(response: AuthResponse): AuthUser {
     handle: response.handle,
     defaultPokVisibility: response.defaultPokVisibility ?? 'PRIVATE',
     profileVisibility: response.profileVisibility ?? 'PRIVATE',
+    avatarUrl: response.avatarUrl,
+    bio: response.bio,
+    displayName: response.displayName,
   };
 }
 
@@ -108,13 +113,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     async (idToken: string): Promise<GoogleLoginResponse> => {
       const response = await googleLoginApi(idToken);
       if (!response.requiresHandle && response.handle && response.userId && response.email) {
-        setUser({
-          userId: response.userId,
-          email: response.email,
-          handle: response.handle,
-          defaultPokVisibility: 'PRIVATE',
-          profileVisibility: 'PRIVATE',
-        });
+        try {
+          const meData = await apiPublicFetch<AuthResponse>('/auth/me');
+          setUser(toAuthUser(meData));
+        } catch {
+          // Fallback if /auth/me fails — use what Google login returned
+          setUser({
+            userId: response.userId,
+            email: response.email,
+            handle: response.handle,
+            defaultPokVisibility: 'PRIVATE',
+            profileVisibility: 'PRIVATE',
+          });
+        }
       }
       return response;
     },

@@ -140,7 +140,7 @@ class SemanticSearchIntegrationTest {
 
         Page<PokResponse> result = pokService.search(
             alice.getId(), "component performance", "semantic",
-            null, null, null, null, null, null, 0, 20
+            null, null, null, null, null, null, null, 0, 20
         );
 
         // Both POKs have embeddings so both are returned, but pok1 must rank first
@@ -164,7 +164,7 @@ class SemanticSearchIntegrationTest {
 
         Page<PokResponse> result = pokService.search(
             alice.getId(), "flyway migration", "semantic",
-            null, null, null, null, null, null, 0, 20
+            null, null, null, null, null, null, null, 0, 20
         );
 
         // POK has no embedding — excluded from semantic results
@@ -189,7 +189,7 @@ class SemanticSearchIntegrationTest {
 
         Page<PokResponse> result = pokService.search(
             bob.getId(), "pod scheduling", "semantic",
-            null, null, null, null, null, null, 0, 20
+            null, null, null, null, null, null, null, 0, 20
         );
 
         assertThat(result.getContent()).isEmpty();
@@ -209,7 +209,7 @@ class SemanticSearchIntegrationTest {
 
         Page<PokResponse> result = pokService.search(
             alice.getId(), "memory", "semantic",
-            null, null, null, null, null, null, 0, 20
+            null, null, null, null, null, null, null, 0, 20
         );
 
         // Keyword fallback finds the POK (content contains "memory")

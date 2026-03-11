@@ -69,7 +69,7 @@ describe('LoginPage', () => {
     beforeEach(() => {
       mockAuth = createMockAuth({
         isAuthenticated: true,
-        user: { userId: 'u1', email: 'test@example.com', handle: 'testuser', defaultPokVisibility: 'PRIVATE' as const },
+        user: { userId: 'u1', email: 'test@example.com', handle: 'testuser', defaultPokVisibility: 'PRIVATE' as const, profileVisibility: 'PRIVATE' as const },
       });
     });
 

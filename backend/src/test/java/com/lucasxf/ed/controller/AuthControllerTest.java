@@ -72,7 +72,8 @@ class AuthControllerTest {
     private static final String EMAIL = "test@example.com";
     private static final String HANDLE = "testuser";
     private static final AuthResult AUTH_RESULT = new AuthResult(
-        "access-token", "refresh-token", HANDLE, USER_ID, EMAIL
+        "access-token", "refresh-token", HANDLE, USER_ID, EMAIL,
+        com.lucasxf.ed.domain.Pok.Visibility.PRIVATE, com.lucasxf.ed.domain.User.ProfileVisibility.PRIVATE
     );
     private static final AuthResponse AUTH_RESPONSE = new AuthResponse(HANDLE, USER_ID, EMAIL);
 
@@ -290,8 +291,7 @@ class AuthControllerTest {
         void me_authenticated() throws Exception {
             UserPrincipal principal = new UserPrincipal(USER_ID, EMAIL, HANDLE);
             Authentication auth = new UsernamePasswordAuthenticationToken(
-                principal, null, List.of()
-            );
+                principal, null, List.of());
 
             User mockUser = new User(EMAIL, null, "Test User", HANDLE);
             ReflectionTestUtils.setField(mockUser, "id", USER_ID);
@@ -313,8 +313,7 @@ class AuthControllerTest {
         void me_returnsProfileVisibility() throws Exception {
             UserPrincipal principal = new UserPrincipal(USER_ID, EMAIL, HANDLE);
             Authentication auth = new UsernamePasswordAuthenticationToken(
-                principal, null, List.of()
-            );
+                principal, null, List.of());
 
             User mockUser = new User(EMAIL, null, "Test User", HANDLE);
             ReflectionTestUtils.setField(mockUser, "id", USER_ID);
@@ -327,6 +326,27 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.profileVisibility").value("PUBLIC"))
                 .andExpect(jsonPath("$.defaultPokVisibility").value("PRIVATE"));
+        }
+
+        @Test
+        @DisplayName("AC11: should return avatarUrl, bio, and displayName in /me response when set")
+        void me_returnsAvatarUrlBioAndDisplayName() throws Exception {
+            UserPrincipal principal = new UserPrincipal(USER_ID, EMAIL, HANDLE);
+            Authentication auth = new UsernamePasswordAuthenticationToken(
+                principal, null, List.of());
+
+            User mockUser = new User(EMAIL, null, "Alice Smith", HANDLE);
+            ReflectionTestUtils.setField(mockUser, "id", USER_ID);
+            mockUser.setAvatarUrl("https://storage.example.com/avatars/alice.jpg");
+            mockUser.setBio("I love learning!");
+            when(userService.findById(USER_ID)).thenReturn(mockUser);
+
+            mockMvc.perform(get("/api/v1/auth/me")
+                    .with(authentication(auth)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.displayName").value("Alice Smith"))
+                .andExpect(jsonPath("$.avatarUrl").value("https://storage.example.com/avatars/alice.jpg"))
+                .andExpect(jsonPath("$.bio").value("I love learning!"));
         }
 
         @Test

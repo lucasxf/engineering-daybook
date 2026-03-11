@@ -56,14 +56,20 @@ vi.mock('@/components/poks/DeletePokButton', () => ({
   ),
 }));
 
+vi.mock('@/components/ui/MarkdownContent', () => ({
+  MarkdownContent: ({ content }: { content: string }) => <div data-testid="markdown-content">{content}</div>,
+}));
+
 const mockGetById = vi.mocked(pokApi.getById);
 const mockDelete = vi.mocked(pokApi.delete);
 
 const mockPok: Pok = {
+  type: 'owned',
   id: 'pok-123',
   userId: 'user-1',
   title: 'My Test Learning',
   content: 'Some useful content I learned today.',
+  visibility: 'PRIVATE',
   deletedAt: null,
   createdAt: '2026-02-14T10:00:00Z',
   updatedAt: '2026-02-15T12:00:00Z',
@@ -176,8 +182,8 @@ describe('ViewPokPage', () => {
       mockGetById.mockResolvedValue({
         ...mockPok,
         tags: [
-          { id: 'ut-1', tagId: 'tag-1', name: 'react', color: 'blue', createdAt: '2026-02-14T10:00:00Z' },
-          { id: 'ut-2', tagId: 'tag-2', name: 'typescript', color: 'green', createdAt: '2026-02-14T10:00:00Z' },
+          { id: 'ut-1', tagId: 'tag-1', name: 'react', displayName: 'react', color: 'blue', createdAt: '2026-02-14T10:00:00Z' },
+          { id: 'ut-2', tagId: 'tag-2', name: 'typescript', displayName: 'typescript', color: 'green', createdAt: '2026-02-14T10:00:00Z' },
         ],
       });
       renderViewPage();

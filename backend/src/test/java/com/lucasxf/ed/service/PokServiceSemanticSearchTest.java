@@ -5,6 +5,7 @@ import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.exception.EmbeddingUnavailableException;
 import com.lucasxf.ed.repository.PokAuditLogRepository;
 import com.lucasxf.ed.repository.PokRepository;
+import com.lucasxf.ed.repository.PokShareRepository;
 import com.lucasxf.ed.repository.PokTagRepository;
 import com.lucasxf.ed.repository.PokTagSuggestionRepository;
 import com.lucasxf.ed.repository.UserTagRepository;
@@ -50,6 +51,9 @@ class PokServiceSemanticSearchTest {
     @Mock private EmbeddingService embeddingService;
     @Mock private TagService tagService;
     @Mock private UserService userService;
+    @Mock private FollowService followService;
+    @Mock private PokShareRepository pokShareRepository;
+    @Mock private PokShareService pokShareService;
 
     private PokService pokService;
     private UUID userId;
@@ -62,7 +66,7 @@ class PokServiceSemanticSearchTest {
             pokRepository, pokAuditLogRepository, pokTagRepository,
             userTagRepository, pokTagSuggestionRepository,
             tagSuggestionService, embeddingGenerationService, embeddingService,
-            tagService, userService);
+            tagService, userService, followService, pokShareRepository, pokShareService);
         userId = UUID.randomUUID();
         pok1 = new Pok(userId, "Java basics", "Introduction to Java");
         pok2 = new Pok(userId, "Spring Boot", "Building REST APIs");
@@ -81,7 +85,7 @@ class PokServiceSemanticSearchTest {
 
         Page<PokResponse> result = pokService.search(
             userId, "java", "semantic",
-            null, null, null, null, null, null, 0, 20
+            null, null, null, null, null, null, null, 0, 20
         );
 
         assertThat(result.getContent()).hasSize(1);
@@ -104,7 +108,7 @@ class PokServiceSemanticSearchTest {
 
         Page<PokResponse> result = pokService.search(
             userId, "java", "hybrid",
-            null, null, null, null, null, null, 0, 20
+            null, null, null, null, null, null, null, 0, 20
         );
 
         // pok1 appears once (deduped), pok2 appended from keyword results
@@ -120,7 +124,7 @@ class PokServiceSemanticSearchTest {
 
         Page<PokResponse> result = pokService.search(
             userId, "java", "semantic",
-            null, null, null, null, null, null, 0, 20
+            null, null, null, null, null, null, null, 0, 20
         );
 
         assertThat(result.getContent()).hasSize(1);
@@ -136,7 +140,7 @@ class PokServiceSemanticSearchTest {
 
         pokService.search(
             userId, "java", null,
-            null, null, null, null, null, null, 0, 20
+            null, null, null, null, null, null, null, 0, 20
         );
 
         verify(embeddingService, never()).embed(anyString());
@@ -151,7 +155,7 @@ class PokServiceSemanticSearchTest {
 
         Page<PokResponse> result = pokService.search(
             userId, null, "hybrid",
-            null, null, null, null, null, null, 0, 20
+            null, null, null, null, null, null, null, 0, 20
         );
 
         assertThat(result.getContent()).hasSize(2);
@@ -174,7 +178,7 @@ class PokServiceSemanticSearchTest {
 
         Page<PokResponse> result = pokService.search(
             userId, "spring", "semantic",
-            null, null, null, null, null, null, 0, size
+            null, null, null, null, null, null, null, 0, size
         );
 
         // Approximate total: offset(0) + fetched(15) = 15, NOT page size (10)

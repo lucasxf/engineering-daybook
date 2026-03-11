@@ -18,8 +18,10 @@ import org.springframework.data.domain.Sort;
 
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.PokAuditLog;
+import com.lucasxf.ed.domain.PokShare;
 import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.dto.CreatePokRequest;
+import com.lucasxf.ed.dto.FeedItemResponse;
 import com.lucasxf.ed.dto.PokResponse;
 import com.lucasxf.ed.dto.UpdatePokRequest;
 import com.lucasxf.ed.exception.PokAccessDeniedException;
@@ -28,6 +30,7 @@ import com.lucasxf.ed.exception.PokVisibilityImmutableException;
 import com.lucasxf.ed.dto.PokAuditLogResponse;
 import com.lucasxf.ed.repository.PokAuditLogRepository;
 import com.lucasxf.ed.repository.PokRepository;
+import com.lucasxf.ed.repository.PokShareRepository;
 import com.lucasxf.ed.repository.PokTagRepository;
 import com.lucasxf.ed.repository.PokTagSuggestionRepository;
 import com.lucasxf.ed.repository.UserTagRepository;
@@ -84,6 +87,15 @@ class PokServiceTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private FollowService followService;
+
+    @Mock
+    private PokShareRepository pokShareRepository;
+
+    @Mock
+    private PokShareService pokShareService;
 
     @InjectMocks
     private PokService pokService;
@@ -446,6 +458,19 @@ class PokServiceTest {
         verify(pokRepository).findByIdAndDeletedAtIsNull(pokId);
     }
 
+    @Test
+    void softDelete_cascadesDeleteToShares() {
+        // FR5: when a POK is soft-deleted, all re-learnings referencing it must be removed
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(userId, "Title", "Content");
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+
+        pokService.softDelete(pokId, userId);
+
+        verify(pokShareService).cascadeDeleteByOriginalPok(pokId);
+    }
+
     // ===== SEARCH/FILTER/SORT TESTS =====
 
     @Test
@@ -468,7 +493,7 @@ class PokServiceTest {
         )).thenReturn(pokPage);
 
         // When
-        Page<PokResponse> result = pokService.search(userId, keyword, null, null, null, null, null, null, null, page, size);
+        Page<PokResponse> result = pokService.search(userId, keyword, null, null, null, null, null, null, null, null, page, size);
 
         // Then
         assertThat(result.getTotalElements()).isEqualTo(1);
@@ -497,7 +522,7 @@ class PokServiceTest {
         )).thenReturn(pokPage);
 
         // When
-        pokService.search(userId, null, null, sortBy, sortDirection, null, null, null, null, page, size);
+        pokService.search(userId, null, null, null, sortBy, sortDirection, null, null, null, null, page, size);
 
         // Then: Verify Sort object is built correctly
         verify(pokRepository).searchPoks(
@@ -531,7 +556,7 @@ class PokServiceTest {
         )).thenReturn(pokPage);
 
         // When
-        pokService.search(userId, null, null, null, null, createdFrom, createdTo, null, null, page, size);
+        pokService.search(userId, null, null, null, null, null, createdFrom, createdTo, null, null, page, size);
 
         // Then: Verify dates are parsed correctly
         verify(pokRepository).searchPoks(
@@ -563,7 +588,7 @@ class PokServiceTest {
         )).thenReturn(pokPage);
 
         // When
-        pokService.search(userId, null, null, null, null, null, null, null, null, page, size);
+        pokService.search(userId, null, null, null, null, null, null, null, null, null, page, size);
 
         // Then: Default sort should be updatedAt DESC
         verify(pokRepository).searchPoks(
@@ -595,7 +620,7 @@ class PokServiceTest {
         )).thenReturn(pokPage);
 
         // When
-        pokService.search(userId, null, null, null, null, null, null, null, null, page, size);
+        pokService.search(userId, null, null, null, null, null, null, null, null, null, page, size);
 
         // Then: Verify pagination is correctly passed
         verify(pokRepository).searchPoks(
@@ -628,7 +653,7 @@ class PokServiceTest {
         )).thenReturn(pokPage);
 
         // When
-        Page<PokResponse> result = pokService.search(userId, null, null, null, null, null, null, null, null, 0, 20);
+        Page<PokResponse> result = pokService.search(userId, null, null, null, null, null, null, null, null, null, 0, 20);
 
         // Then
         assertThat(result.getTotalElements()).isEqualTo(2);
@@ -836,6 +861,57 @@ class PokServiceTest {
             .isInstanceOf(PokAccessDeniedException.class);
     }
 
+    // ===== SEARCH — TAG ID FILTER TESTS =====
+
+    @Test
+    void search_withTagId_shouldCallFindByUserIdAndTagId() {
+        // Given
+        UUID tagId = UUID.randomUUID();
+        int page = 0;
+        int size = 20;
+        Pok pok = new Pok(userId, "Tagged POK", "Content");
+        Page<Pok> pokPage = new PageImpl<>(List.of(pok), PageRequest.of(page, size), 1);
+
+        when(pokRepository.findByUserIdAndTagId(
+            eq(userId), eq(tagId), eq(null), eq(null), eq(null), eq(null), any(Pageable.class)
+        )).thenReturn(pokPage);
+
+        // When
+        Page<PokResponse> result = pokService.search(userId, null, null, tagId, null, null, null, null, null, null, page, size);
+
+        // Then
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).title()).isEqualTo("Tagged POK");
+        verify(pokRepository).findByUserIdAndTagId(eq(userId), eq(tagId), eq(null), eq(null), eq(null), eq(null), any(Pageable.class));
+        verify(pokRepository, never()).searchPoks(any(), any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void search_withTagIdAndDateFilters_shouldApplyBothFilters() {
+        // Given
+        UUID tagId = UUID.randomUUID();
+        String createdFrom = "2026-01-01T00:00:00Z";
+        String createdTo = "2026-01-31T23:59:59Z";
+        int page = 0;
+        int size = 20;
+        Pok pok = new Pok(userId, "Tagged POK", "About spring");
+        Page<Pok> pokPage = new PageImpl<>(List.of(pok), PageRequest.of(page, size), 1);
+
+        when(pokRepository.findByUserIdAndTagId(
+            eq(userId), eq(tagId), any(Instant.class), any(Instant.class), eq(null), eq(null), any(Pageable.class)
+        )).thenReturn(pokPage);
+
+        // When
+        Page<PokResponse> result = pokService.search(userId, null, null, tagId, null, null,
+            createdFrom, createdTo, null, null, page, size);
+
+        // Then: both tagId filter and date filters are applied
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).title()).isEqualTo("Tagged POK");
+        verify(pokRepository).findByUserIdAndTagId(
+            eq(userId), eq(tagId), any(Instant.class), any(Instant.class), eq(null), eq(null), any(Pageable.class));
+    }
+
     // ===== SEARCH — UPDATED DATE FILTERS TESTS =====
 
     @Test
@@ -859,7 +935,7 @@ class PokServiceTest {
 
         // When
         Page<PokResponse> result = pokService.search(
-            userId, null, null, null, null, null, null, updatedFrom, updatedTo, page, size);
+            userId, null, null, null, null, null, null, null, updatedFrom, updatedTo, page, size);
 
         // Then: dates are parsed and passed through to repository
         assertThat(result.getTotalElements()).isZero();
@@ -877,7 +953,7 @@ class PokServiceTest {
 
         // When/Then
         assertThatThrownBy(() ->
-            pokService.search(userId, null, null, null, null, invalidDate, null, null, null, 0, 20))
+            pokService.search(userId, null, null, null, null, null, invalidDate, null, null, null, 0, 20))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Invalid date format")
             .hasMessageContaining(invalidDate);
@@ -892,7 +968,7 @@ class PokServiceTest {
 
         // When/Then
         assertThatThrownBy(() ->
-            pokService.search(userId, null, null, invalidSortField, null, null, null, null, null, 0, 20))
+            pokService.search(userId, null, null, null, invalidSortField, null, null, null, null, null, 0, 20))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessageContaining("Invalid sort field")
             .hasMessageContaining(invalidSortField);
@@ -912,7 +988,7 @@ class PokServiceTest {
         )).thenReturn(pokPage);
 
         // When
-        pokService.search(userId, null, null, sortBy, sortDirection, null, null, null, null, page, size);
+        pokService.search(userId, null, null, null, sortBy, sortDirection, null, null, null, null, page, size);
 
         // Then: verify call was made (DESC is the else-branch in buildSort)
         verify(pokRepository).searchPoks(
@@ -1006,7 +1082,7 @@ class PokServiceTest {
 
         assertThatThrownBy(() -> pokService.update(pokId, request, userId))
             .isInstanceOf(PokVisibilityImmutableException.class)
-            .hasMessageContaining("public learning cannot be reverted");
+            .hasMessageContaining("widened");
     }
 
     @Test
@@ -1020,5 +1096,222 @@ class PokServiceTest {
         pokService.update(pokId, request, userId);
 
         assertThat(pok.getVisibility()).isEqualTo(Pok.Visibility.PUBLIC);
+    }
+
+    // ===== SEARCH — TAG FILTER WITH DATE FILTERS =====
+
+    @Test
+    void search_withTagIdAndDateFilters_shouldApplyDateFiltersToTagQuery() {
+        // Given
+        UUID tagId = UUID.randomUUID();
+        String createdFrom = "2026-01-01T00:00:00Z";
+        String createdTo = "2026-01-31T23:59:59Z";
+        int page = 0;
+        int size = 20;
+        Page<Pok> pokPage = new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
+
+        when(pokRepository.findByUserIdAndTagId(
+            eq(userId),
+            eq(tagId),
+            any(Instant.class),
+            any(Instant.class),
+            eq(null),
+            eq(null),
+            any(Pageable.class)
+        )).thenReturn(pokPage);
+
+        // When
+        Page<PokResponse> result = pokService.search(
+            userId, null, null, tagId, null, null, createdFrom, createdTo, null, null, page, size);
+
+        // Then: date filters are parsed and passed through to the tagId query
+        assertThat(result.getTotalElements()).isZero();
+        verify(pokRepository).findByUserIdAndTagId(
+            eq(userId), eq(tagId),
+            any(Instant.class), any(Instant.class),
+            eq(null), eq(null),
+            any(Pageable.class));
+        verify(pokRepository, never()).searchPoks(any(), any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void search_withTagIdOnly_shouldCallTagQueryWithNullDates() {
+        // Given
+        UUID tagId = UUID.randomUUID();
+        int page = 0;
+        int size = 20;
+        Page<Pok> pokPage = new PageImpl<>(List.of(), PageRequest.of(page, size), 0);
+
+        when(pokRepository.findByUserIdAndTagId(
+            eq(userId), eq(tagId),
+            eq(null), eq(null), eq(null), eq(null),
+            any(Pageable.class)
+        )).thenReturn(pokPage);
+
+        // When
+        pokService.search(userId, null, null, tagId, null, null, null, null, null, null, page, size);
+
+        // Then: tagId path is taken; searchPoks is never called
+        verify(pokRepository).findByUserIdAndTagId(
+            eq(userId), eq(tagId),
+            eq(null), eq(null), eq(null), eq(null),
+            any(Pageable.class));
+        verify(pokRepository, never()).searchPoks(any(), any(), any(), any(), any(), any(), any());
+    }
+
+    // ===== VISIBILITY ACCESS CONTROL TESTS =====
+
+    @Test
+    void getById_followersOnlyPok_follower_returnsContent() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(otherUserId, "Title", "Content", Pok.Visibility.FOLLOWERS_ONLY);
+        ReflectionTestUtils.setField(pok, "id", pokId);
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+        when(followService.isFollowing(userId, otherUserId)).thenReturn(true);
+        when(pokTagRepository.findByPokId(pokId)).thenReturn(List.of());
+        when(pokTagSuggestionRepository.findByPokIdAndStatus(any(), any())).thenReturn(List.of());
+
+        // When
+        PokResponse response = pokService.getById(pokId, userId);
+
+        // Then
+        assertThat(response.content()).isEqualTo("Content");
+    }
+
+    @Test
+    void getById_followersOnlyPok_nonFollower_throwsAccessDenied() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(otherUserId, "Title", "Content", Pok.Visibility.FOLLOWERS_ONLY);
+        ReflectionTestUtils.setField(pok, "id", pokId);
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+        when(followService.isFollowing(userId, otherUserId)).thenReturn(false);
+
+        // When/Then
+        assertThatThrownBy(() -> pokService.getById(pokId, userId))
+            .isInstanceOf(PokAccessDeniedException.class);
+    }
+
+    @Test
+    void getById_colleaguesOnlyPok_colleague_returnsContent() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(otherUserId, "Title", "Content", Pok.Visibility.COLLEAGUES_ONLY);
+        ReflectionTestUtils.setField(pok, "id", pokId);
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+        when(followService.areColleagues(userId, otherUserId)).thenReturn(true);
+        when(pokTagRepository.findByPokId(pokId)).thenReturn(List.of());
+        when(pokTagSuggestionRepository.findByPokIdAndStatus(any(), any())).thenReturn(List.of());
+
+        // When
+        PokResponse response = pokService.getById(pokId, userId);
+
+        // Then
+        assertThat(response.content()).isEqualTo("Content");
+    }
+
+    @Test
+    void getById_colleaguesOnlyPok_followerNotColleague_throwsAccessDenied() {
+        // Given
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(otherUserId, "Title", "Content", Pok.Visibility.COLLEAGUES_ONLY);
+        ReflectionTestUtils.setField(pok, "id", pokId);
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+        when(followService.areColleagues(userId, otherUserId)).thenReturn(false);
+
+        // When/Then
+        assertThatThrownBy(() -> pokService.getById(pokId, userId))
+            .isInstanceOf(PokAccessDeniedException.class);
+    }
+
+    @Test
+    void update_narrowingVisibility_throwsImmutableException() {
+        // Given: POK is FOLLOWERS_ONLY, request tries to narrow to PRIVATE
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(userId, "Title", "Content", Pok.Visibility.FOLLOWERS_ONLY);
+        ReflectionTestUtils.setField(pok, "id", pokId);
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+        UpdatePokRequest request = new UpdatePokRequest("Title", "Content", Pok.Visibility.PRIVATE);
+
+        // When/Then
+        assertThatThrownBy(() -> pokService.update(pokId, request, userId))
+            .isInstanceOf(PokVisibilityImmutableException.class);
+    }
+
+    @Test
+    void update_wideningVisibility_succeeds() {
+        // Given: POK is PRIVATE, request widens to FOLLOWERS_ONLY
+        UUID pokId = UUID.randomUUID();
+        Pok pok = new Pok(userId, "Title", "Content", Pok.Visibility.PRIVATE);
+        ReflectionTestUtils.setField(pok, "id", pokId);
+
+        when(pokRepository.findByIdAndDeletedAtIsNull(pokId)).thenReturn(Optional.of(pok));
+        when(pokRepository.save(any(Pok.class))).thenReturn(pok);
+        when(pokTagRepository.findByPokId(any())).thenReturn(List.of());
+        when(pokTagSuggestionRepository.findByPokIdAndStatus(any(), any())).thenReturn(List.of());
+        UpdatePokRequest request = new UpdatePokRequest("Title", "Content", Pok.Visibility.FOLLOWERS_ONLY);
+
+        // When
+        PokResponse response = pokService.update(pokId, request, userId);
+
+        // Then: no exception, pok was saved
+        assertThat(response).isNotNull();
+        verify(pokRepository).save(any(Pok.class));
+    }
+
+    // ===== GET OWN FEED TESTS =====
+
+    @Test
+    void getOwnFeed_noShares_returnsOnlyOwnedPoks() {
+        Pok pok = new Pok(userId, "Title", "Content");
+        ReflectionTestUtils.setField(pok, "id", UUID.randomUUID());
+        Page<Pok> ownedPage = new PageImpl<>(List.of(pok));
+
+        when(pokRepository.findByUserIdAndDeletedAtIsNull(eq(userId), any(Pageable.class)))
+            .thenReturn(ownedPage);
+        when(pokShareRepository.findBySharedByUserId(eq(userId), any(Pageable.class)))
+            .thenReturn(Page.empty());
+        when(pokRepository.countByUserIdAndDeletedAtIsNull(userId)).thenReturn(1L);
+        when(pokShareRepository.countBySharedByUserId(userId)).thenReturn(0L);
+        when(userTagRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(List.of());
+        when(pokTagRepository.findByPokId(any(UUID.class))).thenReturn(List.of());
+
+        Page<FeedItemResponse> result = pokService.getOwnFeed(userId, 0, 20, null, null);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).type()).isEqualTo("owned");
+        assertThat(result.getTotalElements()).isEqualTo(1L);
+    }
+
+    @Test
+    void getOwnFeed_withShare_returnsMixedFeed() {
+        UUID originalPokId = UUID.randomUUID();
+        Pok originalPok = new Pok(otherUserId, "Original", "Content");
+        ReflectionTestUtils.setField(originalPok, "id", originalPokId);
+
+        PokShare share = new PokShare(originalPokId, userId, null, Pok.Visibility.PUBLIC);
+        ReflectionTestUtils.setField(share, "id", UUID.randomUUID());
+
+        when(pokRepository.findByUserIdAndDeletedAtIsNull(eq(userId), any(Pageable.class)))
+            .thenReturn(Page.empty());
+        when(pokShareRepository.findBySharedByUserId(eq(userId), any(Pageable.class)))
+            .thenReturn(new PageImpl<>(List.of(share)));
+        when(pokRepository.countByUserIdAndDeletedAtIsNull(userId)).thenReturn(0L);
+        when(pokShareRepository.countBySharedByUserId(userId)).thenReturn(1L);
+        when(pokRepository.findAllById(any())).thenReturn(List.of(originalPok));
+        when(userTagRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(List.of());
+        when(userService.findById(userId)).thenReturn(currentUser);
+
+        Page<FeedItemResponse> result = pokService.getOwnFeed(userId, 0, 20, null, null);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).type()).isEqualTo("shared");
+        assertThat(result.getTotalElements()).isEqualTo(1L);
     }
 }

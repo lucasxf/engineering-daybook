@@ -72,7 +72,8 @@ public class AuthController {
                                                  HttpServletResponse httpResponse) {
         AuthResult result = authService.register(request);
         cookieHelper.setAuthCookies(httpResponse, result.accessToken(), result.refreshToken());
-        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email()));
+        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email(),
+            null, null, result.defaultPokVisibility(), result.profileVisibility()));
     }
 
     @PostMapping("/login")
@@ -85,7 +86,8 @@ public class AuthController {
                                               HttpServletResponse httpResponse) {
         AuthResult result = authService.login(request);
         cookieHelper.setAuthCookies(httpResponse, result.accessToken(), result.refreshToken());
-        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email()));
+        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email(),
+            null, null, result.defaultPokVisibility(), result.profileVisibility()));
     }
 
     @PostMapping("/refresh")
@@ -111,7 +113,8 @@ public class AuthController {
 
         AuthResult result = authService.refreshToken(refreshToken);
         cookieHelper.setAuthCookies(httpResponse, result.accessToken(), result.refreshToken());
-        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email()));
+        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email(),
+            null, null, result.defaultPokVisibility(), result.profileVisibility()));
     }
 
     @PostMapping("/logout")
@@ -145,7 +148,8 @@ public class AuthController {
         User user = userService.findById(principal.userId());
         return ResponseEntity.ok(
             new AuthResponse(principal.handle(), principal.userId(), principal.email(),
-                user.getDefaultPokVisibility(), user.getProfileVisibility())
+                user.getDefaultPokVisibility(), user.getProfileVisibility(),
+                user.getAvatarUrl(), user.getBio(), user.getDisplayName())
         );
     }
 
@@ -191,7 +195,8 @@ public class AuthController {
         AuthResult result = authService.completeGoogleSignup(
             request.tempToken(), request.handle(), request.displayName());
         cookieHelper.setAuthCookies(httpResponse, result.accessToken(), result.refreshToken());
-        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email()));
+        return ResponseEntity.ok(new AuthResponse(result.handle(), result.userId(), result.email(),
+            null, null, result.defaultPokVisibility(), result.profileVisibility()));
     }
 
     @GetMapping("/handle/available")

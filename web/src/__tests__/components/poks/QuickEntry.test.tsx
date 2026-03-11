@@ -16,7 +16,7 @@ vi.mock('@/lib/api', () => ({
 vi.mock('@/hooks/useTags', () => ({
   useTags: () => ({
     tags: [
-      { id: 'ut-1', tagId: 'tag-1', name: 'react', color: 'blue', createdAt: '2026-02-25T10:00:00Z' },
+      { id: 'ut-1', tagId: 'tag-1', name: 'react', displayName: 'react', color: 'blue', createdAt: '2026-02-25T10:00:00Z' },
     ],
     isLoading: false,
     error: null,
@@ -61,6 +61,7 @@ const messages = {
 const mockCreate = vi.mocked(pokApi.create);
 
 const makePok = (overrides?: Partial<Pok>): Pok => ({
+  type: 'owned',
   id: 'pok-1',
   userId: 'user-1',
   title: null,

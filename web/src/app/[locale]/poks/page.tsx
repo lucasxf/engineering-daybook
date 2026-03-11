@@ -5,11 +5,13 @@ import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { PokList } from '@/components/poks/PokList';
 import { QuickEntry } from '@/components/poks/QuickEntry';
+import type { OwnedPok } from '@/lib/pokApi';
 import { SearchBar } from '@/components/poks/SearchBar';
 import { SortDropdown } from '@/components/poks/SortDropdown';
 import { NoSearchResults } from '@/components/poks/NoSearchResults';
 import { ViewSwitcher } from '@/components/poks/ViewSwitcher';
 import { TagGroupedView } from '@/components/poks/TagGroupedView';
+import { TagFilter } from '@/components/poks/TagFilter';
 import { Alert } from '@/components/ui/Alert';
 import { Spinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/poks/EmptyState';
@@ -45,9 +47,11 @@ function PoksContent() {
     error,
     keyword,
     sortOption,
+    selectedTagId,
     handleSearch,
     handleSortChange,
     handleClearSearch,
+    handleTagFilter,
     handleQuickSave,
   } = usePoksData({ fetchSize });
 
@@ -69,8 +73,12 @@ function PoksContent() {
     );
   }
 
+  // TagGroupedView and TimelineView operate on owned POKs only (grouping by tag/date
+  // is not meaningful for re-learnings which inherit the original's tags).
+  const ownedPoks = poks.filter((item): item is OwnedPok => !('originalPokId' in item));
+
   // Determine which content to display
-  const hasSearchOrFilter = !!keyword;
+  const hasSearchOrFilter = !!keyword || !!selectedTagId;
   const isEmptyResults = !loading && poks.length === 0;
   const showNoResults = isEmptyResults && hasSearchOrFilter;
   // Only show empty state when the list is genuinely empty — not when an API
@@ -97,6 +105,11 @@ function PoksContent() {
         <ViewSwitcher />
       </div>
 
+      {/* Tag filter chips */}
+      <div className="mb-4">
+        <TagFilter selectedTagId={selectedTagId} onTagSelect={handleTagFilter} />
+      </div>
+
       {/* Search and Sort Controls */}
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex-1 sm:max-w-md">
@@ -119,7 +132,7 @@ function PoksContent() {
       ) : showEmptyState ? (
         <EmptyState />
       ) : isTagsView ? (
-        <TagGroupedView poks={poks} />
+        <TagGroupedView poks={ownedPoks} />
       ) : poks.length > 0 ? (
         <PokList poks={poks} />
       ) : null}

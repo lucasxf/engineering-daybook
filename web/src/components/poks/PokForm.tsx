@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode, useState } from 'react';
+import { type ReactNode, useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
@@ -47,6 +47,10 @@ export function PokForm({
   const [visibility, setVisibility] = useState<PokVisibility>(
     initialData?.visibility ?? 'PRIVATE'
   );
+
+  useEffect(() => {
+    setVisibility(initialData?.visibility ?? 'PRIVATE');
+  }, [initialData?.visibility]);
 
   const {
     register,
@@ -97,8 +101,12 @@ export function PokForm({
         />
       </FormField>
 
-      <FormField label={t('visibility.pickerLabel')} htmlFor="pok-visibility">
-        <VisibilityPicker value={visibility} onChange={setVisibility} />
+      <FormField label={t('visibility.pickerLabel')}>
+        <VisibilityPicker
+          value={visibility}
+          onChange={setVisibility}
+          locked={initialData?.visibility === 'PUBLIC'}
+        />
       </FormField>
 
       {afterContent}

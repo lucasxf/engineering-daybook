@@ -15,7 +15,7 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({
-    user: { userId: 'u1', email: 'test@example.com', handle: 'testuser', defaultPokVisibility: 'PRIVATE' as const },
+    user: { userId: 'u1', email: 'test@example.com', handle: 'testuser', defaultPokVisibility: 'PRIVATE' as const, profileVisibility: 'PRIVATE' as const },
     isAuthenticated: true,
     isLoading: false,
     updateUser: vi.fn(),
@@ -33,10 +33,10 @@ vi.mock('@/lib/api', () => ({
 
 // Stub PokForm so we can control submit without needing full form interaction
 vi.mock('@/components/poks/PokForm', () => ({
-  PokForm: ({ onSubmit }: { onSubmit: (data: { title: string; content: string }) => void }) => (
+  PokForm: ({ onSubmit }: { onSubmit: (data: { title: string; content: string; visibility: string }) => void }) => (
     <button
       data-testid="submit-form"
-      onClick={() => onSubmit({ title: 'Test title', content: 'Test content' })}
+      onClick={() => onSubmit({ title: 'Test title', content: 'Test content', visibility: 'PRIVATE' })}
     >
       Submit
     </button>
@@ -70,10 +70,12 @@ describe('NewPokPage', () => {
   describe('on successful submit', () => {
     beforeEach(() => {
       mockCreate.mockResolvedValue({
+        type: 'owned',
         id: 'new-pok',
         userId: 'user-1',
         title: 'Test title',
         content: 'Test content',
+        visibility: 'PRIVATE',
         deletedAt: null,
         createdAt: '2026-02-14T10:00:00Z',
         updatedAt: '2026-02-14T10:00:00Z',
@@ -87,10 +89,13 @@ describe('NewPokPage', () => {
       renderNewPokPage();
       await user.click(screen.getByTestId('submit-form'));
       await waitFor(() =>
-        expect(mockCreate).toHaveBeenCalledWith({
-          title: 'Test title',
-          content: 'Test content',
-        })
+        expect(mockCreate).toHaveBeenCalledWith(
+          expect.objectContaining({
+            title: 'Test title',
+            content: 'Test content',
+            visibility: 'PRIVATE',
+          })
+        )
       );
     });
 

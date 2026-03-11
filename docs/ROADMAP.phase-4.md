@@ -1,6 +1,8 @@
 # Phase 4: Growth & Polish
 
-> Status: **⏳ Planned**
+> Status: **⏸️ Postponed**
+>
+> Postponed 2026-03-06 — deprioritized in favor of Phase 8 (Knowledge Enrichment). Features remain valid; will revisit after Phase 8.
 
 ---
 

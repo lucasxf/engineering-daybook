@@ -14,6 +14,10 @@ import jakarta.persistence.Table;
  * Global tag pool entity. Tags are shared across all users and are never physically deleted.
  * Users interact with tags via {@link UserTag} subscriptions.
  *
+ * <p>The {@code name} field is the canonical form: lowercase with spaces replaced by dashes
+ * (e.g. {@code "claude-code"}). The {@code displayName} field preserves the original casing
+ * with dashes instead of spaces (e.g. {@code "Claude-Code"}).
+ *
  * @author Lucas Xavier Ferreira
  * @since 2026-02-25
  */
@@ -28,6 +32,9 @@ public class Tag {
     @Column(nullable = false, unique = true, length = 100)
     private String name;
 
+    @Column(name = "display_name", nullable = false, length = 100)
+    private String displayName;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
@@ -36,12 +43,14 @@ public class Tag {
     }
 
     /**
-     * Creates a new global tag.
+     * Creates a new global tag with canonical name and display name.
      *
-     * @param name the tag name (trimmed, case-preserved, unique case-insensitively)
+     * @param name        the canonical form (lowercase, spaces replaced by dashes)
+     * @param displayName the display form (original casing, spaces replaced by dashes)
      */
-    public Tag(String name) {
+    public Tag(String name, String displayName) {
         this.name = name;
+        this.displayName = displayName;
     }
 
     public UUID getId() {
@@ -50,6 +59,10 @@ public class Tag {
 
     public String getName() {
         return name;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 
     public Instant getCreatedAt() {

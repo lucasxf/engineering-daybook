@@ -16,8 +16,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * instead. Both fields are omitted from the JSON body when no tokens are issued (e.g. the
  * {@code /me} endpoint).
  *
- * <p>{@code defaultPokVisibility} is populated only on the {@code /me} endpoint, where a
- * DB lookup is available. It is omitted from login/register/refresh responses (null).
+ * <p>{@code defaultPokVisibility} and {@code profileVisibility} are populated on all auth
+ * operations (login, register, refresh, Google sign-in, and {@code /me}) since the {@code User}
+ * entity is already loaded during token issuance. The separate {@code /me} endpoint remains
+ * useful for restoring session state on page load without re-issuing tokens.
+ *
+ * <p>{@code avatarUrl}, {@code bio}, and {@code displayName} are populated only on the
+ * {@code /me} endpoint, where the full User entity is already fetched.
  *
  * @author Lucas Xavier Ferreira
  * @since 2026-02-11
@@ -43,26 +48,51 @@ public record AuthResponse(
     String refreshToken,
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @Schema(description = "User's default visibility for new learnings — populated on /me only")
+    @Schema(description = "User's default visibility for new learnings")
     Pok.Visibility defaultPokVisibility,
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @Schema(description = "User's profile visibility — populated on /me only")
-    User.ProfileVisibility profileVisibility) {
+    @Schema(description = "User's profile visibility")
+    User.ProfileVisibility profileVisibility,
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "Avatar URL — populated on /me only; null means no avatar set")
+    String avatarUrl,
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "Short bio — populated on /me only")
+    String bio,
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Schema(description = "Display name — populated on /me only", example = "Lucas Xavier")
+    String displayName) {
 
     /** Identity-only constructor — for web login/register/refresh (cookie-based, no tokens, no settings). */
     public AuthResponse(String handle, UUID userId, String email) {
-        this(handle, userId, email, null, null, null, null);
+        this(handle, userId, email, null, null, null, null, null, null, null);
     }
 
     /** Mobile login/refresh constructor — includes tokens in body but no settings. */
     public AuthResponse(String handle, UUID userId, String email, String accessToken, String refreshToken) {
-        this(handle, userId, email, accessToken, refreshToken, null, null);
+        this(handle, userId, email, accessToken, refreshToken, null, null, null, null, null);
     }
 
-    /** /me constructor — includes settings from a DB-fetched User. */
+    /**
+     * Web login/register/refresh/google constructor — includes settings (no tokens, no profile fields).
+     * avatarUrl, bio, displayName are omitted here to keep the login response minimal.
+     */
     public AuthResponse(String handle, UUID userId, String email,
+            String accessToken, String refreshToken,
             Pok.Visibility defaultPokVisibility, User.ProfileVisibility profileVisibility) {
-        this(handle, userId, email, null, null, defaultPokVisibility, profileVisibility);
+        this(handle, userId, email, accessToken, refreshToken, defaultPokVisibility, profileVisibility,
+            null, null, null);
+    }
+
+    /** /me constructor — includes full settings and profile fields from a DB-fetched User. */
+    public AuthResponse(String handle, UUID userId, String email,
+            Pok.Visibility defaultPokVisibility, User.ProfileVisibility profileVisibility,
+            String avatarUrl, String bio, String displayName) {
+        this(handle, userId, email, null, null, defaultPokVisibility, profileVisibility,
+            avatarUrl, bio, displayName);
     }
 }

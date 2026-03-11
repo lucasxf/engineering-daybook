@@ -40,7 +40,7 @@ describe('HomeCta', () => {
     beforeEach(() => {
       mockAuth = createMockAuth({
         isAuthenticated: true,
-        user: { userId: 'u1', email: 'test@example.com', handle: 'testuser', defaultPokVisibility: 'PRIVATE' as const },
+        user: { userId: 'u1', email: 'test@example.com', handle: 'testuser', defaultPokVisibility: 'PRIVATE' as const, profileVisibility: 'PRIVATE' as const },
       });
     });
 
@@ -86,7 +86,7 @@ describe('HomeCta', () => {
     it('authenticated user links to correct locale poks path', () => {
       mockAuth = createMockAuth({
         isAuthenticated: true,
-        user: { userId: 'u1', email: 'test@example.com', handle: 'testuser', defaultPokVisibility: 'PRIVATE' as const },
+        user: { userId: 'u1', email: 'test@example.com', handle: 'testuser', defaultPokVisibility: 'PRIVATE' as const, profileVisibility: 'PRIVATE' as const },
       });
       render(
         <NextIntlClientProvider locale="pt-BR" messages={homeMessages}>

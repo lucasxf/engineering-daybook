@@ -26,6 +26,7 @@
         <jjwt.version>0.13.0</jjwt.version>
         <jacoco.version>0.8.14</jacoco.version>
         <pgvector.version>0.1.6</pgvector.version>
+        <thumbnailator.version>0.4.20</thumbnailator.version>
     </properties>
 
     <dependencies>
@@ -114,6 +115,11 @@
             <groupId>com.pgvector</groupId>
             <artifactId>pgvector</artifactId>
             <version>${pgvector.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.coobird</groupId>
+            <artifactId>thumbnailator</artifactId>
+            <version>${thumbnailator.version}</version>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>

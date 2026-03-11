@@ -1,0 +1,28 @@
+[metadata]
+session_branch = "publish-mobile-app"
+session_start = "2026-03-08T11:06:59Z"
+last_updated = "2026-03-10T10:04:00Z"
+
+[agent_usage.Explore]
+invocations = 7
+last_used = "2026-03-10T09:57:53Z"
+
+[agent_usage.Plan]
+invocations = 2
+last_used = "2026-03-09T23:37:53Z"
+
+[command_usage.finish-session]
+invocations = 4
+last_used = "2026-03-10T10:02:53Z"
+
+[agent_usage.general-purpose]
+invocations = 9
+last_used = "2026-03-10T10:04:00Z"
+
+[command_usage.create-pr]
+invocations = 1
+last_used = "2026-03-08T18:28:27Z"
+
+[command_usage.save-response]
+invocations = 1
+last_used = "2026-03-09T23:53:05Z"

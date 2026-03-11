@@ -4,6 +4,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import type { Pok } from '@/lib/pokApi';
 import { PressableCard } from '@/components/ui/Card';
 import { Text } from '@/components/ui/Text';
+import { stripMarkdown } from '@/lib/stripMarkdown';
 
 interface Props {
   pok: Pok;
@@ -26,9 +27,10 @@ export function LearningCard({ pok, onPress }: Props) {
   const { theme } = useTheme();
   const { spacing, colors } = theme;
 
-  const preview = pok.content.length > 200
-    ? pok.content.slice(0, 200).trimEnd() + '…'
-    : pok.content;
+  const stripped = stripMarkdown(pok.content);
+  const preview = stripped.length > 200
+    ? stripped.slice(0, 200).trimEnd() + '\u2026'
+    : stripped;
 
   return (
     <PressableCard
@@ -62,7 +64,7 @@ export function LearningCard({ pok, onPress }: Props) {
                   paddingVertical: 2,
                 }}
               >
-                <Text variant="caption">{tag.name}</Text>
+                <Text variant="caption">{tag.displayName}</Text>
               </View>
             ))}
             {pok.tags.length > 3 && (
