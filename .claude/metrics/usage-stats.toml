@@ -2,7 +2,7 @@
 # Compiled by /compile-metrics, analyzed by automation-sentinel agent
 
 [metadata]
-timestamp = "2026-03-10T23:06:22Z"
+timestamp = "2026-03-11T07:51:03Z"
 commit_sha = ""
 branch = "develop"
 schema_version = "1.0.0"
@@ -10,15 +10,15 @@ updated_by = "compile-metrics"
 
 # Agent Usage Metrics
 [agent_usage.Explore]
-invocations = 43
+invocations = 51
 last_used = "2026-03-10T10:22:02Z"
 
 [agent_usage.Plan]
-invocations = 7
+invocations = 9
 last_used = "2026-03-09T23:37:53Z"
 
 [agent_usage.general-purpose]
-invocations = 32
+invocations = 42
 last_used = "2026-03-10T10:40:34Z"
 
 [agent_usage.automation-sentinel]
@@ -54,7 +54,7 @@ invocations = 0
 last_used = ""
 
 [agent_usage.tech-writer]
-invocations = 3
+invocations = 4
 last_used = "2026-03-08T20:11:38Z"
 
 [agent_usage.virgil]
@@ -63,20 +63,20 @@ last_used = ""
 
 # Command Usage Metrics
 [command_usage.compile-metrics]
-invocations = 5
-last_used = "2026-03-10T23:05:09Z"
+invocations = 6
+last_used = "2026-03-11T07:49:08Z"
 
 [command_usage.create-pr]
-invocations = 16
-last_used = "2026-03-10T10:41:31Z"
+invocations = 21
+last_used = "2026-03-11T07:46:06Z"
 
 [command_usage.directive]
 invocations = 1
 last_used = "2026-03-06T18:44:46Z"
 
 [command_usage.finish-session]
-invocations = 24
-last_used = "2026-03-10T10:38:02Z"
+invocations = 32
+last_used = "2026-03-11T07:39:57Z"
 
 [command_usage.fix-pr]
 invocations = 5
@@ -95,12 +95,12 @@ invocations = 5
 last_used = "2026-03-08T15:59:46Z"
 
 [command_usage.save-response]
-invocations = 2
+invocations = 3
 last_used = "2026-03-09T23:53:05Z"
 
 [command_usage.start-session]
-invocations = 14
-last_used = "2026-03-07T18:28:29Z"
+invocations = 15
+last_used = "2026-03-11T07:49:54Z"
 
 [command_usage.write-spec]
 invocations = 5
@@ -108,10 +108,10 @@ last_used = "2026-03-08T09:15:57Z"
 
 # Productivity Metrics
 [productivity]
-current_total_locs = 0
-current_production_locs = 0
-current_test_locs = 0
-test_ratio_percent = 0.0
+current_total_locs = 49353
+current_production_locs = 23096
+current_test_locs = 26257
+test_ratio_percent = 113.7
 total_locs_added = 0
 total_locs_deleted = 0
 net_locs = 0
