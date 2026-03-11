@@ -4,47 +4,61 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
+import { useTheme } from 'next-themes';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { chooseHandleSchema, type ChooseHandleFormData } from '@/lib/validations';
+import { z } from 'zod';
+import { HANDLE_PATTERN } from '@/lib/validations';
 import { ApiRequestError } from '@/lib/api';
-import { Alert } from '@/components/ui/Alert';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { FormField } from '@/components/ui/FormField';
 import { Spinner } from '@/components/ui/Spinner';
 import { HandleInput } from './HandleInput';
+import { useHandleAvailability } from '@/hooks/useHandleAvailability';
+
+// Minimal schema: only handle is required on this screen
+const handleOnlySchema = z.object({
+  handle: z
+    .string()
+    .min(3, 'auth.errors.handleMinLength')
+    .max(30, 'auth.errors.handleMaxLength')
+    .regex(HANDLE_PATTERN, 'auth.errors.handleFormat'),
+});
+
+type HandleOnlyFormData = z.infer<typeof handleOnlySchema>;
 
 interface ChooseHandleFormProps {
   tempToken: string;
-  defaultDisplayName?: string;
 }
 
-export function ChooseHandleForm({
-  tempToken,
-  defaultDisplayName = '',
-}: ChooseHandleFormProps) {
+type FormView = 'form' | 'sessionExpired';
+
+export function ChooseHandleForm({ tempToken }: ChooseHandleFormProps) {
   const t = useTranslations('auth');
+  const { resolvedTheme } = useTheme();
   const params = useParams<{ locale: string }>();
   const router = useRouter();
   const { completeGoogleSignup } = useAuth();
-  const [serverError, setServerError] = useState<string | null>(null);
+  const [genericError, setGenericError] = useState<string | null>(null);
+  const [view, setView] = useState<FormView>('form');
+
+  const isDark = resolvedTheme === 'dark';
 
   const {
     register,
     handleSubmit,
     watch,
     formState: { errors, isSubmitting },
-  } = useForm<ChooseHandleFormData>({
-    resolver: zodResolver(chooseHandleSchema),
-    mode: 'onTouched',
-    defaultValues: {
-      handle: '',
-      displayName: defaultDisplayName,
-    },
+  } = useForm<HandleOnlyFormData>({
+    resolver: zodResolver(handleOnlySchema),
+    mode: 'onChange',
+    defaultValues: { handle: '' },
   });
 
   const handleValue = watch('handle');
+  const { isChecking, isAvailable } = useHandleAvailability(handleValue);
+
+  // CTA is only enabled when server confirmed availability and no validation errors
+  const canSubmit =
+    !isSubmitting && isAvailable === true && !errors.handle;
 
   const resolveError = (key: string): string => {
     try {
@@ -54,87 +68,198 @@ export function ChooseHandleForm({
     }
   };
 
-  const onSubmit = async (data: ChooseHandleFormData) => {
-    setServerError(null);
+  const onSubmit = async (data: HandleOnlyFormData) => {
+    setGenericError(null);
     try {
       await completeGoogleSignup({
         tempToken,
         handle: data.handle,
-        displayName: data.displayName,
+        displayName: data.handle, // fallback: use handle as display name
       });
       router.push(`/${params.locale}/poks` as never);
     } catch (error) {
       if (error instanceof ApiRequestError) {
         if (error.status === 401) {
-          setServerError(t('errors.sessionExpired'));
-          setTimeout(() => {
-            router.push(`/${params.locale}/login` as never);
-          }, 2000);
+          setView('sessionExpired');
         } else if (error.status === 409) {
-          setServerError(t('handleTaken'));
+          setGenericError(
+            t('chooseHandleTaken', { handle: data.handle })
+          );
         } else {
-          setServerError(error.message);
+          setGenericError(t('errors.unexpected'));
         }
       } else {
-        setServerError(t('errors.unexpected'));
+        setGenericError(t('errors.unexpected'));
       }
     }
   };
 
+  // Session-expired state: replace the form with a focused error card
+  if (view === 'sessionExpired') {
+    return (
+      <div
+        role="alert"
+        className="rounded-xl border p-6 text-center space-y-5"
+        style={{
+          backgroundColor: isDark ? '#1A365D' : 'white',
+          borderColor: isDark ? '#2B4A78' : '#E8E4DF',
+        }}
+      >
+        <div className="flex flex-col items-center gap-3">
+          <div
+            className="flex h-12 w-12 items-center justify-center rounded-full"
+            style={{
+              backgroundColor: isDark ? '#0F1B2D' : 'rgb(243, 244, 246)',
+            }}
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                style={{ color: isDark ? '#F87171' : '#DC2626' }}
+              />
+              <path
+                d="M12 7v5M12 16h.01"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                style={{ color: isDark ? '#F87171' : '#DC2626' }}
+              />
+            </svg>
+          </div>
+          <p
+            className="text-sm leading-relaxed"
+            style={{
+              color: isDark ? '#8899AA' : '#666666',
+            }}
+          >
+            {t('chooseHandleSessionExpired')}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => router.push(`/${params.locale}/login` as never)}
+          className="w-full rounded-md py-2.5 text-sm font-medium transition-all hover:opacity-90 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2"
+          style={{
+            backgroundColor: '#D4854A',
+            color: isDark ? '#F5F0E8' : 'white',
+            outlineColor: '#D4854A',
+          }}
+        >
+          {t('googleSignIn')}
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-      {serverError && <Alert variant="error">{serverError}</Alert>}
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-5"
+      noValidate
+    >
+      {/* Handle field */}
+      <div className="space-y-1.5">
+        <label
+          htmlFor="choose-handle"
+          className="block text-sm font-medium"
+          style={{
+            color: isDark ? '#F5F0E8' : '#1A1A2E',
+          }}
+        >
+          {t('chooseHandleLabel')}
+        </label>
 
-      <FormField
-        label={t('displayName')}
-        htmlFor="choose-displayName"
-        error={
-          errors.displayName
-            ? resolveError(errors.displayName.message!)
-            : undefined
-        }
-      >
-        <Input
-          id="choose-displayName"
-          type="text"
-          autoComplete="name"
-          hasError={!!errors.displayName}
-          {...register('displayName')}
-        />
-      </FormField>
-
-      <FormField
-        label={t('handle')}
-        htmlFor="choose-handle"
-        hint={t('handleHint')}
-        error={
-          errors.handle ? resolveError(errors.handle.message!) : undefined
-        }
-      >
         <HandleInput
           id="choose-handle"
           autoComplete="username"
+          autoFocus
           value={handleValue}
           hasError={!!errors.handle}
-          autoFocus
+          validationError={
+            errors.handle
+              ? resolveError(errors.handle.message!)
+              : undefined
+          }
+          isChecking={isChecking}
+          isAvailable={isAvailable}
+          disabled={isSubmitting}
+          placeholder={t('chooseHandlePlaceholder')}
           {...register('handle')}
         />
-      </FormField>
 
-      <Button
+        {/* Format hint */}
+        <p
+          className="text-xs leading-relaxed"
+          style={{
+            color: isDark ? '#8899AA' : '#666666',
+          }}
+        >
+          {t('chooseHandleFormatHint')}
+        </p>
+      </div>
+
+      {/* Generic server error */}
+      {genericError && (
+        <div
+          role="alert"
+          className="rounded-md border px-3 py-2.5 text-sm"
+          style={{
+            borderColor: isDark ? 'rgba(248, 113, 113, 0.3)' : 'rgba(220, 38, 38, 0.3)',
+            backgroundColor: isDark ? 'rgba(248, 113, 113, 0.1)' : 'rgba(220, 38, 38, 0.1)',
+            color: isDark ? '#F87171' : '#DC2626',
+          }}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <span>{genericError}</span>
+            <button
+              type="button"
+              onClick={() => {
+                setGenericError(null);
+              }}
+              aria-label={t('errors.dismiss')}
+              className="shrink-0 text-xs underline opacity-70 hover:opacity-100"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* CTA button */}
+      <button
         type="submit"
-        className="w-full"
-        disabled={isSubmitting}
+        disabled={!canSubmit}
+        aria-disabled={!canSubmit}
+        className="w-full rounded-md py-2.5 text-sm font-medium transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2"
+        style={{
+          backgroundColor: canSubmit ? '#D4854A' : isDark ? '#4A3020' : '#E8C8B0',
+          color: canSubmit ? (isDark ? '#F5F0E8' : 'white') : isDark ? '#6B5040' : '#A0785A',
+          cursor: canSubmit ? 'pointer' : 'not-allowed',
+          opacity: canSubmit ? 1 : 0.6,
+          outlineColor: '#D4854A',
+          pointerEvents: canSubmit ? 'auto' : 'none',
+        }}
       >
         {isSubmitting ? (
-          <>
-            <Spinner size="sm" className="mr-2" />
-            {t('completingRegistration')}
-          </>
+          <span className="inline-flex items-center justify-center gap-2">
+            <Spinner size="sm" />
+            {t('chooseHandleSubmitting')}
+          </span>
         ) : (
-          t('completeRegistration')
+          t('chooseHandleCta')
         )}
-      </Button>
+      </button>
     </form>
   );
 }
+
