@@ -318,7 +318,7 @@ You are implementing Task {N} of the "{spec_name}" spec.
    # Web
    cd web && npm run lint && npm run test -- --run
    # Web E2E (only if task touched web/ files)
-   (cd web && npx playwright test --reporter=line)
+   (cd web && npx playwright test --reporter=line || (npx playwright install chromium && npx playwright test --reporter=line))
 
    # Mobile
    cd mobile && npm run test
@@ -501,7 +501,7 @@ Run full verification for the relevant stack:
 cd backend && ./mvnw verify
 
 # Web
-cd web && npm run test && npm run build && npx playwright test --reporter=line
+cd web && npm run test && npm run build && (npx playwright test --reporter=line || (npx playwright install chromium && npx playwright test --reporter=line))
 
 # Mobile
 cd mobile && npm run test

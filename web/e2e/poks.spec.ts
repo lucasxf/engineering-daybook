@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { setupApiMocks, MOCK_USER, MOCK_POK, type MockPok } from './helpers/mock-api';
+import { setupApiMocks, MOCK_USER, MOCK_POK, API, type MockPok } from './helpers/mock-api';
 
 test.describe('Create learning', () => {
   test('uses QuickEntry to save a learning and sees it in the feed', async ({ page }) => {
@@ -162,7 +162,7 @@ test.describe('Semantic search', () => {
     const [req] = await Promise.all([
       page.waitForRequest(
         (r) =>
-          r.url().startsWith('http://localhost:8080/api/v1/poks') &&
+          r.url().startsWith(`${API}/poks`) &&
           r.method() === 'GET' &&
           new URL(r.url()).searchParams.has('keyword'),
         { timeout: 10000 },

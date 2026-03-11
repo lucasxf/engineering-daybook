@@ -13,8 +13,7 @@ test.describe('Settings page', () => {
     await page.goto('/en/settings');
 
     await expect(page.getByText('Privacy')).toBeVisible();
-    // 'Profile visibility' appears in both the <label> and the Select's sr-only span — use first()
-    await expect(page.getByText('Profile visibility').first()).toBeVisible();
+    await expect(page.getByLabel(/profile visibility/i)).toBeVisible();
     await expect(page.getByText('Default learning visibility').first()).toBeVisible();
   });
 
@@ -34,7 +33,7 @@ test.describe('Settings page', () => {
     await page.goto('/en/settings');
 
     // Select renders role="combobox" — open the profile visibility dropdown and choose Public
-    await page.getByRole('combobox').first().click();
+    await page.getByRole('combobox', { name: /profile visibility/i }).click();
     await page.getByRole('option', { name: 'Public' }).first().click();
 
     await expect(page.getByText(/settings saved/i)).toBeVisible();
