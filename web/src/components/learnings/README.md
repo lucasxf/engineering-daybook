@@ -32,7 +32,7 @@ The Create Learning form is a focused, distraction-free capture surface for user
 2. **Filling in**: Character counters update live, submit button becomes active
 3. **Submitting**: Button shows "Saving..." text with loading state, fields disabled
 4. **Validation error**: Inline error messages appear below relevant fields with red styling
-5. **Success**: Toast notification "Learning saved!" appears, auto-dismisses after 3 seconds, then redirects
+5. **Success**: Navigates immediately to the new learning's detail view
 
 ### Interactions
 
@@ -180,6 +180,5 @@ learningSchema = z.object({
 
 ## Browser Support
 
-- Modern browsers with ES6+ support
+- Modern browsers with ES6+ support (client component — JavaScript required)
 - Graceful degradation for auto-expanding textarea
-- No JavaScript required for basic form submission (progressive enhancement compatible)
