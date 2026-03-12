@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { PokForm } from '@/components/poks/PokForm';
@@ -24,6 +25,7 @@ type DemoState = 'idle' | 'saving' | 'success' | 'error';
  * NOT to be committed as a permanent route.
  */
 export default function DemoEditLearningPage() {
+  const t = useTranslations('poks');
   const params = useParams<{ locale: string }>();
   const [state, setState] = useState<DemoState>('idle');
   const [showToast, setShowToast] = useState(false);
@@ -48,23 +50,23 @@ export default function DemoEditLearningPage() {
 
   return (
     <div className="mx-auto max-w-2xl py-8">
-      {/* Demo banner */}
+      {/* Demo banner — intentionally not translated: it's a dev-only note */}
       <div className="mb-6 rounded-md border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-300">
         Modo demo — sem autenticação. Dados fictícios pré-preenchidos. O envio simula uma chamada de API (80% sucesso, 20% erro).
       </div>
 
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-          Editar aprendizado
+          {t('edit.title')}
         </h1>
         <Link href={`/${params.locale}/demo/edit-learning` as never}>
-          <Button variant="secondary">Cancelar</Button>
+          <Button variant="secondary">{t('edit.cancelButton')}</Button>
         </Link>
       </div>
 
       {state === 'error' && (
         <Alert variant="error" className="mb-4">
-          Ocorreu um erro ao salvar. Tente novamente.
+          {t('errors.unexpected')}
         </Alert>
       )}
 
@@ -76,7 +78,7 @@ export default function DemoEditLearningPage() {
 
       {showToast && (
         <Toast
-          message="Aprendizado atualizado com sucesso."
+          message={t('success.updated')}
           onDismiss={handleDismissToast}
         />
       )}
