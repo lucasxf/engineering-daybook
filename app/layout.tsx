@@ -24,9 +24,8 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  title: "learnimo — Aprendizados por Etiqueta",
-  description:
-    "Explore seus aprendizados organizados por etiqueta no learnimo, o diário pessoal de aprendizado.",
+  title: "learnimo",
+  description: "O diário pessoal de aprendizado.",
 };
 
 export default function RootLayout({
@@ -35,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${dmSans.variable} ${sora.variable} ${bricolage.variable} font-sans`}
       >
