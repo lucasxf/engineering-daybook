@@ -21,7 +21,8 @@ vi.mock('next/navigation', () => ({
 
 // Mock UI primitives used by LearningNavBar
 vi.mock('@/components/ui/LogoLink', () => ({
-  LogoLink: () => <a data-testid="logo-link" href="/" />,
+  // Use href="#" to avoid the @next/next/no-html-link-for-pages ESLint rule
+  LogoLink: () => <a data-testid="logo-link" href="#" />,
 }));
 vi.mock('@/components/ui/Avatar', () => ({
   Avatar: ({ displayName }: { displayName: string }) => (
