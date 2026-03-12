@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { LearnimoWordmark } from "@/components/learnimo-wordmark";
-import { LearningNavBar } from "@/components/view-learning/learning-nav-bar";
-import { LearningBreadcrumb } from "@/components/view-learning/learning-breadcrumb";
-import { LearningContent } from "@/components/view-learning/learning-content";
-import { LearningLoading } from "@/components/view-learning/learning-loading";
-import { LearningError } from "@/components/view-learning/learning-error";
-import { DeleteConfirmDialog } from "@/components/view-learning/delete-confirm-dialog";
+import { LearningNavBar } from "./learning-nav-bar";
+import { LearningBreadcrumb } from "./learning-breadcrumb";
+import { LearningContent } from "./learning-content";
+import { LearningLoading } from "./learning-loading";
+import { LearningError } from "./learning-error";
+import { DeleteConfirmDialog } from "./delete-confirm-dialog";
 
 export type ScreenState =
   | "loaded"

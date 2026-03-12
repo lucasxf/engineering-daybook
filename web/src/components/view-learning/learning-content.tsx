@@ -1,7 +1,7 @@
 "use client";
 
 import { Pencil, Trash2 } from "lucide-react";
-import { LearningMarkdown } from "@/components/view-learning/learning-markdown";
+import { LearningMarkdown } from "./learning-markdown";
 
 interface Learning {
   id: string;
