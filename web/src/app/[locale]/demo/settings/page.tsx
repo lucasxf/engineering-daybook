@@ -181,13 +181,13 @@ export default function DemoSettingsPage() {
       value: 'PRIVATE',
       label: t('privacy.private'),
       icon: <Lock className="h-4 w-4" />,
-      description: params.locale === 'pt-BR' ? 'Somente voce pode ver' : 'Only you can see',
+      description: params.locale === 'pt-BR' ? 'Somente você pode ver' : 'Only you can see',
     },
     {
       value: 'COLLEAGUES_ONLY',
       label: t('privacy.colleaguesOnly'),
       icon: <Users className="h-4 w-4" />,
-      description: params.locale === 'pt-BR' ? 'Colegas mutuos' : 'Mutual colleagues',
+      description: params.locale === 'pt-BR' ? 'Colegas mútuos' : 'Mutual colleagues',
     },
     {
       value: 'FOLLOWERS_ONLY',
@@ -243,7 +243,7 @@ export default function DemoSettingsPage() {
         <h1 className="mb-2 text-2xl font-bold text-foreground">{t('title')}</h1>
         <p className="mb-6 text-sm text-muted-foreground">
           {params.locale === 'pt-BR'
-            ? 'Gerencie seu perfil e preferencias'
+            ? 'Gerencie seu perfil e preferências'
             : 'Manage your profile and preferences'}
         </p>
 
@@ -261,7 +261,7 @@ export default function DemoSettingsPage() {
           {/* Avatar Section */}
           <Card className="p-6">
             <h2 className="mb-4 text-lg font-semibold text-foreground">{t('profile.avatar')}</h2>
-            <div className="flex items-start gap-4">
+            <div className="flex items-center gap-4">
               <div className="relative">
                 <Avatar
                   avatarUrl={user.avatarUrl ?? undefined}
@@ -446,7 +446,7 @@ export default function DemoSettingsPage() {
           {/* Appearance Section */}
           <Card className="p-6">
             <h2 className="mb-4 text-lg font-semibold text-foreground">
-              {params.locale === 'pt-BR' ? 'Aparencia' : 'Appearance'}
+              {params.locale === 'pt-BR' ? 'Aparência' : 'Appearance'}
             </h2>
             <div className="flex gap-2">
               {themeOptions.map((option) => (
@@ -497,7 +497,7 @@ export default function DemoSettingsPage() {
                     : 'border-border text-muted-foreground hover:border-muted-foreground/30'
                 }`}
               >
-                Portugues (Brasil)
+                Português (Brasil)
               </Link>
             </div>
           </Card>
@@ -512,7 +512,7 @@ export default function DemoSettingsPage() {
             </div>
             <p className="mb-4 mt-2 text-sm text-muted-foreground">
               {params.locale === 'pt-BR'
-                ? 'Acoes irreversiveis. Tenha cuidado.'
+                ? 'Ações irreversíveis. Tenha cuidado.'
                 : 'Irreversible actions. Be careful.'}
             </p>
             <Button
