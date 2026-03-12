@@ -312,6 +312,18 @@ Maintenance session: repository housekeeping and pre-existing CI failures resolv
 | Fixed pre-existing pgvector failures in `AuthIntegrationTest` and `FollowIntegrationTest` — added `enablePgVector()` helper to `@DynamicPropertySource` in both test classes; all tests now pass | ✅ Done |
 | Improved `/finish-session` command — added explicit session TOML staging verification step | ✅ Done |
 
+### PR #187 Review Fixes (fix-pr/187, 2026-03-12) ✅
+
+Web-only fix-pr session for PR #187 (feat: implement View Learning screen with design system and i18n support). Restored coverage above CI threshold by adding 36 unit tests; removed dead code.
+
+| Area | Fix |
+|------|-----|
+| `web/src/components/view-learning/learning-error.tsx` | Removed unused `cta` variable (ESLint dead code warning) |
+| `web/src/components/view-learning/view-learning.test.tsx` | Added 13 tests — LearningError (2 variants + alert role), LearningLoading (aria-busy + label), ViewLearningScreen (all states + delete/edit interactions) |
+| `web/src/components/view-learning/view-learning-components.test.tsx` | Added 12 tests — LearningBreadcrumb, LearningNavBar, LearningContent (title/derived-title/delete/tags/markdown), DeleteConfirmDialog (render/confirm/Escape) |
+| `web/src/components/view-learning/learning-markdown.test.tsx` | Added 11 tests — LearningMarkdown (plain text, bold, italic, inline-code, fenced code, h1/h2/h3, bullet list, blockquote, spacers) |
+| Line coverage | Restored from 48.1% → above 50% CI threshold (all 462 tests passing) |
+
 ---
 
 ## Active / Pending

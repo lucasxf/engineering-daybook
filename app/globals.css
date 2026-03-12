@@ -60,6 +60,45 @@
   --color-ember-stroke: #D4854A;
 }
 
+/* ——— View Learning — theme-aware component tokens ——— */
+
+:root {
+  --color-content-body: #333333;
+  --color-edit-btn-border: #1A365D;
+  --color-edit-btn-text: #1A365D;
+  --color-edit-btn-hover-bg: #E8F0F8;
+  --color-tag-pill-bg: #E0E8F2;
+  --color-tag-pill-text: #1A365D;
+}
+
+.dark {
+  --color-content-body: #C8D4E0;
+  --color-edit-btn-border: #2B4A78;
+  --color-edit-btn-text: #8B9EC2;
+  --color-edit-btn-hover-bg: #2B4A78;
+  --color-tag-pill-bg: rgba(43, 74, 120, 0.35);
+  --color-tag-pill-text: #8B9EC2;
+}
+
+.edit-btn {
+  border-color: var(--color-edit-btn-border);
+  color: var(--color-edit-btn-text);
+}
+.edit-btn:hover {
+  background-color: var(--color-edit-btn-hover-bg);
+  color: var(--color-foreground);
+}
+
+.tag-pill {
+  background-color: var(--color-tag-pill-bg);
+  color: var(--color-tag-pill-text);
+}
+
+/* ——— Prose body text ——— */
+.prose-body {
+  color: var(--color-content-body);
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
