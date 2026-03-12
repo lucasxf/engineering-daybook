@@ -131,7 +131,7 @@
         "contentLabel": "Conteúdo",
         "contentPlaceholder": "O que você aprendeu?",
         "contentCharCounter": "{current} / 50.000",
-        "saveButton": "salvar aprendizado",
+        "saveButton": "Salvar aprendizado",
         "savingButton": "Salvando...",
         "cancelButton": "Cancelar"
       },
