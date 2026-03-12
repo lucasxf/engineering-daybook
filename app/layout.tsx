@@ -24,8 +24,9 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  title: "learnimo — Esqueceu sua senha?",
-  description: "Redefina sua senha no learnimo, o diário pessoal de aprendizado.",
+  title: "learnimo — Linha do Tempo",
+  description:
+    "Veja toda a sua história de aprendizado organizada por mês no learnimo, o diário pessoal de aprendizado.",
 };
 
 export default function RootLayout({
