@@ -187,7 +187,7 @@ function NotFound({ theme, t }: { theme: "dark" | "light"; t: LearnerProfileTran
     <div className="flex flex-col items-center gap-3 py-16 px-6 text-center">
       <p
         className="font-heading text-xl font-semibold"
-        style={{ color: "var(--color-card-foreground)" }}
+        style={{ color: theme === "dark" ? "#DCCCC0" : "var(--color-card-foreground)" }}
       >
         {t.notFound}
       </p>
