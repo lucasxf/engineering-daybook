@@ -267,7 +267,7 @@ Show consolidated git diff for all modified files so I can review before committ
 The session delta TOML (e.g. `.claude/metrics/sessions/develop.toml`) is written live by the PostToolUse hook throughout the session. It must always be included in the final commit.
 
 ```bash
-git add .claude/metrics/sessions/
+git add .claude/metrics/sessions/ || true
 ```
 
 Then verify it is actually staged:

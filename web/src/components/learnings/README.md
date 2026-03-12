@@ -142,7 +142,7 @@ export default function CreateLearningPage() {
   return (
     <div>
       <LearningPageHeader locale="en" />
-      <CreateLearningForm onSubmit={handleSubmit} locale="en" />
+      <CreateLearningForm onSubmit={handleSubmit} />
     </div>
   );
 }
