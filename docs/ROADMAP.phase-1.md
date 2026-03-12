@@ -288,6 +288,18 @@ Tooling session: added a persistent recommendation record table to prevent senti
 | Updated `compile-metrics.md` — moved sentinel to Step 4E (before commit) so appended recs are included in the same commit; added `recommendations.md` to git staging step | ✅ Done |
 | Updated `.claude/metrics/README.md` — removed stale `pulse` references; documented all current files and updated "How It Works" section | ✅ Done |
 
+### CI Fix + /review-pr Interactive Metadata (fix + feat, develop, 2026-03-12) ✅
+
+Two-commit tooling session: one CI fix and one automation enhancement.
+
+| Area | Change |
+|------|--------|
+| `web/CreateLearningForm.test.tsx` | Fixed next-intl mock to support `{current}` interpolation — resolved CI failure |
+| `web/CreateLearningForm.tsx` | Added `disabled={isSubmitting}` to Title Input (PR #189 review feedback) |
+| `web/README.md` (usage example) | Removed incorrect `locale` prop from `CreateLearningForm` usage example |
+| `.claude/commands/finish-session.md` | Added `|| true` to `git add .claude/metrics/sessions/` to silence non-fatal exit code when directory is absent |
+| `.claude/commands/review-pr.md` | Steps 1B and 1C now prompt before overwriting PR title/description — only fires when metadata is inadequate; triage report gains `## PR Metadata` section |
+
 ### Git Cleanup + Pre-existing Test Fixes (chore/git-cleanup-and-test-fixes, 2026-03-12) ✅
 
 Maintenance session: repository housekeeping and pre-existing CI failures resolved. No new features.

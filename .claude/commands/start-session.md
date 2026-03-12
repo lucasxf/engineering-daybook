@@ -5,6 +5,26 @@ argument-hint: <optional: --stack=backend|web|mobile|docs|full or context descri
 
 # Session Context Loading Strategy
 
+## Step 0: Semantic Trigger Detection
+
+Before doing anything else, scan `$ARGUMENTS` for known slash-command intents. If a match is found, invoke the corresponding skill immediately — do NOT wait until after session init.
+
+| Pattern (case-insensitive) | Action |
+|---------------------------|--------|
+| `review pr <N>`, `triage pr <N>`, `check pr <N>`, `look at pr <N>` | Run `/review-pr <N>` via the Skill tool, then return — skip the rest of this command |
+| `fix pr <N>` | Run `/fix-pr <N>` via the Skill tool, then return |
+| `write spec <name>` | Run `/write-spec <name>` via the Skill tool, then return |
+| `implement spec <path>` | Run `/implement-spec <path>` via the Skill tool, then return |
+
+**Examples that should trigger `/review-pr 189`:**
+- `/start-session review pr 189`
+- `/start-session triage pr 189`
+- `/start-session check pr 189`
+
+If no semantic trigger matches, continue to Step 1.
+
+---
+
 ## Step 1: Determine Stack Focus
 
 **If user provided `--stack` parameter:**
