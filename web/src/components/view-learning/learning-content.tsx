@@ -69,12 +69,12 @@ export function LearningContent({ learning, onDeleteClick }: LearningContentProp
 
       {/* Metadata row */}
       <div className="mb-6 flex flex-wrap gap-x-1.5 gap-y-1 text-xs text-muted-foreground font-sans">
-        <span>
+        <span suppressHydrationWarning>
           Salvo em{" "}
           <time dateTime={learning.createdAt}>{formatDatePtBr(learning.createdAt)}</time>
         </span>
         <span aria-hidden="true">·</span>
-        <span>
+        <span suppressHydrationWarning>
           Atualizado em{" "}
           <time dateTime={learning.updatedAt}>{formatDatePtBr(learning.updatedAt)}</time>
         </span>

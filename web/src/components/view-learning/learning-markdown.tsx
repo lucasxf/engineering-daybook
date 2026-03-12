@@ -15,6 +15,7 @@ export function LearningMarkdown({ content }: LearningMarkdownProps) {
   const lines = content.split("\n");
   const elements: React.ReactNode[] = [];
   let i = 0;
+  let elementIndex = 0; // Unique key counter to avoid duplicates
 
   while (i < lines.length) {
     const line = lines[i];
@@ -30,7 +31,7 @@ export function LearningMarkdown({ content }: LearningMarkdownProps) {
       }
       elements.push(
         <pre
-          key={i}
+          key={`code-${elementIndex}`}
           className="my-4 overflow-x-auto rounded-lg border border-card-border bg-[#0F1B2D] p-4 text-sm leading-relaxed dark:bg-[#0F1B2D] light:bg-[#F0EDE8]"
         >
           {lang && (
@@ -43,6 +44,7 @@ export function LearningMarkdown({ content }: LearningMarkdownProps) {
           </code>
         </pre>
       );
+      elementIndex++;
       i++;
       continue;
     }
@@ -50,10 +52,11 @@ export function LearningMarkdown({ content }: LearningMarkdownProps) {
     // Heading h3
     if (line.startsWith("### ")) {
       elements.push(
-        <h3 key={i} className="mb-2 mt-6 font-heading text-base font-semibold text-foreground">
+        <h3 key={`h3-${elementIndex}`} className="mb-2 mt-6 font-heading text-base font-semibold text-foreground">
           {parseInline(line.slice(4))}
         </h3>
       );
+      elementIndex++;
       i++;
       continue;
     }
@@ -61,10 +64,11 @@ export function LearningMarkdown({ content }: LearningMarkdownProps) {
     // Heading h2
     if (line.startsWith("## ")) {
       elements.push(
-        <h2 key={i} className="mb-2 mt-6 font-heading text-lg font-semibold text-foreground">
+        <h2 key={`h2-${elementIndex}`} className="mb-2 mt-6 font-heading text-lg font-semibold text-foreground">
           {parseInline(line.slice(3))}
         </h2>
       );
+      elementIndex++;
       i++;
       continue;
     }
@@ -72,10 +76,11 @@ export function LearningMarkdown({ content }: LearningMarkdownProps) {
     // Heading h1
     if (line.startsWith("# ")) {
       elements.push(
-        <h2 key={i} className="mb-3 mt-6 font-heading text-xl font-semibold text-foreground">
+        <h2 key={`h1-${elementIndex}`} className="mb-3 mt-6 font-heading text-xl font-semibold text-foreground">
           {parseInline(line.slice(2))}
         </h2>
       );
+      elementIndex++;
       i++;
       continue;
     }
@@ -84,12 +89,13 @@ export function LearningMarkdown({ content }: LearningMarkdownProps) {
     if (line.startsWith("> ")) {
       elements.push(
         <blockquote
-          key={i}
+          key={`blockquote-${elementIndex}`}
           className="my-3 border-l-4 border-[var(--color-primary)] pl-4 italic text-muted-foreground"
         >
           {parseInline(line.slice(2))}
         </blockquote>
       );
+      elementIndex++;
       i++;
       continue;
     }
@@ -102,30 +108,33 @@ export function LearningMarkdown({ content }: LearningMarkdownProps) {
         i++;
       }
       elements.push(
-        <ul key={i} className="my-3 ml-5 list-disc space-y-1">
+        <ul key={`list-${elementIndex}`} className="my-3 ml-5 list-disc space-y-1">
           {listItems.map((item, idx) => (
-            <li key={idx} className="prose-body leading-[1.7]">
+            <li key={`list-item-${elementIndex}-${idx}`} className="prose-body leading-[1.7]">
               {parseInline(item)}
             </li>
           ))}
         </ul>
       );
+      elementIndex++;
       continue;
     }
 
     // Empty line — paragraph break
     if (line.trim() === "") {
-      elements.push(<div key={i} className="h-3" aria-hidden="true" />);
+      elements.push(<div key={`spacer-${elementIndex}`} className="h-3" aria-hidden="true" />);
+      elementIndex++;
       i++;
       continue;
     }
 
     // Regular paragraph
     elements.push(
-      <p key={i} className="leading-[1.7] prose-body">
+      <p key={`para-${elementIndex}`} className="leading-[1.7] prose-body">
         {parseInline(line)}
       </p>
     );
+    elementIndex++;
     i++;
   }
 
@@ -139,6 +148,7 @@ function parseInline(text: string): React.ReactNode[] {
   const regex = /(\*\*(.+?)\*\*)|(\*(.+?)\*)|(`(.+?)`)/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
+  let matchIndex = 0;
 
   while ((match = regex.exec(text)) !== null) {
     // Text before match
@@ -148,15 +158,15 @@ function parseInline(text: string): React.ReactNode[] {
 
     if (match[1]) {
       // Bold
-      parts.push(<strong key={match.index} className="font-semibold text-foreground">{match[2]}</strong>);
+      parts.push(<strong key={`bold-${matchIndex}`} className="font-semibold text-foreground">{match[2]}</strong>);
     } else if (match[3]) {
       // Italic
-      parts.push(<em key={match.index} className="italic">{match[4]}</em>);
+      parts.push(<em key={`italic-${matchIndex}`} className="italic">{match[4]}</em>);
     } else if (match[5]) {
       // Inline code
       parts.push(
         <code
-          key={match.index}
+          key={`code-inline-${matchIndex}`}
           className="rounded bg-[#2B4A78]/50 px-1.5 py-0.5 font-mono text-[0.85em] text-[#D4854A]"
         >
           {match[6]}
@@ -164,6 +174,7 @@ function parseInline(text: string): React.ReactNode[] {
       );
     }
     lastIndex = match.index + match[0].length;
+    matchIndex++;
   }
 
   if (lastIndex < text.length) {
