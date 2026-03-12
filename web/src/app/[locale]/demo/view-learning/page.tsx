@@ -1,3 +1,6 @@
+// Demo page for View Learning screen validation
+// This file is NOT meant to be committed
+
 "use client";
 
 import { useState } from "react";
