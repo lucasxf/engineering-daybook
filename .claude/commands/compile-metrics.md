@@ -317,10 +317,30 @@ if counts['approved'] == 0 and counts['implemented'] > 0:
 PYEOF
 ```
 
+## 4E. Trigger Automation Sentinel
+
+Run the automation-sentinel agent **before** staging and committing, so any rows it appends to `recommendations.md` are included in the same commit.
+
+Use the Agent tool with `subagent_type: automation-sentinel` and the full automation-sentinel prompt from `.claude/agents/automation-sentinel.md`.
+
+The agent should:
+1. Read `.claude/metrics/recommendations.md` (dedup check — **required first step**)
+2. Read `.claude/metrics/usage-stats.toml`
+3. Read all agent files in `.claude/agents/` (skip `archive/` subdirectory)
+4. Read all command files in `.claude/commands/`
+5. Generate a health report covering: overall status, usage tables, zero-usage analysis, redundancy analysis, gaps, spec pipeline health, and new recommendations (deduplicated against the record table)
+
+**Agent Usage table requirements:**
+- Include a `Type` column with `Built-in` (Explore, Plan, general-purpose) or `Custom` (all others in `.claude/agents/`)
+- Do NOT use parenthetical "(built-in)" annotations in the Agent name column
+
+**Recommendations output:** The sentinel appends any new recommendations directly to `.claude/metrics/recommendations.md` with status `open`. It includes a dedup summary line in its report. The file is staged in Step 5.
+
 ## 5. Stage and Remove Processed Delta Files
 
 ```bash
 git add .claude/metrics/usage-stats.toml
+git add .claude/metrics/recommendations.md
 git rm .claude/metrics/sessions/*.toml 2>/dev/null || true
 ```
 
@@ -345,18 +365,4 @@ Report:
 - Which agents/commands had their counts updated
 - New total counts for the top 5 most-used agents and commands
 
-## 9. Trigger Automation Sentinel
-
-After compilation, automatically run the automation-sentinel agent to analyze the freshly updated metrics. Use the Agent tool with `subagent_type: automation-sentinel` and the full automation-sentinel prompt from `.claude/agents/automation-sentinel.md`.
-
-The agent should:
-1. Read `.claude/metrics/usage-stats.toml`
-2. Read all agent files in `.claude/agents/` (skip `archive/` subdirectory)
-3. Read all command files in `.claude/commands/`
-4. Generate a health report covering: overall status, usage tables, zero-usage analysis, redundancy analysis, gaps, spec pipeline health, and top 3-5 prioritized recommendations
-
-**Agent Usage table requirements:**
-- Include a `Type` column with `Built-in` (Explore, Plan, general-purpose) or `Custom` (all others in `.claude/agents/`)
-- Do NOT use parenthetical "(built-in)" annotations in the Agent name column
-
-Display the sentinel's report as the final output of `/compile-metrics`.
+Display the sentinel's health report (generated in Step 4E) as the final output of `/compile-metrics`.
