@@ -30,6 +30,33 @@
   --color-confirmation-bg: #FFF8F3;
   --color-confirmation-border: #E8DDD5;
   --color-ember-stroke: #D4854A;
+
+  /* Nav */
+  --color-nav-bg: #F5F0E8;
+  --color-nav-border: #E8E4DF;
+
+  /* Tabs */
+  --color-tab-active: #D4854A;
+  --color-tab-inactive: #666666;
+
+  /* Tag section header */
+  --color-tag-header-text: #1A1A2E;
+  --color-tag-accent-bar: #8B5E3C;
+  --color-tag-untagged-bar: #AAAAAA;
+  --color-tag-count-bg: #E8E4DF;
+  --color-tag-count-text: #666666;
+
+  /* Chip */
+  --color-chip-bg: #E0E8F2;
+  --color-chip-text: #1A365D;
+
+  /* Skeleton */
+  --color-skeleton-from: #E8E4DF;
+  --color-skeleton-to: #F5F0E8;
+
+  /* Nudge */
+  --color-nudge-text: #666666;
+  --color-nudge-link: #D4854A;
 }
 
 .dark {
@@ -46,7 +73,7 @@
   --color-primary-hover: #E89560;
   --color-primary-foreground: #FFFFFF;
 
-  --color-input: #0F1B2D;
+  --color-input: #1A365D;
   --color-input-border: #2B4A78;
   --color-input-focus: #D4854A;
 
@@ -58,6 +85,33 @@
   --color-confirmation-bg: #1A365D;
   --color-confirmation-border: #2B4A78;
   --color-ember-stroke: #D4854A;
+
+  /* Nav */
+  --color-nav-bg: #0F1B2D;
+  --color-nav-border: #1A365D;
+
+  /* Tabs */
+  --color-tab-active: #D4854A;
+  --color-tab-inactive: #8899AA;
+
+  /* Tag section header */
+  --color-tag-header-text: #F5F0E8;
+  --color-tag-accent-bar: #8B5E3C;
+  --color-tag-untagged-bar: #4A6080;
+  --color-tag-count-bg: #2B4A78;
+  --color-tag-count-text: #8899AA;
+
+  /* Chip */
+  --color-chip-bg: #2B4A78;
+  --color-chip-text: #8B9EC2;
+
+  /* Skeleton */
+  --color-skeleton-from: #1A365D;
+  --color-skeleton-to: #2B4A78;
+
+  /* Nudge */
+  --color-nudge-text: #8899AA;
+  --color-nudge-link: #D4854A;
 }
 
 * {

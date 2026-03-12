@@ -1,96 +1,96 @@
 "use client";
 
 import { useState } from "react";
-import { LearnimoWordmark } from "@/components/learnimo-wordmark";
-import { ForgotPasswordForm } from "@/components/forgot-password-form";
-import { Sun, Moon } from "lucide-react";
+import { TagFeedScreen } from "@/components/tag-feed/tag-feed-screen";
 
-function ThemeToggle({
+type FeedState =
+  | "populated"
+  | "all-untagged"
+  | "single-tag"
+  | "loading"
+  | "empty"
+  | "no-results"
+  | "error";
+
+const STATE_LABELS: { id: FeedState; label: string; desc: string }[] = [
+  { id: "populated", label: "Populado", desc: "3–4 seções com etiqueta + sem etiqueta" },
+  { id: "single-tag", label: "Uma etiqueta", desc: "Só React, sem seção sem etiqueta" },
+  { id: "all-untagged", label: "Tudo sem etiqueta", desc: "Nudge para começar a etiquetar" },
+  { id: "loading", label: "Carregando", desc: "Skeleton pulse nas seções" },
+  { id: "empty", label: "Vazio", desc: "Nenhum aprendizado salvo" },
+  { id: "no-results", label: "Sem resultados", desc: 'Busca sem match (keyword="xyz")' },
+  { id: "error", label: "Erro", desc: "Falha ao carregar, botão retry" },
+];
+
+function PreviewPanel({
   theme,
-  onToggle,
+  forcedState,
 }: {
   theme: "dark" | "light";
-  onToggle: () => void;
+  forcedState: FeedState;
 }) {
+  const [currentTheme, setCurrentTheme] = useState<"dark" | "light">(theme);
+
   return (
-    <button
-      onClick={onToggle}
-      aria-label={theme === "dark" ? "Mudar para modo claro" : "Mudar para modo escuro"}
-      className="rounded-md p-1.5 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-input-focus)]"
-    >
-      {theme === "dark" ? (
-        <Sun className="h-4 w-4" aria-hidden="true" />
-      ) : (
-        <Moon className="h-4 w-4" aria-hidden="true" />
-      )}
-    </button>
-  );
-}
-
-function ForgotPasswordScreen({ theme, onToggle }: { theme: "dark" | "light"; onToggle: () => void }) {
-  return (
-    <div className={theme === "dark" ? "dark" : ""}>
-      <div className="flex min-h-full flex-col bg-background font-sans">
-        {/* Header */}
-        <header className="flex items-center justify-between px-6 py-4">
-          <a
-            href="#"
-            aria-label="learnimo"
-            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-input-focus)] rounded"
-          >
-            <LearnimoWordmark className="text-xl" />
-          </a>
-          <ThemeToggle theme={theme} onToggle={onToggle} />
-        </header>
-
-        {/* Main content */}
-        <main className="flex flex-1 items-center justify-center px-4 py-12">
-          <div className="w-full max-w-[400px]">
-            {/* Card */}
-            <div className="rounded-2xl border border-card-border bg-card px-8 py-10 shadow-sm">
-              {/* Title & subtitle */}
-              <div className="mb-8 space-y-2">
-                <h1 className="font-heading text-2xl font-semibold leading-tight text-balance text-card-foreground">
-                  Esqueceu sua senha?
-                </h1>
-                <p className="text-sm leading-relaxed text-muted-foreground text-pretty">
-                  Informe seu e-mail e enviaremos um link para redefinir sua senha.
-                </p>
-              </div>
-
-              <ForgotPasswordForm loginHref="#" />
-            </div>
-          </div>
-        </main>
-
-        {/* Footer */}
-        <footer className="py-4 text-center">
-          <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} learnimo
-          </p>
-        </footer>
+    <div className={currentTheme === "dark" ? "dark" : ""}>
+      <div className="min-h-full font-sans" style={{ colorScheme: currentTheme }}>
+        <TagFeedScreen
+          theme={currentTheme}
+          onToggle={() =>
+            setCurrentTheme((t) => (t === "dark" ? "light" : "dark"))
+          }
+          forcedState={forcedState}
+        />
       </div>
     </div>
   );
 }
 
 export default function Home() {
-  const [leftTheme, setLeftTheme] = useState<"dark" | "light">("dark");
-  const [rightTheme, setRightTheme] = useState<"dark" | "light">("light");
+  const [activeState, setActiveState] = useState<FeedState>("populated");
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0a0f1a] font-sans">
+    <div className="flex min-h-screen flex-col bg-[#080f1c] font-sans">
       {/* Preview label */}
-      <div className="flex items-center justify-center gap-3 py-4">
+      <div className="flex items-center justify-center gap-3 py-4 border-b border-white/5">
         <span className="font-wordmark text-sm font-bold text-white/80 tracking-tight">
           learn<span className="font-bold">imo</span>
         </span>
-        <span className="text-xs text-white/40">— design preview · Esqueceu sua senha</span>
+        <span className="text-xs text-white/40">— design preview · Tag-Grouped Feed</span>
       </div>
 
-      {/* Side-by-side previews */}
+      {/* State selector */}
+      <div className="flex flex-wrap justify-center gap-2 px-4 py-4 border-b border-white/5">
+        {STATE_LABELS.map(({ id, label, desc }) => (
+          <button
+            key={id}
+            onClick={() => setActiveState(id)}
+            className="group flex flex-col items-start rounded-xl border px-3 py-2 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4854A]"
+            style={{
+              borderColor:
+                activeState === id ? "#D4854A" : "rgba(255,255,255,0.08)",
+              backgroundColor:
+                activeState === id
+                  ? "rgba(212, 133, 74, 0.12)"
+                  : "rgba(255,255,255,0.04)",
+            }}
+          >
+            <span
+              className="text-xs font-semibold"
+              style={{ color: activeState === id ? "#D4854A" : "rgba(255,255,255,0.7)" }}
+            >
+              {label}
+            </span>
+            <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.3)" }}>
+              {desc}
+            </span>
+          </button>
+        ))}
+      </div>
+
+      {/* Side-by-side dark + light preview */}
       <div className="flex flex-1 flex-col gap-6 p-4 md:flex-row md:gap-4 md:p-6">
-        {/* Dark preview */}
+        {/* Dark */}
         <div className="flex flex-1 flex-col gap-2">
           <div className="flex items-center gap-2">
             <div className="h-2 w-2 rounded-full bg-[#2B4A78]" aria-hidden="true" />
@@ -99,14 +99,11 @@ export default function Home() {
             </span>
           </div>
           <div className="flex-1 overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
-            <ForgotPasswordScreen
-              theme={leftTheme}
-              onToggle={() => setLeftTheme((t) => (t === "dark" ? "light" : "dark"))}
-            />
+            <PreviewPanel theme="dark" forcedState={activeState} />
           </div>
         </div>
 
-        {/* Light preview */}
+        {/* Light */}
         <div className="flex flex-1 flex-col gap-2">
           <div className="flex items-center gap-2">
             <div className="h-2 w-2 rounded-full bg-[#D4854A]" aria-hidden="true" />
@@ -115,42 +112,9 @@ export default function Home() {
             </span>
           </div>
           <div className="flex-1 overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
-            <ForgotPasswordScreen
-              theme={rightTheme}
-              onToggle={() => setRightTheme((t) => (t === "dark" ? "light" : "dark"))}
-            />
+            <PreviewPanel theme="light" forcedState={activeState} />
           </div>
         </div>
-      </div>
-
-      {/* State showcase strip */}
-      <StateShowcase />
-    </div>
-  );
-}
-
-/* ——— Mostra os estados: default, erro, loading, confirmação ——— */
-function StateShowcase() {
-  return (
-    <div className="border-t border-white/10 px-4 py-6 md:px-8">
-      <p className="mb-4 text-center text-xs font-medium uppercase tracking-widest text-white/30">
-        Estados da tela
-      </p>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {[
-          { label: "Padrão", desc: "Campo vazio, botão ativo" },
-          { label: "Erro de validação", desc: "E-mail inválido, borda vermelha" },
-          { label: "Carregando", desc: "Spinner + input desabilitado" },
-          { label: "Confirmação", desc: "Painel de sucesso neutro" },
-        ].map(({ label, desc }) => (
-          <div
-            key={label}
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-3"
-          >
-            <p className="text-xs font-semibold text-white/70">{label}</p>
-            <p className="mt-0.5 text-xs text-white/30">{desc}</p>
-          </div>
-        ))}
       </div>
     </div>
   );
