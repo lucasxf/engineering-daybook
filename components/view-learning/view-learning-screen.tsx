@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LearnimoWordmark } from "@/components/learnimo-wordmark";
 import { LearningNavBar } from "@/components/view-learning/learning-nav-bar";
 import { LearningBreadcrumb } from "@/components/view-learning/learning-breadcrumb";
@@ -90,14 +90,16 @@ export function ViewLearningScreen({ theme, screenState, initialState }: ViewLea
   const currentState = mapState(initialState || screenState);
   const [deleteOpen, setDeleteOpen] = useState(currentState === "delete-open");
   const [showDeletedToast, setShowDeletedToast] = useState(initialState === "deleted");
-
-  // Detect system theme if not provided
   const [systemDark, setSystemDark] = useState(false);
-  useState(() => {
-    if (typeof window !== "undefined") {
+  const [mounted, setMounted] = useState(false);
+
+  // Detect system theme after hydration to avoid mismatch
+  useEffect(() => {
+    if (typeof window !== "undefined" && !theme) {
       setSystemDark(window.matchMedia("(prefers-color-scheme: dark)").matches);
     }
-  });
+    setMounted(true);
+  }, [theme]);
 
   const isDark = theme ? theme === "dark" : systemDark;
   const isDeleteOpen = deleteOpen || currentState === "delete-open";
