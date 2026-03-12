@@ -169,7 +169,7 @@ function PrivateProfile({
       />
       <p
         className="font-heading text-xl font-semibold"
-        style={{ color: "var(--color-card-foreground)" }}
+        style={{ color: theme === "dark" ? "#DCCCC0" : "var(--color-card-foreground)" }}
       >
         @{handle}
       </p>
