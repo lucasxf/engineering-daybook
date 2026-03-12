@@ -15,11 +15,17 @@ export type ScreenState =
   | "loading"
   | "not-found"
   | "forbidden"
-  | "delete-open";
+  | "delete-open"
+  | "error-404"
+  | "error-403"
+  | "deleting"
+  | "deleted";
 
 interface ViewLearningScreenProps {
-  theme: "dark" | "light";
+  theme?: "dark" | "light";
   screenState?: ScreenState;
+  /** For demo page: accepts simplified state names */
+  initialState?: string;
 }
 
 const MOCK_LEARNING = {
@@ -68,11 +74,33 @@ const MOCK_NO_TITLE = {
   content: `Descobri que usar \`useMemo\` indiscriminadamente pode na verdade piorar a performance em componentes simples, porque o React ainda precisa comparar as dependências a cada render. A otimização prematura é o inimigo da clareza — só use quando o profiling confirmar o gargalo.`,
 };
 
-export function ViewLearningScreen({ theme, screenState = "loaded" }: ViewLearningScreenProps) {
-  const [deleteOpen, setDeleteOpen] = useState(screenState === "delete-open");
+export function ViewLearningScreen({ theme, screenState, initialState }: ViewLearningScreenProps) {
+  // Map demo state names to internal state names
+  const mapState = (state?: string): ScreenState => {
+    if (!state) return "loaded";
+    switch (state) {
+      case "error-404": return "not-found";
+      case "error-403": return "forbidden";
+      case "deleting": return "delete-open";
+      case "deleted": return "loaded"; // Show loaded state with toast simulation
+      default: return state as ScreenState;
+    }
+  };
 
-  const isDark = theme === "dark";
-  const isDeleteOpen = deleteOpen || screenState === "delete-open";
+  const currentState = mapState(initialState || screenState);
+  const [deleteOpen, setDeleteOpen] = useState(currentState === "delete-open");
+  const [showDeletedToast, setShowDeletedToast] = useState(initialState === "deleted");
+
+  // Detect system theme if not provided
+  const [systemDark, setSystemDark] = useState(false);
+  useState(() => {
+    if (typeof window !== "undefined") {
+      setSystemDark(window.matchMedia("(prefers-color-scheme: dark)").matches);
+    }
+  });
+
+  const isDark = theme ? theme === "dark" : systemDark;
+  const isDeleteOpen = deleteOpen || currentState === "delete-open";
 
   const handleDeleteClick = () => setDeleteOpen(true);
   const handleDeleteCancel = () => setDeleteOpen(false);
@@ -95,11 +123,11 @@ export function ViewLearningScreen({ theme, screenState = "loaded" }: ViewLearni
         {/* Main */}
         <main id="main-content" className="flex flex-1 flex-col px-4 py-8">
           <div className="mx-auto w-full max-w-[720px]">
-            {screenState === "loading" ? (
+            {currentState === "loading" ? (
               <LearningLoading />
-            ) : screenState === "not-found" ? (
+            ) : currentState === "not-found" ? (
               <LearningError type="not-found" />
-            ) : screenState === "forbidden" ? (
+            ) : currentState === "forbidden" ? (
               <LearningError type="forbidden" />
             ) : (
               <>
@@ -108,10 +136,21 @@ export function ViewLearningScreen({ theme, screenState = "loaded" }: ViewLearni
 
                 {/* Content */}
                 <LearningContent
-                  learning={screenState === "no-title" ? MOCK_NO_TITLE : MOCK_LEARNING}
+                  learning={currentState === "no-title" ? MOCK_NO_TITLE : MOCK_LEARNING}
                   onDeleteClick={handleDeleteClick}
                 />
               </>
+            )}
+
+            {/* Deleted toast simulation */}
+            {showDeletedToast && (
+              <div
+                role="status"
+                aria-live="polite"
+                className="fixed bottom-20 left-1/2 -translate-x-1/2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-lg"
+              >
+                Aprendizado excluído com sucesso
+              </div>
             )}
           </div>
         </main>
