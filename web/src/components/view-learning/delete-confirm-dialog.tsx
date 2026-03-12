@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 
 interface DeleteConfirmDialogProps {
@@ -9,6 +10,7 @@ interface DeleteConfirmDialogProps {
 }
 
 export function DeleteConfirmDialog({ onCancel, onConfirm }: DeleteConfirmDialogProps) {
+  const t = useTranslations("poks");
   const dialogRef = useRef<HTMLDivElement>(null);
   const cancelBtnRef = useRef<HTMLButtonElement>(null);
   const warningId = "delete-warning-text";
@@ -74,7 +76,7 @@ export function DeleteConfirmDialog({ onCancel, onConfirm }: DeleteConfirmDialog
         {/* Close button */}
         <button
           onClick={onCancel}
-          aria-label="Fechar diálogo"
+          aria-label={t("auth.errors.dismiss")}
           className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-input-focus)]"
         >
           <X className="h-4 w-4" aria-hidden="true" />
@@ -85,13 +87,12 @@ export function DeleteConfirmDialog({ onCancel, onConfirm }: DeleteConfirmDialog
           id="delete-dialog-title"
           className="mb-3 font-heading text-lg font-semibold text-foreground"
         >
-          Excluir este aprendizado?
+          {t("delete.confirmTitle")}
         </h2>
 
         {/* Body */}
         <p id={warningId} className="mb-6 text-sm leading-relaxed text-muted-foreground">
-          Este aprendizado será ocultado da sua lista.{" "}
-          <span className="font-medium text-foreground">Isso não pode ser desfeito.</span>
+          {t("delete.confirmMessage")}
         </p>
 
         {/* Actions */}
@@ -101,14 +102,14 @@ export function DeleteConfirmDialog({ onCancel, onConfirm }: DeleteConfirmDialog
             onClick={onCancel}
             className="rounded-lg border border-card-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-[#2B4A78] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-input-focus)]"
           >
-            Cancelar
+            {t("delete.cancelButton")}
           </button>
           <button
             onClick={onConfirm}
             aria-describedby={warningId}
             className="rounded-lg bg-[#E53E3E] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#C53030] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53E3E] focus-visible:ring-offset-2 focus-visible:ring-offset-card"
           >
-            Excluir
+            {t("delete.confirmButton")}
           </button>
         </div>
       </div>
