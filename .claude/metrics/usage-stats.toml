@@ -2,7 +2,7 @@
 # Compiled by /compile-metrics, analyzed by automation-sentinel agent
 
 [metadata]
-timestamp = "2026-03-12T09:28:10Z"
+timestamp = "2026-03-12T13:56:15Z"
 commit_sha = ""
 branch = "develop"
 schema_version = "1.0.0"
@@ -10,8 +10,8 @@ updated_by = "compile-metrics"
 
 # Agent Usage Metrics
 [agent_usage.Explore]
-invocations = 74
-last_used = "2026-03-11T21:45:22Z"
+invocations = 77
+last_used = "2026-03-12T13:44:12Z"
 
 [agent_usage.Plan]
 invocations = 11
@@ -22,8 +22,8 @@ invocations = 63
 last_used = "2026-03-11T21:21:27Z"
 
 [agent_usage.automation-sentinel]
-invocations = 1
-last_used = "2026-03-11T22:05:28Z"
+invocations = 5
+last_used = "2026-03-12T11:59:30Z"
 
 [agent_usage.hedy]
 invocations = 0
@@ -54,8 +54,8 @@ invocations = 1
 last_used = "2026-03-11T21:47:37Z"
 
 [agent_usage.tech-writer]
-invocations = 6
-last_used = "2026-03-11T21:46:56Z"
+invocations = 7
+last_used = "2026-03-12T13:50:38Z"
 
 [agent_usage.virgil]
 invocations = 0
@@ -67,8 +67,8 @@ last_used = "2026-03-11T21:47:38Z"
 
 # Command Usage Metrics
 [command_usage.compile-metrics]
-invocations = 9
-last_used = "2026-03-12T09:27:02Z"
+invocations = 10
+last_used = "2026-03-12T13:55:09Z"
 
 [command_usage.create-pr]
 invocations = 27
@@ -79,16 +79,16 @@ invocations = 1
 last_used = "2026-03-06T18:44:46Z"
 
 [command_usage.finish-session]
-invocations = 43
-last_used = "2026-03-11T22:03:47Z"
+invocations = 45
+last_used = "2026-03-12T13:21:47Z"
 
 [command_usage.fix-pr]
 invocations = 8
 last_used = "2026-03-12T08:18:49Z"
 
 [command_usage.generate-v0-prompt]
-invocations = 6
-last_used = "2026-03-12T08:19:39Z"
+invocations = 8
+last_used = "2026-03-12T11:58:16Z"
 
 [command_usage.implement-spec]
 invocations = 6
@@ -103,8 +103,8 @@ invocations = 5
 last_used = "2026-03-11T21:33:52Z"
 
 [command_usage.start-session]
-invocations = 22
-last_used = "2026-03-12T08:18:09Z"
+invocations = 26
+last_used = "2026-03-12T12:24:28Z"
 
 [command_usage.write-spec]
 invocations = 6
@@ -116,10 +116,10 @@ last_used = ""
 
 # Productivity Metrics
 [productivity]
-current_total_locs = 54710
-current_production_locs = 25452
-current_test_locs = 29258
-test_ratio_percent = 115.0
+current_total_locs = 55061
+current_production_locs = 25744
+current_test_locs = 29317
+test_ratio_percent = 113.9
 total_locs_added = 0
 total_locs_deleted = 0
 net_locs = 0
@@ -133,6 +133,15 @@ rejected = 0
 deferred = 0
 questions = 0
 informational = 2
+
+# Spec Pipeline Health
+[spec_pipeline]
+total_specs = 26
+draft = 2
+planned = 3
+approved = 0
+in_progress = 2
+implemented = 19
 
 # Health Metrics
 [health]

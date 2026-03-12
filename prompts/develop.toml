@@ -1,0 +1,12 @@
+[metadata]
+session_branch = "develop"
+session_start = "2026-03-08T19:57:13Z"
+last_updated = "2026-03-08T20:01:04Z"
+
+[command_usage.review-pr]
+invocations = 1
+last_used = "2026-03-08T19:57:13Z"
+
+[command_usage.fix-pr]
+invocations = 1
+last_used = "2026-03-08T20:01:04Z"

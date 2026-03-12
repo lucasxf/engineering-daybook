@@ -39,6 +39,7 @@ Do NOT use parenthetical annotations like "(built-in)" in the agent name column.
 - Effectiveness Measurement: Calculate usage rates, identify high/low-value automations
 - Trend Analysis: Historical trends, correlation analysis
 - Productivity Analysis: LOCs metrics, test ratios, velocity
+- Spec Pipeline Health: Report spec counts by status (draft/planned/approved/in_progress/implemented) from `[spec_pipeline]`. Flag if `approved = 0` while `implemented > 0` — this indicates the `/review-spec` quality gate is being bypassed.
 
 ---
 
@@ -86,6 +87,34 @@ Do NOT use parenthetical annotations like "(built-in)" in the agent name column.
 - Chaining Opportunities: Suggest agent chaining patterns
 - Token Optimization: Flag verbose agents, suggest Haiku
 - Configuration Tuning: Recommend improvements
+
+---
+
+### 6. Recommendation Record Management
+
+**Purpose:** Maintain a persistent, deduplicated record of all recommendations across runs.
+
+**Data Source:** `.claude/metrics/recommendations.md`
+
+**Workflow (run at analysis start, before generating recommendations):**
+
+1. Read `.claude/metrics/recommendations.md`
+2. For each recommendation you would generate, check existing rows semantically (match on topic, not exact title):
+   - Status `open` or `approved` → **skip** — note "already tracked as REC-NNN" in the report
+   - Status `implemented` or `rejected` → **skip silently**
+   - Status `deferred` → re-evaluate with current data; if still valid, note "re-affirming deferred REC-NNN" in the report but do **NOT** add a new row
+   - No match → **append** a new row with the next sequential ID, today's date, status `open`
+3. **Never modify existing rows** — status changes are manual (user edits the file)
+4. Include a dedup summary line in the report: `Recommendations: N new, M skipped (already tracked)`
+
+**Auto-append row format:**
+```
+| REC-NNN | YYYY-MM-DD | category | Title (no pipe characters) | open | YYYY-MM-DD |
+```
+
+**Category values:** `metrics` | `workflow` | `archival` | `gap` | `optimization`
+
+**Important:** The recommendations.md file will be staged and committed as part of the `/compile-metrics` commit. Do not leave it in a modified-but-unstaged state.
 
 ---
 
@@ -170,4 +199,4 @@ The `track-usage.py` hook fires on `Task` tool calls and captures `subagent_type
 **Type:** Meta-Agent (manages automation layer)
 **Model:** Sonnet (complex system analysis)
 **Triggers:** Manual only (on-demand)
-**Dependencies:** All agents, all commands, `.claude/metrics/usage-stats.toml`
+**Dependencies:** All agents, all commands, `.claude/metrics/usage-stats.toml`, `.claude/metrics/recommendations.md`

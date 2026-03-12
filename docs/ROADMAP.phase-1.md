@@ -277,6 +277,29 @@ Tooling session: applied three recommendations from the automation-sentinel audi
 | **Rec 4** — `/review-spec` auto-sets Status=Approved when verdict is READY; `/implement-spec` trusts Approved specs and adds a 12-point structural completeness gate when bypassing Draft status | ✅ Done |
 | **Rec 3** — `/review-pr` Step 6.5 extracts keepr verdict counts into session delta; `/compile-metrics` Step 4C aggregates `[pr_review_quality]` deltas; `usage-stats.toml` `[pr_review_quality]` scaffold added | ✅ Done |
 
+### Automation Sentinel Recommendation Record (chore/sentinel-rec-tracking, 2026-03-12) ✅
+
+Tooling session: added a persistent recommendation record table to prevent sentinel from re-recommending the same items and reduce token waste in future runs.
+
+| Task | Status |
+|------|--------|
+| Created `.claude/metrics/recommendations.md` — markdown table with `#`, `Date`, `Category`, `Title`, `Status`, `Status Date` columns; pre-seeded with 10 historical recs from two past sentinel reports (7 implemented, 3 deferred) | ✅ Done |
+| Updated `automation-sentinel.md` — added Section 6 "Recommendation Record Management": reads table at analysis start, deduplicates semantically, auto-appends new `open` rows, never modifies existing rows | ✅ Done |
+| Updated `compile-metrics.md` — moved sentinel to Step 4E (before commit) so appended recs are included in the same commit; added `recommendations.md` to git staging step | ✅ Done |
+| Updated `.claude/metrics/README.md` — removed stale `pulse` references; documented all current files and updated "How It Works" section | ✅ Done |
+
+### Git Cleanup + Pre-existing Test Fixes (chore/git-cleanup-and-test-fixes, 2026-03-12) ✅
+
+Maintenance session: repository housekeeping and pre-existing CI failures resolved. No new features.
+
+| Task | Status |
+|------|--------|
+| Updated `.gitignore` to cover `.run/`, `.claude/reviews/`, `.claude/worktrees/`, `/target/`, `/backend-test-results/`, `/failed_logs.txt`, `/metrics/`, `/qodana.yaml` | ✅ Done |
+| Committed tracked untracked files: v0 prompts, spec reviews, prompts archive, `agents-readme.md`, `next-env.d.ts` | ✅ Done |
+| Reverted stale `UserController.java` + `UserControllerTest.java` commit — pre-rename artifacts superseded by `UserSettingsController` | ✅ Done |
+| Fixed pre-existing pgvector failures in `AuthIntegrationTest` and `FollowIntegrationTest` — added `enablePgVector()` helper to `@DynamicPropertySource` in both test classes; all tests now pass | ✅ Done |
+| Improved `/finish-session` command — added explicit session TOML staging verification step | ✅ Done |
+
 ---
 
 ## Active / Pending
