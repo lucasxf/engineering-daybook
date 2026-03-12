@@ -255,6 +255,18 @@ Tooling session: evaluated the Anthropic open-source skills library (17 skills) 
 | Installed `doc-coauthoring` skill (`.claude/skills/doc-coauthoring/`) — 3-stage collaborative document creation workflow | ✅ Done |
 | Enhanced `/review-spec` with new Phase 5 (Reader Testing) adapted from `doc-coauthoring` Stage 3 — spawns sub-agent with spec content only to catch blind spots | ✅ Done |
 
+### PR #186 Review Fixes (fix-pr/186, 2026-03-12) ✅
+
+Web-only fix-pr session for PR #186 (feat: redesign password reset page). No new features. Four correctness/accessibility fixes addressing test failures and an HTML nesting violation.
+
+| Area | Fix |
+|------|-----|
+| `web/src/test/page-test-utils.ts` | Added missing i18n keys to `authMessages` fixture (`validatingResetLink`, `resetPasswordExpired`); updated `resetPasswordTitle` to match component copy (`'Set a new password'`) |
+| `web/src/components/auth/ResetPasswordForm.tsx` | Removed unused `useRef` import; updated stale inline comment |
+| `web/src/components/ui/FormField.tsx` | Changed hint wrapper from `<p>` to `<div>` — `<p>` cannot contain block-level content (HTML nesting violation) |
+| `web/src/app/[locale]/reset-password/page.tsx` | Added `role="alert"` to invalid-token container (accessibility fix — screen readers now announce the error state) |
+| `web/src/__tests__/pages/ResetPasswordPage.test.tsx` | Dropped vacuous `getAllByRole('img')` assertion that never failed regardless of rendered output |
+
 ### Automation Sentinel Recommendations 2, 3, 4 (chore/automation-sentinel-recs, 2026-03-11) ✅
 
 Tooling session: applied three recommendations from the automation-sentinel audit report.
@@ -264,6 +276,41 @@ Tooling session: applied three recommendations from the automation-sentinel audi
 | **Rec 2** — Extended agent tracking heuristic in `track-usage.py`: added `resolve_agent_key()` helper that searches `description` + `prompt` fields across all subagent types (not just `general-purpose`); unified duplicate Task/Agent branches into one | ✅ Done |
 | **Rec 4** — `/review-spec` auto-sets Status=Approved when verdict is READY; `/implement-spec` trusts Approved specs and adds a 12-point structural completeness gate when bypassing Draft status | ✅ Done |
 | **Rec 3** — `/review-pr` Step 6.5 extracts keepr verdict counts into session delta; `/compile-metrics` Step 4C aggregates `[pr_review_quality]` deltas; `usage-stats.toml` `[pr_review_quality]` scaffold added | ✅ Done |
+
+### Automation Sentinel Recommendation Record (chore/sentinel-rec-tracking, 2026-03-12) ✅
+
+Tooling session: added a persistent recommendation record table to prevent sentinel from re-recommending the same items and reduce token waste in future runs.
+
+| Task | Status |
+|------|--------|
+| Created `.claude/metrics/recommendations.md` — markdown table with `#`, `Date`, `Category`, `Title`, `Status`, `Status Date` columns; pre-seeded with 10 historical recs from two past sentinel reports (7 implemented, 3 deferred) | ✅ Done |
+| Updated `automation-sentinel.md` — added Section 6 "Recommendation Record Management": reads table at analysis start, deduplicates semantically, auto-appends new `open` rows, never modifies existing rows | ✅ Done |
+| Updated `compile-metrics.md` — moved sentinel to Step 4E (before commit) so appended recs are included in the same commit; added `recommendations.md` to git staging step | ✅ Done |
+| Updated `.claude/metrics/README.md` — removed stale `pulse` references; documented all current files and updated "How It Works" section | ✅ Done |
+
+### CI Fix + /review-pr Interactive Metadata (fix + feat, develop, 2026-03-12) ✅
+
+Two-commit tooling session: one CI fix and one automation enhancement.
+
+| Area | Change |
+|------|--------|
+| `web/CreateLearningForm.test.tsx` | Fixed next-intl mock to support `{current}` interpolation — resolved CI failure |
+| `web/CreateLearningForm.tsx` | Added `disabled={isSubmitting}` to Title Input (PR #189 review feedback) |
+| `web/README.md` (usage example) | Removed incorrect `locale` prop from `CreateLearningForm` usage example |
+| `.claude/commands/finish-session.md` | Added `|| true` to `git add .claude/metrics/sessions/` to silence non-fatal exit code when directory is absent |
+| `.claude/commands/review-pr.md` | Steps 1B and 1C now prompt before overwriting PR title/description — only fires when metadata is inadequate; triage report gains `## PR Metadata` section |
+
+### Git Cleanup + Pre-existing Test Fixes (chore/git-cleanup-and-test-fixes, 2026-03-12) ✅
+
+Maintenance session: repository housekeeping and pre-existing CI failures resolved. No new features.
+
+| Task | Status |
+|------|--------|
+| Updated `.gitignore` to cover `.run/`, `.claude/reviews/`, `.claude/worktrees/`, `/target/`, `/backend-test-results/`, `/failed_logs.txt`, `/metrics/`, `/qodana.yaml` | ✅ Done |
+| Committed tracked untracked files: v0 prompts, spec reviews, prompts archive, `agents-readme.md`, `next-env.d.ts` | ✅ Done |
+| Reverted stale `UserController.java` + `UserControllerTest.java` commit — pre-rename artifacts superseded by `UserSettingsController` | ✅ Done |
+| Fixed pre-existing pgvector failures in `AuthIntegrationTest` and `FollowIntegrationTest` — added `enablePgVector()` helper to `@DynamicPropertySource` in both test classes; all tests now pass | ✅ Done |
+| Improved `/finish-session` command — added explicit session TOML staging verification step | ✅ Done |
 
 ---
 

@@ -1,40 +1,37 @@
 [metadata]
 session_branch = "develop"
-session_start = "2026-03-11T21:33:13Z"
-last_updated = "2026-03-11T22:05:28Z"
-
-[agent_usage.Explore]
-invocations = 4
-last_used = "2026-03-11T21:45:22Z"
-
-[command_usage.save-response]
-invocations = 1
-last_used = "2026-03-11T21:33:52Z"
+session_start = "2026-03-12T14:29:28Z"
+last_updated = "2026-03-12T15:36:27Z"
 
 [command_usage.start-session]
 invocations = 1
-last_used = "2026-03-11T21:43:50Z"
+last_used = "2026-03-12T14:29:28Z"
+
+[command_usage.review-pr]
+invocations = 1
+last_used = "2026-03-12T14:30:47Z"
+
+[pr_review_quality]
+total_prs_triaged = 1
+total_comments_triaged = 11
+accepted = 5
+rejected = 1
+deferred = 1
+questions = 1
+informational = 3
+
+[command_usage.finish-session]
+invocations = 2
+last_used = "2026-03-12T15:34:41Z"
+
+[command_usage.fix-pr]
+invocations = 1
+last_used = "2026-03-12T15:15:50Z"
+
+[agent_usage.Explore]
+invocations = 1
+last_used = "2026-03-12T15:29:34Z"
 
 [agent_usage.tech-writer]
 invocations = 1
-last_used = "2026-03-11T21:46:56Z"
-
-[agent_usage.steward]
-invocations = 1
-last_used = "2026-03-11T21:47:37Z"
-
-[agent_usage.keepr]
-invocations = 1
-last_used = "2026-03-11T21:47:38Z"
-
-[command_usage.write-spec]
-invocations = 1
-last_used = "2026-03-11T21:51:10Z"
-
-[command_usage.finish-session]
-invocations = 1
-last_used = "2026-03-11T22:03:47Z"
-
-[agent_usage.automation-sentinel]
-invocations = 1
-last_used = "2026-03-11T22:05:28Z"
+last_used = "2026-03-12T15:36:27Z"
