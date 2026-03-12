@@ -633,7 +633,15 @@ export default function TagFeedDemoPage() {
   const stateData = getDataForState();
   const filteredData = filterBySearch(stateData, demoState === 'no-results' ? 'xyznonexistent' : searchQuery);
   const sortedData = sortLearnings(filteredData, sortOption);
-  const { tagGroups, untagged } = groupByTags(sortedData);
+  
+  // For single-tag state, filter tagGroups to only show the selected tag
+  let { tagGroups, untagged } = groupByTags(sortedData);
+  if (demoState === 'single-tag') {
+    const singleTagGroups: Record<string, DemoLearning[]> = {};
+    singleTagGroups['React'] = tagGroups['React'] || [];
+    tagGroups = singleTagGroups;
+    untagged = [];
+  }
 
   const stateLabels: Record<DemoState, string> = {
     populated: locale === 'en' ? 'Populated' : 'Populado',
