@@ -21,6 +21,7 @@ interface PokFormProps {
   initialData?: Partial<PokFormData & { visibility: PokVisibility }>;
   mode?: 'create' | 'edit';
   afterContent?: ReactNode;
+  cancelButton?: ReactNode;
 }
 
 /**
@@ -42,6 +43,7 @@ export function PokForm({
   initialData,
   mode = 'create',
   afterContent,
+  cancelButton,
 }: PokFormProps) {
   const t = useTranslations('poks');
   const [visibility, setVisibility] = useState<PokVisibility>(
@@ -101,24 +103,24 @@ export function PokForm({
         />
       </FormField>
 
-      <FormField label={t('visibility.pickerLabel')}>
+      {afterContent}
+
+      <div className="flex items-center justify-between">
         <VisibilityPicker
           value={visibility}
           onChange={setVisibility}
           locked={initialData?.visibility === 'PUBLIC'}
         />
-      </FormField>
-
-      {afterContent}
-
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting
-            ? t('form.submitting')
-            : mode === 'edit'
-              ? t('form.updateButton')
-              : t('form.createButton')}
-        </Button>
+        <div className="flex items-center gap-2">
+          {cancelButton}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting
+              ? t('form.submitting')
+              : mode === 'edit'
+                ? t('form.updateButton')
+                : t('form.createButton')}
+          </Button>
+        </div>
       </div>
     </form>
   );

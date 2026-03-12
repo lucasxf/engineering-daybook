@@ -55,14 +55,9 @@ export default function DemoEditLearningPage() {
         Modo demo — sem autenticação. Dados fictícios pré-preenchidos. O envio simula uma chamada de API (80% sucesso, 20% erro).
       </div>
 
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-          {t('edit.title')}
-        </h1>
-        <Link href={`/${params.locale}/demo/edit-learning` as never}>
-          <Button variant="secondary">{t('edit.cancelButton')}</Button>
-        </Link>
-      </div>
+      <h1 className="mb-6 text-3xl font-bold text-slate-900 dark:text-slate-100">
+        {t('edit.title')}
+      </h1>
 
       {state === 'error' && (
         <Alert variant="error" className="mb-4">
@@ -74,6 +69,11 @@ export default function DemoEditLearningPage() {
         onSubmit={handleSubmit}
         mode="edit"
         initialData={DEMO_POK}
+        cancelButton={
+          <Link href={`/${params.locale}/demo/edit-learning` as never}>
+            <Button variant="secondary">{t('edit.cancelButton')}</Button>
+          </Link>
+        }
       />
 
       {showToast && (
