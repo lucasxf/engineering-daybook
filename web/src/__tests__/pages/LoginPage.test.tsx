@@ -95,7 +95,7 @@ describe('LoginPage', () => {
       mockSearchParams = new URLSearchParams({ reset: 'success' });
       renderLoginPage();
       expect(screen.getByRole('status')).toBeInTheDocument();
-      expect(screen.getByText(/password reset successfully/i)).toBeInTheDocument();
+      expect(screen.getByText(/password updated/i)).toBeInTheDocument();
     });
 
     it('does not show success banner without ?reset=success', () => {

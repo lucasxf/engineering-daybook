@@ -281,7 +281,7 @@ PYEOF
 
 Count spec files in `docs/specs/features/` by their current Status and write snapshot values into the `[spec_pipeline]` block of `usage-stats.toml`.
 
-Status normalization: `Complete` → `implemented`; `In Progress` → `in_progress`; all others lowercased as-is.
+Status normalization: `Complete` → `implemented`; `In Progress` → `in_progress`; all others lowercased with spaces replaced by underscores.
 
 ```bash
 python3 - <<'PYEOF'
