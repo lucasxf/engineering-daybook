@@ -28,7 +28,6 @@ export function LearningError({ type }: LearningErrorProps) {
   const { Icon, statusLabel, titleKey, bodyKey } = config[type];
   const title = t(titleKey);
   const body = t(bodyKey);
-  const cta = t("common.appName"); // fallback, ideally we'd have a specific key
 
   return (
     <div
