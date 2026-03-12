@@ -262,11 +262,22 @@ Show consolidated git diff for all modified files so I can review before committ
 
 ## 6. Commit
 
-Before creating the commit, stage the session delta file (written live by the PostToolUse hook throughout the session).
-The canonical `usage-stats.toml` is NOT modified by individual sessions — it is updated only by `/compile-metrics` on `develop`:
+**Stage the session delta file first (REQUIRED — do not skip).**
+
+The session delta TOML (e.g. `.claude/metrics/sessions/develop.toml`) is written live by the PostToolUse hook throughout the session. It must always be included in the final commit.
+
 ```bash
-git add .claude/metrics/sessions/ 2>/dev/null || true
+git add .claude/metrics/sessions/
 ```
+
+Then verify it is actually staged:
+```bash
+git diff --cached --name-only | grep "metrics/sessions/"
+```
+
+**If the grep returns nothing:** the file was either not modified this session (OK — proceed) or the `git add` silently failed (investigate before continuing).
+
+The canonical `usage-stats.toml` is NOT modified by individual sessions — it is updated only by `/compile-metrics` on `develop`. Do not touch it here.
 
 After I approve the diff, create a commit with:
 - Proper semantic commit message (feat/fix/docs/refactor/test/chore)
