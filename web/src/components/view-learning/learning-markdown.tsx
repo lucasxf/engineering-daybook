@@ -32,7 +32,7 @@ export function LearningMarkdown({ content }: LearningMarkdownProps) {
       elements.push(
         <pre
           key={`code-${elementIndex}`}
-          className="my-4 overflow-x-auto rounded-lg border border-card-border bg-[#0F1B2D] p-4 text-sm leading-relaxed dark:bg-[#0F1B2D] light:bg-[#F0EDE8]"
+          className="my-4 overflow-x-auto rounded-lg border border-card-border bg-muted p-4 text-sm leading-relaxed"
         >
           {lang && (
             <div className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground opacity-60">
