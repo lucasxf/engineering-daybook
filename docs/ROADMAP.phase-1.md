@@ -255,6 +255,18 @@ Tooling session: evaluated the Anthropic open-source skills library (17 skills) 
 | Installed `doc-coauthoring` skill (`.claude/skills/doc-coauthoring/`) — 3-stage collaborative document creation workflow | ✅ Done |
 | Enhanced `/review-spec` with new Phase 5 (Reader Testing) adapted from `doc-coauthoring` Stage 3 — spawns sub-agent with spec content only to catch blind spots | ✅ Done |
 
+### PR #186 Review Fixes (fix-pr/186, 2026-03-12) ✅
+
+Web-only fix-pr session for PR #186 (feat: redesign password reset page). No new features. Four correctness/accessibility fixes addressing test failures and an HTML nesting violation.
+
+| Area | Fix |
+|------|-----|
+| `web/src/test/page-test-utils.ts` | Added missing i18n keys to `authMessages` fixture (`validatingResetLink`, `resetPasswordExpired`); updated `resetPasswordTitle` to match component copy (`'Set a new password'`) |
+| `web/src/components/auth/ResetPasswordForm.tsx` | Removed unused `useRef` import; updated stale inline comment |
+| `web/src/components/ui/FormField.tsx` | Changed hint wrapper from `<p>` to `<div>` — `<p>` cannot contain block-level content (HTML nesting violation) |
+| `web/src/app/[locale]/reset-password/page.tsx` | Added `role="alert"` to invalid-token container (accessibility fix — screen readers now announce the error state) |
+| `web/src/__tests__/pages/ResetPasswordPage.test.tsx` | Dropped vacuous `getAllByRole('img')` assertion that never failed regardless of rendered output |
+
 ### Automation Sentinel Recommendations 2, 3, 4 (chore/automation-sentinel-recs, 2026-03-11) ✅
 
 Tooling session: applied three recommendations from the automation-sentinel audit report.
