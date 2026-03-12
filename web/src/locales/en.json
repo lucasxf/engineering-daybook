@@ -438,26 +438,6 @@
     "learnings": "Learnings",
     "follow": "Follow",
     "following": "Following",
-    "editProfile": "Edit profile",
-    "demo": {
-      "title": "Learner Profile — Design Preview",
-      "stateVariants": "State variants",
-      "publicPopulated": "Public — populated",
-      "publicPopulatedDesc": "Avatar, bio, learnings",
-      "noAvatar": "No avatar",
-      "noAvatarDesc": "Circle with initial",
-      "noBio": "No bio",
-      "noBioDesc": "Bio line absent",
-      "emptyLearnings": "No learnings",
-      "emptyLearningsDesc": "Empty state in feed",
-      "loading": "Loading",
-      "loadingDesc": "Animated skeletons",
-      "private": "Private",
-      "privateDesc": "Lock + message",
-      "ownProfile": "Own profile",
-      "ownProfileDesc": "Edit profile link",
-      "notFoundVariant": "Not found",
-      "notFoundVariantDesc": "404 message"
-    }
+    "editProfile": "Edit profile"
   }
 }

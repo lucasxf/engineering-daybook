@@ -438,26 +438,6 @@
     "learnings": "Aprendizados",
     "follow": "Seguir",
     "following": "Seguindo",
-    "editProfile": "Editar perfil",
-    "demo": {
-      "title": "Perfil do Learner — Design Preview",
-      "stateVariants": "Variantes de estado",
-      "publicPopulated": "Público — populado",
-      "publicPopulatedDesc": "Avatar, bio, aprendizados",
-      "noAvatar": "Sem avatar",
-      "noAvatarDesc": "Círculo com inicial",
-      "noBio": "Sem bio",
-      "noBioDesc": "Linha de bio ausente",
-      "emptyLearnings": "Sem aprendizados",
-      "emptyLearningsDesc": "Estado vazio no feed",
-      "loading": "Carregando",
-      "loadingDesc": "Skeletons animados",
-      "private": "Privado",
-      "privateDesc": "Cadeado + mensagem",
-      "ownProfile": "Próprio perfil",
-      "ownProfileDesc": "Link de editar perfil",
-      "notFoundVariant": "Não encontrado",
-      "notFoundVariantDesc": "Mensagem 404"
-    }
+    "editProfile": "Editar perfil"
   }
 }
