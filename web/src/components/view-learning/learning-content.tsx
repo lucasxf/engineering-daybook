@@ -16,6 +16,7 @@ interface Learning {
 interface LearningContentProps {
   learning: Learning;
   onDeleteClick: () => void;
+  onEditClick?: () => void;
 }
 
 function formatDate(isoString: string, locale: string): string {
@@ -33,7 +34,7 @@ function formatDate(isoString: string, locale: string): string {
   });
 }
 
-export function LearningContent({ learning, onDeleteClick }: LearningContentProps) {
+export function LearningContent({ learning, onDeleteClick, onEditClick }: LearningContentProps) {
   const t = useTranslations("poks");
   const locale = useLocale();
   const hasTitle = learning.title.trim().length > 0;
@@ -55,14 +56,14 @@ export function LearningContent({ learning, onDeleteClick }: LearningContentProp
 
         {/* Action buttons */}
         <div className="flex shrink-0 items-center gap-2">
-          <a
-            href="#"
+          <button
+            onClick={onEditClick}
             aria-label={t("view.editButton")}
             className="edit-btn inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-input-focus)]"
           >
             <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
             {t("view.editButton")}
-          </a>
+          </button>
           <button
             onClick={onDeleteClick}
             aria-label={t("delete.button")}
