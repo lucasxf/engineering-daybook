@@ -288,6 +288,18 @@ Tooling session: added a persistent recommendation record table to prevent senti
 | Updated `compile-metrics.md` — moved sentinel to Step 4E (before commit) so appended recs are included in the same commit; added `recommendations.md` to git staging step | ✅ Done |
 | Updated `.claude/metrics/README.md` — removed stale `pulse` references; documented all current files and updated "How It Works" section | ✅ Done |
 
+### Git Cleanup + Pre-existing Test Fixes (chore/git-cleanup-and-test-fixes, 2026-03-12) ✅
+
+Maintenance session: repository housekeeping and pre-existing CI failures resolved. No new features.
+
+| Task | Status |
+|------|--------|
+| Updated `.gitignore` to cover `.run/`, `.claude/reviews/`, `.claude/worktrees/`, `/target/`, `/backend-test-results/`, `/failed_logs.txt`, `/metrics/`, `/qodana.yaml` | ✅ Done |
+| Committed tracked untracked files: v0 prompts, spec reviews, prompts archive, `agents-readme.md`, `next-env.d.ts` | ✅ Done |
+| Reverted stale `UserController.java` + `UserControllerTest.java` commit — pre-rename artifacts superseded by `UserSettingsController` | ✅ Done |
+| Fixed pre-existing pgvector failures in `AuthIntegrationTest` and `FollowIntegrationTest` — added `enablePgVector()` helper to `@DynamicPropertySource` in both test classes; all tests now pass | ✅ Done |
+| Improved `/finish-session` command — added explicit session TOML staging verification step | ✅ Done |
+
 ---
 
 ## Active / Pending
