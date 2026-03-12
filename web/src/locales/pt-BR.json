@@ -427,5 +427,37 @@
     "errors": {
       "searchFailed": "Busca falhou. Tente novamente."
     }
+  },
+  "learnerProfile": {
+    "login": "Entrar",
+    "goToProfile": "Ir para perfil de @{handle}",
+    "privateProfile": "Este perfil é privado",
+    "notFound": "Perfil não encontrado",
+    "notFoundHint": "O perfil que você está procurando não existe ou foi removido.",
+    "noPublicLearnings": "Nenhum aprendizado público ainda",
+    "learnings": "Aprendizados",
+    "follow": "Seguir",
+    "following": "Seguindo",
+    "editProfile": "Editar perfil",
+    "demo": {
+      "title": "Perfil do Learner — Design Preview",
+      "stateVariants": "Variantes de estado",
+      "publicPopulated": "Público — populado",
+      "publicPopulatedDesc": "Avatar, bio, aprendizados",
+      "noAvatar": "Sem avatar",
+      "noAvatarDesc": "Círculo com inicial",
+      "noBio": "Sem bio",
+      "noBioDesc": "Linha de bio ausente",
+      "emptyLearnings": "Sem aprendizados",
+      "emptyLearningsDesc": "Estado vazio no feed",
+      "loading": "Carregando",
+      "loadingDesc": "Skeletons animados",
+      "private": "Privado",
+      "privateDesc": "Cadeado + mensagem",
+      "ownProfile": "Próprio perfil",
+      "ownProfileDesc": "Link de editar perfil",
+      "notFoundVariant": "Não encontrado",
+      "notFoundVariantDesc": "Mensagem 404"
+    }
   }
 }

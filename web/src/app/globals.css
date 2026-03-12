@@ -36,6 +36,17 @@
 
     --btn-disabled: 224 216 208; /* #E0D8D0 */
     --btn-disabled-text: 153 153 153; /* #999999 */
+
+    /* Learner Profile tokens — light */
+    --color-handle: #666666;
+    --color-bio: #444444;
+    --color-tag-bg: #E0E8F2;
+    --color-tag-text: #1A365D;
+    --color-timestamp: #999999;
+    --color-mid-blue: #2B4A78;
+    --color-link: #D4854A;
+    --color-input-focus: #D4854A;
+    --color-card-border: #E8E4DF;
   }
 
   .dark {
@@ -70,6 +81,17 @@
 
     --btn-disabled: 58 74 90; /* #3A4A5A */
     --btn-disabled-text: 106 122 138; /* #6A7A8A */
+
+    /* Learner Profile tokens — dark */
+    --color-handle: #8899AA;
+    --color-bio: #AABBCC;
+    --color-tag-bg: #2B4A78;
+    --color-tag-text: #8B9EC2;
+    --color-timestamp: #66778A;
+    --color-mid-blue: #2B4A78;
+    --color-link: #D4854A;
+    --color-input-focus: #D4854A;
+    --color-card-border: #2B4A78;
   }
 
   * {

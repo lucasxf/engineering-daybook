@@ -1,8 +1,9 @@
 "use client";
 
 import { Lock, BookOpen } from "lucide-react";
-import { LearnimoWordmark } from "@/components/learnimo-wordmark";
-import { ProfileHero, ProfileHeroSkeleton, type ProfileVariant } from "./profile-hero";
+import { LearnimoWordmark } from "@/components/ui/LearnimoWordmark";
+import { ProfileHero, ProfileHeroSkeleton } from "./profile-hero";
+export type { ProfileVariant } from "./profile-hero";
 import { LearningCard, LearningCardSkeleton } from "./learning-card";
 
 // ─── i18n types ──────────────────────────────────────────────────────────────
