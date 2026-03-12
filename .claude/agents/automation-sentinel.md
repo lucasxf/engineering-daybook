@@ -39,6 +39,7 @@ Do NOT use parenthetical annotations like "(built-in)" in the agent name column.
 - Effectiveness Measurement: Calculate usage rates, identify high/low-value automations
 - Trend Analysis: Historical trends, correlation analysis
 - Productivity Analysis: LOCs metrics, test ratios, velocity
+- Spec Pipeline Health: Report spec counts by status (draft/planned/approved/in_progress/implemented) from `[spec_pipeline]`. Flag if `approved = 0` while `implemented > 0` — this indicates the `/review-spec` quality gate is being bypassed.
 
 ---
 

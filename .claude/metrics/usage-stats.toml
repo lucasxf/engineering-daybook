@@ -134,6 +134,15 @@ deferred = 0
 questions = 0
 informational = 2
 
+# Spec Pipeline Health
+[spec_pipeline]
+total_specs = 0
+draft = 0
+planned = 0
+approved = 0
+in_progress = 0
+implemented = 0
+
 # Health Metrics
 [health]
 schema_errors = 0

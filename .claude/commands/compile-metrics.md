@@ -277,6 +277,46 @@ else:
 PYEOF
 ```
 
+## 4D. Compute Spec Pipeline Health
+
+Count spec files in `docs/specs/features/` by their current Status and write snapshot values into the `[spec_pipeline]` block of `usage-stats.toml`.
+
+Status normalization: `Complete` → `implemented`; `In Progress` → `in_progress`; all others lowercased as-is.
+
+```bash
+python3 - <<'PYEOF'
+import re
+from pathlib import Path
+
+counts = {'draft': 0, 'planned': 0, 'approved': 0, 'in_progress': 0, 'implemented': 0}
+spec_files = list(Path('docs/specs/features').glob('*.md'))
+
+for f in spec_files:
+    lines = f.read_text(encoding='utf-8', errors='ignore').splitlines()
+    for line in lines[:5]:
+        m = re.search(r'\*\*Status:\*\*\s*(.+)', line)
+        if m:
+            raw = m.group(1).strip()
+            normalized = raw.lower().replace(' ', '_')
+            if normalized == 'complete':
+                normalized = 'implemented'
+            if normalized in counts:
+                counts[normalized] += 1
+            break
+
+total = len(spec_files)
+stats = Path('.claude/metrics/usage-stats.toml').read_text(encoding='utf-8')
+stats = re.sub(r'(total_specs = )\d+', f'\\g<1>{total}', stats)
+for key, val in counts.items():
+    stats = re.sub(rf'(\[spec_pipeline\][^\[]*\b{re.escape(key)} = )\d+', f'\\g<1>{val}', stats)
+Path('.claude/metrics/usage-stats.toml').write_text(stats, encoding='utf-8')
+
+print(f'Spec pipeline: total={total}, draft={counts["draft"]}, planned={counts["planned"]}, approved={counts["approved"]}, in_progress={counts["in_progress"]}, implemented={counts["implemented"]}')
+if counts['approved'] == 0 and counts['implemented'] > 0:
+    print(f'  ⚠ Review gate bypass: {counts["implemented"]} implemented specs, 0 approved — /review-spec is not being used')
+PYEOF
+```
+
 ## 5. Stage and Remove Processed Delta Files
 
 ```bash
@@ -313,7 +353,7 @@ The agent should:
 1. Read `.claude/metrics/usage-stats.toml`
 2. Read all agent files in `.claude/agents/` (skip `archive/` subdirectory)
 3. Read all command files in `.claude/commands/`
-4. Generate a health report covering: overall status, usage tables, zero-usage analysis, redundancy analysis, gaps, and top 3-5 prioritized recommendations
+4. Generate a health report covering: overall status, usage tables, zero-usage analysis, redundancy analysis, gaps, spec pipeline health, and top 3-5 prioritized recommendations
 
 **Agent Usage table requirements:**
 - Include a `Type` column with `Built-in` (Explore, Plan, general-purpose) or `Custom` (all others in `.claude/agents/`)
