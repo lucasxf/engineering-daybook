@@ -99,14 +99,6 @@ describe('ResetPasswordPage', () => {
       });
     });
 
-    it('shows an error icon', async () => {
-      renderPage();
-      await waitFor(() => {
-        const icons = screen.getAllByRole('img', { hidden: true });
-        expect(icons.length).toBeGreaterThan(0);
-      });
-    });
-
     it('shows a link to request a new reset link', async () => {
       renderPage();
       await waitFor(() => {

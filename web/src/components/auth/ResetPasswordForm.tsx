@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
@@ -74,7 +74,7 @@ export function ResetPasswordForm({ token, locale }: ResetPasswordFormProps) {
     setServerError(null);
     try {
       await confirmPasswordResetApi(token, data.newPassword);
-      // Success state will be displayed by parent component
+      // On success, redirect to login page which shows success state via ?reset=success
       router.push(`/${locale}/login?reset=success` as never);
     } catch (error) {
       if (error instanceof ApiRequestError) {

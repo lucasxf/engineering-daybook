@@ -59,7 +59,7 @@ function ResetPasswordContent() {
         )}
 
         {tokenState === 'invalid' && (
-          <div ref={alertRef} tabIndex={-1} className="space-y-4">
+          <div ref={alertRef} tabIndex={-1} role="alert" className="space-y-4">
             {/* Error Icon */}
             <div className="flex justify-center">
               <div className="rounded-full bg-destructive/10 p-3">

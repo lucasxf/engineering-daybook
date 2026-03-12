@@ -33,9 +33,9 @@ export function FormField({
       <Label htmlFor={htmlFor}>{label}</Label>
       <div>{children}</div>
       {hint && !error && (
-        <p id={hintId ?? undefined} className="text-xs text-muted-foreground">
+        <div id={hintId ?? undefined} className="text-xs text-muted-foreground">
           {hint}
-        </p>
+        </div>
       )}
       {error && (
         <p
