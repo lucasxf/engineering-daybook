@@ -30,6 +30,10 @@
   --color-confirmation-bg: #FFF8F3;
   --color-confirmation-border: #E8DDD5;
   --color-ember-stroke: #D4854A;
+
+  --color-toast-success: #F0FFF4;
+  --color-toast-error: #FFF0F0;
+  --color-placeholder: #AAAAAA;
 }
 
 .dark {
@@ -58,6 +62,10 @@
   --color-confirmation-bg: #1A365D;
   --color-confirmation-border: #2B4A78;
   --color-ember-stroke: #D4854A;
+
+  --color-toast-success: #1A3D1A;
+  --color-toast-error: #3D1A1A;
+  --color-placeholder: #4A6080;
 }
 
 * {

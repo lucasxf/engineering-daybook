@@ -40,6 +40,9 @@ const config: Config = {
         "confirmation-bg": "var(--color-confirmation-bg)",
         "confirmation-border": "var(--color-confirmation-border)",
         "ember-stroke": "var(--color-ember-stroke)",
+        "toast-success": "var(--color-toast-success)",
+        "toast-error": "var(--color-toast-error)",
+        placeholder: "var(--color-placeholder)",
       },
       ringColor: {
         ember: "var(--color-input-focus)",
