@@ -21,6 +21,9 @@
 | REC-008 | 2026-03-08 | workflow | Add /check-ci command to wrap non-standard gh CLI path | deferred | 2026-03-08 |
 | REC-009 | 2026-03-08 | workflow | Promote nexus/hedy specialists at session start (stack-gated note) | deferred | 2026-03-08 |
 | REC-010 | 2026-03-08 | archival | Archive resume-session, update-roadmap, review-code, api-doc, and virgil | implemented | 2026-03-08 |
+| REC-011 | 2026-03-12 | workflow | Enforce /review-spec gate — 0 approved specs while 19 are implemented | open | 2026-03-12 |
+| REC-012 | 2026-03-12 | archival | Archive imhotep agent — 0 invocations, single-project constraint not yet met | open | 2026-03-12 |
+| REC-013 | 2026-03-12 | metrics | Implement LOC churn tracking — total_locs_added/deleted/net_locs stuck at 0 | open | 2026-03-12 |
 
 ## Archive
 
