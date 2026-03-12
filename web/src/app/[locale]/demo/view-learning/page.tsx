@@ -4,21 +4,23 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { ViewLearningScreen } from "@/components/view-learning/view-learning-screen";
 
 type DemoState = "loaded" | "loading" | "error-404" | "error-403" | "deleting" | "deleted";
 
-const DEMO_STATES: { key: DemoState; label: string }[] = [
-  { key: "loaded", label: "Carregado" },
-  { key: "loading", label: "Carregando" },
-  { key: "error-404", label: "Erro 404" },
-  { key: "error-403", label: "Erro 403" },
-  { key: "deleting", label: "Excluindo" },
-  { key: "deleted", label: "Excluído" },
-];
-
 export default function ViewLearningDemoPage() {
   const [activeState, setActiveState] = useState<DemoState>("loaded");
+  const t = useTranslations("poks.view");
+
+  const DEMO_STATES: { key: DemoState; label: string }[] = [
+    { key: "loaded", label: "Carregado" },
+    { key: "loading", label: "Carregando" },
+    { key: "error-404", label: "Erro 404" },
+    { key: "error-403", label: "Erro 403" },
+    { key: "deleting", label: "Excluindo" },
+    { key: "deleted", label: "Excluído" },
+  ];
 
   return (
     <div className="min-h-screen bg-background">

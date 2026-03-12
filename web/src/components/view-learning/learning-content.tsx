@@ -1,6 +1,7 @@
 "use client";
 
 import { Pencil, Trash2 } from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
 import { LearningMarkdown } from "./learning-markdown";
 
 interface Learning {
@@ -17,9 +18,13 @@ interface LearningContentProps {
   onDeleteClick: () => void;
 }
 
-function formatDatePtBr(isoString: string): string {
+function formatDate(isoString: string, locale: string): string {
   const date = new Date(isoString);
-  return date.toLocaleString("pt-BR", {
+  const localeMap: { [key: string]: string } = {
+    "pt-BR": "pt-BR",
+    en: "en-US",
+  };
+  return date.toLocaleString(localeMap[locale] || "pt-BR", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -29,6 +34,8 @@ function formatDatePtBr(isoString: string): string {
 }
 
 export function LearningContent({ learning, onDeleteClick }: LearningContentProps) {
+  const t = useTranslations("poks");
+  const locale = useLocale();
   const hasTitle = learning.title.trim().length > 0;
   const derivedTitle = learning.content.slice(0, 60).replace(/[#*`_]/g, "").trim();
   const displayTitle = hasTitle ? learning.title : derivedTitle;
@@ -50,19 +57,19 @@ export function LearningContent({ learning, onDeleteClick }: LearningContentProp
         <div className="flex shrink-0 items-center gap-2">
           <a
             href="#"
-            aria-label="Editar este aprendizado"
+            aria-label={t("view.editButton")}
             className="edit-btn inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-input-focus)]"
           >
             <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-            Editar
+            {t("view.editButton")}
           </a>
           <button
             onClick={onDeleteClick}
-            aria-label="Excluir este aprendizado"
+            aria-label={t("delete.button")}
             className="inline-flex items-center gap-1.5 rounded-md border border-[#E53E3E] px-3 py-1.5 text-sm font-medium text-[#E53E3E] transition-colors hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E53E3E]"
           >
             <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-            Excluir
+            {t("delete.button")}
           </button>
         </div>
       </div>
@@ -70,13 +77,13 @@ export function LearningContent({ learning, onDeleteClick }: LearningContentProp
       {/* Metadata row */}
       <div className="mb-6 flex flex-wrap gap-x-1.5 gap-y-1 text-xs text-muted-foreground font-sans">
         <span suppressHydrationWarning>
-          Salvo em{" "}
-          <time dateTime={learning.createdAt}>{formatDatePtBr(learning.createdAt)}</time>
+          {t("view.created")}{" "}
+          <time dateTime={learning.createdAt}>{formatDate(learning.createdAt, locale)}</time>
         </span>
         <span aria-hidden="true">·</span>
         <span suppressHydrationWarning>
-          Atualizado em{" "}
-          <time dateTime={learning.updatedAt}>{formatDatePtBr(learning.updatedAt)}</time>
+          {t("view.updated")}{" "}
+          <time dateTime={learning.updatedAt}>{formatDate(learning.updatedAt, locale)}</time>
         </span>
       </div>
 

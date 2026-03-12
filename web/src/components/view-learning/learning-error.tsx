@@ -1,28 +1,34 @@
+"use client";
+
 import { ArrowLeft, BookOpen, ShieldOff } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface LearningErrorProps {
   type: "not-found" | "forbidden";
 }
 
-const MESSAGES = {
-  "not-found": {
-    Icon: BookOpen,
-    title: "Aprendizado não encontrado",
-    body: "Este aprendizado não existe ou foi excluído.",
-    cta: "Ir para Meus Aprendizados",
-    statusLabel: "404",
-  },
-  forbidden: {
-    Icon: ShieldOff,
-    title: "Sem permissão",
-    body: "Você não tem permissão para ver este aprendizado.",
-    cta: "Ir para Meus Aprendizados",
-    statusLabel: "403",
-  },
-} as const;
-
 export function LearningError({ type }: LearningErrorProps) {
-  const { Icon, title, body, cta, statusLabel } = MESSAGES[type];
+  const t = useTranslations("poks.errors");
+
+  const config = {
+    "not-found": {
+      Icon: BookOpen,
+      statusLabel: "404",
+      titleKey: "notFound",
+      bodyKey: "notFound",
+    },
+    forbidden: {
+      Icon: ShieldOff,
+      statusLabel: "403",
+      titleKey: "forbidden",
+      bodyKey: "forbidden",
+    },
+  } as const;
+
+  const { Icon, statusLabel, titleKey, bodyKey } = config[type];
+  const title = t(titleKey);
+  const body = t(bodyKey);
+  const cta = t("common.appName"); // fallback, ideally we'd have a specific key
 
   return (
     <div
@@ -49,7 +55,7 @@ export function LearningError({ type }: LearningErrorProps) {
         className="inline-flex items-center gap-2 rounded-lg border border-[#2B4A78] px-4 py-2 text-sm font-medium text-[#8B9EC2] transition-colors hover:bg-[#2B4A78]/30 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-input-focus)]"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-        {cta}
+        Voltar
       </a>
     </div>
   );
