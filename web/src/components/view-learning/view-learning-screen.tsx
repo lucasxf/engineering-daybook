@@ -59,7 +59,7 @@ export function ViewLearningScreen(props: ViewLearningScreenProps) {
             <LearningError type="not-found" />
           ) : props.state === "forbidden" ? (
             <LearningError type="forbidden" />
-          ) : (
+          ) : props.state === "loaded" ? (
             <>
               {/* Breadcrumb */}
               <LearningBreadcrumb />
@@ -71,7 +71,7 @@ export function ViewLearningScreen(props: ViewLearningScreenProps) {
                 onEditClick={props.onEditClick}
               />
             </>
-          )}
+          ) : null}
         </div>
       </main>
 
