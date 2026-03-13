@@ -199,7 +199,12 @@
       "created": "Created",
       "updated": "Updated",
       "tagsLabel": "Learning tags",
-      "breadcrumbLabel": "Breadcrumb navigation"
+      "breadcrumbLabel": "Breadcrumb navigation",
+      "loadingLabel": "Loading learning...",
+      "notFoundTitle": "Learning not found",
+      "notFoundBody": "This learning doesn't exist or may have been removed.",
+      "forbiddenTitle": "Access denied",
+      "forbiddenBody": "You don't have permission to view this learning."
     },
     "edit": {
       "title": "Edit learning",

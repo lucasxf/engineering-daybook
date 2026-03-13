@@ -16,14 +16,14 @@ export function LearningError({ type }: LearningErrorProps) {
     "not-found": {
       Icon: BookOpen,
       statusLabel: "404",
-      titleKey: "errors.notFound" as const,
-      bodyKey: "errors.notFound" as const,
+      titleKey: "view.notFoundTitle" as const,
+      bodyKey: "view.notFoundBody" as const,
     },
     forbidden: {
       Icon: ShieldOff,
       statusLabel: "403",
-      titleKey: "errors.forbidden" as const,
-      bodyKey: "errors.forbidden" as const,
+      titleKey: "view.forbiddenTitle" as const,
+      bodyKey: "view.forbiddenBody" as const,
     },
   } as const;
 

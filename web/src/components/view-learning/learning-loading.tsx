@@ -1,6 +1,12 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 export function LearningLoading() {
+  const t = useTranslations("poks");
+
   return (
-    <div aria-busy="true" aria-label="Carregando aprendizado..." className="animate-pulse">
+    <div aria-busy="true" aria-label={t("view.loadingLabel")} className="animate-pulse">
       {/* Breadcrumb skeleton */}
       <div className="mb-6 h-4 w-36 rounded-md bg-card-border opacity-60" />
 

@@ -199,7 +199,12 @@
       "created": "Criado",
       "updated": "Atualizado",
       "tagsLabel": "Tags do aprendizado",
-      "breadcrumbLabel": "Navegação estrutural"
+      "breadcrumbLabel": "Navegação estrutural",
+      "loadingLabel": "Carregando aprendizado...",
+      "notFoundTitle": "Aprendizado não encontrado",
+      "notFoundBody": "Este aprendizado não existe ou pode ter sido removido.",
+      "forbiddenTitle": "Acesso negado",
+      "forbiddenBody": "Você não tem permissão para visualizar este aprendizado."
     },
     "edit": {
       "title": "Editar aprendizado",
