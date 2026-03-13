@@ -267,13 +267,13 @@ See [ROADMAP.phase-8.md](./docs/ROADMAP.phase-8.md)
 
 ## Development Workflow
 
-This project uses [Claude Code](https://claude.ai/code) with a suite of custom slash commands for spec-driven development.
+This project uses [Claude Code](https://claude.ai/code) with a suite of custom slash commands and skills for spec-driven development.
 
 ### Happy Path
 
 ```
-# Optional: refine your prompt before starting
-/prompt-optimizer "I want to build feature X"
+# Optional: refine your prompt before starting (skill, not a slash command)
+prompt-optimizer "I want to build feature X"
 # → /clear → Shift+Tab (plan mode) → paste enhanced prompt
 
 /start-session --stack=<backend|web|mobile|docs>
@@ -310,7 +310,14 @@ This project uses [Claude Code](https://claude.ai/code) with a suite of custom s
 | `/review-pr` | Triage open PR — CI status, review comments, triage report |
 | `/fix-pr` | Implement approved items from triage report |
 | `/compile-metrics` | Aggregate session usage stats after merge |
-| `/prompt-optimizer` | Enhance a raw prompt before starting a session |
+
+### Key Skills
+
+| Skill | Purpose |
+|-------|---------|
+| `prompt-optimizer` | Enhance a raw prompt before starting a session |
+| `mobile-design-system` | "Library at Dusk" design tokens for Expo/RN visual parity |
+| `frontend-design` | Production-grade frontend interface generation |
 
 ---
 
