@@ -3,7 +3,8 @@
  * These are separate from view-learning.test.tsx because the screen test mocks
  * these sub-components, and vi.mock is module-scoped.
  */
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 
 // Mock next-intl
@@ -97,10 +98,11 @@ describe('LearningContent', () => {
     expect(screen.getAllByText('Content as fallback title').length).toBeGreaterThan(0);
   });
 
-  it('calls onDeleteClick when delete button is clicked', () => {
+  it('calls onDeleteClick when delete button is clicked', async () => {
+    const user = userEvent.setup();
     const onDeleteClick = vi.fn();
     render(<LearningContent learning={baseLearning} onDeleteClick={onDeleteClick} />);
-    fireEvent.click(screen.getByRole('button', { name: 'delete.button' }));
+    await user.click(screen.getByRole('button', { name: 'delete.button' }));
     expect(onDeleteClick).toHaveBeenCalledOnce();
   });
 
@@ -129,19 +131,19 @@ describe('DeleteConfirmDialog', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 
-  it('calls onConfirm when confirm button is clicked', () => {
+  it('calls onConfirm when confirm button is clicked', async () => {
+    const user = userEvent.setup();
     const onConfirm = vi.fn();
     render(<DeleteConfirmDialog onCancel={vi.fn()} onConfirm={onConfirm} />);
-    const buttons = screen.getAllByRole('button');
-    const confirmBtn = buttons[buttons.length - 1];
-    fireEvent.click(confirmBtn);
+    await user.click(screen.getByRole('button', { name: 'delete.confirmButton' }));
     expect(onConfirm).toHaveBeenCalledOnce();
   });
 
-  it('calls onCancel when Escape key is pressed', () => {
+  it('calls onCancel when Escape key is pressed', async () => {
+    const user = userEvent.setup();
     const onCancel = vi.fn();
     render(<DeleteConfirmDialog onCancel={onCancel} onConfirm={vi.fn()} />);
-    fireEvent.keyDown(document, { key: 'Escape' });
+    await user.keyboard('{Escape}');
     expect(onCancel).toHaveBeenCalledOnce();
   });
 });

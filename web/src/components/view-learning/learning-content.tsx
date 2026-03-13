@@ -88,7 +88,7 @@ export function LearningContent({ learning, onDeleteClick, onEditClick }: Learni
 
         {/* Tags */}
         {learning.tags.length > 0 && (
-          <div className="mt-8 flex flex-wrap gap-2" aria-label="Tags do aprendizado">
+          <div className="mt-8 flex flex-wrap gap-2" aria-label={t("view.tagsLabel")}>
             {learning.tags.map((tag) => (
               <span
                 key={tag}

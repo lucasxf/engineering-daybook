@@ -197,7 +197,9 @@
       "backButton": "Voltar para lista",
       "editButton": "Editar",
       "created": "Criado",
-      "updated": "Atualizado"
+      "updated": "Atualizado",
+      "tagsLabel": "Tags do aprendizado",
+      "breadcrumbLabel": "Navegação estrutural"
     },
     "edit": {
       "title": "Editar aprendizado",
@@ -227,6 +229,7 @@
       "confirmMessage": "Esta a\u00e7\u00e3o n\u00e3o pode ser desfeita. Este aprendizado ser\u00e1 exclu\u00eddo permanentemente.",
       "confirmButton": "Excluir",
       "cancelButton": "Cancelar",
+      "dismiss": "Fechar",
       "deleting": "Excluindo..."
     },
     "success": {

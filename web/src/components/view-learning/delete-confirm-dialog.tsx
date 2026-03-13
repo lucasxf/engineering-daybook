@@ -76,7 +76,7 @@ export function DeleteConfirmDialog({ onCancel, onConfirm }: DeleteConfirmDialog
         {/* Close button */}
         <button
           onClick={onCancel}
-          aria-label={t("auth.errors.dismiss")}
+          aria-label={t("delete.dismiss")}
           className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-input-focus)]"
         >
           <X className="h-4 w-4" aria-hidden="true" />

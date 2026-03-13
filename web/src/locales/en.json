@@ -197,7 +197,9 @@
       "backButton": "Back to list",
       "editButton": "Edit",
       "created": "Created",
-      "updated": "Updated"
+      "updated": "Updated",
+      "tagsLabel": "Learning tags",
+      "breadcrumbLabel": "Breadcrumb navigation"
     },
     "edit": {
       "title": "Edit learning",
@@ -227,6 +229,7 @@
       "confirmMessage": "This action cannot be undone. This learning will be permanently deleted.",
       "confirmButton": "Delete",
       "cancelButton": "Cancel",
+      "dismiss": "Close",
       "deleting": "Deleting..."
     },
     "success": {

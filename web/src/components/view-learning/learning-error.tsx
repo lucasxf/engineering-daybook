@@ -9,21 +9,21 @@ interface LearningErrorProps {
 }
 
 export function LearningError({ type }: LearningErrorProps) {
-  const t = useTranslations("poks.errors");
+  const t = useTranslations("poks");
   const router = useRouter();
 
   const config = {
     "not-found": {
       Icon: BookOpen,
       statusLabel: "404",
-      titleKey: "notFound",
-      bodyKey: "notFound",
+      titleKey: "errors.notFound" as const,
+      bodyKey: "errors.notFound" as const,
     },
     forbidden: {
       Icon: ShieldOff,
       statusLabel: "403",
-      titleKey: "forbidden",
-      bodyKey: "forbidden",
+      titleKey: "errors.forbidden" as const,
+      bodyKey: "errors.forbidden" as const,
     },
   } as const;
 
@@ -56,7 +56,7 @@ export function LearningError({ type }: LearningErrorProps) {
         className="inline-flex items-center gap-2 rounded-lg border border-[#2B4A78] px-4 py-2 text-sm font-medium text-[#8B9EC2] transition-colors hover:bg-[#2B4A78]/30 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-input-focus)]"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-        Voltar
+        {t("view.backButton")}
       </button>
     </div>
   );

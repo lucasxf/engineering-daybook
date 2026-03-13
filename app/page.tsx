@@ -90,7 +90,7 @@ export default function Home() {
               onToggle={() => setLeftTheme((t) => (t === "dark" ? "light" : "dark"))}
             />
           </div>
-          <div className="flex-1 overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
+          <div className={`flex-1 overflow-hidden rounded-2xl border border-white/10 shadow-2xl${leftTheme === "dark" ? " dark" : ""}`}>
             {activeState === "loaded" ? (
               <ViewLearningScreen state="loaded" learning={SAMPLE_LEARNING} />
             ) : (
@@ -111,7 +111,7 @@ export default function Home() {
               onToggle={() => setRightTheme((t) => (t === "dark" ? "light" : "dark"))}
             />
           </div>
-          <div className="flex-1 overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
+          <div className={`flex-1 overflow-hidden rounded-2xl border border-white/10 shadow-2xl${rightTheme === "dark" ? " dark" : ""}`}>
             {activeState === "loaded" ? (
               <ViewLearningScreen state="loaded" learning={SAMPLE_LEARNING} />
             ) : (

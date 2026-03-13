@@ -51,7 +51,7 @@ export function ViewLearningScreen(props: ViewLearningScreenProps) {
       <LearningNavBar />
 
       {/* Main */}
-      <main id="main-content" className="flex flex-1 flex-col px-4 py-8">
+      <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col px-4 py-8 outline-none">
         <div className="mx-auto w-full max-w-[720px]">
           {props.state === "loading" ? (
             <LearningLoading />
@@ -77,7 +77,7 @@ export function ViewLearningScreen(props: ViewLearningScreenProps) {
 
       {/* Footer */}
       <footer className="py-4 text-center">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground" suppressHydrationWarning>
           © {new Date().getFullYear()} learnimo
         </p>
       </footer>

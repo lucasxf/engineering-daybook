@@ -1,4 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi } from 'vitest';
 
 // Mock next-intl
@@ -30,7 +31,7 @@ vi.mock('./learning-content', () => ({
     <div data-testid="learning-content">
       <span>{learning.title}</span>
       <button onClick={onDeleteClick}>delete</button>
-      <button onClick={onEditClick}>edit</button>
+      {onEditClick && <button onClick={onEditClick}>edit</button>}
     </div>
   ),
 }));
@@ -115,19 +116,21 @@ describe('ViewLearningScreen', () => {
     expect(screen.getByText('Test Learning')).toBeInTheDocument();
   });
 
-  it('shows delete dialog when delete is clicked, and hides on cancel', () => {
+  it('shows delete dialog when delete is clicked, and hides on cancel', async () => {
+    const user = userEvent.setup();
     render(<ViewLearningScreen state="loaded" learning={sampleLearning} />);
 
     expect(screen.queryByTestId('delete-dialog')).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'delete' }));
+    await user.click(screen.getByRole('button', { name: 'delete' }));
     expect(screen.getByTestId('delete-dialog')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'cancel' }));
+    await user.click(screen.getByRole('button', { name: 'cancel' }));
     expect(screen.queryByTestId('delete-dialog')).not.toBeInTheDocument();
   });
 
-  it('calls onDeleteConfirm and closes dialog on confirm', () => {
+  it('calls onDeleteConfirm and closes dialog on confirm', async () => {
+    const user = userEvent.setup();
     const onDeleteConfirm = vi.fn();
     render(
       <ViewLearningScreen
@@ -137,14 +140,15 @@ describe('ViewLearningScreen', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'delete' }));
-    fireEvent.click(screen.getByRole('button', { name: 'confirm' }));
+    await user.click(screen.getByRole('button', { name: 'delete' }));
+    await user.click(screen.getByRole('button', { name: 'confirm' }));
 
     expect(onDeleteConfirm).toHaveBeenCalledOnce();
     expect(screen.queryByTestId('delete-dialog')).not.toBeInTheDocument();
   });
 
-  it('calls onEditClick when edit button is clicked', () => {
+  it('calls onEditClick when edit button is clicked', async () => {
+    const user = userEvent.setup();
     const onEditClick = vi.fn();
     render(
       <ViewLearningScreen
@@ -154,7 +158,7 @@ describe('ViewLearningScreen', () => {
       />
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'edit' }));
+    await user.click(screen.getByRole('button', { name: 'edit' }));
     expect(onEditClick).toHaveBeenCalledOnce();
   });
 });
