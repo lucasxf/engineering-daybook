@@ -95,6 +95,17 @@
   - `docs/specs/features/mobile-4-tier-visibility.md` — 6-task implementation plan (type cleanup → VisibilityPicker/Badge components → 4-tier pickers on new/detail/profile screens → i18n keys)
 - Other two specs (`mobile-social-discovery.md` and `mobile-re-learning.md`) already had proper Implementation Plan sections and required no changes.
 
+**Progress update (2026-03-13 — mobile visual parity strategy):**
+- Mobile stack development strategy documented at `.claude/plans/mobile-stack-dev-strategy.md` (branch: `chore/mobile-stack-dev-strategy`).
+- Analyzed "Library at Dusk" design language from the v0-redesigned web app and evaluated 4 approaches to bringing the mobile app to visual parity.
+- Recommended approach: **Skill-driven (Approach D)** — build a `mobile-design-system` skill, update `tokens.ts` first, then patch (not rebuild) all 8 existing screens incrementally. Avoids a full screen rebuild while establishing a reusable design token foundation.
+
+**Progress update (2026-03-13 — mobile-design-system skill):**
+- ✅ Step 1 of execution sequence complete: `mobile-design-system` skill created at `.claude/skills/mobile-design-system/`.
+- Skill encodes: Library at Dusk palette mapped to RN tokens (light + dark), 7 component recipes (Button/Card/Text/TextInput/ErrorMessage/MarkdownContent/Avatar), screen layout patterns, font loading (DM Sans + Sora via expo-font), shadow/animation translations, 5 known gotchas.
+- Full hex mapping tables in `references/tokens-reference.md` (ember-CTA scale, brand accents, new palette definition, 23-token buildTheme target).
+- **Next:** Step 2 — update `mobile/src/theme/tokens.ts` with Library at Dusk palette + add `typography.fontFamily` (1 session, single commit).
+
 ---
 
 ## Milestone 3.2: AI Connections

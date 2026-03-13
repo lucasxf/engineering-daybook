@@ -235,6 +235,7 @@ temp/
 # Claude Code local artifacts (machine-generated, session-specific)
 .claude/reviews/
 .claude/worktrees/
+.claude/metrics/sessions/
 
 # Root-level build/test artifacts (backend/target/ already covered above)
 /target/

@@ -4,7 +4,6 @@ argument-hint: <optional-commit-message-context>
 ---
 
 @CLAUDE.md
-@docs/ROADMAP.md
 
 **Session Finalization Workflow**
 
@@ -43,18 +42,7 @@ cd backend && mvn verify -q        # compiles, tests, and checks in one pass
 
 Then check JaCoCo coverage before proceeding:
 ```bash
-python3 -c "
-import xml.etree.ElementTree as ET
-tree = ET.parse('backend/target/site/jacoco/jacoco.xml')
-root = tree.getroot()
-for c in root.findall('counter[@type=\"LINE\"]'):
-    missed = int(c.get('missed', 0))
-    covered = int(c.get('covered', 0))
-    total = missed + covered
-    pct = (covered / total * 100) if total else 0
-    print(f'LINE coverage: {covered}/{total} ({pct:.1f}%)')
-    print('BELOW_THRESHOLD' if pct < 90 else 'OK')
-"
+python3 .claude/scripts/jacoco_report.py --summary backend/target/site/jacoco/jacoco.xml 90
 ```
 
 **If output contains `BELOW_THRESHOLD`:**
@@ -105,22 +93,10 @@ If vitest exits non-zero due to coverage below 50% → **STOP.** Do not commit. 
 
 **E2E coverage gate — Web new flows:**
 
-After vitest, detect new pages/routes in the **current working tree** (staged, unstaged, and untracked):
+After vitest, detect new pages/routes and touched E2E specs in the current working tree:
 ```bash
-# Staged new pages
-git diff --cached --name-only -- 'web/src/app/**' 2>/dev/null | grep 'page\.tsx$' | grep -v '__tests__'
-# Unstaged new pages
-git diff --name-only -- 'web/src/app/**' 2>/dev/null | grep 'page\.tsx$' | grep -v '__tests__'
-# Untracked new pages (brand-new files not yet staged)
-git ls-files --others --exclude-standard 'web/src/app/**' 2>/dev/null | grep 'page\.tsx$' | grep -v '__tests__'
-```
-
-If any new `page.tsx` files appear, also check whether E2E spec files were **touched this session**:
-```bash
-# E2E specs staged or unstaged in working tree
-git diff --cached --name-only -- 'web/e2e/**' 2>/dev/null
-git diff --name-only -- 'web/e2e/**' 2>/dev/null
-git ls-files --others --exclude-standard 'web/e2e/**' 2>/dev/null
+python3 .claude/scripts/session_delta.py --new-pages
+python3 .claude/scripts/session_delta.py --e2e-touched
 ```
 
 **E2E coverage rules:**
@@ -148,16 +124,7 @@ Run the full Playwright suite whenever `web/` files changed (coverage gate alrea
 
 Check whether any new components or hooks added this session have zero consumers:
 ```bash
-# Get new web source files added this session
-git diff --cached --name-only -- 'web/src/**/*.tsx' 'web/src/**/*.ts' 2>/dev/null | grep -v '__tests__' | grep -v '\.test\.' | grep -v '\.spec\.'
-git diff --name-only -- 'web/src/**/*.tsx' 'web/src/**/*.ts' 2>/dev/null | grep -v '__tests__' | grep -v '\.test\.' | grep -v '\.spec\.'
-git ls-files --others --exclude-standard -- 'web/src/**/*.tsx' 'web/src/**/*.ts' 2>/dev/null | grep -v '__tests__' | grep -v '\.test\.' | grep -v '\.spec\.'
-```
-
-For each new file returned, check if its exports are imported anywhere in the rest of `web/src/`:
-```bash
-# Example: for a file named TagSuggestionPrompt.tsx, check for any import of it
-grep -r "TagSuggestionPrompt" web/src/ --include="*.tsx" --include="*.ts" -l | grep -v "TagSuggestionPrompt.tsx"
+python3 .claude/scripts/session_delta.py --new-exports
 ```
 
 **If any new export has zero consumers → STOP.** Do not commit. Inform the user:
@@ -188,23 +155,7 @@ Build and test commands can produce thousands of lines. After running each stack
 - Ask the user how to proceed
 - The ONLY exception is if the user explicitly says "commit anyway" or "bypass" — in that case, warn clearly and proceed only with their confirmation
 
-## 2. Capture Session Learnings (if applicable — Delegate to tech-writer)
-
-**Only run this step if Step 1 encountered non-trivial errors that required investigation or workarounds.**
-Skip entirely if Step 1 passed on the first run with no issues.
-
-**Non-trivial** (capture): dependency incompatibility, tool misconfiguration, unexpected build/test behavior, environment quirk, anything that required more than one fix attempt.
-**Trivial** (skip): obvious typo in code, simple missing import, straightforward syntax error.
-
-Collect every non-trivial error from Step 1 and **delegate to `tech-writer` agent via the Agent tool with `subagent_type: tech-writer`**. Pass:
-- A description of each failure (error message or summary)
-- The root cause discovered
-- The fix applied
-
-The agent applies its own learning-routing rules to place each entry in the right file and section.
-It will report which files were updated, or confirm no update was needed.
-
-## 3. Update Phase File and Archive Completed Milestones (REQUIRED - Delegate to tech-writer)
+## 2. Documentation Updates (REQUIRED — Delegate to tech-writer)
 
 > ⚠️ **ROADMAP.md is an index only.** Never write milestone details into it.
 > All milestone updates go in `docs/ROADMAP.phase-{N}.md` only.
@@ -219,48 +170,33 @@ grep "CURRENT_PHASE:" docs/ROADMAP.md
 # e.g. <!-- CURRENT_PHASE: 1 --> → load docs/ROADMAP.phase-1.md
 ```
 
-**Delegate to `tech-writer` agent via the Agent tool with `subagent_type: tech-writer`** to update the current phase file (`docs/ROADMAP.phase-{N}.md`):
-- Mark newly completed tasks as ✅
-- Move completed items into the appropriate "Completed" section within the phase file
-- Update "Active / Pending" section with remaining work
+**Delegate to `tech-writer` agent via the Agent tool with `subagent_type: tech-writer`** with all three sub-tasks in a single call. Pass:
 
-**Check for milestone completion:**
-After updating the phase file, check: are ALL items in any milestone now ✅?
-- **If yes:** The milestone is complete — tech-writer confirms it is already in the "Completed" section of the phase file. No separate archive needed; the phase file is the record.
-- **If the entire phase is now complete** (all milestones ✅):
-  1. Update `<!-- CURRENT_PHASE: N -->` in `docs/ROADMAP.md` to `N+1`
-  2. Update `<!-- CURRENT_PHASE_FILE: ... -->` accordingly
-  3. Update `CLAUDE.md` "Current Focus" section to reflect the new active phase
-  4. Update `README.md` roadmap section to reflect phase completion
+**Sub-task A — Session Learnings** (only if Step 1 encountered non-trivial errors):
+- Skip if Step 1 passed on first run with no issues
+- Non-trivial = dependency incompatibility, tool misconfiguration, unexpected build/test behavior, environment quirk, anything requiring more than one fix attempt
+- Pass: each failure (error message), its root cause, and the fix applied
+- Agent routes each entry to the right file/section and confirms what was updated
 
-## 4. Documentation Staleness Check (ALWAYS - Delegate to tech-writer)
+**Sub-task B — Phase File Update** (always):
+- Update `docs/ROADMAP.phase-{N}.md`: mark completed tasks ✅, move to "Completed" section, update "Active / Pending"
+- If ALL items in any milestone are now ✅: confirm milestone is recorded in the phase file's "Completed" section
+- If the entire phase is complete: update `<!-- CURRENT_PHASE: N -->` in `docs/ROADMAP.md`, update `CLAUDE.md` "Current Focus", update `README.md` roadmap section
 
-**Always delegate to `tech-writer` agent via the Agent tool with `subagent_type: tech-writer`.** The check is scoped to what changed this session — not a full-repo audit. tech-writer must verify each applicable item below and explicitly confirm it is current or fix it.
+**Sub-task C — Documentation Staleness Check** (always, scoped to this session):
+- If `backend/` changed: verify OpenAPI annotations (`@Tag`, `@Operation`, `@ApiResponses`, `@Parameter`) on new/modified endpoints (missing = CRITICAL); Javadoc (`@author`, `@since`) on new/modified public classes; `backend/CLAUDE.md` conventions still accurate?
+- If `web/` changed: verify `web/CLAUDE.md` conventions; README.md features section
+- If `mobile/` changed: verify `mobile/CLAUDE.md` conventions; README.md features section
+- Always: 3-way phase consistency (`CURRENT_PHASE` in ROADMAP.md = CLAUDE.md "Current Focus" = README.md; ROADMAP.md is source of truth); README.md "In Progress" section reflects reality
+- Fix any stale item in the same commit — no docs debt
 
-### If `backend/` files changed:
-- [ ] **OpenAPI annotations** — every new/modified endpoint has `@Tag`, `@Operation`, `@ApiResponses`, `@Parameter`. Missing = CRITICAL, block commit.
-- [ ] **Javadoc** — every new/modified public class has `@author` and `@since`. Missing = fix before commit.
-- [ ] **`backend/CLAUDE.md`** — Java conventions still accurate? Any new pattern introduced this session that contradicts or extends the documented rules?
+**tech-writer reports results for all three sub-tasks before this step is considered complete.**
 
-### If `web/` files changed:
-- [ ] **`web/CLAUDE.md`** — TypeScript/Next.js conventions still accurate?
-- [ ] **README.md features section** — does it reflect what's now implemented?
-
-### If `mobile/` files changed:
-- [ ] **`mobile/CLAUDE.md`** — conventions still accurate?
-- [ ] **README.md features section** — updated?
-
-### Always (regardless of stack):
-- [ ] **3-way phase consistency** — `CURRENT_PHASE` in `docs/ROADMAP.md` matches `CLAUDE.md` "Current Focus" matches README.md. If diverged, ROADMAP.md is the source of truth; fix the others.
-- [ ] **README.md "In Progress" section** — does it reflect reality? Remove anything that shipped this session.
-
-**If any item is stale:** fix it in the same commit. Do not leave docs debt.
-
-## 5. Review Changes
+## 3. Review Changes
 
 Show consolidated git diff for all modified files so I can review before committing.
 
-## 6. Commit
+## 4. Commit
 
 **Stage the session delta file first (REQUIRED — do not skip).**
 
@@ -284,7 +220,7 @@ After I approve the diff, create a commit with:
 - Reference to what was implemented
 - Claude Code footer
 
-## 7. Feature Branch PR Prompt (Optional)
+## 5. Feature Branch PR Prompt (Optional)
 
 **Detect if on feature branch:**
 ```bash
@@ -307,7 +243,7 @@ fi
 - Skip PR creation
 - Continue to Session Summary
 
-## 8. Session Summary
+## 6. Session Summary
 
 Provide a brief summary:
 - What was accomplished

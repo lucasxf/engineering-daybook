@@ -317,6 +317,17 @@ Two-commit tooling session: one CI fix and one automation enhancement.
 | `.claude/commands/finish-session.md` | Added `|| true` to `git add .claude/metrics/sessions/` to silence non-fatal exit code when directory is absent |
 | `.claude/commands/review-pr.md` | Steps 1B and 1C now prompt before overwriting PR title/description — only fires when metadata is inadequate; triage report gains `## PR Metadata` section |
 
+### prompt-optimizer Skill (chore/prompt-optimizer-skill, develop, 2026-03-13) ✅
+
+Added the `prompt-optimizer` skill to `.claude/skills/prompt-optimizer/`. Transforms raw intent or existing prompts into mode-optimized versions for Claude Code — plan mode (Opus) or execution mode (Sonnet). No backend/web/mobile code changed.
+
+| Task | Status |
+|------|--------|
+| Created `SKILL.md` — mode detection, optimize workflow, review workflow, output format | ✅ Done |
+| Created `references/plan-patterns.md` — 7 task-type templates for Opus plan mode | ✅ Done |
+| Created `references/exec-patterns.md` — 7 task-type templates for Sonnet execution mode | ✅ Done |
+| Created `references/anti-patterns.md` — 10 common prompt mistakes with before/after examples | ✅ Done |
+
 ### skill-creator Skill Installation (chore/skill-creator, develop, 2026-03-13) ✅
 
 Added the `skill-creator` skill from Anthropic's open-source skills repo to `.claude/skills/skill-creator/`. This meta-skill enables creating and iterating on new Claude Code skills. 18 files installed. No backend/web/mobile code changed.
@@ -336,6 +347,21 @@ Maintenance session: repository housekeeping and pre-existing CI failures resolv
 | Reverted stale `UserController.java` + `UserControllerTest.java` commit — pre-rename artifacts superseded by `UserSettingsController` | ✅ Done |
 | Fixed pre-existing pgvector failures in `AuthIntegrationTest` and `FollowIntegrationTest` — added `enablePgVector()` helper to `@DynamicPropertySource` in both test classes; all tests now pass | ✅ Done |
 | Improved `/finish-session` command — added explicit session TOML staging verification step | ✅ Done |
+
+### PR #195 Review Fixes + Web Test Correction (fix, develop, 2026-03-13) ✅
+
+Automation/tooling maintenance session. Two commits; no backend or new page changes.
+
+| Area | Fix |
+|------|-----|
+| `.claude/scripts/session_delta.py` | Moved `--exclude=<file>` flag before `--` separator in grep subprocess call — was treated as a positional argument, not a flag |
+| `.gitignore` | Added `.claude/metrics/sessions/` to prevent transient session delta files from being committed |
+| `.claude/skills/prompt-optimizer/references/plan-patterns.md` | Rephrased "chain-of-thought encouragement" → "structured reasoning" |
+| `.claude/skills/prompt-optimizer/references/exec-patterns.md` | Fixed inaccurate JPA null collection root cause description |
+| `.claude/commands/review-pr.md` | Added section headers to `cat` output for source boundaries |
+| `.claude/commands/review-pr-presentation.md` | Added `@Nullable` qualifier to `getTags()` null-check example |
+| `.claude/skills/prompt-optimizer/references/anti-patterns.md` | Corrected Spring Boot version in example: reverted erroneous "Spring Boot 3" back to "Spring Boot 4" (backend/pom.xml is 4.0.3) |
+| `web/src/components/view-learning/view-learning.test.tsx` | Fixed stale aria-label assertions — mocks return raw i18n keys; aligned assertions with mock behavior |
 
 ### PR #187 Review Fixes (fix-pr/187, 2026-03-12) ✅
 

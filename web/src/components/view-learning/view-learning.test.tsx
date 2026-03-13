@@ -87,7 +87,7 @@ describe('LearningLoading', () => {
 
   it('has an accessible aria-label', () => {
     render(<LearningLoading />);
-    expect(screen.getByLabelText('Carregando aprendizado...')).toBeInTheDocument();
+    expect(screen.getByLabelText('view.loadingLabel')).toBeInTheDocument();
   });
 });
 
@@ -97,7 +97,7 @@ describe('ViewLearningScreen', () => {
   it('renders loading state', () => {
     render(<ViewLearningScreen state="loading" />);
     // LearningLoading has aria-busy="true"
-    expect(screen.getByLabelText('Carregando aprendizado...')).toBeInTheDocument();
+    expect(screen.getByLabelText('view.loadingLabel')).toBeInTheDocument();
   });
 
   it('renders not-found error state', () => {
