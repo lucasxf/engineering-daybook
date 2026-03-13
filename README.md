@@ -48,10 +48,10 @@ The runner-up names in that exploration were **daftari** (Swahili for "notebook"
 
 | Layer | Technology |
 |-------|------------|
-| **Frontend (Web)** | Next.js 14+, TypeScript, Tailwind CSS |
-| **Frontend (Mobile)** | Expo (React Native), TypeScript |
+| **Frontend (Web)** | Next.js 16, TypeScript, Tailwind CSS, react-markdown |
+| **Frontend (Mobile)** | Expo SDK 53 (React Native 0.79), TypeScript, react-native-markdown-display |
 | **Backend** | Java 21, Spring Boot 4.0+, Maven |
-| **Database** | PostgreSQL 15+ with pg_vector |
+| **Database** | PostgreSQL 15+ with pgvector + uuid-ossp extensions |
 | **Infrastructure** | Vercel (web), Railway (backend), Supabase (database) |
 | **CI/CD** | GitHub Actions |
 | **Versioning** | Semantic Versioning + Conventional Commits + Release Please |
@@ -65,20 +65,25 @@ The runner-up names in that exploration were **daftari** (Swahili for "notebook"
 ├── backend/                  # Java Spring Boot API
 ├── web/                      # Next.js web application
 ├── mobile/                   # Expo mobile application
+│   ├── e2e/                  # Maestro E2E test flows
+│   └── store-assets/         # Play Store / App Store listing assets
 ├── docs/                     # Project documentation
 │   ├── PROJECT_VISION.md
 │   ├── REQUIREMENTS.md
 │   ├── ARCHITECTURE.md
 │   ├── GLOSSARY.md
 │   ├── ROADMAP.md              # Phase index (source of truth for active phase)
-│   └── ROADMAP.phase-{N}.md   # Per-phase details (0–8)
-├── prompts/                  # AI assistant prompts
-│   ├── claude-ai/
-│   └── ignore/
+│   ├── ROADMAP.phase-{N}.md   # Per-phase details (0–8)
+│   └── specs/                  # Spec-Driven Development feature specs
+│       └── features/           # 26 feature specs (one per shipped milestone)
 ├── .claude/                  # Claude Code automation
-│   ├── commands/
-│   └── agents/
-├── .github/workflows/        # CI/CD pipelines
+│   ├── agents/               # Specialized AI agents (tech-writer, sous-chef, etc.)
+│   ├── commands/             # Slash commands (/finish-session, /write-spec, etc.)
+│   ├── skills/               # Reusable skill prompts (mobile-design-system, etc.)
+│   ├── scripts/              # Automation scripts (coverage, metrics, registry)
+│   └── metrics/              # Session usage stats and recommendations
+├── .github/workflows/        # CI/CD pipelines (ci, release-please, claude)
+├── docker-compose.yml        # Local development database (PostgreSQL + pgvector)
 ├── CLAUDE.md                 # Claude Code context
 ├── LICENSE                   # MIT License
 └── README.md                 # This file
@@ -102,11 +107,15 @@ The runner-up names in that exploration were **daftari** (Swahili for "notebook"
 git clone https://github.com/lucasxf/engineering-daybook.git
 cd engineering-daybook
 
+# Start local PostgreSQL (with pgvector)
+docker-compose up -d
+
 # Backend
 cd backend
 ./mvnw spring-boot:run
 # API available at http://localhost:8080
 # Swagger UI at http://localhost:8080/swagger-ui
+# Note: on Windows, ./mvnw may fail with an SSL error — use system mvn instead: mvn spring-boot:run
 
 # Web (new terminal)
 cd web
@@ -116,7 +125,7 @@ npm run dev
 
 # Mobile (new terminal)
 cd mobile
-npm install
+npm install --legacy-peer-deps   # required for Expo SDK 53 peer deps
 npx expo start
 ```
 
@@ -129,6 +138,10 @@ The backend requires environment variables for:
 
 See `backend/src/main/resources/application.yml` for configuration details.
 
+The web app requires `NEXT_PUBLIC_API_URL` pointing to the backend (default: `http://localhost:8080`).
+
+The mobile app requires `EXPO_PUBLIC_API_URL` for the same.
+
 ---
 
 ## Features
@@ -137,13 +150,16 @@ See `backend/src/main/resources/application.yml` for configuration details.
 - **User Authentication**
   - Email/password registration and login
   - Google OAuth integration
-  - JWT-based session management
+  - JWT-based session management with httpOnly cookies
   - Secure password hashing with BCrypt
+  - Password reset via email
 
 - **Learning Management**
   - Create, read, update, and delete learnings
-  - Rich text content with Markdown support
-  - Automatic and manual tagging — including tag assignment at creation time (QuickEntry and /new page)
+  - Rich text content with Markdown support (web + mobile)
+  - Automatic and manual tagging — tag assignment at creation time (QuickEntry and /new page)
+  - AI-powered tag suggestions (approve/reject; generated from HuggingFace keyword extraction)
+  - Tag CRUD with display-name normalization; tag filtering on the feed
   - Audit trail for all changes
   - Tag-grouped view (alphabetical sections, untagged at bottom)
   - Timeline view (month/year grouped, newest-first, locale-aware)
@@ -152,27 +168,36 @@ See `backend/src/main/resources/application.yml` for configuration details.
   - AI-powered embeddings via HuggingFace Inference API (async, non-blocking)
   - Visibility controls — private by default; learners can make individual learnings public (irreversible); per-user default visibility preference
 
-- **Web Application**
-  - Responsive design with Tailwind CSS
-  - Internationalization (EN/PT-BR) with next-intl
-  - Dark mode / light mode / system theme toggle
-  - Protected routes and authentication flows
-  - Modern React patterns with TypeScript
-  - Password reset via email
-  - E2E tested with Playwright (auth redirect, login, create/edit/delete learnings)
+- **Social & Discovery**
+  - Follow/unfollow learners; automatic colleague detection (mutual follow)
+  - 4-tier visibility: PRIVATE, FOLLOWERS_ONLY, COLLEAGUES_ONLY, PUBLIC
+  - Discovery feed — aggregates learnings and re-learnings from followed learners
+  - Learner search — Discover page to find learners by handle or name
+  - Re-Learning — share any public learning to your own feed with attribution; visibility cascade enforced (shared visibility ≤ original)
+  - Anti-vanity design — no public follower counts
 
 - **Learner Profiles**
   - Public profile page at `/learners/{handle}` with avatar, display name, and bio
   - Avatar upload with automatic resize to 200×200 JPEG (Supabase Storage, 2 MB limit, JPEG/PNG/WebP)
   - Short bio editing; external links blocked by design
   - Clickable handle and avatar thumbnail in navigation header
-  - Profile respects visibility settings; no vanity metrics on public view
+  - Profile respects visibility settings
+
+- **Web Application**
+  - Responsive design with Tailwind CSS
+  - Internationalization (EN/PT-BR) with next-intl
+  - Dark mode / light mode / system theme toggle
+  - Protected routes and authentication flows
+  - Modern React patterns with TypeScript
+  - E2E tested with Playwright (auth redirect, login, create/edit/delete learnings)
 
 - **Mobile Application (Expo/React Native)**
   - Auth: login, register, password reset, Google OAuth
   - Learning feed with search (hybrid keyword + semantic)
-  - Create, edit, and delete learnings
+  - Create, edit, and delete learnings with Markdown rendering
   - Visibility picker at creation; visibility badge and toggle on detail screen
+  - Discover screen — learner search and follow/unfollow
+  - Learner profile screen with avatar, bio, and follow status
   - Avatar and bio display on ProfileScreen; avatar upload/remove via settings
   - Dark mode / light mode / system theme
   - Internationalization (EN/PT-BR)
@@ -212,6 +237,9 @@ See [ROADMAP.phase-3.md](./docs/ROADMAP.phase-3.md)
 - [x] Mobile app (Expo/React Native) — auth, feed, create/edit/delete, dark mode, i18n EN/PT-BR
 - [ ] App Store Publishing (TestFlight + Play Store internal track)
 
+### Phase 4: Growth — ⏸️ Postponed
+See [ROADMAP.phase-4.md](./docs/ROADMAP.phase-4.md)
+
 ### Phase 5: Privacy — 🔄 In Progress
 See [ROADMAP.phase-5.md](./docs/ROADMAP.phase-5.md)
 - [x] POK Visibility Controls — private by default, per-learning public toggle (irreversible), default visibility preference, access control enforcement, UI indicators on web and mobile
@@ -223,12 +251,66 @@ See [ROADMAP.phase-6.md](./docs/ROADMAP.phase-6.md)
 - [x] Learner Profiles — avatar upload (Supabase Storage, Thumbnailator resize), bio and display name editing, public profile page, header avatar thumbnail + handle link, visibility enforcement, no public vanity metrics
 - [x] Share (Re-Learning) — share any public learning to your own feed with attribution to original author; visibility cascade enforced (shared visibility ≤ original); original going private removes downstream shares; Re-learn button on learner profiles for non-owner visitors; ReLearningModal component
 - [x] Discovery Feed — social feed aggregating learnings and re-learnings from followed learners (GET /api/v1/feed); Discover page with learner search by handle/name (GET /api/v1/learners/search); mobile social feed via useFeedData hook; 17 E2E tests
+- [ ] Classes & Study Groups
+- [ ] Community Principles & Content Moderation
+
+### Phase 7: Gamification — ⏸️ Postponed
+See [ROADMAP.phase-7.md](./docs/ROADMAP.phase-7.md)
 
 ### Phase 8: Knowledge Enrichment — 🔄 In Progress
 See [ROADMAP.phase-8.md](./docs/ROADMAP.phase-8.md)
 - [x] Markdown Support — react-markdown + rehype-sanitize (web), react-native-markdown-display (mobile); renders in all views
 - [x] Tag Improvements — display_name column, TagService.normalise(), GET /api/v1/poks?tagId filter, TagFilter component wired into feed, mobile tag components updated
 - [ ] Knowledge Paths — planning and spec only (graph visualization, grouped by topic)
+
+---
+
+## Development Workflow
+
+This project uses [Claude Code](https://claude.ai/code) with a suite of custom slash commands for spec-driven development.
+
+### Happy Path
+
+```
+# Optional: refine your prompt before starting
+/prompt-optimizer "I want to build feature X"
+# → /clear → Shift+Tab (plan mode) → paste enhanced prompt
+
+/start-session --stack=<backend|web|mobile|docs>
+
+  # For complex features — skip for bug fixes / small chores
+  /write-spec <feature-name>
+  /review-spec docs/specs/features/<feature-name>.md
+  /implement-spec docs/specs/features/<feature-name>.md
+
+  # ... code, iterate ...
+
+/finish-session        # build + lint + test gate → docs update → commit
+
+/create-pr             # open PR against develop
+
+  # Iterate on review feedback
+  /review-pr <N>
+  /fix-pr <N>
+
+# After merge to develop
+/compile-metrics
+```
+
+### Key Commands
+
+| Command | Purpose |
+|---------|---------|
+| `/start-session` | Load stack-specific context, orient on current branch + phase |
+| `/write-spec` | Draft a feature spec (delegates to specialist agents) |
+| `/review-spec` | Quality-gate the spec before implementation |
+| `/implement-spec` | TDD implementation from spec, one commit per task |
+| `/finish-session` | Build/lint/test gates, docs update, conventional commit |
+| `/create-pr` | Open PR via `gh` with auto-generated description |
+| `/review-pr` | Triage open PR — CI status, review comments, triage report |
+| `/fix-pr` | Implement approved items from triage report |
+| `/compile-metrics` | Aggregate session usage stats after merge |
+| `/prompt-optimizer` | Enhance a raw prompt before starting a session |
 
 ---
 
@@ -239,26 +321,9 @@ The backend exposes a RESTful API documented with OpenAPI (Swagger):
 - **Swagger UI:** `http://localhost:8080/swagger-ui` (when running locally)
 - **OpenAPI Spec:** `http://localhost:8080/api-docs`
 
-Key endpoints:
-- `POST /api/v1/auth/register` - Register new user
-- `POST /api/v1/auth/login` - Login with email/password
-- `POST /api/v1/auth/google` - Login with Google OAuth
-- `GET /api/v1/poks` - List user's POKs
-- `POST /api/v1/poks` - Create new POK
-- `GET /api/v1/poks/{id}` - Get POK by ID
-- `PUT /api/v1/poks/{id}` - Update POK
-- `DELETE /api/v1/poks/{id}` - Delete POK
-- `GET /api/v1/poks/{id}/history` - Get POK change history (audit log)
-- `GET /api/v1/learners/{handle}` - Get learner profile (visibility-gated)
-- `GET /api/v1/learners/{handle}/poks` - Get learner's learnings visible to the requester (4-tier access control)
-- `POST /api/v1/learners/{handle}/follow` - Follow a learner (**requires `Content-Type: application/json`**)
-- `DELETE /api/v1/learners/{handle}/follow` - Unfollow a learner (**requires `Content-Type: application/json`**)
-- `PATCH /api/v1/users/me/settings` - Update user settings (bio, displayName, visibility, etc.)
-- `POST /api/v1/users/me/avatar` - Upload or replace user avatar (multipart/form-data)
-- `DELETE /api/v1/users/me/avatar` - Remove user avatar
-- `POST /api/v1/poks/{id}/share` - Share a public learning to your own feed
-- `DELETE /api/v1/poks/shared/{shareId}` - Remove a re-learning share
-- `GET /api/v1/poks/shared/{shareId}` - Get a specific share record
+The API covers these groups: **Auth** (web + mobile + password reset), **Learnings** (CRUD, search, history), **Tags** (CRUD, assignment, AI suggestions), **Social** (feed, follow, learner search, re-learning/shares), **Profile** (settings, avatar), and **Admin** (embedding backfills).
+
+See Swagger UI for the full, always-up-to-date endpoint reference.
 
 ---
 
@@ -271,6 +336,7 @@ Key endpoints:
 | [ARCHITECTURE.md](./docs/ARCHITECTURE.md) | Technical stack, data model, and ADRs |
 | [GLOSSARY.md](./docs/GLOSSARY.md) | Terms and definitions (POK, Learner, etc.) |
 | [ROADMAP.md](./docs/ROADMAP.md) | Development phases, milestones, and timeline |
+| [docs/specs/](./docs/specs/) | Spec-Driven Development feature specs (26 shipped features) |
 
 ---
 
@@ -306,3 +372,8 @@ This project is licensed under the [MIT License](./LICENSE).
 | 0.3.0 | 2026-02-14 | POK CRUD (backend + web implementation) |
 | 0.4.0 | 2026-02-19 | UI/UX Polish — dark mode, i18n (EN/PT-BR), aria improvements |
 | 0.5.0 | 2026-02-20 | MVP deployed — learnimo.net live (Railway + Vercel + Supabase) |
+| 0.6.0 | 2026-02-25 | Phase 2 — editing, deletion, audit trail, tagging, timeline/tag-grouped views, sort options |
+| 0.7.0 | 2026-02-27 | Phase 3 — semantic search (pgvector + HuggingFace), Expo mobile app (auth, feed, CRUD, dark mode, i18n) |
+| 0.8.0 | 2026-03-04 | Phase 5 — visibility controls (4-tier), learner profile privacy, access enforcement, E2E tests |
+| 0.9.0 | 2026-03-08 | Phase 6 — following/colleagues, learner profiles + avatar, re-learning/shares, discovery feed, learner search, mobile social features |
+| 0.10.0 | 2026-03-06 | Phase 8 — Markdown support (web + mobile), tag display names + normalization, TagFilter on feed |
