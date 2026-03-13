@@ -2,16 +2,8 @@
 
 import { Pencil, Trash2 } from "lucide-react";
 import { useTranslations, useLocale } from "next-intl";
-import { LearningMarkdown } from "./learning-markdown";
-
-interface Learning {
-  id: string;
-  title: string;
-  content: string;
-  createdAt: string;
-  updatedAt: string;
-  tags: string[];
-}
+import { MarkdownContent } from "@/components/ui/MarkdownContent";
+import type { Learning } from "./view-learning-screen";
 
 interface LearningContentProps {
   learning: Learning;
@@ -56,14 +48,16 @@ export function LearningContent({ learning, onDeleteClick, onEditClick }: Learni
 
         {/* Action buttons */}
         <div className="flex shrink-0 items-center gap-2">
-          <button
-            onClick={onEditClick}
-            aria-label={t("view.editButton")}
-            className="edit-btn inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-input-focus)]"
-          >
-            <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-            {t("view.editButton")}
-          </button>
+          {onEditClick && (
+            <button
+              onClick={onEditClick}
+              aria-label={t("view.editButton")}
+              className="edit-btn inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-input-focus)]"
+            >
+              <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+              {t("view.editButton")}
+            </button>
+          )}
           <button
             onClick={onDeleteClick}
             aria-label={t("delete.button")}
@@ -90,7 +84,7 @@ export function LearningContent({ learning, onDeleteClick, onEditClick }: Learni
 
       {/* Content card */}
       <div className="rounded-xl border border-card-border bg-card p-6 shadow-sm sm:p-8">
-        <LearningMarkdown content={learning.content} />
+        <MarkdownContent content={learning.content} />
 
         {/* Tags */}
         {learning.tags.length > 0 && (

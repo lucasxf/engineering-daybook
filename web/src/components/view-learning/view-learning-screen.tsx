@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { LearningNavBar } from "./learning-nav-bar";
 import { LearningBreadcrumb } from "./learning-breadcrumb";
 import { LearningContent } from "./learning-content";
@@ -23,41 +23,19 @@ export interface Learning {
   tags: string[];
 }
 
-interface ViewLearningScreenProps {
-  /** Current screen state */
-  state: ScreenState;
-  /** Learning data (required when state is "loaded") */
-  learning?: Learning;
-  /** Callback when delete is confirmed */
-  onDeleteConfirm?: () => void;
-  /** Callback when edit is clicked */
-  onEditClick?: () => void;
-}
+export type ViewLearningScreenProps =
+  | { state: "loaded"; learning: Learning; onDeleteConfirm?: () => void; onEditClick?: () => void }
+  | { state: "loading" | "not-found" | "forbidden"; learning?: never; onDeleteConfirm?: () => void; onEditClick?: () => void };
 
-export function ViewLearningScreen({ 
-  state, 
-  learning, 
-  onDeleteConfirm,
-  onEditClick,
-}: ViewLearningScreenProps) {
+export function ViewLearningScreen(props: ViewLearningScreenProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const handleDeleteClick = () => setDeleteOpen(true);
   const handleDeleteCancel = () => setDeleteOpen(false);
   const handleDeleteConfirmInternal = () => {
     setDeleteOpen(false);
-    onDeleteConfirm?.();
+    props.onDeleteConfirm?.();
   };
-
-  // Avoid hydration mismatch
-  if (!mounted) {
-    return null;
-  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background font-sans">
@@ -75,25 +53,25 @@ export function ViewLearningScreen({
       {/* Main */}
       <main id="main-content" className="flex flex-1 flex-col px-4 py-8">
         <div className="mx-auto w-full max-w-[720px]">
-          {state === "loading" ? (
+          {props.state === "loading" ? (
             <LearningLoading />
-          ) : state === "not-found" ? (
+          ) : props.state === "not-found" ? (
             <LearningError type="not-found" />
-          ) : state === "forbidden" ? (
+          ) : props.state === "forbidden" ? (
             <LearningError type="forbidden" />
-          ) : learning ? (
+          ) : (
             <>
               {/* Breadcrumb */}
               <LearningBreadcrumb />
 
               {/* Content */}
               <LearningContent
-                learning={learning}
+                learning={props.learning}
                 onDeleteClick={handleDeleteClick}
-                onEditClick={onEditClick}
+                onEditClick={props.onEditClick}
               />
             </>
-          ) : null}
+          )}
         </div>
       </main>
 

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Sun, Moon } from "lucide-react";
 import { ViewLearningScreen } from "@/components/view-learning/view-learning-screen";
-import type { ScreenState } from "@/components/view-learning/view-learning-screen";
+import type { ScreenState, Learning } from "@/components/view-learning/view-learning-screen";
 
 type Theme = "dark" | "light";
 
@@ -25,11 +25,23 @@ function ThemeToggle({ theme, onToggle }: { theme: Theme; onToggle: () => void }
 
 const STATE_LABELS: Record<ScreenState, { label: string; desc: string }> = {
   loaded: { label: "Carregado", desc: "Título, conteúdo e metadados" },
-  "no-title": { label: "Sem título", desc: "Primeiros 60 chars como cabeçalho" },
   loading: { label: "Carregando", desc: "Skeleton shimmer" },
   "not-found": { label: "404", desc: "Aprendizado não encontrado" },
   forbidden: { label: "403", desc: "Sem permissão de acesso" },
-  "delete-open": { label: "Confirmar exclusão", desc: "Modal de confirmação" },
+};
+
+const SAMPLE_LEARNING: Learning = {
+  id: "preview",
+  title: "Como construir hábitos de aprendizado",
+  content:
+    "Aprender de forma consistente exige **estrutura**. Aqui estão três princípios:\n\n" +
+    "1. Pequenas doses diárias valem mais que maratonas semanais\n" +
+    "2. Relacione o novo conhecimento ao que você já sabe\n" +
+    "3. Ensine o que aprendeu — isso solidifica o entendimento\n\n" +
+    "> _\"O verdadeiro aprendizado transforma comportamento, não apenas vocabulário.\"_",
+  createdAt: "2026-01-15T10:00:00Z",
+  updatedAt: "2026-01-20T14:30:00Z",
+  tags: ["hábitos", "produtividade", "aprendizado"],
 };
 
 export default function Home() {
@@ -79,7 +91,11 @@ export default function Home() {
             />
           </div>
           <div className="flex-1 overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
-            <ViewLearningScreen theme={leftTheme} screenState={activeState} />
+            {activeState === "loaded" ? (
+              <ViewLearningScreen state="loaded" learning={SAMPLE_LEARNING} />
+            ) : (
+              <ViewLearningScreen state={activeState} />
+            )}
           </div>
         </div>
 
@@ -96,7 +112,11 @@ export default function Home() {
             />
           </div>
           <div className="flex-1 overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
-            <ViewLearningScreen theme={rightTheme} screenState={activeState} />
+            {activeState === "loaded" ? (
+              <ViewLearningScreen state="loaded" learning={SAMPLE_LEARNING} />
+            ) : (
+              <ViewLearningScreen state={activeState} />
+            )}
           </div>
         </div>
       </div>

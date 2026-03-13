@@ -2,6 +2,7 @@
 
 import { ArrowLeft, BookOpen, ShieldOff } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 
 interface LearningErrorProps {
   type: "not-found" | "forbidden";
@@ -9,6 +10,7 @@ interface LearningErrorProps {
 
 export function LearningError({ type }: LearningErrorProps) {
   const t = useTranslations("poks.errors");
+  const router = useRouter();
 
   const config = {
     "not-found": {
@@ -49,13 +51,13 @@ export function LearningError({ type }: LearningErrorProps) {
         {body}
       </p>
 
-      <a
-        href="#"
+      <button
+        onClick={() => router.back()}
         className="inline-flex items-center gap-2 rounded-lg border border-[#2B4A78] px-4 py-2 text-sm font-medium text-[#8B9EC2] transition-colors hover:bg-[#2B4A78]/30 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-input-focus)]"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
         Voltar
-      </a>
+      </button>
     </div>
   );
 }

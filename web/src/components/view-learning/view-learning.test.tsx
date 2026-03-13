@@ -93,14 +93,6 @@ describe('LearningLoading', () => {
 // ── ViewLearningScreen ─────────────────────────────────────────────────────────
 
 describe('ViewLearningScreen', () => {
-  // The component defers rendering until after mount (hydration guard)
-  // so we need to let the useEffect run. render() + act() handles this in RTL.
-
-  it('renders nothing before mount (hydration guard)', () => {
-    // We can't easily test the pre-mount state in RTL because effects run
-    // synchronously in the test environment. Skip this — it's a browser concern.
-  });
-
   it('renders loading state', () => {
     render(<ViewLearningScreen state="loading" />);
     // LearningLoading has aria-busy="true"

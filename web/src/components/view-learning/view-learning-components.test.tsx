@@ -30,10 +30,10 @@ vi.mock('@/components/ui/Avatar', () => ({
   ),
 }));
 
-// Mock LearningMarkdown for LearningContent tests
-vi.mock('./learning-markdown', () => ({
-  LearningMarkdown: ({ content }: { content: string }) => (
-    <div data-testid="learning-markdown">{content}</div>
+// Mock MarkdownContent for LearningContent tests
+vi.mock('@/components/ui/MarkdownContent', () => ({
+  MarkdownContent: ({ content }: { content: string }) => (
+    <div data-testid="markdown-content">{content}</div>
   ),
 }));
 
@@ -117,7 +117,7 @@ describe('LearningContent', () => {
 
   it('renders the markdown content area', () => {
     render(<LearningContent learning={baseLearning} onDeleteClick={vi.fn()} />);
-    expect(screen.getByTestId('learning-markdown')).toBeInTheDocument();
+    expect(screen.getByTestId('markdown-content')).toBeInTheDocument();
   });
 });
 
