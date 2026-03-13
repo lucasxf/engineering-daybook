@@ -24,6 +24,9 @@
 | REC-011 | 2026-03-12 | workflow | Enforce /review-spec gate — 0 approved specs while 19 are implemented | open | 2026-03-12 |
 | REC-012 | 2026-03-12 | archival | Archive imhotep agent — 0 invocations, single-project constraint not yet met | open | 2026-03-12 |
 | REC-013 | 2026-03-12 | metrics | Implement LOC churn tracking — total_locs_added/deleted/net_locs stuck at 0 | open | 2026-03-12 |
+| REC-014 | 2026-03-13 | metrics | Track skills ecosystem in usage-stats.toml — 3 skills present but not metricked | open | 2026-03-13 |
+| REC-015 | 2026-03-13 | archival | Evaluate professor-x agent — 0 invocations, no wiring to any command, no task delegation | open | 2026-03-13 |
+| REC-016 | 2026-03-13 | workflow | Fix stale Co-Authored-By footer in /create-pr — hardcoded "Claude Opus 4.5" should be current model | open | 2026-03-13 |
 
 ## Archive
 
