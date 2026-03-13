@@ -230,3 +230,5 @@ npm run test     # Run tests (Vitest)
   ```
 
   This also eliminates hydration guards that exist only to paper over the narrowing gap. Seen in `view-learning-screen.tsx`. (Added 2026-03-13)
+
+- **`useTranslations` mock returns raw keys — assert on keys, not translated strings:** The standard test mock `useTranslations: () => (key: string) => key` returns the raw key as-is (e.g. `"view.loadingLabel"`). Any test asserting on a translated string (e.g. `"Carregando aprendizado..."`) will fail because the component renders the raw key, not the translation. Always match assertions to what the mock returns. To assert on human-readable text, either use a real next-intl provider in the test, or change the assertion to use the raw key. (Added 2026-03-13)

@@ -348,6 +348,21 @@ Maintenance session: repository housekeeping and pre-existing CI failures resolv
 | Fixed pre-existing pgvector failures in `AuthIntegrationTest` and `FollowIntegrationTest` — added `enablePgVector()` helper to `@DynamicPropertySource` in both test classes; all tests now pass | ✅ Done |
 | Improved `/finish-session` command — added explicit session TOML staging verification step | ✅ Done |
 
+### PR #195 Review Fixes + Web Test Correction (fix, develop, 2026-03-13) ✅
+
+Automation/tooling maintenance session. Two commits; no backend or new page changes.
+
+| Area | Fix |
+|------|-----|
+| `.claude/scripts/session_delta.py` | Moved `--exclude=<file>` flag before `--` separator in grep subprocess call — was treated as a positional argument, not a flag |
+| `.gitignore` | Added `.claude/metrics/sessions/` to prevent transient session delta files from being committed |
+| `.claude/skills/prompt-optimizer/references/plan-patterns.md` | Rephrased "chain-of-thought encouragement" → "structured reasoning" |
+| `.claude/skills/prompt-optimizer/references/exec-patterns.md` | Fixed inaccurate JPA null collection root cause description |
+| `.claude/commands/review-pr.md` | Added section headers to `cat` output for source boundaries |
+| `.claude/commands/review-pr-presentation.md` | Added `@Nullable` qualifier to `getTags()` null-check example |
+| `.claude/skills/prompt-optimizer/references/anti-patterns.md` | Fixed "Spring Boot 4" → "Spring Boot 3" typo |
+| `web/src/components/view-learning/view-learning.test.tsx` | Fixed stale aria-label assertions — mocks return raw i18n keys; aligned assertions with mock behavior |
+
 ### PR #187 Review Fixes (fix-pr/187, 2026-03-12) ✅
 
 Web-only fix-pr session for PR #187 (feat: implement View Learning screen with design system and i18n support). Restored coverage above CI threshold by adding 36 unit tests; removed dead code.
