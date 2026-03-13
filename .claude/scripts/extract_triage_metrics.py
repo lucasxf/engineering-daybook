@@ -54,7 +54,7 @@ def main():
 
     if '[pr_review_quality]' in content:
         def add(field, n):
-            global content
+            nonlocal content
             def inc(m): return m.group(1) + str(int(m.group(2)) + n)
             content = re.sub(
                 rf'(\[pr_review_quality\][^\[]*?{re.escape(field)} = )(\d+)',
