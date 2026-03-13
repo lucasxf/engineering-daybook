@@ -198,4 +198,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-03-13 (session: develop — add skill-creator skill from Anthropic skills repo)*
+*Last updated: 2026-03-13 (session: develop — add prompt-optimizer skill)*

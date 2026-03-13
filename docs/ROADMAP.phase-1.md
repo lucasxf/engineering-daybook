@@ -317,6 +317,17 @@ Two-commit tooling session: one CI fix and one automation enhancement.
 | `.claude/commands/finish-session.md` | Added `|| true` to `git add .claude/metrics/sessions/` to silence non-fatal exit code when directory is absent |
 | `.claude/commands/review-pr.md` | Steps 1B and 1C now prompt before overwriting PR title/description — only fires when metadata is inadequate; triage report gains `## PR Metadata` section |
 
+### prompt-optimizer Skill (chore/prompt-optimizer-skill, develop, 2026-03-13) ✅
+
+Added the `prompt-optimizer` skill to `.claude/skills/prompt-optimizer/`. Transforms raw intent or existing prompts into mode-optimized versions for Claude Code — plan mode (Opus) or execution mode (Sonnet). No backend/web/mobile code changed.
+
+| Task | Status |
+|------|--------|
+| Created `SKILL.md` — mode detection, optimize workflow, review workflow, output format | ✅ Done |
+| Created `references/plan-patterns.md` — 7 task-type templates for Opus plan mode | ✅ Done |
+| Created `references/exec-patterns.md` — 7 task-type templates for Sonnet execution mode | ✅ Done |
+| Created `references/anti-patterns.md` — 10 common prompt mistakes with before/after examples | ✅ Done |
+
 ### skill-creator Skill Installation (chore/skill-creator, develop, 2026-03-13) ✅
 
 Added the `skill-creator` skill from Anthropic's open-source skills repo to `.claude/skills/skill-creator/`. This meta-skill enables creating and iterating on new Claude Code skills. 18 files installed. No backend/web/mobile code changed.
