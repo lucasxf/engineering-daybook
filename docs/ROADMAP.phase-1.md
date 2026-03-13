@@ -288,6 +288,23 @@ Tooling session: added a persistent recommendation record table to prevent senti
 | Updated `compile-metrics.md` — moved sentinel to Step 4E (before commit) so appended recs are included in the same commit; added `recommendations.md` to git staging step | ✅ Done |
 | Updated `.claude/metrics/README.md` — removed stale `pulse` references; documented all current files and updated "How It Works" section | ✅ Done |
 
+### PR #194 Review Fixes — view-learning Design Preview (fix-pr/194, develop, 2026-03-13) ✅
+
+Web-only fix-pr session for PR #194 (feat: view-learning design preview components). No new milestones completed — the `view-learning` screen is a design-preview component deferred from milestone integration until it is wired into the actual `/poks/[id]` page.
+
+| Area | Fix |
+|------|-----|
+| `view-learning-screen.tsx` | Removed hydration guard; converted props to discriminated union (`state: 'loading' \| 'loaded' \| 'error'`) |
+| `learning-content.tsx` | Removed duplicate `Learning` type; guarded edit button behind ownership check; replaced `LearningMarkdown` with canonical `MarkdownContent` renderer |
+| `learning-breadcrumb.tsx` | Fixed `href="#"` placeholder → locale-aware `<Link>` |
+| `learning-error.tsx` | Fixed `href="#"` placeholder → `router.back()` call |
+| `learning-markdown.tsx` + `learning-markdown.test.tsx` | Deleted — duplicate renderer superseded by `MarkdownContent` |
+| `view-learning.test.tsx` | Removed empty test |
+| `view-learning-components.test.tsx` | Updated mock target from `LearningMarkdown` → `MarkdownContent` |
+| `app/page.tsx` | Fixed broken import, wrong prop names, invalid `STATE_LABELS` references |
+| `tsconfig.json` (root) | Added `./web/src/*` to `@/*` path alias so root-level app can resolve web components |
+| `.claude/metrics/sessions/` | Deleted two stale session delta files (`develop.toml`, `v0%2Flucasxf-61cf9218.toml`) |
+
 ### CI Fix + /review-pr Interactive Metadata (fix + feat, develop, 2026-03-12) ✅
 
 Two-commit tooling session: one CI fix and one automation enhancement.

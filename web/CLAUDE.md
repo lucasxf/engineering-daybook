@@ -215,3 +215,18 @@ npm run test     # Run tests (Vitest)
 - **`<p>` cannot wrap block-level elements — use `<div>` for hint/helper text slots that may contain block content:** The HTML spec prohibits `<p>` from containing block-level elements such as `<div>`, `<ul>`, or other `<p>` tags. When a hint slot in a form field component (e.g. `FormField.tsx`) accepts a `ReactNode`, callers may pass block-level JSX. Wrapping that content in `<p>` causes the browser to implicitly close the `<p>` tag early, breaking layout and producing invalid DOM structure. Fix: use `<div>` as the hint wrapper whenever the slot accepts arbitrary `ReactNode` content. Seen in `FormField.tsx` (`<p className="...">` → `<div className="...">`). (Added 2026-03-12)
 
 - **`vi.mock()` at module level affects ALL imports in the same file — split test files when mocking sub-components you also want to test directly:** When a test file mocks a sub-component (e.g. `vi.mock('./learning-nav-bar', ...)`) AND later imports that same component to test it directly, the import resolves to the mock, not the real implementation. The test passes vacuously. Fix: put screen-level tests (which need the mocks) in one file (e.g. `view-learning-screen.test.tsx`), and individual component tests (which need the real implementations) in a separate file (e.g. `view-learning-components.test.tsx`) with no conflicting mocks. Rule of thumb: one test file per "mock context". (Added 2026-03-12)
+
+- **TypeScript does not narrow a discriminated union through deeply nested JSX ternaries — add an explicit branch per variant:** When a component accepts discriminated union props (e.g. `props.state === 'loading' | 'loaded' | 'error'`), TypeScript narrows inside an `if`/`switch` block but loses that narrowing across multi-level JSX ternaries. A pattern like `props.state !== 'loading' ? <LoadedView {...props} /> : null` may compile but passes the full union to `<LoadedView>`, which then fails or produces stale type errors when the component expects only the `'loaded'` variant. Fix: add an explicit conditional branch for each variant and assert or cast within that branch:
+
+  ```typescript
+  // ❌ TypeScript does not narrow here — props.data is still 'unknown' inside LoadedView
+  return props.state === 'loading' ? <Spinner /> : <LoadedView data={props.data} />;
+
+  // ✅ Explicit per-variant branch
+  if (props.state === 'loading') return <Spinner />;
+  if (props.state === 'error') return <ErrorView message={props.error} />;
+  // TypeScript now knows props.state === 'loaded' here
+  return <LoadedView data={props.data} />;
+  ```
+
+  This also eliminates hydration guards that exist only to paper over the narrowing gap. Seen in `view-learning-screen.tsx`. (Added 2026-03-13)
