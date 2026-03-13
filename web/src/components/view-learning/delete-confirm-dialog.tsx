@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 
@@ -13,7 +13,9 @@ export function DeleteConfirmDialog({ onCancel, onConfirm }: DeleteConfirmDialog
   const t = useTranslations("poks");
   const dialogRef = useRef<HTMLDivElement>(null);
   const cancelBtnRef = useRef<HTMLButtonElement>(null);
-  const warningId = "delete-warning-text";
+  const uid = useId();
+  const titleId = `${uid}-title`;
+  const warningId = `${uid}-warning`;
 
   // Focus the cancel button when the dialog opens
   useEffect(() => {
@@ -68,7 +70,7 @@ export function DeleteConfirmDialog({ onCancel, onConfirm }: DeleteConfirmDialog
       <div
         role="dialog"
         aria-modal="true"
-        aria-labelledby="delete-dialog-title"
+        aria-labelledby={titleId}
         aria-describedby={warningId}
         ref={dialogRef}
         className="fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-card-border bg-card p-6 shadow-2xl"
@@ -84,7 +86,7 @@ export function DeleteConfirmDialog({ onCancel, onConfirm }: DeleteConfirmDialog
 
         {/* Title */}
         <h2
-          id="delete-dialog-title"
+          id={titleId}
           className="mb-3 font-heading text-lg font-semibold text-foreground"
         >
           {t("delete.confirmTitle")}
