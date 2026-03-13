@@ -27,6 +27,8 @@
 | REC-014 | 2026-03-13 | metrics | Track skills ecosystem in usage-stats.toml — 3 skills present but not metricked | open | 2026-03-13 |
 | REC-015 | 2026-03-13 | archival | Evaluate professor-x agent — 0 invocations, no wiring to any command, no task delegation | open | 2026-03-13 |
 | REC-016 | 2026-03-13 | workflow | Fix stale Co-Authored-By footer in /create-pr — hardcoded "Claude Opus 4.5" should be current model | open | 2026-03-13 |
+| REC-017 | 2026-03-13 | archival | virgil agent still on disk despite REC-010 marking archival as implemented — move to archive/ or delete | open | 2026-03-13 |
+| REC-018 | 2026-03-13 | workflow | nexus agent has 0 invocations — verify trigger description or add explicit session-start promotion separate from REC-009 | open | 2026-03-13 |
 
 ## Archive
 

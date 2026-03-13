@@ -2,7 +2,7 @@
 # Compiled by /compile-metrics, analyzed by automation-sentinel agent
 
 [metadata]
-timestamp = "2026-03-13T14:03:15Z"
+timestamp = "2026-03-13T17:44:27Z"
 commit_sha = ""
 branch = "develop"
 schema_version = "1.0.0"
@@ -10,12 +10,12 @@ updated_by = "compile-metrics"
 
 # Agent Usage Metrics
 [agent_usage.Explore]
-invocations = 77
-last_used = "2026-03-12T13:44:12Z"
+invocations = 86
+last_used = "2026-03-13T17:11:01Z"
 
 [agent_usage.Plan]
-invocations = 11
-last_used = "2026-03-09T23:37:53Z"
+invocations = 12
+last_used = "2026-03-13T14:33:19Z"
 
 [agent_usage.general-purpose]
 invocations = 63
@@ -26,8 +26,8 @@ invocations = 5
 last_used = "2026-03-12T11:59:30Z"
 
 [agent_usage.hedy]
-invocations = 0
-last_used = ""
+invocations = 2
+last_used = "2026-03-13T17:14:23Z"
 
 [agent_usage.imhotep]
 invocations = 0
@@ -38,8 +38,8 @@ invocations = 0
 last_used = ""
 
 [agent_usage.pixl]
-invocations = 0
-last_used = ""
+invocations = 1
+last_used = "2026-03-13T15:15:17Z"
 
 [agent_usage.professor-x]
 invocations = 0
@@ -54,8 +54,8 @@ invocations = 1
 last_used = "2026-03-11T21:47:37Z"
 
 [agent_usage.tech-writer]
-invocations = 8
-last_used = "2026-03-13T13:59:38Z"
+invocations = 10
+last_used = "2026-03-13T16:56:01Z"
 
 [agent_usage.virgil]
 invocations = 0
@@ -67,20 +67,20 @@ last_used = "2026-03-11T21:47:38Z"
 
 # Command Usage Metrics
 [command_usage.compile-metrics]
-invocations = 12
-last_used = "2026-03-13T14:00:32Z"
+invocations = 13
+last_used = "2026-03-13T17:41:21Z"
 
 [command_usage.create-pr]
-invocations = 27
-last_used = "2026-03-11T16:00:02Z"
+invocations = 28
+last_used = "2026-03-13T16:46:20Z"
 
 [command_usage.directive]
 invocations = 1
 last_used = "2026-03-06T18:44:46Z"
 
 [command_usage.finish-session]
-invocations = 47
-last_used = "2026-03-13T13:58:39Z"
+invocations = 52
+last_used = "2026-03-13T17:35:07Z"
 
 [command_usage.fix-pr]
 invocations = 8
@@ -103,8 +103,8 @@ invocations = 5
 last_used = "2026-03-11T21:33:52Z"
 
 [command_usage.start-session]
-invocations = 26
-last_used = "2026-03-12T12:24:28Z"
+invocations = 28
+last_used = "2026-03-13T17:07:56Z"
 
 [command_usage.write-spec]
 invocations = 6
@@ -115,11 +115,16 @@ invocations = 0
 last_used = ""
 
 # Productivity Metrics
+
+[command_usage.prompt-optimizer]
+invocations = 1
+last_used = "2026-03-13T14:52:45Z"
+
 [productivity]
-current_total_locs = 55853
-current_production_locs = 26221
-current_test_locs = 29632
-test_ratio_percent = 113.0
+current_total_locs = 47791
+current_production_locs = 26230
+current_test_locs = 21561
+test_ratio_percent = 82.2
 total_locs_added = 0
 total_locs_deleted = 0
 net_locs = 0
@@ -147,4 +152,4 @@ implemented = 19
 [health]
 schema_errors = 0
 total_agents = 14
-total_commands = 12
+total_commands = 13
