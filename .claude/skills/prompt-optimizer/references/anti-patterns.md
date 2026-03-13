@@ -32,7 +32,7 @@ Done when: `npm test -- TagSection` passes.
 
 **Before:**
 ```
-This project uses Spring Boot 4 with Java 21. We follow Conventional Commits format (feat:, fix:, docs:, etc.). The backend uses PostgreSQL and Flyway for migrations. Make sure to write unit tests following our TDD approach. We use JUnit 5 for testing. Always add @DisplayName annotations to tests.
+This project uses Spring Boot 3 with Java 21. We follow Conventional Commits format (feat:, fix:, docs:, etc.). The backend uses PostgreSQL and Flyway for migrations. Make sure to write unit tests following our TDD approach. We use JUnit 5 for testing. Always add @DisplayName annotations to tests.
 [... 200 tokens of context the model already has ...]
 
 Now add an endpoint to get a user's bookmarks.

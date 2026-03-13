@@ -36,7 +36,7 @@ Fix the NPE in PokService when a user with no POKs calls getRecentPoks.
 
 **File:** `backend/src/main/java/net/learnimo/service/PokService.java`
 **Symptom:** NullPointerException at PokService.java:142 when userId has zero POKs
-**Root cause:** result list is null (JPA returns null for empty collections in this query), not empty
+**Root cause:** custom @Query with projection returns null when no rows match, not empty list
 **Fix:** null-check before stream or rewrite query to return empty list
 
 Done when: `mvn test -Dtest=PokServiceTest` passes with a test for zero-POK user

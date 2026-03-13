@@ -300,7 +300,7 @@ gh api repos/$REPO/pulls/$PR_NUMBER/comments --paginate \
 gh api repos/$REPO/pulls/$PR_NUMBER/reviews --paginate \
   > /tmp/pr_reviews.json &
 wait
-cat /tmp/pr_issue_comments.json /tmp/pr_inline_comments.json /tmp/pr_reviews.json
+echo "=== ISSUE COMMENTS ===" && cat /tmp/pr_issue_comments.json && echo "=== INLINE COMMENTS ===" && cat /tmp/pr_inline_comments.json && echo "=== REVIEWS ===" && cat /tmp/pr_reviews.json
 ```
 
 **Filter out noise:**

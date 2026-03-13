@@ -1,6 +1,6 @@
 # Plan Mode Prompt Patterns (Opus)
 
-Templates for 7 task types optimized for plan mode. Opus benefits from thorough context, explicit trade-off requests, structured output specifications, and chain-of-thought encouragement.
+Templates for 7 task types optimized for plan mode. Opus benefits from thorough context, explicit trade-off requests, structured output specifications, and structured reasoning (numbered analysis, trade-off tables, risk lists).
 
 ---
 

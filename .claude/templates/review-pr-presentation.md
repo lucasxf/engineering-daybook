@@ -16,7 +16,7 @@ Use this format when presenting keepr's evaluation results to the user in Step 5
   Agent: sous-chef
 
 - :bug: **PokService.java:88** (by reviewer) — "This will NPE when tags is null"
-  Evaluation: Confirmed — pok.getTags() is nullable per the domain model; calling .stream() without
+  Evaluation: Confirmed — pok.getTags() is a @Nullable optional relationship; calling .stream() without
   a null check will throw at runtime when a POK has no tags.
   Agent: sous-chef
 

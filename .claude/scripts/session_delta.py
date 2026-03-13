@@ -65,7 +65,7 @@ def new_exports():
         # Check for any import of this module in the rest of web/src/
         result = subprocess.run(
             ['grep', '-r', stem, 'web/src/', '--include=*.tsx', '--include=*.ts',
-             '-l', '--', f'--exclude={Path(fpath).name}'],
+             f'--exclude={Path(fpath).name}', '-l', '--'],
             capture_output=True, text=True
         )
         consumers = [l.strip() for l in result.stdout.splitlines()
