@@ -198,4 +198,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-03-12 (session: develop — CI fix for CreateLearningForm next-intl mock + /review-pr interactive PR metadata prompts)*
+*Last updated: 2026-03-13 (session: develop — add skill-creator skill from Anthropic skills repo)*

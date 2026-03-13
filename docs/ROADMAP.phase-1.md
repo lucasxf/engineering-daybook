@@ -317,6 +317,14 @@ Two-commit tooling session: one CI fix and one automation enhancement.
 | `.claude/commands/finish-session.md` | Added `|| true` to `git add .claude/metrics/sessions/` to silence non-fatal exit code when directory is absent |
 | `.claude/commands/review-pr.md` | Steps 1B and 1C now prompt before overwriting PR title/description — only fires when metadata is inadequate; triage report gains `## PR Metadata` section |
 
+### skill-creator Skill Installation (chore/skill-creator, develop, 2026-03-13) ✅
+
+Added the `skill-creator` skill from Anthropic's open-source skills repo to `.claude/skills/skill-creator/`. This meta-skill enables creating and iterating on new Claude Code skills. 18 files installed. No backend/web/mobile code changed.
+
+| Task | Status |
+|------|--------|
+| Installed `skill-creator` skill (18 files) to `.claude/skills/skill-creator/` | ✅ Done |
+
 ### Git Cleanup + Pre-existing Test Fixes (chore/git-cleanup-and-test-fixes, 2026-03-12) ✅
 
 Maintenance session: repository housekeeping and pre-existing CI failures resolved. No new features.
