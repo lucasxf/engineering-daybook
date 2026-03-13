@@ -1,0 +1,24 @@
+[metadata]
+session_branch = "chore/improve-automation-workflow-context-efficiency"
+session_start = "2026-03-13T14:52:45Z"
+last_updated = "2026-03-13T16:46:20Z"
+
+[command_usage.prompt-optimizer]
+invocations = 1
+last_used = "2026-03-13T14:52:45Z"
+
+[agent_usage.Explore]
+invocations = 2
+last_used = "2026-03-13T14:59:40Z"
+
+[agent_usage.tech-writer]
+invocations = 1
+last_used = "2026-03-13T15:03:33Z"
+
+[command_usage.finish-session]
+invocations = 1
+last_used = "2026-03-13T16:41:34Z"
+
+[command_usage.create-pr]
+invocations = 1
+last_used = "2026-03-13T16:46:20Z"
