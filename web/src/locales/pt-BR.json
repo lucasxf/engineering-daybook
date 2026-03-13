@@ -197,7 +197,14 @@
       "backButton": "Voltar para lista",
       "editButton": "Editar",
       "created": "Criado",
-      "updated": "Atualizado"
+      "updated": "Atualizado",
+      "tagsLabel": "Tags do aprendizado",
+      "breadcrumbLabel": "Navegação estrutural",
+      "loadingLabel": "Carregando aprendizado...",
+      "notFoundTitle": "Aprendizado não encontrado",
+      "notFoundBody": "Este aprendizado não existe ou pode ter sido removido.",
+      "forbiddenTitle": "Acesso negado",
+      "forbiddenBody": "Você não tem permissão para visualizar este aprendizado."
     },
     "edit": {
       "title": "Editar aprendizado",
@@ -227,6 +234,7 @@
       "confirmMessage": "Esta a\u00e7\u00e3o n\u00e3o pode ser desfeita. Este aprendizado ser\u00e1 exclu\u00eddo permanentemente.",
       "confirmButton": "Excluir",
       "cancelButton": "Cancelar",
+      "dismiss": "Fechar",
       "deleting": "Excluindo..."
     },
     "success": {
@@ -244,7 +252,11 @@
     },
     "errors": {
       "notFound": "Aprendizado n\u00e3o encontrado",
+      "notFoundTitle": "Aprendizado n\u00e3o encontrado",
+      "notFoundBody": "O aprendizado que voc\u00ea est\u00e1 procurando n\u00e3o existe ou foi removido.",
       "forbidden": "Voc\u00ea n\u00e3o tem permiss\u00e3o para acessar este aprendizado",
+      "forbiddenTitle": "Acesso negado",
+      "forbiddenBody": "Voc\u00ea n\u00e3o tem permiss\u00e3o para visualizar este aprendizado.",
       "contentRequired": "O conte\u00fado \u00e9 obrigat\u00f3rio e n\u00e3o pode estar em branco",
       "titleTooLong": "O t\u00edtulo deve ter no m\u00e1ximo 200 caracteres",
       "contentTooLong": "O conte\u00fado deve ter no m\u00e1ximo 50.000 caracteres",

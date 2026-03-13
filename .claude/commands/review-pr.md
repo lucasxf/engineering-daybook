@@ -10,9 +10,10 @@ argument-hint: <optional-pr-number>
 Target PR: $ARGUMENTS
 
 This command is read-only with respect to repository contents — no code is changed, no branches are
-checked out, nothing is committed. PR metadata (title, body) may be updated as part of triage when
-the description is missing or stale. It gathers facts, evaluates feedback, and saves a structured
-triage report. Run `/fix-pr $PR_NUMBER` afterwards to implement the approved items.
+checked out, nothing is committed. PR metadata (title, body) may be updated when the title or
+description is missing, inadequate, or stale — but only after prompting you for confirmation.
+It gathers facts, evaluates feedback, and saves a structured triage report.
+Run `/fix-pr $PR_NUMBER` afterwards to implement the approved items.
 
 Execute the following steps in order:
 
@@ -125,23 +126,61 @@ Stop polling after 5 min (10 iterations) and warn: "Claude Action did not finish
 ## 1B. Check and Enrich PR Description
 
 ```bash
-gh pr view $PR_NUMBER --repo $REPO --json body,title --jq '{body: .body, title: .title}'
+gh pr view $PR_NUMBER --repo $REPO --json body,title,headRefName \
+  --jq '{body: .body, title: .title, branch: .headRefName}'
 ```
+
+Track outcomes in two variables (used in Step 6):
+- `TITLE_OUTCOME` — one of: `updated`, `kept`, `ok`
+- `DESC_OUTCOME` — one of: `updated`, `kept`, `ok`
+
+### Title check
+
+A title is **inadequate** if any of:
+- Matches the branch name verbatim (e.g., `develop`, `feature/foo-bar`)
+- Shorter than 10 characters
+- Has no conventional-commit prefix (`feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`, `perf:`, `build:`, `ci:`)
+- Is a single generic word (e.g., "Update", "Fix", "Changes")
+
+**If title is inadequate:**
+
+1. Fetch commits and diff stat (reuse for description check below):
+```bash
+gh api repos/$REPO/pulls/$PR_NUMBER/commits --jq '.[].commit.message'
+gh pr diff $PR_NUMBER --repo $REPO --stat
+```
+
+2. Draft a suggested title in conventional-commit format (e.g., `feat: add spec pipeline health metric to /compile-metrics`).
+
+3. Display to user:
+```
+Current title : "<current title>"
+Suggested title: "<suggested title>"
+```
+
+4. Use AskUserQuestion: "The PR title looks generic or is missing a conventional-commit prefix. Update it?"
+   - "Yes, use suggested title"
+   - "No, keep current title"
+
+5. If yes → `gh pr edit $PR_NUMBER --repo $REPO --title "<suggested title>"` → set `TITLE_OUTCOME=updated`
+6. If no → set `TITLE_OUTCOME=kept`
+
+**If title is adequate:** set `TITLE_OUTCOME=ok`, proceed.
+
+---
+
+### Description check
 
 A description is **missing or inadequate** if:
 - Empty or only whitespace
 - A single generic line (e.g., "Develop", "fix", "update")
 - Shorter than ~100 characters with no structure (no bullets, no headings)
 
-**If inadequate:**
+**If description is inadequate:**
 
-1. Fetch commits and diff:
-```bash
-gh api repos/$REPO/pulls/$PR_NUMBER/commits --jq '.[].commit.message'
-gh pr diff $PR_NUMBER --repo $REPO --stat
-```
+1. Use commits and diff stat already fetched above (or fetch now if title was adequate and they weren't fetched yet).
 
-2. Draft a description:
+2. Draft a suggested description:
 ```markdown
 ## Summary
 - [Bullet per significant area — what + why]
@@ -153,14 +192,23 @@ gh pr diff $PR_NUMBER --repo $REPO --stat
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
 
-3. Update the PR:
-```bash
-gh pr edit $PR_NUMBER --repo $REPO --title "<meaningful title>" --body "<generated body>"
+3. Display the draft to the user:
+```
+The PR description is missing or too thin. Here is a suggested description:
+
+---
+<rendered draft>
+---
 ```
 
-4. Note in the triage report: "Description was missing — generated from commits and diff."
+4. Use AskUserQuestion: "Update the PR description with this draft?"
+   - "Yes, use suggested description"
+   - "No, keep current description"
 
-**If already comprehensive:** proceed.
+5. If yes → `gh pr edit $PR_NUMBER --repo $REPO --body "<suggested body>"` → set `DESC_OUTCOME=updated`
+6. If no → set `DESC_OUTCOME=kept`
+
+**If description is already comprehensive:** set `DESC_OUTCOME=ok`, proceed.
 
 ---
 
@@ -168,6 +216,7 @@ gh pr edit $PR_NUMBER --repo $REPO --title "<meaningful title>" --body "<generat
 
 > Even a long description can be stale if earlier commits were reverted or if this is an aggregated
 > merge PR (e.g., `develop → main`) written when it had fewer commits.
+> Skip this step if `DESC_OUTCOME` is already `updated` or `kept` from Step 1B.
 
 ```bash
 gh api repos/$REPO/pulls/$PR_NUMBER/commits --jq '[.[].commit.message] | join("\n")'
@@ -179,8 +228,27 @@ A description is **stale** if it:
 - Omits significant areas visible in commits/diff
 - Describes a single-feature branch when commits show an aggregated merge
 
-**If stale:** update with a replacement that reflects the actual commits. Note in the triage report.
-**If accurate:** proceed.
+**If stale:**
+
+1. Draft a replacement that reflects the actual commits (same template as Step 1B).
+
+2. Tell the user what is stale (e.g., "Description mentions feature X which is no longer in the diff; omits N new areas"):
+```
+The PR description appears stale. Here is a suggested update:
+
+---
+<rendered draft>
+---
+```
+
+3. Use AskUserQuestion: "The PR description looks outdated relative to current commits. Replace it?"
+   - "Yes, replace with updated description"
+   - "No, keep current description"
+
+4. If yes → `gh pr edit $PR_NUMBER --repo $REPO --body "<replacement body>"` → set `DESC_OUTCOME=updated`
+5. If no → set `DESC_OUTCOME=kept`
+
+**If accurate:** set `DESC_OUTCOME=ok`, proceed.
 
 ---
 
@@ -359,8 +427,9 @@ The report must include:
 **Date:** <today>
 **Repo:** <REPO>
 
-## PR Description
-- Status: [Generated / Updated / Already accurate]
+## PR Metadata
+- Title: [updated — "<new title>" | kept as-is — user declined | ok — was already adequate]
+- Description: [updated — generated from commits and diff | kept as-is — user declined | ok — was already adequate]
 
 ## CI/CD
 - Overall: [✅ All passing | ❌ N failures]

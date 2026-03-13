@@ -1,22 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { LearnimoWordmark } from "@/components/learnimo-wordmark";
-import { ForgotPasswordForm } from "@/components/forgot-password-form";
 import { Sun, Moon } from "lucide-react";
+import { ViewLearningScreen } from "@/components/view-learning/view-learning-screen";
+import type { ScreenState, Learning } from "@/components/view-learning/view-learning-screen";
 
-function ThemeToggle({
-  theme,
-  onToggle,
-}: {
-  theme: "dark" | "light";
-  onToggle: () => void;
-}) {
+type Theme = "dark" | "light";
+
+function ThemeToggle({ theme, onToggle }: { theme: Theme; onToggle: () => void }) {
   return (
     <button
       onClick={onToggle}
       aria-label={theme === "dark" ? "Mudar para modo claro" : "Mudar para modo escuro"}
-      className="rounded-md p-1.5 text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-input-focus)]"
+      className="rounded-md p-1.5 text-white/40 transition-colors hover:text-white/80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/40"
     >
       {theme === "dark" ? (
         <Sun className="h-4 w-4" aria-hidden="true" />
@@ -27,130 +23,127 @@ function ThemeToggle({
   );
 }
 
-function ForgotPasswordScreen({ theme, onToggle }: { theme: "dark" | "light"; onToggle: () => void }) {
-  return (
-    <div className={theme === "dark" ? "dark" : ""}>
-      <div className="flex min-h-full flex-col bg-background font-sans">
-        {/* Header */}
-        <header className="flex items-center justify-between px-6 py-4">
-          <a
-            href="#"
-            aria-label="learnimo"
-            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-input-focus)] rounded"
-          >
-            <LearnimoWordmark className="text-xl" />
-          </a>
-          <ThemeToggle theme={theme} onToggle={onToggle} />
-        </header>
+const STATE_LABELS: Record<ScreenState, { label: string; desc: string }> = {
+  loaded: { label: "Carregado", desc: "Título, conteúdo e metadados" },
+  loading: { label: "Carregando", desc: "Skeleton shimmer" },
+  "not-found": { label: "404", desc: "Aprendizado não encontrado" },
+  forbidden: { label: "403", desc: "Sem permissão de acesso" },
+};
 
-        {/* Main content */}
-        <main className="flex flex-1 items-center justify-center px-4 py-12">
-          <div className="w-full max-w-[400px]">
-            {/* Card */}
-            <div className="rounded-2xl border border-card-border bg-card px-8 py-10 shadow-sm">
-              {/* Title & subtitle */}
-              <div className="mb-8 space-y-2">
-                <h1 className="font-heading text-2xl font-semibold leading-tight text-balance text-card-foreground">
-                  Esqueceu sua senha?
-                </h1>
-                <p className="text-sm leading-relaxed text-muted-foreground text-pretty">
-                  Informe seu e-mail e enviaremos um link para redefinir sua senha.
-                </p>
-              </div>
-
-              <ForgotPasswordForm loginHref="#" />
-            </div>
-          </div>
-        </main>
-
-        {/* Footer */}
-        <footer className="py-4 text-center">
-          <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} learnimo
-          </p>
-        </footer>
-      </div>
-    </div>
-  );
-}
+const SAMPLE_LEARNING: Learning = {
+  id: "preview",
+  title: "Como construir hábitos de aprendizado",
+  content:
+    "Aprender de forma consistente exige **estrutura**. Aqui estão três princípios:\n\n" +
+    "1. Pequenas doses diárias valem mais que maratonas semanais\n" +
+    "2. Relacione o novo conhecimento ao que você já sabe\n" +
+    "3. Ensine o que aprendeu — isso solidifica o entendimento\n\n" +
+    "> _\"O verdadeiro aprendizado transforma comportamento, não apenas vocabulário.\"_",
+  createdAt: "2026-01-15T10:00:00Z",
+  updatedAt: "2026-01-20T14:30:00Z",
+  tags: ["hábitos", "produtividade", "aprendizado"],
+};
 
 export default function Home() {
-  const [leftTheme, setLeftTheme] = useState<"dark" | "light">("dark");
-  const [rightTheme, setRightTheme] = useState<"dark" | "light">("light");
+  const [leftTheme, setLeftTheme] = useState<Theme>("dark");
+  const [rightTheme, setRightTheme] = useState<Theme>("light");
+  const [activeState, setActiveState] = useState<ScreenState>("loaded");
 
   return (
     <div className="flex min-h-screen flex-col bg-[#0a0f1a] font-sans">
-      {/* Preview label */}
-      <div className="flex items-center justify-center gap-3 py-4">
-        <span className="font-wordmark text-sm font-bold text-white/80 tracking-tight">
+      {/* Header */}
+      <div className="flex flex-col items-center gap-1 py-5">
+        <span className="font-wordmark text-base font-bold text-white/80 tracking-tight">
           learn<span className="font-bold">imo</span>
         </span>
-        <span className="text-xs text-white/40">— design preview · Esqueceu sua senha</span>
+        <span className="text-xs text-white/40">design preview · Ver Aprendizado</span>
+      </div>
+
+      {/* State switcher */}
+      <div className="flex flex-wrap items-center justify-center gap-2 px-4 pb-5">
+        {(Object.keys(STATE_LABELS) as ScreenState[]).map((state) => (
+          <button
+            key={state}
+            onClick={() => setActiveState(state)}
+            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+              activeState === state
+                ? "bg-[#D4854A] text-white"
+                : "bg-white/10 text-white/50 hover:bg-white/15 hover:text-white/80"
+            }`}
+          >
+            {STATE_LABELS[state].label}
+          </button>
+        ))}
       </div>
 
       {/* Side-by-side previews */}
       <div className="flex flex-1 flex-col gap-6 p-4 md:flex-row md:gap-4 md:p-6">
-        {/* Dark preview */}
+        {/* Dark */}
         <div className="flex flex-1 flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-[#2B4A78]" aria-hidden="true" />
-            <span className="text-xs font-medium uppercase tracking-widest text-white/40">
-              Dark
-            </span>
-          </div>
-          <div className="flex-1 overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
-            <ForgotPasswordScreen
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-[#2B4A78]" aria-hidden="true" />
+              <span className="text-xs font-medium uppercase tracking-widest text-white/40">Dark</span>
+            </div>
+            <ThemeToggle
               theme={leftTheme}
               onToggle={() => setLeftTheme((t) => (t === "dark" ? "light" : "dark"))}
             />
           </div>
+          <div className={`flex-1 overflow-hidden rounded-2xl border border-white/10 shadow-2xl${leftTheme === "dark" ? " dark" : ""}`}>
+            {activeState === "loaded" ? (
+              <ViewLearningScreen state="loaded" learning={SAMPLE_LEARNING} />
+            ) : (
+              <ViewLearningScreen state={activeState} />
+            )}
+          </div>
         </div>
 
-        {/* Light preview */}
+        {/* Light */}
         <div className="flex flex-1 flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-[#D4854A]" aria-hidden="true" />
-            <span className="text-xs font-medium uppercase tracking-widest text-white/40">
-              Light
-            </span>
-          </div>
-          <div className="flex-1 overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
-            <ForgotPasswordScreen
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-[#D4854A]" aria-hidden="true" />
+              <span className="text-xs font-medium uppercase tracking-widest text-white/40">Light</span>
+            </div>
+            <ThemeToggle
               theme={rightTheme}
               onToggle={() => setRightTheme((t) => (t === "dark" ? "light" : "dark"))}
             />
           </div>
+          <div className={`flex-1 overflow-hidden rounded-2xl border border-white/10 shadow-2xl${rightTheme === "dark" ? " dark" : ""}`}>
+            {activeState === "loaded" ? (
+              <ViewLearningScreen state="loaded" learning={SAMPLE_LEARNING} />
+            ) : (
+              <ViewLearningScreen state={activeState} />
+            )}
+          </div>
         </div>
       </div>
 
-      {/* State showcase strip */}
-      <StateShowcase />
-    </div>
-  );
-}
-
-/* ——— Mostra os estados: default, erro, loading, confirmação ——— */
-function StateShowcase() {
-  return (
-    <div className="border-t border-white/10 px-4 py-6 md:px-8">
-      <p className="mb-4 text-center text-xs font-medium uppercase tracking-widest text-white/30">
-        Estados da tela
-      </p>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {[
-          { label: "Padrão", desc: "Campo vazio, botão ativo" },
-          { label: "Erro de validação", desc: "E-mail inválido, borda vermelha" },
-          { label: "Carregando", desc: "Spinner + input desabilitado" },
-          { label: "Confirmação", desc: "Painel de sucesso neutro" },
-        ].map(({ label, desc }) => (
-          <div
-            key={label}
-            className="rounded-xl border border-white/10 bg-white/5 px-4 py-3"
-          >
-            <p className="text-xs font-semibold text-white/70">{label}</p>
-            <p className="mt-0.5 text-xs text-white/30">{desc}</p>
-          </div>
-        ))}
+      {/* State reference strip */}
+      <div className="border-t border-white/10 px-4 py-6 md:px-8">
+        <p className="mb-4 text-center text-xs font-medium uppercase tracking-widest text-white/30">
+          Estados da tela
+        </p>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
+          {(Object.keys(STATE_LABELS) as ScreenState[]).map((state) => (
+            <button
+              key={state}
+              onClick={() => setActiveState(state)}
+              className={`rounded-xl border px-4 py-3 text-left transition-colors ${
+                activeState === state
+                  ? "border-[#D4854A]/60 bg-[#D4854A]/10"
+                  : "border-white/10 bg-white/5 hover:border-white/20"
+              }`}
+            >
+              <p className={`text-xs font-semibold ${activeState === state ? "text-[#D4854A]" : "text-white/70"}`}>
+                {STATE_LABELS[state].label}
+              </p>
+              <p className="mt-0.5 text-xs text-white/30">{STATE_LABELS[state].desc}</p>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
