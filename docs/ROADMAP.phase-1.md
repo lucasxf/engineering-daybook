@@ -360,7 +360,7 @@ Automation/tooling maintenance session. Two commits; no backend or new page chan
 | `.claude/skills/prompt-optimizer/references/exec-patterns.md` | Fixed inaccurate JPA null collection root cause description |
 | `.claude/commands/review-pr.md` | Added section headers to `cat` output for source boundaries |
 | `.claude/commands/review-pr-presentation.md` | Added `@Nullable` qualifier to `getTags()` null-check example |
-| `.claude/skills/prompt-optimizer/references/anti-patterns.md` | Fixed "Spring Boot 4" → "Spring Boot 3" typo |
+| `.claude/skills/prompt-optimizer/references/anti-patterns.md` | Corrected Spring Boot version in example: reverted erroneous "Spring Boot 3" back to "Spring Boot 4" (backend/pom.xml is 4.0.3) |
 | `web/src/components/view-learning/view-learning.test.tsx` | Fixed stale aria-label assertions — mocks return raw i18n keys; aligned assertions with mock behavior |
 
 ### PR #187 Review Fixes (fix-pr/187, 2026-03-12) ✅

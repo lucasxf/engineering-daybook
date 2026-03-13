@@ -63,7 +63,7 @@ The runner-up names in that exploration were **daftari** (Swahili for "notebook"
 ```
 /engineering-daybook
 ├── backend/                  # Java Spring Boot API
-├── web/                      # Next.js web application
+├── web/                      # Next.js web application (main app — deployed to learnimo.net)
 ├── mobile/                   # Expo mobile application
 │   ├── e2e/                  # Maestro E2E test flows
 │   └── store-assets/         # Play Store / App Store listing assets
@@ -82,6 +82,8 @@ The runner-up names in that exploration were **daftari** (Swahili for "notebook"
 │   ├── skills/               # Reusable skill prompts (mobile-design-system, etc.)
 │   ├── scripts/              # Automation scripts (coverage, metrics, registry)
 │   └── metrics/              # Session usage stats and recommendations
+├── app/                      # Root-level Next.js v0 preview layout (globals.css, layout.tsx)
+├── components/               # Root-level v0 preview components (wordmark, forgot-password form)
 ├── .github/workflows/        # CI/CD pipelines (ci, release-please, claude)
 ├── docker-compose.yml        # Local development database (PostgreSQL + pgvector)
 ├── CLAUDE.md                 # Claude Code context
@@ -382,5 +384,5 @@ This project is licensed under the [MIT License](./LICENSE).
 | 0.6.0 | 2026-02-25 | Phase 2 — editing, deletion, audit trail, tagging, timeline/tag-grouped views, sort options |
 | 0.7.0 | 2026-02-27 | Phase 3 — semantic search (pgvector + HuggingFace), Expo mobile app (auth, feed, CRUD, dark mode, i18n) |
 | 0.8.0 | 2026-03-04 | Phase 5 — visibility controls (4-tier), learner profile privacy, access enforcement, E2E tests |
-| 0.9.0 | 2026-03-08 | Phase 6 — following/colleagues, learner profiles + avatar, re-learning/shares, discovery feed, learner search, mobile social features |
-| 0.10.0 | 2026-03-06 | Phase 8 — Markdown support (web + mobile), tag display names + normalization, TagFilter on feed |
+| 0.9.0 | 2026-03-06 | Phase 8 — Markdown support (web + mobile), tag display names + normalization, TagFilter on feed |
+| 0.10.0 | 2026-03-08 | Phase 6 — following/colleagues, learner profiles + avatar, re-learning/shares, discovery feed, learner search, mobile social features |
