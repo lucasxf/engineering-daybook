@@ -114,6 +114,7 @@ export function CreateLearningForm({ onSubmit }: CreateLearningFormProps) {
             aria-invalid={!!errors.title}
             aria-describedby={errors.title ? 'title-error' : 'title-counter'}
             hasError={!!errors.title}
+            disabled={isSubmitting}
           />
           <div className="flex items-center justify-between">
             {errors.title && (

@@ -111,14 +111,9 @@ export default function EditPokPage() {
 
   return (
     <div className="mx-auto max-w-2xl py-8">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-          {t('edit.title')}
-        </h1>
-        <Link href={`/${params.locale}/poks/${pokId}` as never}>
-          <Button variant="secondary">{t('edit.cancelButton')}</Button>
-        </Link>
-      </div>
+      <h1 className="mb-6 text-3xl font-bold text-slate-900 dark:text-slate-100">
+        {t('edit.title')}
+      </h1>
 
       {error && <Alert variant="error" className="mb-4">{error}</Alert>}
 
@@ -130,6 +125,14 @@ export default function EditPokPage() {
           content: pok.content,
           visibility: pok.visibility,
         }}
+        cancelButton={
+          <Link
+            href={`/${params.locale}/poks/${pokId}` as never}
+            className="inline-flex items-center justify-center rounded-md font-medium transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background bg-card text-card-foreground border border-card-border hover:bg-muted/10 h-10 px-4 text-base"
+          >
+            {t('edit.cancelButton')}
+          </Link>
+        }
       />
 
       <TagSection

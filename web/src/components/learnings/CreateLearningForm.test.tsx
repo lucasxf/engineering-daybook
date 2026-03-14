@@ -1,10 +1,11 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CreateLearningForm } from './CreateLearningForm';
 
 // Mock next-intl
 vi.mock('next-intl', () => ({
-  useTranslations: () => (key: string) => {
+  useTranslations: () => (key: string, params?: Record<string, unknown>) => {
     const translations: Record<string, string> = {
       'form.titleLabel': 'Title',
       'form.titlePlaceholder': 'Optional — add a title if useful',
@@ -13,13 +14,19 @@ vi.mock('next-intl', () => ({
       'form.saveButton': 'Save Learning',
       'form.savingButton': 'Saving...',
       'form.cancelButton': 'Cancel',
+      'form.titleCharCounter': '{current} / 200',
+      'form.contentCharCounter': '{current} / 50,000',
       'errors.contentRequired': 'Content is required',
       'errors.titleTooLong': 'Title must be 200 characters or less',
       'errors.contentTooLong': 'Content must be between 1 and 50,000 characters',
       'errors.saveFailed': 'Failed to save. Please try again.',
       'success.message': 'Learning saved!',
     };
-    return translations[key] || key;
+    const value = translations[key] || key;
+    if (params) {
+      return value.replace(/\{(\w+)\}/g, (_, k) => String(params[k] ?? ''));
+    }
+    return value;
   },
   useLocale: () => 'en',
 }));
@@ -82,6 +89,7 @@ describe('CreateLearningForm', () => {
   });
 
   it('updates character counters as user types', async () => {
+    const user = userEvent.setup();
     render(
       <CreateLearningForm onSubmit={mockOnSubmit} />
     );
@@ -89,13 +97,11 @@ describe('CreateLearningForm', () => {
     const titleField = screen.getByLabelText('Title');
     const contentField = screen.getByLabelText('Content');
 
-    fireEvent.change(titleField, { target: { value: 'My Title' } });
-    fireEvent.change(contentField, { target: { value: 'My content' } });
+    await user.type(titleField, 'My Title');
+    await user.type(contentField, 'My content');
 
-    await waitFor(() => {
-      expect(screen.getByText('8 / 200')).toBeInTheDocument();
-      expect(screen.getByText('10 / 50,000')).toBeInTheDocument();
-    });
+    expect(screen.getByText('8 / 200')).toBeInTheDocument();
+    expect(screen.getByText('10 / 50,000')).toBeInTheDocument();
   });
 
   it('calls onSubmit with form data when submitted', async () => {
