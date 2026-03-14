@@ -114,6 +114,7 @@ export function CreateLearningForm({ onSubmit }: CreateLearningFormProps) {
             aria-invalid={!!errors.title}
             aria-describedby={errors.title ? 'title-error' : 'title-counter'}
             hasError={!!errors.title}
+            disabled={isSubmitting}
           />
           <div className="flex items-center justify-between">
             {errors.title && (
@@ -134,7 +135,7 @@ export function CreateLearningForm({ onSubmit }: CreateLearningFormProps) {
               }`}
               aria-live="polite"
             >
-              {titleValue.length} / 200
+              {t('form.titleCharCounter', { current: titleValue.length })}
             </span>
           </div>
         </div>
@@ -175,7 +176,7 @@ export function CreateLearningForm({ onSubmit }: CreateLearningFormProps) {
               }`}
               aria-live="polite"
             >
-              {contentValue.length} / 50,000
+              {t('form.contentCharCounter', { current: contentValue.length })}
             </span>
           </div>
         </div>

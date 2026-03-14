@@ -40,6 +40,36 @@ const config: Config = {
         "confirmation-bg": "var(--color-confirmation-bg)",
         "confirmation-border": "var(--color-confirmation-border)",
         "ember-stroke": "var(--color-ember-stroke)",
+        nav: {
+          DEFAULT: "var(--color-nav-bg)",
+          border: "var(--color-nav-border)",
+        },
+        "tab-active": "var(--color-tab-active)",
+        "tab-inactive": "var(--color-tab-inactive)",
+        "tag-header": "var(--color-tag-header-text)",
+        "tag-accent": "var(--color-tag-accent-bar)",
+        "tag-untagged": "var(--color-tag-untagged-bar)",
+        "tag-count": {
+          DEFAULT: "var(--color-tag-count-bg)",
+          text: "var(--color-tag-count-text)",
+        },
+        chip: {
+          DEFAULT: "var(--color-chip-bg)",
+          text: "var(--color-chip-text)",
+        },
+        "skeleton-from": "var(--color-skeleton-from)",
+        "skeleton-to": "var(--color-skeleton-to)",
+        "nudge": "var(--color-nudge-text)",
+        "nudge-link": "var(--color-nudge-link)",
+      },
+      keyframes: {
+        shimmer: {
+          "0%": { backgroundPosition: "-400px 0" },
+          "100%": { backgroundPosition: "400px 0" },
+        },
+      },
+      animation: {
+        shimmer: "shimmer 1.4s ease-in-out infinite",
       },
       ringColor: {
         ember: "var(--color-input-focus)",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Sun, Moon, Monitor } from "lucide-react";
 
 type ThemeOption = "light" | "dark" | "system";
@@ -27,6 +27,7 @@ const t = {
 
 export function AppearanceSection({ initialTheme = "dark", lang }: AppearanceSectionProps) {
   const tx = t[lang];
+  const id = useId();
   const [theme, setTheme] = useState<ThemeOption>(initialTheme);
 
   const options: { value: ThemeOption; label: string; Icon: typeof Sun }[] = [
@@ -59,7 +60,7 @@ export function AppearanceSection({ initialTheme = "dark", lang }: AppearanceSec
                 <label key={value} className="relative">
                   <input
                     type="radio"
-                    name={`theme-toggle-${lang}`}
+                    name={`theme-toggle-${id}`}
                     value={value}
                     checked={isActive}
                     onChange={() => setTheme(value)}

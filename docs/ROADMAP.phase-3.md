@@ -95,6 +95,26 @@
   - `docs/specs/features/mobile-4-tier-visibility.md` — 6-task implementation plan (type cleanup → VisibilityPicker/Badge components → 4-tier pickers on new/detail/profile screens → i18n keys)
 - Other two specs (`mobile-social-discovery.md` and `mobile-re-learning.md`) already had proper Implementation Plan sections and required no changes.
 
+**Progress update (2026-03-13 — mobile visual parity strategy):**
+- Mobile stack development strategy documented at `.claude/plans/mobile-stack-dev-strategy.md` (branch: `chore/mobile-stack-dev-strategy`).
+- Analyzed "Library at Dusk" design language from the v0-redesigned web app and evaluated 4 approaches to bringing the mobile app to visual parity.
+- Recommended approach: **Skill-driven (Approach D)** — build a `mobile-design-system` skill, update `tokens.ts` first, then patch (not rebuild) all 8 existing screens incrementally. Avoids a full screen rebuild while establishing a reusable design token foundation.
+
+**Progress update (2026-03-13 — mobile-design-system skill):**
+- ✅ Step 1 of execution sequence complete: `mobile-design-system` skill created at `.claude/skills/mobile-design-system/`.
+- Skill encodes: Library at Dusk palette mapped to RN tokens (light + dark), 7 component recipes (Button/Card/Text/TextInput/ErrorMessage/MarkdownContent/Avatar), screen layout patterns, font loading (DM Sans + Sora via expo-font), shadow/animation translations, 5 known gotchas.
+- Full hex mapping tables in `references/tokens-reference.md` (ember-CTA scale, brand accents, new palette definition, 23-token buildTheme target).
+
+### Wave 0 — DS Tokens + Fonts (feat/ds-tokens-fonts, 2026-03-14) ✅
+
+- ✅ Step 2 of execution sequence complete: Library at Dusk design tokens and font loading wired into the mobile app.
+- `mobile/src/theme/tokens.ts` — full palette replaced with Library at Dusk values (parchment `#F5F0E8`, ember-CTA `#D4854A`, deep navy `#0F1B2D`, mid-blue `#2B4A78`, ink `#1A1A2E`); `brandAccents` export added (8 static brand colors); `typography.fontFamily` added (DM Sans for body, Sora for headings); 8 new semantic keys added to `buildTheme()` (`inputBg`, `inputBorder`, `inputPlaceholder`, `disabledBg`, `disabledText`, `tagPillBg`, `tagPillText`, `contentBody`); `errorBackground` made properly theme-switched for dark mode.
+- `mobile/src/App.tsx` — `useFonts()` added (DMSans_400Regular, DMSans_500Medium, Sora_600SemiBold); `SplashScreen.preventAutoHideAsync()` called at module level; splash hidden via `useEffect` when fonts are ready; renders null until fonts loaded.
+- `mobile/app.json` — splash.backgroundColor and android.adaptiveIcon.backgroundColor updated to `#0F1B2D` (deep navy).
+- `mobile/package.json` — added: `expo-font`, `@expo-google-fonts/dm-sans`, `@expo-google-fonts/sora`, `expo-splash-screen`.
+- Test results: 174 passing, 80.53% line coverage (above 80% threshold).
+- **Next:** Step 3 — patch existing screens with Library at Dusk component styles using the `mobile-design-system` skill.
+
 ---
 
 ## Milestone 3.2: AI Connections

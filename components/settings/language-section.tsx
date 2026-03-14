@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 
 type LangOption = "en" | "pt";
 
@@ -24,6 +24,7 @@ const t = {
 
 export function LanguageSection({ initialLang = "pt", lang }: LanguageSectionProps) {
   const tx = t[lang];
+  const id = useId();
   const [selected, setSelected] = useState<LangOption>(initialLang);
 
   const options: { value: LangOption; label: string; flag: string }[] = [
@@ -55,7 +56,7 @@ export function LanguageSection({ initialLang = "pt", lang }: LanguageSectionPro
                 <label key={value} className="relative">
                   <input
                     type="radio"
-                    name={`language-toggle-${lang}`}
+                    name={`language-toggle-${id}`}
                     value={value}
                     checked={isActive}
                     onChange={() => setSelected(value)}

@@ -24,7 +24,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       <textarea
         ref={ref}
         className={cn(
-          'block w-full rounded-md border px-3 py-2 text-sm transition-colors resize-none',
+          'block w-full rounded-md border px-3 py-2 text-sm transition-colors',
+          autoExpand ? 'resize-none' : '',
           /* Light mode */
           'bg-white border-input-border text-foreground',
           'placeholder:text-input-placeholder',

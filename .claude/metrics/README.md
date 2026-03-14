@@ -1,48 +1,39 @@
 # Automation Metrics
 
-This directory contains automation usage metrics collected by the `pulse` agent.
+This directory contains automation usage metrics and sentinel analysis artifacts.
 
 ## Files
 
-- `usage-stats.toml` - Agent and command usage statistics
+- `usage-stats.toml` — Canonical agent and command usage statistics (aggregated by `/compile-metrics`)
+- `recommendations.md` — Recommendation record table (tracked by automation-sentinel; auto-appended on each `/compile-metrics` run)
+- `sessions/` — Per-session delta files (transient; consumed and deleted by `/compile-metrics`)
+- `sentinel-report-*.md` — Point-in-time sentinel health reports (archived manually)
 
 ## How It Works
 
-1. **Collection**: The `pulse` agent scans git history and counts agent/command invocations
-2. **Storage**: Metrics are stored in TOML format for human readability
-3. **Analysis**: The `automation-sentinel` agent reads these metrics for analysis
+1. **Collection:** The `track-usage.py` PostToolUse hook writes per-session delta files to `sessions/{branch}.toml` whenever an agent or command is invoked
+2. **Aggregation:** `/compile-metrics` runs on `develop` after PRs merge — reads delta files, merges them into `usage-stats.toml`, then deletes the session files
+3. **Analysis:** The `automation-sentinel` agent reads `usage-stats.toml`, agent files, and command files to produce a health report and append new recommendations to `recommendations.md`
+4. **Commit:** All changes (`usage-stats.toml`, `recommendations.md`) are committed together as `chore: compile session metrics`
 
-## Manual Update
+## Updating Metrics
 
-To update metrics manually:
+Run on `develop` after merging feature PRs:
 
+```bash
+/compile-metrics
 ```
-"Update automation metrics"
-```
-
-This invokes the `pulse` agent to scan recent activity and update the TOML file.
 
 ## Metrics Schema
 
+See `usage-stats.toml` for the full schema. Key sections:
+
 ```toml
-[metadata]
-timestamp = "2026-01-29T00:00:00Z"
-commit_sha = "abc123"
-schema_version = "1.0.0"
-
-[agent_usage.agent-name]
-invocations = 0
-last_used = "2026-01-29T00:00:00Z"
-
-[command_usage.command-name]
-invocations = 0
-last_used = "2026-01-29T00:00:00Z"
-
-[productivity]
-current_total_locs = 0
-test_ratio_percent = 0.0
-
-[health]
-total_agents = 9
-total_commands = 16
+[metadata]       # timestamp, branch, schema_version
+[agent_usage.*]  # invocations + last_used per agent
+[command_usage.*] # invocations + last_used per command
+[productivity]   # LOC counts and test ratio
+[pr_review_quality] # keepr verdict counts
+[spec_pipeline]  # spec counts by status
+[health]         # total_agents, total_commands, schema_errors
 ```

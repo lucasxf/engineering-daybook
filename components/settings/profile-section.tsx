@@ -60,8 +60,8 @@ export function ProfileSection({ initialDisplayName = "Lucas", initialBio = "", 
   // Reset saved state after 2s
   useEffect(() => {
     if (saveState === "saved") {
-      const t = setTimeout(() => setSaveState("idle"), 2000);
-      return () => clearTimeout(t);
+      const timer = setTimeout(() => setSaveState("idle"), 2000);
+      return () => clearTimeout(timer);
     }
   }, [saveState]);
 

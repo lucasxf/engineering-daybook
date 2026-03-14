@@ -101,6 +101,7 @@ export function SettingsScreen({ theme, onToggleTheme, lang }: SettingsScreenPro
               lang={lang}
             />
             <AppearanceSection
+              key={theme}
               initialTheme={theme}
               lang={lang}
             />

@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState, useEffect } from "react";
 import { Globe, Lock, Loader2, Check } from "lucide-react";
-import { useEffect } from "react";
 
 type Visibility = "public" | "private";
 type SaveState = "idle" | "saving" | "saved";
@@ -35,6 +34,7 @@ const t = {
 
 export function PrivacySection({ initialVisibility = "public", lang }: PrivacySectionProps) {
   const tx = t[lang];
+  const id = useId();
   const [visibility, setVisibility] = useState<Visibility>(initialVisibility);
   const [saveState, setSaveState] = useState<SaveState>("idle");
 
@@ -88,7 +88,7 @@ export function PrivacySection({ initialVisibility = "public", lang }: PrivacySe
               >
                 <input
                   type="radio"
-                  name={`privacy-visibility-${lang}`}
+                  name={`privacy-visibility-${id}`}
                   value={value}
                   checked={isSelected}
                   onChange={() => setVisibility(value)}
