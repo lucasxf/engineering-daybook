@@ -80,14 +80,16 @@ git diff --name-only --diff-filter=U
    **Lockfiles** (`pnpm-lock.yaml`, `package-lock.json`, `yarn.lock`):
    Discard the conflict markers and regenerate from the merged manifests:
    ```bash
-   # Accept base-branch lockfile as the starting point, then regenerate
+   # 1. Accept base-branch lockfile as the starting point (clears conflict markers)
    git checkout --theirs <lockfile>
-   git add <lockfile>
 
-   # Regenerate — pick the right command for the package manager:
+   # 2. Regenerate from the merged package manifests — pick the right command:
    # pnpm  → (cd <dir> && pnpm install --no-frozen-lockfile)
    # npm   → (cd <dir> && npm install --legacy-peer-deps)
    # yarn  → (cd <dir> && yarn install)
+
+   # 3. Stage the freshly regenerated lockfile
+   git add <lockfile>
    ```
 
    **Source files** (`.ts`, `.tsx`, `.java`, `.md`, config files, etc.):
@@ -95,12 +97,13 @@ git diff --name-only --diff-filter=U
    - Apply the resolution that preserves the PR's intent while incorporating base-branch changes
    - If the conflict is ambiguous (both sides add/modify the same function or block in incompatible ways), **STOP and ask the user** before proceeding — do not guess
 
-4. Stage all resolved files (do NOT commit yet — resolution commit is part of Step 4):
+4. Stage all resolved files. Do **not** run `git commit` manually — let `git merge --continue`
+   create the merge commit in the next step:
 ```bash
 git add <resolved-files>
 ```
 
-5. Finalize the merge:
+5. Finalize the merge (this creates the merge commit automatically):
 ```bash
 git merge --continue --no-edit
 # If git merge --continue fails (e.g. nothing staged), use:
