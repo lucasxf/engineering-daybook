@@ -161,7 +161,7 @@ Active work:
 - [x] Milestone 3.1: Semantic Search — hybrid keyword + vector search, HuggingFace embeddings, pgvector (2026-02-26)
 - [ ] Milestone 3.2: AI Connections (related learnings)
 - [x] Milestone 3.3: Mobile App (Expo/React Native) — done (2026-02-27)
-- [ ] Milestone 3.4: App Store Publishing — Android .aab built, Play Console setup done, Play Store internal track in progress; 6 mobile feature parity specs written (2026-03-09); mobile-design-system skill created (2026-03-13, step 1); Library at Dusk tokens + fonts landed (2026-03-14, step 2); next: step 3 — patch existing screens
+- [ ] Milestone 3.4: App Store Publishing — Android .aab built, Play Console setup done, Play Store internal track in progress; 6 mobile feature parity specs written (2026-03-09); mobile-design-system skill created (2026-03-13, step 1); Library at Dusk tokens + fonts landed (2026-03-14, step 2); TextInput/Card/Avatar token migration done (2026-03-14, S1.2); next: S1.3 (markdown+feed components) + Wave 2 screens
 
 **Phase 5: Privacy** — 🔄 In Progress (5.1 done; 5.2 done)
 
