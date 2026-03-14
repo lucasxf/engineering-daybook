@@ -114,11 +114,30 @@ last_used = "2026-03-11T21:51:10Z"
 invocations = 0
 last_used = ""
 
-# Productivity Metrics
+# Skill Usage Metrics
+# Skills live in .claude/skills/ — separate from commands and agents
 
-[command_usage.prompt-optimizer]
+[skill_usage.prompt-optimizer]
 invocations = 1
 last_used = "2026-03-13T14:52:45Z"
+
+[skill_usage.mobile-design-system]
+invocations = 0
+last_used = ""
+
+[skill_usage.doc-coauthoring]
+invocations = 0
+last_used = ""
+
+[skill_usage.frontend-design]
+invocations = 0
+last_used = ""
+
+[skill_usage.skill-creator]
+invocations = 0
+last_used = ""
+
+# Productivity Metrics
 
 [productivity]
 current_total_locs = 55931
@@ -140,6 +159,8 @@ questions = 0
 informational = 5
 
 # Spec Pipeline Health
+# NOTE: approved = 0 is EXPECTED — /review-spec was created AFTER all 19 implemented specs were written.
+# There was no bypass. Future specs should go through /review-spec before /implement-spec.
 [spec_pipeline]
 total_specs = 26
 draft = 2
@@ -152,4 +173,4 @@ implemented = 19
 [health]
 schema_errors = 0
 total_agents = 14
-total_commands = 13
+total_commands = 12
