@@ -42,14 +42,14 @@ export const palette = {
 } as const;
 
 export const brandAccents = {
-  deepNavy:    '#0F1B2D',
-  primaryBlue: '#1A365D',
-  midBlue:     '#2B4A78',
+  deepNavy:    palette.deepNavy,
+  primaryBlue: palette.primaryBlue,
+  midBlue:     palette.midBlue,
   branchBrown: '#8B5E3C',
   darkLeather: '#6B4226',
-  emberCta:    '#D4854A',
-  parchment:   '#F5F0E8',
-  ink:         '#1A1A2E',
+  emberCta:    palette.emberCta,
+  parchment:   palette.parchment,
+  ink:         palette.ink,
 } as const;
 
 export const spacing = {
@@ -106,8 +106,8 @@ function buildTheme(scheme: 'light' | 'dark') {
   return {
     scheme,
     colors: {
-      primary:     '#D4854A',
-      primaryDark: '#C07340',
+      primary:     palette.emberCta,
+      primaryDark: palette.emberCtaDark,
 
       // Backgrounds
       background: dark ? palette.deepNavy    : palette.parchment,
@@ -116,7 +116,7 @@ function buildTheme(scheme: 'light' | 'dark') {
 
       // Borders
       border:      dark ? palette.midBlue   : palette.warmBorder,
-      borderFocus: '#D4854A',
+      borderFocus: palette.emberCta,
 
       // Text
       textPrimary:   dark ? palette.parchment       : palette.ink,
