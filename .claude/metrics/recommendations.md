@@ -29,6 +29,9 @@
 | REC-016 | 2026-03-13 | workflow | Fix stale Co-Authored-By footer in /create-pr — hardcoded "Claude Opus 4.5" should be current model | open | 2026-03-13 |
 | REC-017 | 2026-03-13 | archival | virgil agent still on disk despite REC-010 marking archival as implemented — move to archive/ or delete | open | 2026-03-13 |
 | REC-018 | 2026-03-13 | workflow | nexus agent has 0 invocations — verify trigger description or add explicit session-start promotion separate from REC-009 | open | 2026-03-13 |
+| REC-019 | 2026-03-14 | archival | virgil is actively wired into /review-spec Phase 3 (subagent_type: virgil) — archiving it (REC-017) would break spec review pipeline; resolve dependency before archiving | open | 2026-03-14 |
+| REC-020 | 2026-03-14 | metrics | prompt-optimizer is a Skill but tracked under command_usage in usage-stats.toml — add a skill_usage section or move it to the correct category | open | 2026-03-14 |
+| REC-021 | 2026-03-14 | archival | /directive command has 1 invocation (2026-03-06) with no activity in 8+ days — evaluate whether it serves an ongoing purpose or should be archived | open | 2026-03-14 |
 
 ## Archive
 
