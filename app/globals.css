@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ——— Learnimo Design Tokens — Library at Dusk ——— */
+
+:root {
+  /* Light mode */
+  --color-background: #F5F0E8;
+  --color-foreground: #1A1A2E;
+  --color-muted-foreground: 102 102 102;
+
+  --color-card: #FFFFFF;
+  --color-card-border: #E8E4DF;
+  --color-card-foreground: #1A1A2E;
+
+  --color-primary: #D4854A;
+  --color-primary-hover: #BF7440;
+  --color-primary-foreground: #FFFFFF;
+
+  --color-input: #FFFFFF;
+  --color-input-border: #CCCCCC;
+  --color-input-focus: #D4854A;
+
+  --color-error: 204 51 51;
+
+  --color-link: #666666;
+  --color-link-hover: #1A1A2E;
+
+  --color-confirmation-bg: #FFF8F3;
+  --color-confirmation-border: #E8DDD5;
+  --color-ember-stroke: #D4854A;
+
+  /* Nav */
+  --color-nav-bg: #FFFFFF;
+  --color-nav-border: #E8E4DF;
+
+  /* Tabs */
+  --color-tab-active: #D4854A;
+  --color-tab-inactive: #999999;
+
+  /* Tag groups */
+  --color-tag-header-text: #1A1A2E;
+  --color-tag-accent-bar: #D4854A;
+  --color-tag-untagged-bar: #CCCCCC;
+  --color-tag-count-bg: #F0EBE3;
+  --color-tag-count-text: #666666;
+
+  /* Chips */
+  --color-chip-bg: #F0EBE3;
+  --color-chip-text: #1A1A2E;
+
+  /* Skeleton shimmer */
+  --color-skeleton-from: #E8E4DF;
+  --color-skeleton-to: #F5F0E8;
+
+  /* Nudge */
+  --color-nudge-text: #666666;
+  --color-nudge-link: #D4854A;
+}
+
+.dark {
+  /* Dark mode */
+  --color-background: #0F1B2D;
+  --color-foreground: #F5F0E8;
+  --color-muted-foreground: 136 153 170;
+
+  --color-card: #1A365D;
+  --color-card-border: #2B4A78;
+  --color-card-foreground: #F5F0E8;
+
+  --color-primary: #D4854A;
+  --color-primary-hover: #E89560;
+  --color-primary-foreground: #FFFFFF;
+
+  --color-input: #0F1B2D;
+  --color-input-border: #2B4A78;
+  --color-input-focus: #D4854A;
+
+  --color-error: 255 128 128;
+
+  --color-link: #8899AA;
+  --color-link-hover: #F5F0E8;
+
+  --color-confirmation-bg: #1A365D;
+  --color-confirmation-border: #2B4A78;
+  --color-ember-stroke: #D4854A;
+
+  /* Nav */
+  --color-nav-bg: #0F1B2D;
+  --color-nav-border: #2B4A78;
+
+  /* Tabs */
+  --color-tab-active: #D4854A;
+  --color-tab-inactive: #8899AA;
+
+  /* Tag groups */
+  --color-tag-header-text: #F5F0E8;
+  --color-tag-accent-bar: #D4854A;
+  --color-tag-untagged-bar: #2B4A78;
+  --color-tag-count-bg: #1A365D;
+  --color-tag-count-text: #8899AA;
+
+  /* Chips */
+  --color-chip-bg: #1A365D;
+  --color-chip-text: #F5F0E8;
+
+  /* Skeleton shimmer */
+  --color-skeleton-from: #1A365D;
+  --color-skeleton-to: #0F1B2D;
+
+  /* Nudge */
+  --color-nudge-text: #8899AA;
+  --color-nudge-link: #D4854A;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  min-height: 100dvh;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
