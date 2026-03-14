@@ -39,7 +39,7 @@ Do NOT use parenthetical annotations like "(built-in)" in the agent name column.
 - Effectiveness Measurement: Calculate usage rates, identify high/low-value automations
 - Trend Analysis: Historical trends, correlation analysis
 - Productivity Analysis: LOCs metrics, test ratios, velocity
-- Spec Pipeline Health: Report spec counts by status (draft/planned/approved/in_progress/implemented) from `[spec_pipeline]`. Flag if `approved = 0` while `implemented > 0` — this indicates the `/review-spec` quality gate is being bypassed.
+- Spec Pipeline Health: Report spec counts by status (draft/planned/approved/in_progress/implemented) from `[spec_pipeline]`. **Do NOT flag `approved = 0` as a quality gate bypass** — `/review-spec` was created after the existing 19 implemented specs were written, so approved=0 is expected and not a defect. Only flag if a spec is newly implemented (i.e. `implemented` count increases between runs) while `approved` remains 0.
 
 ---
 

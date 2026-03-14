@@ -55,6 +55,71 @@ git checkout "$PR_BRANCH"
 
 ---
 
+## 1.5. Resolve Merge Conflicts
+
+Read the "Merge Conflicts" section of the triage report.
+
+**If the section shows `✅ No conflicts` or is absent:** skip to Step 2.
+
+**If the section shows `❌ N conflicting files`:**
+
+1. Fetch and start a merge of the base branch into the PR branch:
+```bash
+BASE_BRANCH=$(gh pr view $PR_NUMBER --repo $REPO --json baseRefName --jq .baseRefName)
+git fetch origin "$BASE_BRANCH" --quiet
+git merge "origin/$BASE_BRANCH" --no-edit || true   # 'true' keeps going even if conflicts exist
+```
+
+2. Confirm which files still have conflict markers:
+```bash
+git diff --name-only --diff-filter=U
+```
+
+3. Resolve each conflicting file by type:
+
+   **Lockfiles** (`pnpm-lock.yaml`, `package-lock.json`, `yarn.lock`):
+   Discard the conflict markers and regenerate from the merged manifests:
+   ```bash
+   # 1. Accept base-branch lockfile as the starting point (clears conflict markers)
+   git checkout --theirs <lockfile>
+
+   # 2. Regenerate from the merged package manifests — pick the right command:
+   # pnpm  → (cd <dir> && pnpm install --no-frozen-lockfile)
+   # npm   → (cd <dir> && npm install --legacy-peer-deps)
+   # yarn  → (cd <dir> && yarn install)
+
+   # 3. Stage the freshly regenerated lockfile
+   git add <lockfile>
+   ```
+
+   **Source files** (`.ts`, `.tsx`, `.java`, `.md`, config files, etc.):
+   - Read the file and understand both sides of each conflict hunk
+   - Apply the resolution that preserves the PR's intent while incorporating base-branch changes
+   - If the conflict is ambiguous (both sides add/modify the same function or block in incompatible ways), **STOP and ask the user** before proceeding — do not guess
+
+4. Stage all resolved files. Do **not** run `git commit` manually — let `git merge --continue`
+   create the merge commit in the next step:
+```bash
+git add <resolved-files>
+```
+
+5. Finalize the merge (this creates the merge commit automatically):
+```bash
+git merge --continue --no-edit
+# If git merge --continue fails (e.g. nothing staged), use:
+# git commit --no-edit
+```
+
+6. Confirm no conflict markers remain:
+```bash
+git diff --name-only --diff-filter=U
+# Should output nothing
+```
+
+Compile and test gates in Steps 2–3 will catch any regressions introduced by the merge.
+
+---
+
 ## 2. Address CI/CD Failures
 
 Work through each failure listed in the triage report.
@@ -275,6 +340,9 @@ Branch: $PR_BRANCH
 - ✅ All checks passing (N/N)
   OR
 - ⚠️ Still failing: [list]
+
+### Merge Conflicts Resolved (N)
+- [file] — [resolution: regenerated lockfile / manual merge / accepted theirs]
 
 ### CI/CD Fixes Applied (N)
 - [check name] — [what was fixed]

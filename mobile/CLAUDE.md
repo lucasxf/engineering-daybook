@@ -176,4 +176,4 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
 
 ---
 
-*Last updated: 2026-03-11 (session: fix-pr/177 — PR #177 review fixes: useLearnerProfile AbortController signal wiring, Button/Text unit tests, LearnerResultCard coverage; mobile coverage 57% → 80.4%)*
+*Last updated: 2026-03-14 (session: feat/ds-tokens-fonts — Wave 0: Library at Dusk tokens + DM Sans/Sora fonts; 174 tests, 80.53% coverage)*

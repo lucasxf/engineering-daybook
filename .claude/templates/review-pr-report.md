@@ -18,6 +18,11 @@ Use this structure when writing the triage report in Step 6.
 - Failures:
   - [check name] — [type] — [specific error] — [log link]
 
+## Merge Conflicts
+- Status: [✅ No conflicts (MERGEABLE) | ❌ N conflicting files (CONFLICTING) | ⏳ Indeterminate (UNKNOWN after retries)]
+- Files:
+  - [file path] — [conflict type: content / delete-modify / rename / lockfile]
+
 ## Review Comments
 
 ### Approved for implementation

@@ -5,28 +5,61 @@
 
 export const palette = {
   // Brand
-  primary: '#6366F1',       // indigo-500
-  primaryDark: '#4F46E5',   // indigo-600
+  emberCta:     '#D4854A',
+  emberCtaDark: '#C07340',
 
-  // Neutral
-  white: '#FFFFFF',
-  gray50: '#F9FAFB',
-  gray100: '#F3F4F6',
-  gray200: '#E5E7EB',
-  gray300: '#D1D5DB',
-  gray400: '#9CA3AF',
-  gray500: '#6B7280',
-  gray600: '#4B5563',
-  gray700: '#374151',
-  gray800: '#1F2937',
-  gray900: '#111827',
-  black: '#000000',
+  // Named brand surfaces
+  parchment:    '#F5F0E8',
+  ink:          '#1A1A2E',
+  deepNavy:     '#0F1B2D',
+  primaryBlue:  '#1A365D',
+  midBlue:      '#2B4A78',
+  muted:        '#14243A',
+
+  // Input / muted warm neutrals
+  warmMuted:       '#EDE9E4',  // light surfaceAlt
+  warmBorder:      '#E8E4DF',  // light card border
+  warmInput:       '#CCCCCC',  // light input border
+  warmPlaceholder: '#999999',
+
+  // Disabled
+  disabledLight: '#E0D8D0',
+  disabledDark:  '#3A4A5A',
 
   // Feedback
-  error: '#EF4444',
-  errorLight: '#FEE2E2',
-  success: '#22C55E',
-  warning: '#F59E0B',
+  error:       '#C0392B',
+  errorDark:   '#FF8A8A',
+  errorBg:     '#FFF0F0',
+  errorBgDark: '#2D1A1A',
+  success:     '#27AE60',
+  successDark: '#50C878',
+  warning:     '#E67E22',
+  warningDark: '#F0A03C',
+
+  // Tag pills
+  tagPillBg:       '#E0E8F2',
+  tagPillText:     '#1A365D',
+  tagPillTextDark: '#8B9EC2',
+
+  // Neutral utility (used in buildTheme for text, surfaces, content)
+  white:              '#FFFFFF',
+  textSecondaryLight: '#666666',
+  textSecondaryDark:  '#8899AA',
+  contentBodyLight:   '#333333',
+  contentBodyDark:    '#C8D4E0',
+  mutedDark:          '#4A5A6A',  // text-disabled dark, input placeholder dark
+  disabledTextDark:   '#6A7A8A',
+} as const;
+
+export const brandAccents = {
+  deepNavy:    palette.deepNavy,
+  primaryBlue: palette.primaryBlue,
+  midBlue:     palette.midBlue,
+  branchBrown: '#8B5E3C',
+  darkLeather: '#6B4226',
+  emberCta:    palette.emberCta,
+  parchment:   palette.parchment,
+  ink:         palette.ink,
 } as const;
 
 export const spacing = {
@@ -67,6 +100,11 @@ export const typography = {
     normal: 1.5,
     relaxed: 1.75,
   },
+  fontFamily: {
+    body:       'DMSans_400Regular',
+    bodyMedium: 'DMSans_500Medium',
+    heading:    'Sora_600SemiBold',
+  },
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -78,29 +116,43 @@ function buildTheme(scheme: 'light' | 'dark') {
   return {
     scheme,
     colors: {
-      primary: palette.primary,
-      primaryDark: palette.primaryDark,
+      primary:     palette.emberCta,
+      primaryDark: palette.emberCtaDark,
 
       // Backgrounds
-      background: dark ? palette.gray900 : palette.white,
-      surface: dark ? palette.gray800 : palette.gray50,
-      surfaceAlt: dark ? palette.gray700 : palette.gray100,
+      background: dark ? palette.deepNavy    : palette.parchment,
+      surface:    dark ? palette.primaryBlue : palette.white,
+      surfaceAlt: dark ? palette.muted       : palette.warmMuted,
 
       // Borders
-      border: dark ? palette.gray700 : palette.gray200,
-      borderFocus: palette.primary,
+      border:      dark ? palette.midBlue   : palette.warmBorder,
+      borderFocus: palette.emberCta,
 
       // Text
-      textPrimary: dark ? palette.white : palette.gray900,
-      textSecondary: dark ? palette.gray400 : palette.gray500,
-      textDisabled: dark ? palette.gray600 : palette.gray300,
-      textInverse: dark ? palette.gray900 : palette.white,
+      textPrimary:   dark ? palette.parchment           : palette.ink,
+      textSecondary: dark ? palette.textSecondaryDark   : palette.textSecondaryLight,
+      textDisabled:  dark ? palette.mutedDark            : palette.warmPlaceholder,
+      textInverse:   dark ? palette.ink                 : palette.parchment,
+
+      // Inputs
+      inputBg:          dark ? palette.deepNavy   : palette.white,
+      inputBorder:      dark ? palette.midBlue    : palette.warmInput,
+      inputPlaceholder: dark ? palette.mutedDark  : palette.warmPlaceholder,
+
+      // Disabled
+      disabledBg:   dark ? palette.disabledDark      : palette.disabledLight,
+      disabledText: dark ? palette.disabledTextDark  : palette.warmPlaceholder,
 
       // Feedback
-      error: palette.error,
-      errorBackground: palette.errorLight,
-      success: palette.success,
-      warning: palette.warning,
+      error:            dark ? palette.errorDark   : palette.error,
+      errorBackground:  dark ? palette.errorBgDark : palette.errorBg,
+      success:          dark ? palette.successDark : palette.success,
+      warning:          dark ? palette.warningDark : palette.warning,
+
+      // Content
+      tagPillBg:   dark ? 'rgba(43,74,120,0.35)'     : palette.tagPillBg,
+      tagPillText: dark ? palette.tagPillTextDark    : palette.tagPillText,
+      contentBody: dark ? palette.contentBodyDark    : palette.contentBodyLight,
     },
     spacing,
     radii,

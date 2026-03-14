@@ -252,6 +252,70 @@ The PR description appears stale. Here is a suggested update:
 
 ---
 
+## 1D. Check Merge Conflicts
+
+```bash
+MERGEABLE=$(gh pr view $PR_NUMBER --repo $REPO --json mergeable --jq .mergeable)
+BASE_BRANCH=$(gh pr view $PR_NUMBER --repo $REPO --json baseRefName --jq .baseRefName)
+PR_BRANCH=$(gh pr view $PR_NUMBER --repo $REPO --json headRefName --jq .headRefName)
+```
+
+| State | Meaning |
+|-------|---------|
+| `MERGEABLE` | ✅ No conflicts — proceed |
+| `CONFLICTING` | ❌ Has merge conflicts — identify files |
+| `UNKNOWN` | ⏳ GitHub still computing — wait 5 s and retry (up to 3 times) |
+
+**If `UNKNOWN`:** poll every 5 s, up to 3 retries:
+```bash
+for i in 1 2 3; do
+  sleep 5
+  MERGEABLE=$(gh pr view $PR_NUMBER --repo $REPO --json mergeable --jq .mergeable)
+  [ "$MERGEABLE" != "UNKNOWN" ] && break
+done
+```
+If still `UNKNOWN` after 3 retries, run the local merge-tree check (same as the `CONFLICTING` path below)
+to attempt a definitive answer. If conflicts are found, treat as `CONFLICTING`; if no conflicts are
+found, treat as `MERGEABLE`. In either case, note "conflict status was UNKNOWN — resolved via local
+merge-tree check" in the report.
+
+**If `CONFLICTING`:**
+
+Identify the conflicting files. Try the newer two-tree `git merge-tree` form first (git ≥ 2.38),
+which outputs `CONFLICT` lines directly without touching the working tree:
+```bash
+git fetch origin "$BASE_BRANCH" "$PR_BRANCH" --quiet
+CONFLICTING_FILES=$(git merge-tree "origin/$BASE_BRANCH" "origin/$PR_BRANCH" 2>/dev/null \
+  | grep '^CONFLICT' | sed 's/.*Merge conflict in //' | sort -u)
+```
+
+If `git merge-tree` produces no output (older git) or the result is empty, fall back to a
+temp-worktree dry run:
+```bash
+TEMP=$(mktemp -d)
+git worktree add "$TEMP" "origin/$PR_BRANCH" --quiet 2>/dev/null
+git -C "$TEMP" merge --no-commit --no-ff "origin/$BASE_BRANCH" 2>/dev/null || true
+CONFLICTING_FILES=$(git -C "$TEMP" diff --name-only --diff-filter=U | sort -u)
+git -C "$TEMP" merge --abort 2>/dev/null || true
+git worktree remove "$TEMP" --force 2>/dev/null || true
+```
+
+Record in the triage report:
+- `CONFLICT_STATUS`: `CONFLICTING` (with file list) or `MERGEABLE`
+- `CONFLICTING_FILES`: one file path per line
+
+Tell the user:
+```
+⚠️ Merge conflicts detected in $PR_BRANCH vs $BASE_BRANCH:
+  - <file1>
+  - <file2>
+These will be listed in the triage report and resolved by /fix-pr.
+```
+
+**If `MERGEABLE`:** set `CONFLICT_STATUS=MERGEABLE`, proceed silently.
+
+---
+
 ## 2. Check CI/CD Pipeline Status
 
 ```bash
