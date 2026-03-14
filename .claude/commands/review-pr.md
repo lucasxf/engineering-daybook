@@ -252,6 +252,66 @@ The PR description appears stale. Here is a suggested update:
 
 ---
 
+## 1D. Check Merge Conflicts
+
+```bash
+MERGEABLE=$(gh pr view $PR_NUMBER --repo $REPO --json mergeable --jq .mergeable)
+BASE_BRANCH=$(gh pr view $PR_NUMBER --repo $REPO --json baseRefName --jq .baseRefName)
+PR_BRANCH=$(gh pr view $PR_NUMBER --repo $REPO --json headRefName --jq .headRefName)
+```
+
+| State | Meaning |
+|-------|---------|
+| `MERGEABLE` | ✅ No conflicts — proceed |
+| `CONFLICTING` | ❌ Has merge conflicts — identify files |
+| `UNKNOWN` | ⏳ GitHub still computing — wait 5 s and retry (up to 3 times) |
+
+**If `UNKNOWN`:** poll every 5 s, up to 3 retries:
+```bash
+for i in 1 2 3; do
+  sleep 5
+  MERGEABLE=$(gh pr view $PR_NUMBER --repo $REPO --json mergeable --jq .mergeable)
+  [ "$MERGEABLE" != "UNKNOWN" ] && break
+done
+```
+If still `UNKNOWN` after 3 retries, treat as `MERGEABLE` and note "conflict status indeterminate" in the report.
+
+**If `CONFLICTING`:**
+
+Identify the conflicting files using `git merge-tree` (non-destructive, no checkout required):
+```bash
+git fetch origin "$BASE_BRANCH" "$PR_BRANCH" --quiet
+MERGE_BASE=$(git merge-base origin/$BASE_BRANCH origin/$PR_BRANCH)
+CONFLICTING_FILES=$(git merge-tree "$MERGE_BASE" origin/$BASE_BRANCH origin/$PR_BRANCH 2>/dev/null \
+  | grep -E '^(CONFLICT|conflict)' | awk '{print $NF}' | sort -u)
+```
+
+If `git merge-tree` produces no output or errors, fall back to a temp-worktree dry run:
+```bash
+TEMP=$(mktemp -d)
+git worktree add "$TEMP" "origin/$PR_BRANCH" --quiet 2>/dev/null
+CONFLICTING_FILES=$(cd "$TEMP" && git merge --no-commit --no-ff "origin/$BASE_BRANCH" 2>&1 \
+  | grep "CONFLICT" | sed 's/.*CONFLICT.*: //' | sort -u)
+git merge --abort 2>/dev/null || true
+git worktree remove "$TEMP" --force 2>/dev/null || true
+```
+
+Record in the triage report:
+- `CONFLICT_STATUS`: `CONFLICTING` (with file list) or `MERGEABLE`
+- `CONFLICTING_FILES`: one file path per line
+
+Tell the user:
+```
+⚠️ Merge conflicts detected in $PR_BRANCH vs $BASE_BRANCH:
+  - <file1>
+  - <file2>
+These will be listed in the triage report and resolved by /fix-pr.
+```
+
+**If `MERGEABLE`:** set `CONFLICT_STATUS=MERGEABLE`, proceed silently.
+
+---
+
 ## 2. Check CI/CD Pipeline Status
 
 ```bash
