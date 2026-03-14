@@ -97,25 +97,6 @@ export function ResetPasswordForm({ token, locale }: ResetPasswordFormProps) {
         label={t('newPassword')}
         htmlFor="reset-password"
         error={errors.newPassword ? resolveError(errors.newPassword.message!) : undefined}
-        hint={
-          <div className="space-y-2 text-xs text-muted-foreground">
-            <p className="font-medium">{t('passwordRequirements.title')}</p>
-            <ul className="space-y-1 pl-4">
-              <li className={passwordRequirements.minLength && passwordRequirements.maxLength ? 'text-success' : ''}>
-                • {t('passwordRequirements.length')}
-              </li>
-              <li className={passwordRequirements.hasUppercase ? 'text-success' : ''}>
-                • {t('passwordRequirements.uppercase')}
-              </li>
-              <li className={passwordRequirements.hasLowercase ? 'text-success' : ''}>
-                • {t('passwordRequirements.lowercase')}
-              </li>
-              <li className={passwordRequirements.hasNumber ? 'text-success' : ''}>
-                • {t('passwordRequirements.number')}
-              </li>
-            </ul>
-          </div>
-        }
       >
         <PasswordInput
           id="reset-password"
@@ -123,11 +104,32 @@ export function ResetPasswordForm({ token, locale }: ResetPasswordFormProps) {
           autoComplete="new-password"
           hasError={!!errors.newPassword}
           aria-describedby={
-            errors.newPassword ? 'reset-password-error' : 'reset-password-hint'
+            errors.newPassword
+              ? 'reset-password-error reset-password-hint'
+              : 'reset-password-hint'
           }
           {...register('newPassword')}
         />
       </FormField>
+
+      {/* Requirements checklist — rendered outside FormField so it stays visible even when there is a validation error */}
+      <div id="reset-password-hint" className="space-y-2 text-xs text-muted-foreground">
+        <p className="font-medium">{t('passwordRequirements.title')}</p>
+        <ul className="space-y-1 pl-4">
+          <li className={passwordRequirements.minLength && passwordRequirements.maxLength ? 'text-success' : ''}>
+            • {t('passwordRequirements.length')}
+          </li>
+          <li className={passwordRequirements.hasUppercase ? 'text-success' : ''}>
+            • {t('passwordRequirements.uppercase')}
+          </li>
+          <li className={passwordRequirements.hasLowercase ? 'text-success' : ''}>
+            • {t('passwordRequirements.lowercase')}
+          </li>
+          <li className={passwordRequirements.hasNumber ? 'text-success' : ''}>
+            • {t('passwordRequirements.number')}
+          </li>
+        </ul>
+      </div>
 
       <FormField
         label={t('confirmPassword')}

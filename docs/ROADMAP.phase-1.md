@@ -277,6 +277,104 @@ Tooling session: applied three recommendations from the automation-sentinel audi
 | **Rec 4** — `/review-spec` auto-sets Status=Approved when verdict is READY; `/implement-spec` trusts Approved specs and adds a 12-point structural completeness gate when bypassing Draft status | ✅ Done |
 | **Rec 3** — `/review-pr` Step 6.5 extracts keepr verdict counts into session delta; `/compile-metrics` Step 4C aggregates `[pr_review_quality]` deltas; `usage-stats.toml` `[pr_review_quality]` scaffold added | ✅ Done |
 
+### Automation Sentinel Recommendation Record (chore/sentinel-rec-tracking, 2026-03-12) ✅
+
+Tooling session: added a persistent recommendation record table to prevent sentinel from re-recommending the same items and reduce token waste in future runs.
+
+| Task | Status |
+|------|--------|
+| Created `.claude/metrics/recommendations.md` — markdown table with `#`, `Date`, `Category`, `Title`, `Status`, `Status Date` columns; pre-seeded with 10 historical recs from two past sentinel reports (7 implemented, 3 deferred) | ✅ Done |
+| Updated `automation-sentinel.md` — added Section 6 "Recommendation Record Management": reads table at analysis start, deduplicates semantically, auto-appends new `open` rows, never modifies existing rows | ✅ Done |
+| Updated `compile-metrics.md` — moved sentinel to Step 4E (before commit) so appended recs are included in the same commit; added `recommendations.md` to git staging step | ✅ Done |
+| Updated `.claude/metrics/README.md` — removed stale `pulse` references; documented all current files and updated "How It Works" section | ✅ Done |
+
+### PR #194 Review Fixes — view-learning Design Preview (fix-pr/194, develop, 2026-03-13) ✅
+
+Web-only fix-pr session for PR #194 (feat: view-learning design preview components). No new milestones completed — the `view-learning` screen is a design-preview component deferred from milestone integration until it is wired into the actual `/poks/[id]` page.
+
+| Area | Fix |
+|------|-----|
+| `view-learning-screen.tsx` | Removed hydration guard; converted props to discriminated union (`state: 'loading' \| 'loaded' \| 'error'`) |
+| `learning-content.tsx` | Removed duplicate `Learning` type; guarded edit button behind ownership check; replaced `LearningMarkdown` with canonical `MarkdownContent` renderer |
+| `learning-breadcrumb.tsx` | Fixed `href="#"` placeholder → locale-aware `<Link>` |
+| `learning-error.tsx` | Fixed `href="#"` placeholder → `router.back()` call |
+| `learning-markdown.tsx` + `learning-markdown.test.tsx` | Deleted — duplicate renderer superseded by `MarkdownContent` |
+| `view-learning.test.tsx` | Removed empty test |
+| `view-learning-components.test.tsx` | Updated mock target from `LearningMarkdown` → `MarkdownContent` |
+| `app/page.tsx` | Fixed broken import, wrong prop names, invalid `STATE_LABELS` references |
+| `tsconfig.json` (root) | Added `./web/src/*` to `@/*` path alias so root-level app can resolve web components |
+| `.claude/metrics/sessions/` | Deleted two stale session delta files (`develop.toml`, `v0%2Flucasxf-61cf9218.toml`) |
+
+### CI Fix + /review-pr Interactive Metadata (fix + feat, develop, 2026-03-12) ✅
+
+Two-commit tooling session: one CI fix and one automation enhancement.
+
+| Area | Change |
+|------|--------|
+| `web/CreateLearningForm.test.tsx` | Fixed next-intl mock to support `{current}` interpolation — resolved CI failure |
+| `web/CreateLearningForm.tsx` | Added `disabled={isSubmitting}` to Title Input (PR #189 review feedback) |
+| `web/README.md` (usage example) | Removed incorrect `locale` prop from `CreateLearningForm` usage example |
+| `.claude/commands/finish-session.md` | Added `|| true` to `git add .claude/metrics/sessions/` to silence non-fatal exit code when directory is absent |
+| `.claude/commands/review-pr.md` | Steps 1B and 1C now prompt before overwriting PR title/description — only fires when metadata is inadequate; triage report gains `## PR Metadata` section |
+
+### prompt-optimizer Skill (chore/prompt-optimizer-skill, develop, 2026-03-13) ✅
+
+Added the `prompt-optimizer` skill to `.claude/skills/prompt-optimizer/`. Transforms raw intent or existing prompts into mode-optimized versions for Claude Code — plan mode (Opus) or execution mode (Sonnet). No backend/web/mobile code changed.
+
+| Task | Status |
+|------|--------|
+| Created `SKILL.md` — mode detection, optimize workflow, review workflow, output format | ✅ Done |
+| Created `references/plan-patterns.md` — 7 task-type templates for Opus plan mode | ✅ Done |
+| Created `references/exec-patterns.md` — 7 task-type templates for Sonnet execution mode | ✅ Done |
+| Created `references/anti-patterns.md` — 10 common prompt mistakes with before/after examples | ✅ Done |
+
+### skill-creator Skill Installation (chore/skill-creator, develop, 2026-03-13) ✅
+
+Added the `skill-creator` skill from Anthropic's open-source skills repo to `.claude/skills/skill-creator/`. This meta-skill enables creating and iterating on new Claude Code skills. 18 files installed. No backend/web/mobile code changed.
+
+| Task | Status |
+|------|--------|
+| Installed `skill-creator` skill (18 files) to `.claude/skills/skill-creator/` | ✅ Done |
+
+### Git Cleanup + Pre-existing Test Fixes (chore/git-cleanup-and-test-fixes, 2026-03-12) ✅
+
+Maintenance session: repository housekeeping and pre-existing CI failures resolved. No new features.
+
+| Task | Status |
+|------|--------|
+| Updated `.gitignore` to cover `.run/`, `.claude/reviews/`, `.claude/worktrees/`, `/target/`, `/backend-test-results/`, `/failed_logs.txt`, `/metrics/`, `/qodana.yaml` | ✅ Done |
+| Committed tracked untracked files: v0 prompts, spec reviews, prompts archive, `agents-readme.md`, `next-env.d.ts` | ✅ Done |
+| Reverted stale `UserController.java` + `UserControllerTest.java` commit — pre-rename artifacts superseded by `UserSettingsController` | ✅ Done |
+| Fixed pre-existing pgvector failures in `AuthIntegrationTest` and `FollowIntegrationTest` — added `enablePgVector()` helper to `@DynamicPropertySource` in both test classes; all tests now pass | ✅ Done |
+| Improved `/finish-session` command — added explicit session TOML staging verification step | ✅ Done |
+
+### PR #195 Review Fixes + Web Test Correction (fix, develop, 2026-03-13) ✅
+
+Automation/tooling maintenance session. Two commits; no backend or new page changes.
+
+| Area | Fix |
+|------|-----|
+| `.claude/scripts/session_delta.py` | Moved `--exclude=<file>` flag before `--` separator in grep subprocess call — was treated as a positional argument, not a flag |
+| `.gitignore` | Added `.claude/metrics/sessions/` to prevent transient session delta files from being committed |
+| `.claude/skills/prompt-optimizer/references/plan-patterns.md` | Rephrased "chain-of-thought encouragement" → "structured reasoning" |
+| `.claude/skills/prompt-optimizer/references/exec-patterns.md` | Fixed inaccurate JPA null collection root cause description |
+| `.claude/commands/review-pr.md` | Added section headers to `cat` output for source boundaries |
+| `.claude/commands/review-pr-presentation.md` | Added `@Nullable` qualifier to `getTags()` null-check example |
+| `.claude/skills/prompt-optimizer/references/anti-patterns.md` | Corrected Spring Boot version in example: reverted erroneous "Spring Boot 3" back to "Spring Boot 4" (backend/pom.xml is 4.0.3) |
+| `web/src/components/view-learning/view-learning.test.tsx` | Fixed stale aria-label assertions — mocks return raw i18n keys; aligned assertions with mock behavior |
+
+### PR #187 Review Fixes (fix-pr/187, 2026-03-12) ✅
+
+Web-only fix-pr session for PR #187 (feat: implement View Learning screen with design system and i18n support). Restored coverage above CI threshold by adding 36 unit tests; removed dead code.
+
+| Area | Fix |
+|------|-----|
+| `web/src/components/view-learning/learning-error.tsx` | Removed unused `cta` variable (ESLint dead code warning) |
+| `web/src/components/view-learning/view-learning.test.tsx` | Added 13 tests — LearningError (2 variants + alert role), LearningLoading (aria-busy + label), ViewLearningScreen (all states + delete/edit interactions) |
+| `web/src/components/view-learning/view-learning-components.test.tsx` | Added 12 tests — LearningBreadcrumb, LearningNavBar, LearningContent (title/derived-title/delete/tags/markdown), DeleteConfirmDialog (render/confirm/Escape) |
+| `web/src/components/view-learning/learning-markdown.test.tsx` | Added 11 tests — LearningMarkdown (plain text, bold, italic, inline-code, fenced code, h1/h2/h3, bullet list, blockquote, spacers) |
+| Line coverage | Restored from 48.1% → above 50% CI threshold (all 462 tests passing) |
+
 ---
 
 ## Active / Pending

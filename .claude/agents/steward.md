@@ -20,32 +20,7 @@ color: red
 Read `backend/target/site/jacoco/jacoco.xml` to identify the gap and worst-offending classes:
 
 ```bash
-python3 -c "
-import xml.etree.ElementTree as ET
-tree = ET.parse('backend/target/site/jacoco/jacoco.xml')
-root = tree.getroot()
-
-print('=== Bundle Totals ===')
-for c in root.findall('counter'):
-    missed = int(c.get('missed', 0))
-    covered = int(c.get('covered', 0))
-    total = missed + covered
-    pct = (covered / total * 100) if total else 0
-    print(f'{c.get(\"type\"):15} {covered}/{total} ({pct:.1f}%)')
-
-print()
-print('=== Classes by Missed Lines (worst first, top 15) ===')
-classes = []
-for cls in root.findall('package/class'):
-    name = cls.get('name', '')
-    for c in cls.findall('counter[@type=\"LINE\"]'):
-        missed = int(c.get('missed', 0))
-        covered = int(c.get('covered', 0))
-        if missed > 0:
-            classes.append((missed, name, covered))
-for missed, name, covered in sorted(classes, reverse=True)[:15]:
-    print(f'  missed={missed:4d}  covered={covered:4d}  {name}')
-"
+python3 .claude/scripts/jacoco_report.py --detail backend/target/site/jacoco/jacoco.xml 90
 ```
 
 ### Step 2 — Determine the Gap
@@ -105,17 +80,7 @@ After writing tests, run the full verification to confirm coverage is above the 
 Then re-parse the XML to confirm the numbers:
 
 ```bash
-python3 -c "
-import xml.etree.ElementTree as ET
-tree = ET.parse('backend/target/site/jacoco/jacoco.xml')
-root = tree.getroot()
-for c in root.findall('counter[@type=\"LINE\"]'):
-    missed = int(c.get('missed', 0))
-    covered = int(c.get('covered', 0))
-    total = missed + covered
-    pct = (covered / total * 100) if total else 0
-    print(f'LINE: {covered}/{total} ({pct:.1f}%)')
-"
+python3 .claude/scripts/jacoco_report.py --summary backend/target/site/jacoco/jacoco.xml 90
 ```
 
 If coverage is still below threshold: identify the next worst class and repeat Step 3–5.

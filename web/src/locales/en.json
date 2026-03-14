@@ -120,6 +120,33 @@
       "dismiss": "Dismiss"
     }
   },
+  "learnings": {
+    "create": {
+      "title": "New learning",
+      "pageHeader": "New learning",
+      "form": {
+        "titleLabel": "Title",
+        "titlePlaceholder": "Optional — add a title if you prefer",
+        "titleCharCounter": "{current} / 200",
+        "contentLabel": "Content",
+        "contentPlaceholder": "What did you learn?",
+        "contentCharCounter": "{current} / 50,000",
+        "saveButton": "Save learning",
+        "savingButton": "Saving...",
+        "cancelButton": "Cancel"
+      },
+      "errors": {
+        "contentRequired": "Content is required",
+        "titleTooLong": "Title must be 200 characters or less",
+        "contentTooLong": "Content must be between 1 and 50,000 characters",
+        "saveFailed": "Failed to save. Please try again."
+      },
+      "success": {
+        "message": "Learning saved!"
+      },
+      "backToFeed": "Back to feed"
+    }
+  },
   "poks": {
     "create": {
       "title": "New learning"
@@ -170,7 +197,14 @@
       "backButton": "Back to list",
       "editButton": "Edit",
       "created": "Created",
-      "updated": "Updated"
+      "updated": "Updated",
+      "tagsLabel": "Learning tags",
+      "breadcrumbLabel": "Breadcrumb navigation",
+      "loadingLabel": "Loading learning...",
+      "notFoundTitle": "Learning not found",
+      "notFoundBody": "This learning doesn't exist or may have been removed.",
+      "forbiddenTitle": "Access denied",
+      "forbiddenBody": "You don't have permission to view this learning."
     },
     "edit": {
       "title": "Edit learning",
@@ -200,6 +234,7 @@
       "confirmMessage": "This action cannot be undone. This learning will be permanently deleted.",
       "confirmButton": "Delete",
       "cancelButton": "Cancel",
+      "dismiss": "Close",
       "deleting": "Deleting..."
     },
     "success": {
@@ -217,7 +252,11 @@
     },
     "errors": {
       "notFound": "Learning not found",
+      "notFoundTitle": "Learning not found",
+      "notFoundBody": "The learning you're looking for doesn't exist or has been removed.",
       "forbidden": "You don't have permission to access this learning",
+      "forbiddenTitle": "Access denied",
+      "forbiddenBody": "You don't have permission to view this learning.",
       "contentRequired": "Content is required and must not be blank",
       "titleTooLong": "Title must be 200 characters or less",
       "contentTooLong": "Content must be 50,000 characters or less",
