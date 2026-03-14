@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
+import React from 'react';
 import { vi } from 'vitest';
 import EditPokPage from '@/app/[locale]/poks/[id]/edit/page';
 import { pokApi, type Pok } from '@/lib/pokApi';
@@ -44,10 +45,19 @@ vi.mock('@/components/poks/TagSection', () => ({
 }));
 
 vi.mock('@/components/poks/PokForm', () => ({
-  PokForm: ({ onSubmit, initialData }: { onSubmit: (d: { title: string; content: string }) => void; initialData?: { title: string; content: string } }) => (
+  PokForm: ({
+    onSubmit,
+    initialData,
+    cancelButton,
+  }: {
+    onSubmit: (d: { title: string; content: string }) => void;
+    initialData?: { title: string; content: string };
+    cancelButton?: React.ReactNode;
+  }) => (
     <div>
       <span data-testid="initial-title">{initialData?.title}</span>
       <span data-testid="initial-content">{initialData?.content}</span>
+      {cancelButton}
       <button
         data-testid="submit-form"
         onClick={() => onSubmit({ title: 'Updated title', content: 'Updated content' })}
