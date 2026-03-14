@@ -35,14 +35,16 @@ interface ProfileHeroProps {
   theme: "dark" | "light";
   variant: ProfileVariant;
   translations?: ProfileHeroTranslations;
+  avatarAltText?: string;
+  avatarInitialsLabel?: string;
 }
 
-export function ProfileHeroSkeleton() {
+export function ProfileHeroSkeleton({ ariaLabel = "Carregando perfil" }: { ariaLabel?: string } = {}) {
   return (
     <div
       className="rounded-2xl border border-card-border bg-card px-6 py-6 animate-pulse"
       role="status"
-      aria-label="Carregando perfil"
+      aria-label={ariaLabel}
     >
       <div className="flex items-start gap-4">
         {/* Avatar skeleton */}
@@ -70,6 +72,8 @@ export function ProfileHero({
   theme,
   variant,
   translations,
+  avatarAltText,
+  avatarInitialsLabel,
 }: ProfileHeroProps) {
   const t = translations ?? DEFAULT_HERO_TRANSLATIONS;
   const showAvatar = variant !== "no-avatar";
@@ -84,15 +88,10 @@ export function ProfileHero({
             displayName={displayName}
             size={80}
             theme={theme}
+            altText={avatarAltText}
+            initialsLabel={avatarInitialsLabel}
           />
-        ) : (
-          <ProfileAvatar
-            avatarUrl={null}
-            displayName={displayName}
-            size={80}
-            theme={theme}
-          />
-        )}
+        ) : null}
 
         {/* Identity */}
         <div className="flex-1 min-w-0">

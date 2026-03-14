@@ -3,6 +3,7 @@
 import { Lock, BookOpen } from "lucide-react";
 import { LearnimoWordmark } from "@/components/ui/LearnimoWordmark";
 import { ProfileHero, ProfileHeroSkeleton } from "./profile-hero";
+import type { ProfileVariant } from "./profile-hero";
 export type { ProfileVariant } from "./profile-hero";
 import { LearningCard, LearningCardSkeleton } from "./learning-card";
 
@@ -32,6 +33,19 @@ const DEFAULT_TRANSLATIONS: LearnerProfileTranslations = {
   follow: "Seguir",
   following: "Seguindo",
   editProfile: "Editar perfil",
+};
+
+const EN_DEFAULT_TRANSLATIONS: LearnerProfileTranslations = {
+  login: "Log in",
+  goToProfile: "Go to @{handle}'s profile",
+  privateProfile: "This profile is private",
+  notFound: "Profile not found",
+  notFoundHint: "The profile you're looking for doesn't exist or has been removed.",
+  noPublicLearnings: "No public learnings yet",
+  learnings: "Learnings",
+  follow: "Follow",
+  following: "Following",
+  editProfile: "Edit profile",
 };
 
 // ─── Mock data ───────────────────────────────────────────────────────────────
@@ -114,7 +128,7 @@ function AppHeader({ viewerHandle, theme, t }: AppHeaderProps) {
         aria-label="learnimo"
         className="rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-input-focus)]"
       >
-        <LearnimoWordmark className="text-xl" />
+        <LearnimoWordmark className="text-xl" ariaHidden />
       </a>
 
       {viewerHandle ? (
@@ -271,6 +285,7 @@ interface LearnerProfileScreenProps {
   theme: "dark" | "light";
   translations?: LearnerProfileTranslations;
   locale?: "en" | "pt-BR";
+  viewerHandle?: string;
 }
 
 export function LearnerProfileScreen({
@@ -278,8 +293,10 @@ export function LearnerProfileScreen({
   theme,
   translations,
   locale = "pt-BR",
+  viewerHandle,
 }: LearnerProfileScreenProps) {
-  const t = translations ?? DEFAULT_TRANSLATIONS;
+  const defaultT = locale === "en" ? EN_DEFAULT_TRANSLATIONS : DEFAULT_TRANSLATIONS;
+  const t = translations ?? defaultT;
   const mockLearnings = locale === "en" ? MOCK_LEARNINGS_EN : MOCK_LEARNINGS_PT;
 
   const profile = {
@@ -307,7 +324,8 @@ export function LearnerProfileScreen({
 
     const learnings = variant === "empty-learnings" ? [] : mockLearnings;
     const showBio = variant !== "no-bio" ? profile.bio : null;
-    const avatarUrl = variant === "no-avatar" ? null : null; // always null — uses initials in mock
+    const avatarAltText = locale === "en" ? `Avatar of ${profile.displayName}` : undefined;
+    const avatarInitialsLabel = locale === "en" ? `Initials of ${profile.displayName}` : undefined;
 
     return (
       <div className="flex flex-col gap-6">
@@ -315,12 +333,14 @@ export function LearnerProfileScreen({
           displayName={profile.displayName}
           handle={profile.handle}
           bio={showBio}
-          avatarUrl={avatarUrl}
+          avatarUrl={null}
           isFollowing={false}
           isOwnProfile={variant === "own-profile"}
           theme={theme}
           variant={variant}
           translations={{ follow: t.follow, following: t.following, editProfile: t.editProfile }}
+          avatarAltText={avatarAltText}
+          avatarInitialsLabel={avatarInitialsLabel}
         />
         <LearningsFeed learnings={learnings} theme={theme} t={t} />
       </div>
@@ -329,7 +349,7 @@ export function LearnerProfileScreen({
 
   return (
     <div className="flex min-h-full flex-col bg-background font-sans">
-      <AppHeader viewerHandle="ana.souza" theme={theme} t={t} />
+      <AppHeader viewerHandle={viewerHandle} theme={theme} t={t} />
       <main className="flex-1 px-4 py-6 max-w-[680px] mx-auto w-full">{renderContent()}</main>
     </div>
   );

@@ -4,6 +4,8 @@ interface ProfileAvatarProps {
   avatarUrl?: string | null;
   displayName: string;
   size?: number;
+  altText?: string;
+  initialsLabel?: string;
 }
 
 function getInitialsBg(theme: "dark" | "light") {
@@ -19,6 +21,8 @@ export function ProfileAvatar({
   displayName,
   size = 80,
   theme = "dark",
+  altText,
+  initialsLabel,
 }: ProfileAvatarProps & { theme?: "dark" | "light" }) {
   const initial = displayName.trim().charAt(0).toUpperCase();
 
@@ -26,7 +30,7 @@ export function ProfileAvatar({
     return (
       <img
         src={avatarUrl}
-        alt={`Avatar de ${displayName}`}
+        alt={altText ?? `Avatar de ${displayName}`}
         width={size}
         height={size}
         className="rounded-full object-cover ring-2 ring-card-border"
@@ -38,7 +42,7 @@ export function ProfileAvatar({
 
   return (
     <div
-      aria-label={`Iniciais de ${displayName}`}
+      aria-label={initialsLabel ?? `Iniciais de ${displayName}`}
       role="img"
       className="rounded-full flex items-center justify-center font-heading font-semibold select-none flex-shrink-0"
       style={{
