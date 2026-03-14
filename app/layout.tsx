@@ -24,8 +24,8 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  title: "learnimo",
-  description: "O diário pessoal de aprendizado.",
+  title: "learnimo — Configurações",
+  description: "Gerencie seu perfil, privacidade e preferências no learnimo.",
 };
 
 export default function RootLayout({
