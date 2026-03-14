@@ -274,7 +274,10 @@ for i in 1 2 3; do
   [ "$MERGEABLE" != "UNKNOWN" ] && break
 done
 ```
-If still `UNKNOWN` after 3 retries, treat as `MERGEABLE` and note "conflict status indeterminate" in the report.
+If still `UNKNOWN` after 3 retries, run the local merge-tree check (same as the `CONFLICTING` path below)
+to attempt a definitive answer. If conflicts are found, treat as `CONFLICTING`; if no conflicts are
+found, treat as `MERGEABLE`. In either case, note "conflict status was UNKNOWN — resolved via local
+merge-tree check" in the report.
 
 **If `CONFLICTING`:**
 
