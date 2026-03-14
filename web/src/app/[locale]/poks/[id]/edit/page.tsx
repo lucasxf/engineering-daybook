@@ -126,8 +126,11 @@ export default function EditPokPage() {
           visibility: pok.visibility,
         }}
         cancelButton={
-          <Link href={`/${params.locale}/poks/${pokId}` as never}>
-            <Button variant="secondary">{t('edit.cancelButton')}</Button>
+          <Link
+            href={`/${params.locale}/poks/${pokId}` as never}
+            className="inline-flex items-center justify-center rounded-md font-medium transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background bg-card text-card-foreground border border-card-border hover:bg-muted/10 h-10 px-4 text-base"
+          >
+            {t('edit.cancelButton')}
           </Link>
         }
       />
