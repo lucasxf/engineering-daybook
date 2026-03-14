@@ -22,6 +22,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import jakarta.servlet.http.Cookie;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.Map;
 import java.util.UUID;
 
@@ -67,9 +69,18 @@ class AuthIntegrationTest {
             .withUsername("test")
             .withPassword("test");
         postgres.start();
+        enablePgVector(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
+    }
+
+    private static void enablePgVector(String url, String username, String password) {
+        try (Connection conn = DriverManager.getConnection(url, username, password)) {
+            conn.createStatement().execute("CREATE EXTENSION IF NOT EXISTS vector;");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to enable pgvector extension", e);
+        }
     }
 
     @AfterAll

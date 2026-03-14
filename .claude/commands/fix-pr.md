@@ -140,21 +140,11 @@ Re-parse `jacoco.xml` to confirm the gap is closed before committing.
 Read the "Approved for implementation" section of the triage report. Each item has an assigned agent.
 Route each group to the appropriate specialist agent via the Agent tool.
 
-### Agent Routing Table
+### Agent Routing
 
-| File pattern | Comment type | Agent |
-|---|---|---|
-| `backend/**` (`.java`, `pom.xml`, `application*.yml`) | Any | `sous-chef` |
-| `web/**` (`.ts`, `.tsx`) | Architecture, logic, TypeScript, data fetching | `nexus` |
-| `mobile/**` (`.ts`, `.tsx`) | Architecture, logic, navigation, state, storage | `hedy` |
-| `web/**` or `mobile/**` | Visual design, layout, colors, spacing, accessibility | `pixl` |
-| `.md`, i18n `.json`, config-only | Any | Handle inline — no agent needed |
+Each item in the triage report's "Approved for implementation" section already has an `Agent:` field assigned by keepr during `/review-pr`. Use that assignment directly.
 
-**Classification tie-breakers:**
-- Comment mentions layout, color, spacing, `className`, style props, WCAG, or accessibility → `pixl`, regardless of file
-- Comment mentions component structure, TypeScript types, hooks, data fetching, or routing → `nexus` (web) or `hedy` (mobile)
-- A single comment that spans both logic and design → split into two items, one per agent
-- Cross-cutting comments touching both `backend/` and `web/` → run `sous-chef` then `nexus` sequentially
+If any item is missing an agent assignment, fall back to the routing rules in `.claude/agents/keepr.md`.
 
 ### Launch Agents
 

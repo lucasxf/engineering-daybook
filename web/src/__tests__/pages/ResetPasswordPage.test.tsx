@@ -79,7 +79,8 @@ describe('ResetPasswordPage', () => {
       renderPage();
       await waitFor(() => {
         const links = screen.getAllByRole('link', { name: /back to login/i });
-        expect(links.length).toBeGreaterThan(0);
+        expect(links).toHaveLength(1);
+        expect(links[0]).toHaveAttribute('href', '/en/login');
       });
     });
   });

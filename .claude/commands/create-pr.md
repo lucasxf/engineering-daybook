@@ -112,7 +112,7 @@ $(cat /tmp/pr_commits.txt)
 
 Generated with [Claude Code](https://claude.com/claude-code)
 
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 ```
 
 ## 5. Create Pull Request with GitHub CLI

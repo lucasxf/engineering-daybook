@@ -16,15 +16,15 @@ describe('Textarea', () => {
   it('applies normal border classes when no error', () => {
     render(<Textarea aria-label="content" />);
     const el = screen.getByRole('textbox');
-    expect(el.className).toContain('border-slate-300');
-    expect(el.className).not.toContain('border-red-500');
+    expect(el.className).toContain('border-input-border');
+    expect(el.className).not.toContain('border-destructive');
   });
 
   it('applies error border classes when hasError is true', () => {
     render(<Textarea aria-label="content" hasError />);
     const el = screen.getByRole('textbox');
-    expect(el.className).toContain('border-red-500');
-    expect(el.className).toContain('focus:ring-red-500');
+    expect(el.className).toContain('border-destructive');
+    expect(el.className).toContain('focus:ring-destructive/25');
   });
 
   it('passes through HTML attributes', () => {

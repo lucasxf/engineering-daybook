@@ -10,9 +10,10 @@ argument-hint: <optional-pr-number>
 Target PR: $ARGUMENTS
 
 This command is read-only with respect to repository contents — no code is changed, no branches are
-checked out, nothing is committed. PR metadata (title, body) may be updated as part of triage when
-the description is missing or stale. It gathers facts, evaluates feedback, and saves a structured
-triage report. Run `/fix-pr $PR_NUMBER` afterwards to implement the approved items.
+checked out, nothing is committed. PR metadata (title, body) may be updated when the title or
+description is missing, inadequate, or stale — but only after prompting you for confirmation.
+It gathers facts, evaluates feedback, and saves a structured triage report.
+Run `/fix-pr $PR_NUMBER` afterwards to implement the approved items.
 
 Execute the following steps in order:
 
@@ -125,23 +126,61 @@ Stop polling after 5 min (10 iterations) and warn: "Claude Action did not finish
 ## 1B. Check and Enrich PR Description
 
 ```bash
-gh pr view $PR_NUMBER --repo $REPO --json body,title --jq '{body: .body, title: .title}'
+gh pr view $PR_NUMBER --repo $REPO --json body,title,headRefName \
+  --jq '{body: .body, title: .title, branch: .headRefName}'
 ```
+
+Track outcomes in two variables (used in Step 6):
+- `TITLE_OUTCOME` — one of: `updated`, `kept`, `ok`
+- `DESC_OUTCOME` — one of: `updated`, `kept`, `ok`
+
+### Title check
+
+A title is **inadequate** if any of:
+- Matches the branch name verbatim (e.g., `develop`, `feature/foo-bar`)
+- Shorter than 10 characters
+- Has no conventional-commit prefix (`feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`, `perf:`, `build:`, `ci:`)
+- Is a single generic word (e.g., "Update", "Fix", "Changes")
+
+**If title is inadequate:**
+
+1. Fetch commits and diff stat (reuse for description check below):
+```bash
+gh api repos/$REPO/pulls/$PR_NUMBER/commits --jq '.[].commit.message'
+gh pr diff $PR_NUMBER --repo $REPO --stat
+```
+
+2. Draft a suggested title in conventional-commit format (e.g., `feat: add spec pipeline health metric to /compile-metrics`).
+
+3. Display to user:
+```
+Current title : "<current title>"
+Suggested title: "<suggested title>"
+```
+
+4. Use AskUserQuestion: "The PR title looks generic or is missing a conventional-commit prefix. Update it?"
+   - "Yes, use suggested title"
+   - "No, keep current title"
+
+5. If yes → `gh pr edit $PR_NUMBER --repo $REPO --title "<suggested title>"` → set `TITLE_OUTCOME=updated`
+6. If no → set `TITLE_OUTCOME=kept`
+
+**If title is adequate:** set `TITLE_OUTCOME=ok`, proceed.
+
+---
+
+### Description check
 
 A description is **missing or inadequate** if:
 - Empty or only whitespace
 - A single generic line (e.g., "Develop", "fix", "update")
 - Shorter than ~100 characters with no structure (no bullets, no headings)
 
-**If inadequate:**
+**If description is inadequate:**
 
-1. Fetch commits and diff:
-```bash
-gh api repos/$REPO/pulls/$PR_NUMBER/commits --jq '.[].commit.message'
-gh pr diff $PR_NUMBER --repo $REPO --stat
-```
+1. Use commits and diff stat already fetched above (or fetch now if title was adequate and they weren't fetched yet).
 
-2. Draft a description:
+2. Draft a suggested description:
 ```markdown
 ## Summary
 - [Bullet per significant area — what + why]
@@ -153,14 +192,23 @@ gh pr diff $PR_NUMBER --repo $REPO --stat
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
 
-3. Update the PR:
-```bash
-gh pr edit $PR_NUMBER --repo $REPO --title "<meaningful title>" --body "<generated body>"
+3. Display the draft to the user:
+```
+The PR description is missing or too thin. Here is a suggested description:
+
+---
+<rendered draft>
+---
 ```
 
-4. Note in the triage report: "Description was missing — generated from commits and diff."
+4. Use AskUserQuestion: "Update the PR description with this draft?"
+   - "Yes, use suggested description"
+   - "No, keep current description"
 
-**If already comprehensive:** proceed.
+5. If yes → `gh pr edit $PR_NUMBER --repo $REPO --body "<suggested body>"` → set `DESC_OUTCOME=updated`
+6. If no → set `DESC_OUTCOME=kept`
+
+**If description is already comprehensive:** set `DESC_OUTCOME=ok`, proceed.
 
 ---
 
@@ -168,6 +216,7 @@ gh pr edit $PR_NUMBER --repo $REPO --title "<meaningful title>" --body "<generat
 
 > Even a long description can be stale if earlier commits were reverted or if this is an aggregated
 > merge PR (e.g., `develop → main`) written when it had fewer commits.
+> Skip this step if `DESC_OUTCOME` is already `updated` or `kept` from Step 1B.
 
 ```bash
 gh api repos/$REPO/pulls/$PR_NUMBER/commits --jq '[.[].commit.message] | join("\n")'
@@ -179,8 +228,27 @@ A description is **stale** if it:
 - Omits significant areas visible in commits/diff
 - Describes a single-feature branch when commits show an aggregated merge
 
-**If stale:** update with a replacement that reflects the actual commits. Note in the triage report.
-**If accurate:** proceed.
+**If stale:**
+
+1. Draft a replacement that reflects the actual commits (same template as Step 1B).
+
+2. Tell the user what is stale (e.g., "Description mentions feature X which is no longer in the diff; omits N new areas"):
+```
+The PR description appears stale. Here is a suggested update:
+
+---
+<rendered draft>
+---
+```
+
+3. Use AskUserQuestion: "The PR description looks outdated relative to current commits. Replace it?"
+   - "Yes, replace with updated description"
+   - "No, keep current description"
+
+4. If yes → `gh pr edit $PR_NUMBER --repo $REPO --body "<replacement body>"` → set `DESC_OUTCOME=updated`
+5. If no → set `DESC_OUTCOME=kept`
+
+**If accurate:** set `DESC_OUTCOME=ok`, proceed.
 
 ---
 
@@ -220,19 +288,19 @@ file/line references. This detail goes directly into the triage report.
 
 ## 3. Fetch All Review Comments
 
-Collect from three sources:
+Collect from three sources in parallel:
 
 ```bash
-# Top-level PR conversation comments
-gh api repos/$REPO/issues/$PR_NUMBER/comments --paginate
-
-# Inline code review comments — include the outdated field for delta detection
+gh api repos/$REPO/issues/$PR_NUMBER/comments --paginate \
+  > /tmp/pr_issue_comments.json &
 gh api repos/$REPO/pulls/$PR_NUMBER/comments --paginate \
   --jq '.[] | {id: .id, user: .user.login, path: .path, line: .line,
-               original_line: .original_line, body: .body, outdated: .outdated}'
-
-# Review summaries (approve / request changes / comment with body)
-gh api repos/$REPO/pulls/$PR_NUMBER/reviews --paginate
+               original_line: .original_line, body: .body, outdated: .outdated}' \
+  > /tmp/pr_inline_comments.json &
+gh api repos/$REPO/pulls/$PR_NUMBER/reviews --paginate \
+  > /tmp/pr_reviews.json &
+wait
+echo "=== ISSUE COMMENTS ===" && cat /tmp/pr_issue_comments.json && echo "=== INLINE COMMENTS ===" && cat /tmp/pr_inline_comments.json && echo "=== REVIEWS ===" && cat /tmp/pr_reviews.json
 ```
 
 **Filter out noise:**
@@ -274,62 +342,12 @@ areas. Use its output directly in Step 5 and the triage report.
 
 ## 5. Present Evaluation to User
 
-Display one entry per comment, grouped by recommendation:
-
+Read the presentation format template:
 ```
-## PR #XX — Triage
-
-### CI/CD: ❌ N failures / ✅ All passing
-[Each failure: check name — type — specific error — log link]
-
-### Review Comments
-
-#### Accept (N)
-- :wrench: **AuthController.java:42** (by copilot) — "Use constructor injection instead of @Autowired"
-  Evaluation: Correct. Matches CLAUDE.md §Coding Conventions — constructor injection only.
-  Agent: sous-chef
-
-- :bug: **PokService.java:88** (by reviewer) — "This will NPE when tags is null"
-  Evaluation: Confirmed — pok.getTags() is nullable per the domain model; calling .stream() without
-  a null check will throw at runtime when a POK has no tags.
-  Agent: sous-chef
-
-#### Accept with modification (N)
-- :bulb: **api.ts:31** (by copilot) — "Extract silentRefresh to a shared utility"
-  Evaluation: Identifies real duplication. However, the suggested location creates a circular import.
-  Fix: inline the duplicate in api.ts instead of extracting to a new file.
-  Agent: nexus
-
-#### Reject (N)
-- :bulb: **AuthService.java:60** (by copilot) — "Consider adding @Transactional to this method"
-  Trade-off analysis:
-    FOR applying: Protects against partial writes if a second DB call is added later.
-    AGAINST applying: One DB call today — zero partial-write risk. CLAUDE.md: don't guard scenarios
-    that can't happen.
-  Verdict: Reject — revisit if method gains a second DB call.
-
-#### Defer (N)
-- :bulb: **PokRepository.java:15** (by copilot) — "Extract this query to a named @Query constant"
-  Evaluation: Valid style improvement. No established pattern for named queries yet — one method
-  doesn't justify it.
-  Recommendation: Defer to when query count makes a consistent pattern worthwhile.
-
-#### Questions — requires manual reply (N)
-- :question: **PR comment** (by @reviewer) — "Why did you choose bcrypt over argon2?"
-  Suggested reply: bcrypt is Spring Security's default and well-tested in production; argon2 has no
-  practical advantage at current user scale.
-
-#### From Claude Action — auto-verified (N)
-- :wrench: **AuthController.java:175** (by claude[bot]) — "Use constructor injection"
-  Auto-verified: aligns with CLAUDE.md §Coding Conventions.
-
-- :bug: **PokService.java:42** (by claude[bot]) — "Null check missing before stream()"
-  Full evaluation required — CONFLICTS with existing null-safe wrapper pattern.
-  Verdict: Reject — see NullSafeCollections utility at PokService.java:12.
-
-#### Informational — no action (N)
-- :information_source: "Great use of records for DTOs!" (by copilot)
+Read: .claude/templates/review-pr-presentation.md
 ```
+
+Display one entry per comment, grouped by recommendation using that format.
 
 **Ask user to confirm before saving the report.** Use AskUserQuestion with multiSelect:
 - "Accept" items pre-selected
@@ -348,51 +366,12 @@ mkdir -p "$MAIN_REPO/.claude/reviews"
 TRIAGE_FILE="$MAIN_REPO/.claude/reviews/pr-$PR_NUMBER-triage.md"
 ```
 
-Write the triage report to `$TRIAGE_FILE` using the Write tool (not bash redirection).
-
-The report must include:
-
-```markdown
-# PR #XX Triage — <PR title>
-
-**Branch:** <headRefName>
-**Date:** <today>
-**Repo:** <REPO>
-
-## PR Description
-- Status: [Generated / Updated / Already accurate]
-
-## CI/CD
-- Overall: [✅ All passing | ❌ N failures]
-- Failures:
-  - [check name] — [type] — [specific error] — [log link]
-
-## Review Comments
-
-### Approved for implementation
-- [file:line] ([author]) — [summary]
-  Recommendation: [Accept | Accept with modification: <what changes>]
-  Agent: [sous-chef | nexus | hedy | pixl | inline]
-
-### Rejected
-- [file:line] ([author]) — [summary] — Reason: [rationale]
-
-### Deferred
-- [file:line] ([author]) — [summary] — Reason: [rationale]
-
-### Requires manual reply
-- [author] — [question] — Suggested reply: [text]
-
-### Previously addressed (skipped)
-- [path:line] ([author]) — [summary] — outdated: true, in prior triage dated <date>
-
-### From Claude Action (auto-verified)
-- [file:line] (claude[bot]) — [summary]
-  Auto-verified: [aligns with CLAUDE.md §section | Full evaluation — see reason]
-
-### Informational
-- [summary]
+Read the report structure template:
 ```
+Read: .claude/templates/review-pr-report.md
+```
+
+Write the triage report to `$TRIAGE_FILE` using the Write tool (not bash redirection), following that structure.
 
 After saving, confirm to the user:
 
@@ -404,73 +383,10 @@ Next step: /fix-pr $PR_NUMBER
 
 ## Step 6.5: Extract Verdict Metrics
 
-Parse the triage report at `$TRIAGE_FILE` to count items under each verdict section, then append to the current session delta file.
+Parse the triage report and append verdict counts to the current session delta file:
 
 ```bash
-python3 - "$TRIAGE_FILE" <<'PYEOF'
-import re, subprocess, sys
-from pathlib import Path
-
-triage_path = Path(sys.argv[1])
-if not triage_path.exists():
-    print("Triage file not found — skipping metrics")
-    raise SystemExit(0)
-
-report = triage_path.read_text(encoding="utf-8")
-
-def count_items(text, section_header):
-    """Count '- ' bullet lines immediately after a section header."""
-    pattern = rf'{re.escape(section_header)}\n(.*?)(?=\n###|\Z)'
-    m = re.search(pattern, text, re.DOTALL)
-    if not m:
-        return 0
-    return len(re.findall(r'^- ', m.group(1), re.MULTILINE))
-
-accepted     = count_items(report, '### Approved for implementation')
-rejected     = count_items(report, '### Rejected')
-deferred     = count_items(report, '### Deferred')
-questions    = count_items(report, '### Requires manual reply')
-informational = count_items(report, '### Informational')
-total = accepted + rejected + deferred + questions + informational
-
-branch = subprocess.run(
-    ['git', 'branch', '--show-current'],
-    capture_output=True, text=True, timeout=3
-).stdout.strip() or 'unknown'
-safe_branch = branch.replace('/', '%2F')
-safe_branch = re.sub(r'[^\w\-\.%]', '_', safe_branch) or 'unknown'
-
-delta_path = Path(f'.claude/metrics/sessions/{safe_branch}.toml')
-content = delta_path.read_text(encoding='utf-8') if delta_path.exists() else ''
-
-if '[pr_review_quality]' in content:
-    # Accumulate into existing section
-    def add(field, n):
-        global content
-        def inc(m): return m.group(1) + str(int(m.group(2)) + n)
-        content = re.sub(rf'(\[pr_review_quality\][^\[]*?{re.escape(field)} = )(\d+)', inc, content, flags=re.DOTALL)
-    add('total_prs_triaged', 1)
-    add('total_comments_triaged', total)
-    add('accepted', accepted)
-    add('rejected', rejected)
-    add('deferred', deferred)
-    add('questions', questions)
-    add('informational', informational)
-else:
-    content += (
-        f'\n[pr_review_quality]\n'
-        f'total_prs_triaged = 1\n'
-        f'total_comments_triaged = {total}\n'
-        f'accepted = {accepted}\n'
-        f'rejected = {rejected}\n'
-        f'deferred = {deferred}\n'
-        f'questions = {questions}\n'
-        f'informational = {informational}\n'
-    )
-
-delta_path.write_text(content, encoding='utf-8')
-print(f'PR review quality: accepted={accepted}, rejected={rejected}, deferred={deferred}, questions={questions}, informational={informational}, total={total}')
-PYEOF
+python3 .claude/scripts/extract_triage_metrics.py "$TRIAGE_FILE"
 ```
 
 After the confirmation, output this exact closing banner so the user knows the command has finished:

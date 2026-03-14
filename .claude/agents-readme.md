@@ -1,7 +1,7 @@
 # Agent Suite — learnimo
 
 > **Developer:** Lucas Xavier Ferreira
-> **Last updated:** 2026-03-11
+> **Last updated:** 2026-03-13
 
 ---
 
@@ -10,7 +10,7 @@
 This project includes **11 custom agents** designed for full-stack development across web, mobile, and backend stacks.
 
 <!-- BEGIN AUTO-GENERATED: AGENTS_TABLE -->
-> **11 custom agents** — last auto-updated 2026-03-11
+> **11 custom agents** — last auto-updated 2026-03-13
 
 | Agent | Role | Model | Trigger |
 |-------|------|-------|---------|
