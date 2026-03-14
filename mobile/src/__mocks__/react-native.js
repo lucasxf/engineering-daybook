@@ -20,4 +20,10 @@ const StyleSheet = {
   create: (styles) => styles,
 };
 
-module.exports = { Text, View, Pressable, StyleSheet };
+const TextInput = ({ testID, ...props }) =>
+  React.createElement('input', { 'data-testid': testID, ...props });
+
+const Image = ({ testID, accessibilityLabel, ...props }) =>
+  React.createElement('img', { 'data-testid': testID, 'aria-label': accessibilityLabel, ...props });
+
+module.exports = { Text, View, Pressable, StyleSheet, TextInput, Image };
