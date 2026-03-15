@@ -4,6 +4,8 @@ Templates for 7 task types optimized for execution mode. Sonnet executes fast â€
 
 General rule: if the same information is already in `CLAUDE.md` or the codebase conventions, don't repeat it. Point at the pattern instead.
 
+> **`@` references:** When generating an optimized prompt that references concrete files (not `[placeholders]`), include `@path/to/file` lines at the very top of the output `.md` file â€” one per line, no backticks. These resolve when the user copies the file content and pastes into the Claude Code CLI input, giving Sonnet immediate access to file contents without tool calls.
+
 ---
 
 ## 1. Bug Fix
