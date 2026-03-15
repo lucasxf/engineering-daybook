@@ -60,4 +60,10 @@ describe('buildStyles', () => {
     const styles = buildStyles(lightTheme);
     expect(styles.body.color).toBe(lightTheme.colors.contentBody);
   });
+
+  it('applies bodyMedium fontFamily to strong text — no fontWeight to avoid Android synthesis', () => {
+    const styles = buildStyles(lightTheme);
+    expect(styles.strong.fontFamily).toBe('DMSans_500Medium');
+    expect((styles.strong as Record<string, unknown>).fontWeight).toBeUndefined();
+  });
 });

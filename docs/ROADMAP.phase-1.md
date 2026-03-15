@@ -399,7 +399,7 @@ Wave 1, step 2 of the Library at Dusk mobile visual migration. No domain logic c
 |-----------|--------|-------|
 | `TextInput` | `surface→inputBg`, `border→inputBorder`, `textDisabled→inputPlaceholder`, `spacing.sm+2→10`, add `fontFamily.body` | 10 new tests |
 | `Card` | Verify only — already uses correct semantic tokens | 12 new tests |
-| `Avatar` | Add `useTheme()`, replace 8 hardcoded Tailwind hex values with `palette`/`brandAccents` brand colors, add `typography.weights.semibold`/`fontFamily.bodyMedium`, use `colors.textInverse` | 15 new tests |
+| `Avatar` | Add `useTheme()`, replace 8 hardcoded Tailwind hex values with `palette`/`brandAccents` brand colors, add `typography.weights.medium`/`fontFamily.bodyMedium`, use `colors.textInverse` | 15 new tests |
 
 Total: 211 tests passing (up from 174), 83.52% line coverage (above 80% threshold).
 

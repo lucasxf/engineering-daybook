@@ -34,7 +34,7 @@ jest.mock('@/lib/stripMarkdown', () => ({
 
 import { LearningCard } from '../LearningCard';
 import type { Pok } from '@/lib/pokApi';
-import { lightTheme } from '@/theme/tokens';
+import { lightTheme, palette } from '@/theme/tokens';
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -126,10 +126,10 @@ describe('LearningCard rendering', () => {
 describe('LearningCard tag pill tokens', () => {
   it('tagPillBg is distinct from surfaceAlt (token swap is meaningful)', () => {
     expect(lightTheme.colors.tagPillBg).not.toBe(lightTheme.colors.surfaceAlt);
-    expect(lightTheme.colors.tagPillBg).toBe('#E0E8F2');
+    expect(lightTheme.colors.tagPillBg).toBe(palette.tagPillBg);
   });
 
   it('tagPillText is the brand navy color', () => {
-    expect(lightTheme.colors.tagPillText).toBe('#1A365D');
+    expect(lightTheme.colors.tagPillText).toBe(palette.tagPillText);
   });
 });
