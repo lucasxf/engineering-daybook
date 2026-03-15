@@ -32,6 +32,9 @@
 | REC-019 | 2026-03-14 | archival | virgil is actively wired into /review-spec Phase 3 (subagent_type: virgil) — archiving it (REC-017) would break spec review pipeline; resolve dependency before archiving | rejected | 2026-03-14 |
 | REC-020 | 2026-03-14 | metrics | prompt-optimizer is a Skill but tracked under command_usage in usage-stats.toml — add a skill_usage section or move it to the correct category | implemented | 2026-03-14 |
 | REC-021 | 2026-03-14 | archival | /directive command has 1 invocation (2026-03-06) with no activity in 8+ days — evaluate whether it serves an ongoing purpose or should be archived | open | 2026-03-14 |
+| REC-022 | 2026-03-15 | metrics | claude-code-guide appears in agent_usage in usage-stats.toml but has no corresponding .md file in .claude/agents/ — phantom entry should be removed or the agent file created | open | 2026-03-15 |
+| REC-023 | 2026-03-15 | metrics | mobile-design-system is double-registered as both command_usage.mobile-design-system (1 invocation) and skill_usage.mobile-design-system (0 invocations) — split counts create false zero in skill tracking; remove the command_usage entry and ensure invocations flow to skill_usage | open | 2026-03-15 |
+| REC-024 | 2026-03-15 | archival | Three skills have 0 invocations and no wiring to any command: doc-coauthoring, frontend-design, skill-creator — evaluate whether these serve active workflows or should be documented as on-demand-only with explicit trigger examples | open | 2026-03-15 |
 
 ## Archive
 
