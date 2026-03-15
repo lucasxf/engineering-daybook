@@ -176,4 +176,4 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
 
 ---
 
-*Last updated: 2026-03-14 (session: feat/ds-tokens-fonts — Wave 0: Library at Dusk tokens + DM Sans/Sora fonts; 174 tests, 80.53% coverage)*
+*Last updated: 2026-03-15 (session: feat/ds-markdown-feedcomps — Wave 1 S1.3: MarkdownContent/LearningCard/FollowButton Library at Dusk tokens; 187 tests, 81.25% coverage)*
