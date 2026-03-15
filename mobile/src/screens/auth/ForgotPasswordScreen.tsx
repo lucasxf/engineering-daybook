@@ -67,7 +67,7 @@ export function ForgotPasswordScreen() {
           <ErrorMessage message={serverError} />
 
           {successMessage && (
-            <View style={{ backgroundColor: theme.colors.surface, padding: theme.spacing.sm, borderRadius: theme.radii.md }}>
+            <View style={{ backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.success, padding: theme.spacing.sm, borderRadius: theme.radii.md }}>
               <Text variant="bodySm" color={theme.colors.success}>{successMessage}</Text>
             </View>
           )}
