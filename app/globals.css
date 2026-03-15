@@ -30,6 +30,33 @@
   --color-confirmation-bg: #FFF8F3;
   --color-confirmation-border: #E8DDD5;
   --color-ember-stroke: #D4854A;
+
+  /* Nav */
+  --color-nav-bg: #FFFFFF;
+  --color-nav-border: #E8E4DF;
+
+  /* Tabs */
+  --color-tab-active: #D4854A;
+  --color-tab-inactive: #999999;
+
+  /* Tag groups */
+  --color-tag-header-text: #1A1A2E;
+  --color-tag-accent-bar: #D4854A;
+  --color-tag-untagged-bar: #CCCCCC;
+  --color-tag-count-bg: #F0EBE3;
+  --color-tag-count-text: #666666;
+
+  /* Chips */
+  --color-chip-bg: #F0EBE3;
+  --color-chip-text: #1A1A2E;
+
+  /* Skeleton shimmer */
+  --color-skeleton-from: #E8E4DF;
+  --color-skeleton-to: #F5F0E8;
+
+  /* Nudge */
+  --color-nudge-text: #666666;
+  --color-nudge-link: #D4854A;
 }
 
 .dark {
@@ -58,45 +85,33 @@
   --color-confirmation-bg: #1A365D;
   --color-confirmation-border: #2B4A78;
   --color-ember-stroke: #D4854A;
-}
 
-/* ——— View Learning — theme-aware component tokens ——— */
+  /* Nav */
+  --color-nav-bg: #0F1B2D;
+  --color-nav-border: #2B4A78;
 
-:root {
-  --color-content-body: #333333;
-  --color-edit-btn-border: #1A365D;
-  --color-edit-btn-text: #1A365D;
-  --color-edit-btn-hover-bg: #E8F0F8;
-  --color-tag-pill-bg: #E0E8F2;
-  --color-tag-pill-text: #1A365D;
-}
+  /* Tabs */
+  --color-tab-active: #D4854A;
+  --color-tab-inactive: #8899AA;
 
-.dark {
-  --color-content-body: #C8D4E0;
-  --color-edit-btn-border: #2B4A78;
-  --color-edit-btn-text: #8B9EC2;
-  --color-edit-btn-hover-bg: #2B4A78;
-  --color-tag-pill-bg: rgba(43, 74, 120, 0.35);
-  --color-tag-pill-text: #8B9EC2;
-}
+  /* Tag groups */
+  --color-tag-header-text: #F5F0E8;
+  --color-tag-accent-bar: #D4854A;
+  --color-tag-untagged-bar: #2B4A78;
+  --color-tag-count-bg: #1A365D;
+  --color-tag-count-text: #8899AA;
 
-.edit-btn {
-  border-color: var(--color-edit-btn-border);
-  color: var(--color-edit-btn-text);
-}
-.edit-btn:hover {
-  background-color: var(--color-edit-btn-hover-bg);
-  color: var(--color-foreground);
-}
+  /* Chips */
+  --color-chip-bg: #1A365D;
+  --color-chip-text: #F5F0E8;
 
-.tag-pill {
-  background-color: var(--color-tag-pill-bg);
-  color: var(--color-tag-pill-text);
-}
+  /* Skeleton shimmer */
+  --color-skeleton-from: #1A365D;
+  --color-skeleton-to: #0F1B2D;
 
-/* ——— Prose body text ——— */
-.prose-body {
-  color: var(--color-content-body);
+  /* Nudge */
+  --color-nudge-text: #8899AA;
+  --color-nudge-link: #D4854A;
 }
 
 * {

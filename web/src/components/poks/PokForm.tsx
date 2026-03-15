@@ -12,6 +12,9 @@ import { Textarea } from '@/components/ui/Textarea';
 import { FormField } from '@/components/ui/FormField';
 import { VisibilityPicker } from './VisibilityPicker';
 
+export const cancelLinkClasses =
+  "inline-flex items-center justify-center rounded-md font-medium transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background bg-card text-card-foreground border border-card-border hover:bg-muted/10 h-10 px-4 text-base";
+
 export interface PokFormSubmitData extends PokFormData {
   visibility: PokVisibility;
 }
@@ -21,6 +24,7 @@ interface PokFormProps {
   initialData?: Partial<PokFormData & { visibility: PokVisibility }>;
   mode?: 'create' | 'edit';
   afterContent?: ReactNode;
+  cancelButton?: ReactNode;
 }
 
 /**
@@ -42,6 +46,7 @@ export function PokForm({
   initialData,
   mode = 'create',
   afterContent,
+  cancelButton,
 }: PokFormProps) {
   const t = useTranslations('poks');
   const [visibility, setVisibility] = useState<PokVisibility>(
@@ -101,24 +106,24 @@ export function PokForm({
         />
       </FormField>
 
-      <FormField label={t('visibility.pickerLabel')}>
+      {afterContent}
+
+      <div className="flex items-center justify-between">
         <VisibilityPicker
           value={visibility}
           onChange={setVisibility}
           locked={initialData?.visibility === 'PUBLIC'}
         />
-      </FormField>
-
-      {afterContent}
-
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting
-            ? t('form.submitting')
-            : mode === 'edit'
-              ? t('form.updateButton')
-              : t('form.createButton')}
-        </Button>
+        <div className="flex items-center gap-2">
+          {cancelButton}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting
+              ? t('form.submitting')
+              : mode === 'edit'
+                ? t('form.updateButton')
+                : t('form.createButton')}
+          </Button>
+        </div>
       </div>
     </form>
   );

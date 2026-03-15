@@ -2,6 +2,8 @@
 
 Templates for 7 task types optimized for plan mode. Opus benefits from thorough context, explicit trade-off requests, structured output specifications, and structured reasoning (numbered analysis, trade-off tables, risk lists).
 
+> **`@` references:** When generating an optimized prompt that references concrete files (not `[placeholders]`), include `@path/to/file` lines at the very top of the output `.md` file — one per line, no backticks. These resolve when the user copies the file content and pastes into the Claude Code CLI input, pre-loading files into context without tool calls.
+
 ---
 
 ## 1. Architecture / Design Decision
