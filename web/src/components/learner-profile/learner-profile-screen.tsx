@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Lock, BookOpen } from "lucide-react";
 import { LearnimoWordmark } from "@/components/ui/LearnimoWordmark";
 import { ProfileHero, ProfileHeroSkeleton } from "./profile-hero";
@@ -22,33 +23,8 @@ export interface LearnerProfileTranslations {
   editProfile: string;
 }
 
-const DEFAULT_TRANSLATIONS: LearnerProfileTranslations = {
-  login: "Entrar",
-  goToProfile: "Ir para perfil de @{handle}",
-  privateProfile: "Este perfil é privado",
-  notFound: "Perfil não encontrado",
-  notFoundHint: "O perfil que você está procurando não existe ou foi removido.",
-  noPublicLearnings: "Nenhum aprendizado público ainda",
-  learnings: "Aprendizados",
-  follow: "Seguir",
-  following: "Seguindo",
-  editProfile: "Editar perfil",
-};
-
-const EN_DEFAULT_TRANSLATIONS: LearnerProfileTranslations = {
-  login: "Log in",
-  goToProfile: "Go to @{handle}'s profile",
-  privateProfile: "This profile is private",
-  notFound: "Profile not found",
-  notFoundHint: "The profile you're looking for doesn't exist or has been removed.",
-  noPublicLearnings: "No public learnings yet",
-  learnings: "Learnings",
-  follow: "Follow",
-  following: "Following",
-  editProfile: "Edit profile",
-};
-
 // ─── Mock data ───────────────────────────────────────────────────────────────
+// TODO: remove before production wiring — mock data for design preview only
 
 interface MockLearning {
   id: string;
@@ -283,7 +259,6 @@ function LearningsFeed({ learnings, theme, t }: LearningsFeedProps) {
 interface LearnerProfileScreenProps {
   variant: ProfileVariant;
   theme: "dark" | "light";
-  translations?: LearnerProfileTranslations;
   locale?: "en" | "pt-BR";
   viewerHandle?: string;
 }
@@ -291,12 +266,22 @@ interface LearnerProfileScreenProps {
 export function LearnerProfileScreen({
   variant,
   theme,
-  translations,
   locale = "pt-BR",
   viewerHandle,
 }: LearnerProfileScreenProps) {
-  const defaultT = locale === "en" ? EN_DEFAULT_TRANSLATIONS : DEFAULT_TRANSLATIONS;
-  const t = translations ?? defaultT;
+  const tHook = useTranslations("learnerProfile");
+  const t: LearnerProfileTranslations = {
+    login: tHook("login"),
+    goToProfile: tHook.raw("goToProfile") as string,
+    privateProfile: tHook("privateProfile"),
+    notFound: tHook("notFound"),
+    notFoundHint: tHook("notFoundHint"),
+    noPublicLearnings: tHook("noPublicLearnings"),
+    learnings: tHook("learnings"),
+    follow: tHook("follow"),
+    following: tHook("following"),
+    editProfile: tHook("editProfile"),
+  };
   const mockLearnings = locale === "en" ? MOCK_LEARNINGS_EN : MOCK_LEARNINGS_PT;
 
   const profile = {
@@ -333,7 +318,7 @@ export function LearnerProfileScreen({
           displayName={profile.displayName}
           handle={profile.handle}
           bio={showBio}
-          avatarUrl={null}
+          avatarUrl={profile.avatarUrl}
           isFollowing={false}
           isOwnProfile={variant === "own-profile"}
           theme={theme}

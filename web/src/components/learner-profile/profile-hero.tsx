@@ -113,13 +113,13 @@ export function ProfileHero({
       {/* Action row */}
       <div className="mt-4">
         {isOwnProfile ? (
-          <a
-            href="#"
-            className="text-sm font-medium transition-colors"
+          <button
+            type="button"
+            className="text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-input-focus)] rounded"
             style={{ color: "var(--color-link)" }}
           >
             {t.editProfile}
-          </a>
+          </button>
         ) : (
           <button
             onClick={onFollow}

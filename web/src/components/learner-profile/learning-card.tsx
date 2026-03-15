@@ -10,8 +10,7 @@ interface LearningCardProps {
 export function LearningCard({ title, excerpt, tags, timestamp }: LearningCardProps) {
   return (
     <article
-      tabIndex={0}
-      className="rounded-xl border border-card-border bg-card px-5 py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-input-focus)] transition-colors hover:border-[var(--color-mid-blue,#2B4A78)] cursor-pointer"
+      className="rounded-xl border border-card-border bg-card px-5 py-4"
     >
       <h3 className="font-heading text-[15px] font-semibold leading-snug text-card-foreground text-balance">
         {title}

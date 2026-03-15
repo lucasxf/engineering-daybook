@@ -69,6 +69,10 @@ export function AvatarSection({ displayName, avatarUrl: initialAvatarUrl, lang }
         setState("idle");
       }, 1200);
     };
+    reader.onerror = () => {
+      setState("error");
+      if (fileRef.current) fileRef.current.value = "";
+    };
     reader.readAsDataURL(file);
   }
 

@@ -45,6 +45,7 @@ vi.mock('@/components/poks/TagSection', () => ({
 }));
 
 vi.mock('@/components/poks/PokForm', () => ({
+  cancelLinkClasses: "mock-cancel-link-classes",
   PokForm: ({
     onSubmit,
     initialData,
