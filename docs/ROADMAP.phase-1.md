@@ -348,6 +348,34 @@ Maintenance session: repository housekeeping and pre-existing CI failures resolv
 | Fixed pre-existing pgvector failures in `AuthIntegrationTest` and `FollowIntegrationTest` — added `enablePgVector()` helper to `@DynamicPropertySource` in both test classes; all tests now pass | ✅ Done |
 | Improved `/finish-session` command — added explicit session TOML staging verification step | ✅ Done |
 
+### S1.3 — Library at Dusk Feed Components (feat/ds-markdown-feedcomps, 2026-03-15) ✅
+
+Mobile Wave 1 step 3: wired new Library at Dusk semantic tokens into markdown, feed, and social components.
+
+| Area | Change |
+|------|--------|
+| `mobile/src/components/ui/MarkdownContent.tsx` | Body color `textPrimary` → `contentBody`; `fontFamily` added (Sora headings, DM Sans body); `buildStyles` exported for testability |
+| `mobile/src/components/feed/LearningCard.tsx` | Tag pills `surfaceAlt` → `tagPillBg`/`tagPillText`; `gap: 4` → `spacing.xs`; removed hardcoded `lineHeight: 22` |
+| `mobile/src/components/learners/FollowButton.tsx` | Added `useTheme`; replaced hardcoded `color="red"` → `theme.colors.error` |
+| `mobile/src/components/feed/LearningForm.tsx` | Verified clean — no changes needed |
+| `mobile/src/components/discover/LearnerResultCard.tsx` | Verified clean — no changes needed |
+| Tests | 187 tests, 81.25% line coverage (above 80% threshold); new `LearningCard.test.tsx` (10 tests, function-call style); expanded `MarkdownContent.test.tsx` with 3 font/color assertions |
+
+Wave 1 complete: S1.1 (PR #201) + S1.2 (PR #202) + S1.3 (this branch) all done. Next: Wave 2 screen patches.
+
+### PR #205 Review Fixes (fix-pr/205, 2026-03-15) ✅
+
+Mobile-only fix-pr session for PR #205 (feat(mobile): Wave 1 design system — Library at Dusk primitives migration). No new milestones. Three correctness fixes addressing font synthesis, magic number documentation, and fragile test mock paths.
+
+| Area | Fix |
+|------|-----|
+| `Text.tsx` | Removed `fontWeight` from `title` and `subheading` variants — Sora_600SemiBold has weight baked in; conflicting value triggers Android font synthesis |
+| `MarkdownContent.tsx` | Removed `fontWeight` from all heading styles for same reason; added explanatory comment block |
+| `Avatar.tsx` | Changed initials `fontWeight` from `semibold (600)` → `medium (500)` to match `DMSans_500Medium` |
+| `Button.tsx`, `TextInput.tsx` | Added comment explaining `paddingVertical: 10` is intentional optical balance between `spacing.sm` (8) and `spacing.md` (16) |
+| `Button.test.tsx`, `ErrorMessage.test.tsx` | Changed `jest.mock('@/components/ui/Text', ...)` → `jest.mock('../Text', ...)` to match component's actual import path |
+| `Avatar.test.tsx` | Updated `fontWeight` assertion: `'600'` → `'500'` |
+
 ### PR #195 Review Fixes + Web Test Correction (fix, develop, 2026-03-13) ✅
 
 Automation/tooling maintenance session. Two commits; no backend or new page changes.
@@ -362,6 +390,18 @@ Automation/tooling maintenance session. Two commits; no backend or new page chan
 | `.claude/commands/review-pr-presentation.md` | Added `@Nullable` qualifier to `getTags()` null-check example |
 | `.claude/skills/prompt-optimizer/references/anti-patterns.md` | Corrected Spring Boot version in example: reverted erroneous "Spring Boot 3" back to "Spring Boot 4" (backend/pom.xml is 4.0.3) |
 | `web/src/components/view-learning/view-learning.test.tsx` | Fixed stale aria-label assertions — mocks return raw i18n keys; aligned assertions with mock behavior |
+
+### S1.2 — TextInput, Card, and Avatar Token Migration (feat/ds-input-card-avatar, 2026-03-14) ✅
+
+Wave 1, step 2 of the Library at Dusk mobile visual migration. No domain logic changes.
+
+| Component | Change | Tests |
+|-----------|--------|-------|
+| `TextInput` | `surface→inputBg`, `border→inputBorder`, `textDisabled→inputPlaceholder`, `spacing.sm+2→10`, add `fontFamily.body` | 10 new tests |
+| `Card` | Verify only — already uses correct semantic tokens | 12 new tests |
+| `Avatar` | Add `useTheme()`, replace 8 hardcoded Tailwind hex values with `palette`/`brandAccents` brand colors, add `typography.weights.medium`/`fontFamily.bodyMedium`, use `colors.textInverse` | 15 new tests |
+
+Total: 211 tests passing (up from 174), 83.52% line coverage (above 80% threshold).
 
 ### PR #187 Review Fixes (fix-pr/187, 2026-03-12) ✅
 
@@ -380,6 +420,8 @@ Web-only fix-pr session for PR #187 (feat: implement View Learning screen with d
 ## Active / Pending
 
 ⏳ Pending: Author using app for 1+ week (Phase 1 exit criterion)
+
+Mobile design system migration progress (Wave 1): S0.1 ✅, S1.1 ✅, S1.2 ✅, S1.3 ✅ — Wave 1 complete. Wave 2 (screen patches) pending.
 
 ---
 

@@ -1,16 +1,20 @@
 import React from 'react';
 import { Image, View, Text, StyleSheet } from 'react-native';
+import { useTheme } from '@/contexts/ThemeContext';
+import { brandAccents, palette } from '@/theme/tokens';
 
-// Deterministic background colors derived from handle hash
+// Deterministic background colors derived from handle hash.
+// All values are Library at Dusk brand colors — dark enough to contrast
+// with light initials text in both light and dark modes.
 const INITIALS_COLORS = [
-  '#3b82f6', // blue-500
-  '#10b981', // emerald-500
-  '#8b5cf6', // violet-500
-  '#f59e0b', // amber-500
-  '#f43f5e', // rose-500
-  '#06b6d4', // cyan-500
-  '#f97316', // orange-500
-  '#14b8a6', // teal-500
+  palette.emberCta,           // #D4854A — ember CTA
+  brandAccents.primaryBlue,   // #1A365D — deep navy
+  brandAccents.branchBrown,   // #8B5E3C — warm brown
+  palette.midBlue,            // #2B4A78 — mid blue
+  palette.error,              // #C0392B — burgundy
+  brandAccents.darkLeather,   // #6B4226 — dark leather
+  palette.success,            // #27AE60 — green
+  palette.warning,            // #E67E22 — amber
 ];
 
 function colorForHandle(handle: string): string {
@@ -39,6 +43,9 @@ interface AvatarProps {
  * so the same user always gets the same color across sessions and devices.
  */
 export function Avatar({ avatarUrl, displayName, handle, size = 40 }: AvatarProps) {
+  const { theme } = useTheme();
+  const { colors, typography } = theme;
+
   const initial = displayName.trim().charAt(0).toUpperCase() || '?';
   const fontSize = Math.max(10, Math.round(size * 0.4));
   const borderRadius = size / 2;
@@ -60,7 +67,20 @@ export function Avatar({ avatarUrl, displayName, handle, size = 40 }: AvatarProp
       accessibilityLabel={`${displayName}'s avatar`}
       style={[styles.placeholder, { width: size, height: size, borderRadius, backgroundColor: bgColor }]}
     >
-      <Text style={[styles.initial, { fontSize }]}>{initial}</Text>
+      <Text
+        style={[
+          styles.initial,
+          {
+            fontSize,
+            color: colors.textInverse,
+            // fontWeight matches DMSans_500Medium (weight baked in; semibold would trigger synthesis)
+            fontWeight: typography.weights.medium,
+            fontFamily: typography.fontFamily.bodyMedium,
+          },
+        ]}
+      >
+        {initial}
+      </Text>
     </View>
   );
 }
@@ -73,8 +93,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  initial: {
-    color: '#ffffff',
-    fontWeight: '600',
-  },
+  initial: {},
 });

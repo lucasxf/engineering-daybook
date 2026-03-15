@@ -174,6 +174,8 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
 
 - **Wire `AbortController.signal` all the way through to the API call — a stale `cancelled` flag is not equivalent:** When a hook creates an `AbortController` and passes its `signal` to a cleanup-triggered abort, the signal must be forwarded to the actual `fetch` call (or `apiFetch` wrapper) as a parameter. A local `let cancelled = false` flag set in the cleanup function does not propagate the abort to the in-flight network request — it only stops the hook from setting state after the fact. Result: the network request completes, the backend processes it, and only the state update is skipped. Pattern: `const controller = new AbortController(); return () => controller.abort();` paired with `apiCall({ signal: controller.signal })` at the call site. Seen in `useLearnerProfile.ts` (Copilot review fix, PR #177, 2026-03-11).
 
+- **Expo Google Fonts + fontWeight conflict triggers Android font synthesis:** When using weight-specific Google Font variants (e.g., `Sora_600SemiBold`, `DMSans_500Medium`), the font weight is baked into the filename. Setting a conflicting `fontWeight` in the React Native style prop (e.g., `fontWeight: '700'` on a `600SemiBold` font) causes Android to synthesize the requested weight, producing incorrect and often ugly rendering. Fix: omit `fontWeight` when using weight-specific font variants, or use a `fontWeight` that exactly matches the weight in the filename. Applied in Wave 1 design system migration (Text.tsx title/subheading, MarkdownContent.tsx headings, Avatar.tsx initials). (Added 2026-03-15)
+
 ---
 
-*Last updated: 2026-03-14 (session: feat/ds-tokens-fonts — Wave 0: Library at Dusk tokens + DM Sans/Sora fonts; 174 tests, 80.53% coverage)*
+*Last updated: 2026-03-15 (session: fix-pr/205 — Wave 1 PR review fixes: font synthesis, magic number comments, mock paths)*

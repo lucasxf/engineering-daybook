@@ -27,6 +27,7 @@ ROOT = Path(__file__).parent.parent  # .claude/
 AGENTS_DIR = ROOT / "agents"
 COMMANDS_DIR = ROOT / "commands"
 SCRIPTS_DIR = ROOT / "scripts"
+SKILLS_DIR = ROOT / "skills"
 
 TRACK_USAGE_PY = SCRIPTS_DIR / "track-usage.py"
 COMMANDS_README = COMMANDS_DIR / "README.md"
@@ -79,6 +80,29 @@ def discover_agents() -> list[dict]:
             "model": fm.get("model", "sonnet").strip(),
         })
     return sorted(agents, key=lambda a: a["name"])
+
+
+def discover_skills() -> list[dict]:
+    """
+    Return a sorted list of skill dicts from .claude/skills/*/SKILL.md.
+    Reads the `name` field from frontmatter; falls back to directory name.
+    """
+    skills = []
+    if not SKILLS_DIR.exists():
+        return skills
+    for skill_dir in sorted(SKILLS_DIR.iterdir()):
+        if not skill_dir.is_dir():
+            continue
+        skill_md = skill_dir / "SKILL.md"
+        if not skill_md.exists():
+            continue
+        fm = parse_frontmatter(skill_md)
+        name = fm.get("name", skill_dir.name).strip()
+        skills.append({
+            "name": name,
+            "description": fm.get("description", "").strip(),
+        })
+    return sorted(skills, key=lambda s: s["name"])
 
 
 def discover_commands() -> list[dict]:
@@ -151,6 +175,8 @@ AGENTS_BEGIN = "# --- BEGIN AUTO-GENERATED: KNOWN_AGENTS ---"
 AGENTS_END = "# --- END AUTO-GENERATED: KNOWN_AGENTS ---"
 COMMANDS_BEGIN = "# --- BEGIN AUTO-GENERATED: KNOWN_COMMANDS ---"
 COMMANDS_END = "# --- END AUTO-GENERATED: KNOWN_COMMANDS ---"
+SKILLS_BEGIN = "# --- BEGIN AUTO-GENERATED: KNOWN_SKILLS ---"
+SKILLS_END = "# --- END AUTO-GENERATED: KNOWN_SKILLS ---"
 
 
 def format_python_set(var_name: str, names: list[str]) -> str:
@@ -170,19 +196,23 @@ def format_python_set(var_name: str, names: list[str]) -> str:
     return f"{var_name} = {{\n{body}\n}}\n"
 
 
-def update_track_usage(agents: list[dict], commands: list[dict]) -> bool:
+def update_track_usage(agents: list[dict], commands: list[dict], skills: list[dict]) -> bool:
     content = TRACK_USAGE_PY.read_text(encoding="utf-8")
 
     agent_names = [a["name"] for a in agents]
     command_names = [c["name"] for c in commands]
+    skill_names = [s["name"] for s in skills]
 
     agents_block = format_python_set("KNOWN_AGENTS", agent_names)
     commands_block = format_python_set("KNOWN_COMMANDS", command_names)
+    skills_block = format_python_set("KNOWN_SKILLS", skill_names)
 
     # Replace or insert KNOWN_AGENTS block
     content = replace_between(content, AGENTS_BEGIN, AGENTS_END, agents_block)
     # Replace or insert KNOWN_COMMANDS block
     content = replace_between(content, COMMANDS_BEGIN, COMMANDS_END, commands_block)
+    # Replace or insert KNOWN_SKILLS block
+    content = replace_between(content, SKILLS_BEGIN, SKILLS_END, skills_block)
 
     return write_if_changed(TRACK_USAGE_PY, content, "track-usage.py")
 
@@ -295,17 +325,19 @@ def update_agents_readme(agents: list[dict]) -> bool:
 # ---------------------------------------------------------------------------
 
 def main():
-    print("Scanning agents and commands...")
+    print("Scanning agents, commands, and skills...")
     agents = discover_agents()
     commands = discover_commands()
+    skills = discover_skills()
 
     print(f"  Found {len(agents)} agents: {', '.join(a['name'] for a in agents)}")
     print(f"  Found {len(commands)} commands: {', '.join(c['name'] for c in commands)}")
+    print(f"  Found {len(skills)} skills: {', '.join(s['name'] for s in skills)}")
     print()
 
     print("Updating derived files...")
     changed = []
-    if update_track_usage(agents, commands):
+    if update_track_usage(agents, commands, skills):
         changed.append("track-usage.py")
     if update_commands_readme(commands):
         changed.append("commands/README.md")

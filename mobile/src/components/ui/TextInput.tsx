@@ -29,17 +29,19 @@ export const TextInput = forwardRef<RNTextInput, Props>(
           style={[
             {
               borderWidth: 1,
-              borderColor: error ? colors.error : colors.border,
+              borderColor: error ? colors.error : colors.inputBorder,
               borderRadius: radii.md,
               paddingHorizontal: spacing.md,
-              paddingVertical: spacing.sm + 2,
+              paddingVertical: 10, // optical balance between spacing.sm (8) and spacing.md (16)
+
               fontSize: typography.sizes.md,
               color: colors.textPrimary,
-              backgroundColor: colors.surface,
+              backgroundColor: colors.inputBg,
+              fontFamily: typography.fontFamily.body,
             },
             style,
           ]}
-          placeholderTextColor={colors.textDisabled}
+          placeholderTextColor={colors.inputPlaceholder}
           accessibilityLabel={label}
           {...rest}
         />

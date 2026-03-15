@@ -17,8 +17,9 @@ jest.mock('@/contexts/ThemeContext', () => ({
         textSecondary: '#555',
       },
       typography: {
-        sizes: { xs: 10, sm: 12, md: 14, lg: 16, xl: 20, xxl: 24, xxxl: 28 },
+        sizes: { xs: 11, sm: 13, md: 15, lg: 17, xl: 20, xxl: 24, xxxl: 30 },
         weights: { regular: '400', medium: '500', semibold: '600', bold: '700' },
+        fontFamily: { body: 'DMSans_400Regular', bodyMedium: 'DMSans_500Medium', heading: 'Sora_600SemiBold' },
       },
     },
   }),
@@ -26,7 +27,6 @@ jest.mock('@/contexts/ThemeContext', () => ({
 
 jest.mock('react-native', () => ({
   Text: 'Text',
-  StyleSheet: { create: (s: object) => s },
 }));
 
 // ---------------------------------------------------------------------------
@@ -45,9 +45,11 @@ describe('Text', () => {
     expect(result).toBeTruthy();
   });
 
-  it('renders body variant', () => {
+  it('renders body variant with DM Sans fontFamily', () => {
     const result = Text({ variant: 'body', children: 'Body' });
     expect(result).toBeTruthy();
+    const style = (result as React.ReactElement).props.style[0];
+    expect(style.fontFamily).toBe('DMSans_400Regular');
   });
 
   it('renders bodySm variant', () => {
@@ -65,19 +67,25 @@ describe('Text', () => {
     expect(result).toBeTruthy();
   });
 
-  it('renders heading variant', () => {
+  it('renders heading variant with Sora fontFamily', () => {
     const result = Text({ variant: 'heading', children: 'Heading' });
     expect(result).toBeTruthy();
+    const style = (result as React.ReactElement).props.style[0];
+    expect(style.fontFamily).toBe('Sora_600SemiBold');
   });
 
-  it('renders subheading variant', () => {
+  it('renders subheading variant with Sora fontFamily', () => {
     const result = Text({ variant: 'subheading', children: 'Subheading' });
     expect(result).toBeTruthy();
+    const style = (result as React.ReactElement).props.style[0];
+    expect(style.fontFamily).toBe('Sora_600SemiBold');
   });
 
-  it('renders title variant', () => {
+  it('renders title variant with Sora fontFamily', () => {
     const result = Text({ variant: 'title', children: 'Title' });
     expect(result).toBeTruthy();
+    const style = (result as React.ReactElement).props.style[0];
+    expect(style.fontFamily).toBe('Sora_600SemiBold');
   });
 
   it('applies custom color override', () => {

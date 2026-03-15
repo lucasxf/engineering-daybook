@@ -57,6 +57,13 @@ KNOWN_COMMANDS = {
 }
 # --- END AUTO-GENERATED: KNOWN_COMMANDS ---
 
+# --- BEGIN AUTO-GENERATED: KNOWN_SKILLS ---
+KNOWN_SKILLS = {
+    "doc-coauthoring", "frontend-design", "mobile-design-system",
+    "prompt-optimizer", "skill-creator",
+}
+# --- END AUTO-GENERATED: KNOWN_SKILLS ---
+
 
 def now_iso() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -172,6 +179,18 @@ def detect_slash_command(prompt: str) -> Optional[str]:
     return None
 
 
+def detect_slash_skill(prompt: str) -> Optional[str]:
+    """
+    Detect a /skill-name at the very start of a user prompt (for skills, not commands).
+    Returns the skill name, or None if not a known skill invocation.
+    """
+    prompt = prompt.strip()
+    for skill in KNOWN_SKILLS:
+        if re.match(rf'^/{re.escape(skill)}\b', prompt):
+            return skill
+    return None
+
+
 def write_with_retry(path: Path, content: str, attempts: int = 3) -> None:
     """
     Write file content with retry on failure.
@@ -205,12 +224,17 @@ def main():
         key = None
 
         if hook_event == "UserPromptSubmit":
-            # User typed a slash command directly in the CLI
+            # User typed a slash command or skill invocation directly in the CLI
             prompt = data.get("prompt", "")
             cmd = detect_slash_command(prompt)
             if cmd:
                 section = "command_usage"
                 key = cmd
+            else:
+                skill = detect_slash_skill(prompt)
+                if skill:
+                    section = "skill_usage"
+                    key = skill
 
         elif tool_name in ("Task", "Agent"):
             # Claude spawned a subagent (Task or Agent tool)
@@ -220,11 +244,17 @@ def main():
                 key = resolve_agent_key(tool_input, subagent_type)
 
         elif tool_name == "Skill":
-            # Claude programmatically invoked a slash command
+            # Claude invoked a skill or slash command via the Skill tool.
+            # Skills (KNOWN_SKILLS) go to skill_usage; slash commands go to command_usage.
             skill_name = tool_input.get("skill", "").strip()
             if skill_name:
-                section = "command_usage"
-                key = skill_name
+                if skill_name in KNOWN_SKILLS:
+                    section = "skill_usage"
+                    key = skill_name
+                elif skill_name in KNOWN_COMMANDS:
+                    section = "command_usage"
+                    key = skill_name
+                # Unknown names (built-ins like claude-code-guide) are ignored.
 
         # Bash tool calls are intentionally not tracked here.
 

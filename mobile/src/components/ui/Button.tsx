@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   Pressable,
   PressableProps,
-  StyleSheet,
   ViewStyle,
 } from 'react-native';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -34,7 +33,7 @@ export function Button({
   const isDisabled = disabled || loading;
 
   function getBackgroundColor() {
-    if (isDisabled) return colors.border;
+    if (isDisabled) return colors.disabledBg;
     switch (variant) {
       case 'primary': return colors.primary;
       case 'danger': return colors.error;
@@ -44,7 +43,7 @@ export function Button({
   }
 
   function getLabelColor() {
-    if (isDisabled) return colors.textDisabled;
+    if (isDisabled) return colors.disabledText;
     switch (variant) {
       case 'primary':
       case 'danger': return colors.textInverse;
@@ -62,13 +61,15 @@ export function Button({
         {
           backgroundColor: getBackgroundColor(),
           borderRadius: radii.md,
-          paddingVertical: spacing.sm + 2,
+          paddingVertical: 10, // optical balance between spacing.sm (8) and spacing.md (16)
+
           paddingHorizontal: spacing.md,
           alignItems: 'center' as const,
           justifyContent: 'center' as const,
           opacity: pressed && !isDisabled ? 0.8 : 1,
           flexDirection: 'row' as const,
           gap: spacing.sm,
+          ...(variant === 'secondary' ? { borderWidth: 1, borderColor: colors.border } : {}),
           ...(fullWidth ? { width: '100%' as const } : {}),
         },
         style,
