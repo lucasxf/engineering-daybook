@@ -363,6 +363,19 @@ Mobile Wave 1 step 3: wired new Library at Dusk semantic tokens into markdown, f
 
 Wave 1 complete: S1.1 (PR #201) + S1.2 (PR #202) + S1.3 (this branch) all done. Next: Wave 2 screen patches.
 
+### PR #205 Review Fixes (fix-pr/205, 2026-03-15) ✅
+
+Mobile-only fix-pr session for PR #205 (feat(mobile): Wave 1 design system — Library at Dusk primitives migration). No new milestones. Three correctness fixes addressing font synthesis, magic number documentation, and fragile test mock paths.
+
+| Area | Fix |
+|------|-----|
+| `Text.tsx` | Removed `fontWeight` from `title` and `subheading` variants — Sora_600SemiBold has weight baked in; conflicting value triggers Android font synthesis |
+| `MarkdownContent.tsx` | Removed `fontWeight` from all heading styles for same reason; added explanatory comment block |
+| `Avatar.tsx` | Changed initials `fontWeight` from `semibold (600)` → `medium (500)` to match `DMSans_500Medium` |
+| `Button.tsx`, `TextInput.tsx` | Added comment explaining `paddingVertical: 10` is intentional optical balance between `spacing.sm` (8) and `spacing.md` (16) |
+| `Button.test.tsx`, `ErrorMessage.test.tsx` | Changed `jest.mock('@/components/ui/Text', ...)` → `jest.mock('../Text', ...)` to match component's actual import path |
+| `Avatar.test.tsx` | Updated `fontWeight` assertion: `'600'` → `'500'` |
+
 ### PR #195 Review Fixes + Web Test Correction (fix, develop, 2026-03-13) ✅
 
 Automation/tooling maintenance session. Two commits; no backend or new page changes.
@@ -408,7 +421,7 @@ Web-only fix-pr session for PR #187 (feat: implement View Learning screen with d
 
 ⏳ Pending: Author using app for 1+ week (Phase 1 exit criterion)
 
-Mobile design system migration progress (Wave 1): S0.1 ✅, S1.1 ✅, S1.2 ✅ — S1.3 (markdown + feed components) and Wave 2 (screens) pending.
+Mobile design system migration progress (Wave 1): S0.1 ✅, S1.1 ✅, S1.2 ✅, S1.3 ✅ — Wave 1 complete. Wave 2 (screen patches) pending.
 
 ---
 
