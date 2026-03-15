@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, type ChangeEvent } from "react";
 import { Upload, Trash2, Loader2, AlertCircle } from "lucide-react";
 
 type AvatarState = "idle" | "uploading" | "error";
@@ -50,7 +50,7 @@ export function AvatarSection({ displayName, avatarUrl: initialAvatarUrl, lang }
   const hasAvatar = !!avatarUrl;
   const bgColor = getInitialsBg(displayName || "L");
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 

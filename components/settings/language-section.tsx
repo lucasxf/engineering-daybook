@@ -53,7 +53,7 @@ export function LanguageSection({ initialLang = "pt", lang }: LanguageSectionPro
             {options.map(({ value, label, flag }) => {
               const isActive = selected === value;
               return (
-                <label key={value} className="relative">
+                <label key={value} className="relative focus-within:ring-2 focus-within:ring-[var(--color-input-focus)] rounded-lg">
                   <input
                     type="radio"
                     name={`language-toggle-${id}`}
@@ -65,7 +65,6 @@ export function LanguageSection({ initialLang = "pt", lang }: LanguageSectionPro
                   <span
                     className={[
                       "flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors duration-150 select-none",
-                      "focus-within:ring-2 focus-within:ring-[var(--color-input-focus)]",
                       isActive
                         ? "border border-[var(--color-primary)] bg-card-border/40 text-card-foreground"
                         : "border border-transparent text-muted-foreground hover:text-card-foreground hover:bg-card-border/20",
