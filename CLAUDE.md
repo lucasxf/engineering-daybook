@@ -161,7 +161,7 @@ Active work:
 - [x] Milestone 3.1: Semantic Search — hybrid keyword + vector search, HuggingFace embeddings, pgvector (2026-02-26)
 - [ ] Milestone 3.2: AI Connections (related learnings)
 - [x] Milestone 3.3: Mobile App (Expo/React Native) — done (2026-02-27)
-- [ ] Milestone 3.4: App Store Publishing — Android .aab built, Play Console setup done, Play Store internal track in progress; 6 mobile feature parity specs written (2026-03-09); mobile-design-system skill created (2026-03-13, step 1); Library at Dusk tokens + fonts landed (2026-03-14, step 2); S1.1 done (2026-03-14, feat/ds-text-button-error): Text fontFamily tokens + Button disabled/secondary tokens + ErrorMessage verified, 179 tests, 80.92% coverage; next: S1.2/S1.3 — parallel worktrees for input/card/avatar and markdown/feed components
+- [ ] Milestone 3.4: App Store Publishing — Android .aab built, Play Console setup done, Play Store internal track in progress; 6 mobile feature parity specs written (2026-03-09); mobile-design-system skill created (2026-03-13, step 1); Library at Dusk tokens + fonts landed (2026-03-14, step 2); Wave 1 primitives done (S1.1 PR #201, S1.2 PR #202, S1.3 feat/ds-markdown-feedcomps — 2026-03-15); next: Wave 2 — screen patches (feat/ds-auth-screens, feat/ds-feed-detail, feat/ds-profile-discover)
 
 **Phase 5: Privacy** — 🔄 In Progress (5.1 done; 5.2 done)
 
@@ -198,4 +198,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-03-14 (session: feat/ds-text-button-error — Wave 1 S1.1: Text fontFamily tokens wired, Button disabled/secondary tokens fixed, ErrorMessage verified, 5 new tests; 179 passing, 80.92% coverage)*
+*Last updated: 2026-03-15 (session: feat/ds-markdown-feedcomps — Wave 1 complete: all 3 primitive component branches done)*

@@ -176,4 +176,4 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
 
 ---
 
-*Last updated: 2026-03-14 (session: feat/ds-input-card-avatar — Wave 1 S1.2: TextInput/Card/Avatar token migration; 211 tests, 83.52% coverage)*
+*Last updated: 2026-03-15 (session: feat/ds-markdown-feedcomps — Wave 1 S1.3: MarkdownContent/LearningCard/FollowButton Library at Dusk tokens; 187 tests, 81.25% coverage)*

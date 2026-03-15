@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { Button } from '@/components/ui/Button';
 import { Text } from '@/components/ui/Text';
 import { useI18n } from '@/contexts/I18nContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { followLearner, unfollowLearner } from '@/lib/learnerApi';
 import type { RelationshipStatus } from '@/lib/learnerApi';
 
@@ -54,6 +55,7 @@ export function getButtonConfig(
 
 export function FollowButton({ handle, relationshipStatus, onRelationshipChange }: FollowButtonProps) {
   const { t } = useI18n();
+  const { theme } = useTheme();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -93,7 +95,7 @@ export function FollowButton({ handle, relationshipStatus, onRelationshipChange 
         onPress={handlePress}
       />
       {error !== null && (
-        <Text variant="caption" color="red">
+        <Text variant="caption" color={theme.colors.error}>
           {error}
         </Text>
       )}

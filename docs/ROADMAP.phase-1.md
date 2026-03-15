@@ -348,6 +348,21 @@ Maintenance session: repository housekeeping and pre-existing CI failures resolv
 | Fixed pre-existing pgvector failures in `AuthIntegrationTest` and `FollowIntegrationTest` — added `enablePgVector()` helper to `@DynamicPropertySource` in both test classes; all tests now pass | ✅ Done |
 | Improved `/finish-session` command — added explicit session TOML staging verification step | ✅ Done |
 
+### S1.3 — Library at Dusk Feed Components (feat/ds-markdown-feedcomps, 2026-03-15) ✅
+
+Mobile Wave 1 step 3: wired new Library at Dusk semantic tokens into markdown, feed, and social components.
+
+| Area | Change |
+|------|--------|
+| `mobile/src/components/ui/MarkdownContent.tsx` | Body color `textPrimary` → `contentBody`; `fontFamily` added (Sora headings, DM Sans body); `buildStyles` exported for testability |
+| `mobile/src/components/feed/LearningCard.tsx` | Tag pills `surfaceAlt` → `tagPillBg`/`tagPillText`; `gap: 4` → `spacing.xs`; removed hardcoded `lineHeight: 22` |
+| `mobile/src/components/learners/FollowButton.tsx` | Added `useTheme`; replaced hardcoded `color="red"` → `theme.colors.error` |
+| `mobile/src/components/feed/LearningForm.tsx` | Verified clean — no changes needed |
+| `mobile/src/components/discover/LearnerResultCard.tsx` | Verified clean — no changes needed |
+| Tests | 187 tests, 81.25% line coverage (above 80% threshold); new `LearningCard.test.tsx` (10 tests, function-call style); expanded `MarkdownContent.test.tsx` with 3 font/color assertions |
+
+Wave 1 complete: S1.1 (PR #201) + S1.2 (PR #202) + S1.3 (this branch) all done. Next: Wave 2 screen patches.
+
 ### PR #195 Review Fixes + Web Test Correction (fix, develop, 2026-03-13) ✅
 
 Automation/tooling maintenance session. Two commits; no backend or new page changes.

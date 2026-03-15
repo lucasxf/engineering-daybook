@@ -45,7 +45,7 @@ export function LearningCard({ pok, onPress }: Props) {
         </Text>
       )}
 
-      <Text variant="body" numberOfLines={4} style={{ lineHeight: 22 }}>
+      <Text variant="body" numberOfLines={4}>
         {preview}
       </Text>
 
@@ -53,18 +53,18 @@ export function LearningCard({ pok, onPress }: Props) {
         <Text variant="caption">{formatDate(pok.createdAt)}</Text>
 
         {pok.tags.length > 0 && (
-          <View style={{ flexDirection: 'row', gap: 4, flexWrap: 'wrap', justifyContent: 'flex-end', flex: 1, marginLeft: spacing.sm }}>
+          <View style={{ flexDirection: 'row', gap: spacing.xs, flexWrap: 'wrap', justifyContent: 'flex-end', flex: 1, marginLeft: spacing.sm }}>
             {pok.tags.slice(0, 3).map((tag) => (
               <View
                 key={tag.id}
                 style={{
-                  backgroundColor: colors.surfaceAlt,
+                  backgroundColor: colors.tagPillBg,
                   borderRadius: theme.radii.full,
                   paddingHorizontal: spacing.sm,
                   paddingVertical: 2,
                 }}
               >
-                <Text variant="caption">{tag.displayName}</Text>
+                <Text variant="caption" color={colors.tagPillText}>{tag.displayName}</Text>
               </View>
             ))}
             {pok.tags.length > 3 && (

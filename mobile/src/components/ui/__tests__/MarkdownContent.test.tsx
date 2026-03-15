@@ -10,7 +10,8 @@ jest.mock('@/contexts/ThemeContext', () => {
   return { useTheme: () => ({ theme: lightTheme }) };
 });
 
-import { MarkdownContent } from '../MarkdownContent';
+import { MarkdownContent, buildStyles } from '../MarkdownContent';
+import { lightTheme } from '@/theme/tokens';
 
 // Verify component can be constructed with required props
 describe('MarkdownContent', () => {
@@ -39,5 +40,24 @@ describe('MarkdownContent', () => {
     const content = '# Title\n\nSome body text\n\n- item 1\n- item 2';
     const element = React.createElement(MarkdownContent, { content });
     expect(element.props.content).toBe(content);
+  });
+});
+
+describe('buildStyles', () => {
+  it('applies DM Sans font family to body text', () => {
+    const styles = buildStyles(lightTheme);
+    expect(styles.body.fontFamily).toBe('DMSans_400Regular');
+  });
+
+  it('applies Sora font family to headings', () => {
+    const styles = buildStyles(lightTheme);
+    expect(styles.heading1.fontFamily).toBe('Sora_600SemiBold');
+    expect(styles.heading2.fontFamily).toBe('Sora_600SemiBold');
+    expect(styles.heading3.fontFamily).toBe('Sora_600SemiBold');
+  });
+
+  it('applies contentBody color to body text', () => {
+    const styles = buildStyles(lightTheme);
+    expect(styles.body.color).toBe(lightTheme.colors.contentBody);
   });
 });
