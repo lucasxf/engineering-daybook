@@ -20,6 +20,8 @@ jest.mock('@/contexts/ThemeContext', () => ({
         surfaceAlt: '#F0F0F0',
         textPrimary: '#111',
         textDisabled: '#999',
+        disabledBg: '#DDD',
+        disabledText: '#888',
         error: '#C0392B',
         errorBackground: '#FFF0F0',
         textSecondary: '#555',
@@ -27,8 +29,9 @@ jest.mock('@/contexts/ThemeContext', () => ({
       spacing: { xs: 4, sm: 8, md: 16, lg: 24 },
       radii: { sm: 4, md: 8, lg: 12 },
       typography: {
-        sizes: { xs: 10, sm: 12, md: 14, lg: 16, xl: 20, xxl: 24, xxxl: 28 },
+        sizes: { xs: 11, sm: 13, md: 15, lg: 17, xl: 20, xxl: 24, xxxl: 30 },
         weights: { regular: '400', medium: '500', semibold: '600', bold: '700' },
+        fontFamily: { body: 'DMSans_400Regular', bodyMedium: 'DMSans_500Medium', heading: 'Sora_600SemiBold' },
       },
     },
   }),
@@ -41,7 +44,6 @@ jest.mock('@/components/ui/Text', () => ({
 jest.mock('react-native', () => ({
   ActivityIndicator: 'ActivityIndicator',
   Pressable: 'Pressable',
-  StyleSheet: { create: (s: object) => s },
 }));
 
 // ---------------------------------------------------------------------------
@@ -80,10 +82,13 @@ describe('Button', () => {
     expect(styles).toBeTruthy();
   });
 
-  it('executes style callback for secondary variant', () => {
+  it('secondary variant has 1px border', () => {
     const result = Button({ label: 'Secondary', variant: 'secondary' });
     const styles = invokeStyle(result);
     expect(styles).toBeTruthy();
+    const styleObj = (styles as unknown[])[0] as Record<string, unknown>;
+    expect(styleObj.borderWidth).toBe(1);
+    expect(styleObj.borderColor).toBe('#CCC');
   });
 
   it('executes style callback for ghost variant', () => {
@@ -98,10 +103,12 @@ describe('Button', () => {
     expect(styles).toBeTruthy();
   });
 
-  it('executes style callback when disabled (isDisabled=true)', () => {
+  it('disabled button uses disabledBg background token', () => {
     const result = Button({ label: 'Disabled', disabled: true });
     const styles = invokeStyle(result);
     expect(styles).toBeTruthy();
+    const styleObj = (styles as unknown[])[0] as Record<string, unknown>;
+    expect(styleObj.backgroundColor).toBe('#DDD');
   });
 
   it('executes style callback when loading (isDisabled=true)', () => {

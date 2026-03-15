@@ -37,19 +37,29 @@ export const palette = {
   warningDark: '#F0A03C',
 
   // Tag pills
-  tagPillBg:   '#E0E8F2',
-  tagPillText: '#1A365D',
+  tagPillBg:       '#E0E8F2',
+  tagPillText:     '#1A365D',
+  tagPillTextDark: '#8B9EC2',
+
+  // Neutral utility (used in buildTheme for text, surfaces, content)
+  white:              '#FFFFFF',
+  textSecondaryLight: '#666666',
+  textSecondaryDark:  '#8899AA',
+  contentBodyLight:   '#333333',
+  contentBodyDark:    '#C8D4E0',
+  mutedDark:          '#4A5A6A',  // text-disabled dark, input placeholder dark
+  disabledTextDark:   '#6A7A8A',
 } as const;
 
 export const brandAccents = {
-  deepNavy:    '#0F1B2D',
-  primaryBlue: '#1A365D',
-  midBlue:     '#2B4A78',
+  deepNavy:    palette.deepNavy,
+  primaryBlue: palette.primaryBlue,
+  midBlue:     palette.midBlue,
   branchBrown: '#8B5E3C',
   darkLeather: '#6B4226',
-  emberCta:    '#D4854A',
-  parchment:   '#F5F0E8',
-  ink:         '#1A1A2E',
+  emberCta:    palette.emberCta,
+  parchment:   palette.parchment,
+  ink:         palette.ink,
 } as const;
 
 export const spacing = {
@@ -106,32 +116,32 @@ function buildTheme(scheme: 'light' | 'dark') {
   return {
     scheme,
     colors: {
-      primary:     '#D4854A',
-      primaryDark: '#C07340',
+      primary:     palette.emberCta,
+      primaryDark: palette.emberCtaDark,
 
       // Backgrounds
       background: dark ? palette.deepNavy    : palette.parchment,
-      surface:    dark ? palette.primaryBlue : '#FFFFFF',
+      surface:    dark ? palette.primaryBlue : palette.white,
       surfaceAlt: dark ? palette.muted       : palette.warmMuted,
 
       // Borders
       border:      dark ? palette.midBlue   : palette.warmBorder,
-      borderFocus: '#D4854A',
+      borderFocus: palette.emberCta,
 
       // Text
-      textPrimary:   dark ? palette.parchment       : palette.ink,
-      textSecondary: dark ? '#8899AA'               : '#666666',
-      textDisabled:  dark ? '#4A5A6A'               : palette.warmPlaceholder,
-      textInverse:   dark ? palette.ink             : palette.parchment,
+      textPrimary:   dark ? palette.parchment           : palette.ink,
+      textSecondary: dark ? palette.textSecondaryDark   : palette.textSecondaryLight,
+      textDisabled:  dark ? palette.mutedDark            : palette.warmPlaceholder,
+      textInverse:   dark ? palette.ink                 : palette.parchment,
 
       // Inputs
-      inputBg:          dark ? palette.deepNavy   : '#FFFFFF',
+      inputBg:          dark ? palette.deepNavy   : palette.white,
       inputBorder:      dark ? palette.midBlue    : palette.warmInput,
-      inputPlaceholder: dark ? '#4A5A6A'          : palette.warmPlaceholder,
+      inputPlaceholder: dark ? palette.mutedDark  : palette.warmPlaceholder,
 
       // Disabled
-      disabledBg:   dark ? palette.disabledDark  : palette.disabledLight,
-      disabledText: dark ? '#6A7A8A'             : palette.warmPlaceholder,
+      disabledBg:   dark ? palette.disabledDark      : palette.disabledLight,
+      disabledText: dark ? palette.disabledTextDark  : palette.warmPlaceholder,
 
       // Feedback
       error:            dark ? palette.errorDark   : palette.error,
@@ -140,9 +150,9 @@ function buildTheme(scheme: 'light' | 'dark') {
       warning:          dark ? palette.warningDark : palette.warning,
 
       // Content
-      tagPillBg:   dark ? 'rgba(43,74,120,0.35)' : palette.tagPillBg,
-      tagPillText: dark ? '#8B9EC2'              : palette.tagPillText,
-      contentBody: dark ? '#C8D4E0'              : '#333333',
+      tagPillBg:   dark ? 'rgba(43,74,120,0.35)'     : palette.tagPillBg,
+      tagPillText: dark ? palette.tagPillTextDark    : palette.tagPillText,
+      contentBody: dark ? palette.contentBodyDark    : palette.contentBodyLight,
     },
     spacing,
     radii,

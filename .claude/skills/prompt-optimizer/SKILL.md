@@ -117,6 +117,7 @@ After the report, ask: "Want me to produce a rewritten version applying these su
 Opus benefits from thorough context and structured reasoning requests. A good plan prompt:
 
 - **Spends the context budget** — include broader system context, related components, constraints, and future implications. Opus uses this to reason better, not just regurgitate.
+- **Pre-loads context files** — when the prompt depends on reading specific files, include them as `@` references at the top of the output `.md` file. When the user copies the file content and pastes into the CLI, these resolve and pre-load the files into context without tool calls. Especially valuable for plan mode where Opus benefits from having all context available before reasoning.
 - **Asks for structured output** — numbered plans, decision matrices, risk tables, alternatives comparison. Don't just say "give me a plan"; say "give me a numbered implementation plan with a risks section and at least two alternatives considered."
 - **Names the trade-offs explicitly** — "Consider trade-offs between X and Y" produces better output than hoping Opus will surface them.
 - **Encourages reasoning** — phrases like "Think through the implications before proposing an approach" signal that deliberate analysis is expected, not a quick answer.
@@ -127,6 +128,7 @@ Opus benefits from thorough context and structured reasoning requests. A good pl
 
 Sonnet is fast and capable, but every token in the prompt is a token not used for output. A good execution prompt:
 
+- **Uses `@` for key files** — include `@path/to/file` references at the top of the output file for files being fixed, tested, or refactored. Sonnet gets the file contents immediately without a Read tool call.
 - **Leads with the action** — "Fix the NPE in `PokService.java:87`" not "I've been experiencing an issue where..."
 - **Names specific files** — "Edit `web/src/components/PokCard.tsx`" not "update the card component"
 - **States the acceptance criterion** — "Done when `npm test` passes and the card renders the tag list"
@@ -139,22 +141,32 @@ Sonnet is fast and capable, but every token in the prompt is a token not used fo
 
 ## Output Format
 
-Always present the optimized prompt inside a fenced code block so it can be copied cleanly:
+Write the optimized prompt to `prompts/optimized/<slug>.md` using the Write tool, where `<slug>` is a kebab-case summary of the task (e.g., `nielsen-heuristics-ui-workflows.md`).
 
-````
+**File structure:**
+
 ```
-[optimized prompt here]
+@.claude/skills/frontend-design/SKILL.md
+@.claude/skills/mobile-design-system/SKILL.md
+
+## Context
+[prompt body...]
+
+## Request
+[structured output request...]
 ```
-````
 
-Then follow with:
+Rules for the output file:
+- `@` references go at the very top, one per line, no backticks, no bullets — just raw `@path` lines
+- Only include `@` references for **concrete files that exist** — never for template placeholders like `[path/to/file]`
+- The prompt body follows after one blank line, as regular markdown
+- No wrapping fenced code block — the file IS the prompt, ready to copy-paste
 
-**Optimization Notes:**
-- **[Change 1]:** [why this change was made]
-- **[Change 2]:** [why this change was made]
-- ...
+**Why this format works:** When the user opens the file in VS Code, copies all content, and pastes into the Claude Code CLI input, the `@` references resolve at paste time — pre-loading file contents into context without any tool calls.
 
-Keep notes concise — one line per change. The user should be able to see at a glance what changed and why.
+**Terminal output** after writing the file — show only:
+1. The file path: `Prompt saved to: prompts/optimized/<slug>.md`
+2. **Optimization Notes** (one line per change, explaining what changed and why — meta-commentary stays in terminal, not in the prompt file)
 
 ---
 

@@ -274,25 +274,29 @@ for i in 1 2 3; do
   [ "$MERGEABLE" != "UNKNOWN" ] && break
 done
 ```
-If still `UNKNOWN` after 3 retries, treat as `MERGEABLE` and note "conflict status indeterminate" in the report.
+If still `UNKNOWN` after 3 retries, run the local merge-tree check (same as the `CONFLICTING` path below)
+to attempt a definitive answer. If conflicts are found, treat as `CONFLICTING`; if no conflicts are
+found, treat as `MERGEABLE`. In either case, note "conflict status was UNKNOWN — resolved via local
+merge-tree check" in the report.
 
 **If `CONFLICTING`:**
 
-Identify the conflicting files using `git merge-tree` (non-destructive, no checkout required):
+Identify the conflicting files. Try the newer two-tree `git merge-tree` form first (git ≥ 2.38),
+which outputs `CONFLICT` lines directly without touching the working tree:
 ```bash
 git fetch origin "$BASE_BRANCH" "$PR_BRANCH" --quiet
-MERGE_BASE=$(git merge-base origin/$BASE_BRANCH origin/$PR_BRANCH)
-CONFLICTING_FILES=$(git merge-tree "$MERGE_BASE" origin/$BASE_BRANCH origin/$PR_BRANCH 2>/dev/null \
-  | grep -E '^(CONFLICT|conflict)' | awk '{print $NF}' | sort -u)
+CONFLICTING_FILES=$(git merge-tree "origin/$BASE_BRANCH" "origin/$PR_BRANCH" 2>/dev/null \
+  | grep '^CONFLICT' | sed 's/.*Merge conflict in //' | sort -u)
 ```
 
-If `git merge-tree` produces no output or errors, fall back to a temp-worktree dry run:
+If `git merge-tree` produces no output (older git) or the result is empty, fall back to a
+temp-worktree dry run:
 ```bash
 TEMP=$(mktemp -d)
 git worktree add "$TEMP" "origin/$PR_BRANCH" --quiet 2>/dev/null
-CONFLICTING_FILES=$(cd "$TEMP" && git merge --no-commit --no-ff "origin/$BASE_BRANCH" 2>&1 \
-  | grep "CONFLICT" | sed 's/.*CONFLICT.*: //' | sort -u)
-git merge --abort 2>/dev/null || true
+git -C "$TEMP" merge --no-commit --no-ff "origin/$BASE_BRANCH" 2>/dev/null || true
+CONFLICTING_FILES=$(git -C "$TEMP" diff --name-only --diff-filter=U | sort -u)
+git -C "$TEMP" merge --abort 2>/dev/null || true
 git worktree remove "$TEMP" --force 2>/dev/null || true
 ```
 

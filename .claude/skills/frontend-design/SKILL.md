@@ -40,3 +40,12 @@ Interpret creatively and make unexpected choices that feel genuinely designed fo
 **IMPORTANT**: Match implementation complexity to the aesthetic vision. Maximalist designs need elaborate code with extensive animations and effects. Minimalist or refined designs need restraint, precision, and careful attention to spacing, typography, and subtle details. Elegance comes from executing the vision well.
 
 Remember: Claude is capable of extraordinary creative work. Don't hold back, show what can truly be created when thinking outside the box and committing fully to a distinctive vision.
+
+## Production Completeness
+
+For pages and multi-step flows (not atomic components), every generated interface must include these states — not just the happy path:
+
+- **Loading**: Show a spinner, skeleton, or progress indicator while data loads. Never render a blank screen.
+- **Empty**: When there's no data yet, show a message and a CTA (not just whitespace).
+- **Error**: When something fails, show what went wrong and how to retry. Never fail silently.
+- **Escape**: Every multi-step flow needs a back/cancel affordance. Destructive actions need confirmation.

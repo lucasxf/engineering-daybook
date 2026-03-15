@@ -36,18 +36,14 @@ Help a **backend engineer learning frontend** create world-class experiences by:
 
 ## Design Framework
 
-### Nielsen's 10 Usability Heuristics
+### Key Usability Heuristics (Nielsen)
 
-1. **Visibility of System Status** - Loading states, progress, confirmations
-2. **Match Between System and Real World** - Familiar language, metaphors
-3. **User Control and Freedom** - Undo/redo, easy navigation back
-4. **Consistency and Standards** - Follow platform conventions
-5. **Error Prevention** - Validation, confirmations
-6. **Recognition Rather Than Recall** - Make options visible
-7. **Flexibility and Efficiency** - Support novice and expert users
-8. **Aesthetic and Minimalist Design** - Every element has purpose
-9. **Help Users Recover from Errors** - Clear error messages
-10. **Help and Documentation** - Contextual help, tooltips
+Focus on these four — the others are already covered by the design system and UX Mandate:
+
+1. **Visibility of System Status** - Loading states, progress indicators, confirmations
+2. **User Control and Freedom** - Undo, back/cancel, easy retreat from any step
+3. **Error Prevention** - Validation, confirmation dialogs for destructive actions
+4. **Help Users Recover from Errors** - Clear error messages, retry affordances
 
 ### Visual Design Principles
 
@@ -232,6 +228,15 @@ const spacing = {
 
 ## Accessibility
 [Checklist with all items verified]
+
+---
+
+## UX Completeness Check
+- [ ] Loading state defined (spinner, skeleton, or progress)
+- [ ] Empty state defined (message + CTA)
+- [ ] Error state defined (message + retry)
+- [ ] Destructive actions have confirmation
+- [ ] User can navigate back/cancel from any step
 
 ---
 

@@ -222,7 +222,8 @@ temp/
 # =============================================================================
 
 # Keep prompts in version control (as stated in project directives)
-# /prompts is NOT ignored
+# /prompts is NOT ignored — except generated optimizer output
+prompts/optimized/
 
 # Local overrides (for personal settings not to be committed)
 *.local.yml
