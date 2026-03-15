@@ -122,6 +122,10 @@ invocations = 1
 last_used = "2026-03-13T14:52:45Z"
 
 [skill_usage.mobile-design-system]
+invocations = 1
+last_used = "2026-03-15T11:52:45Z"
+
+[skill_usage.skill-creator]
 invocations = 0
 last_used = ""
 
@@ -133,21 +137,7 @@ last_used = ""
 invocations = 0
 last_used = ""
 
-[skill_usage.skill-creator]
-invocations = 0
-last_used = ""
-
 # Productivity Metrics
-
-
-[agent_usage.claude-code-guide]
-invocations = 1
-last_used = "2026-03-15T10:41:44Z"
-
-
-[command_usage.mobile-design-system]
-invocations = 1
-last_used = "2026-03-15T11:52:45Z"
 
 [productivity]
 current_total_locs = 58069
@@ -182,5 +172,5 @@ implemented = 19
 # Health Metrics
 [health]
 schema_errors = 0
-total_agents = 15
-total_commands = 13
+total_agents = 14
+total_commands = 12
