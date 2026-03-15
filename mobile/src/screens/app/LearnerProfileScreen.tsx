@@ -163,13 +163,13 @@ export function LearnerProfileScreen() {
             justifyContent: 'center',
             alignItems: 'center',
             padding: theme.spacing.lg,
+            gap: theme.spacing.md,
           }}
         >
           <ErrorMessage message={t('learnerProfile.loadError')} />
           <Button
             label={t('learnerProfile.retry')}
             onPress={reload}
-            style={{ marginTop: theme.spacing.md }}
           />
         </View>
       </SafeAreaView>
