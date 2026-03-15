@@ -363,6 +363,18 @@ Automation/tooling maintenance session. Two commits; no backend or new page chan
 | `.claude/skills/prompt-optimizer/references/anti-patterns.md` | Corrected Spring Boot version in example: reverted erroneous "Spring Boot 3" back to "Spring Boot 4" (backend/pom.xml is 4.0.3) |
 | `web/src/components/view-learning/view-learning.test.tsx` | Fixed stale aria-label assertions — mocks return raw i18n keys; aligned assertions with mock behavior |
 
+### S1.2 — TextInput, Card, and Avatar Token Migration (feat/ds-input-card-avatar, 2026-03-14) ✅
+
+Wave 1, step 2 of the Library at Dusk mobile visual migration. No domain logic changes.
+
+| Component | Change | Tests |
+|-----------|--------|-------|
+| `TextInput` | `surface→inputBg`, `border→inputBorder`, `textDisabled→inputPlaceholder`, `spacing.sm+2→10`, add `fontFamily.body` | 10 new tests |
+| `Card` | Verify only — already uses correct semantic tokens | 12 new tests |
+| `Avatar` | Add `useTheme()`, replace 8 hardcoded Tailwind hex values with `palette`/`brandAccents` brand colors, add `typography.weights.semibold`/`fontFamily.bodyMedium`, use `colors.textInverse` | 15 new tests |
+
+Total: 211 tests passing (up from 174), 83.52% line coverage (above 80% threshold).
+
 ### PR #187 Review Fixes (fix-pr/187, 2026-03-12) ✅
 
 Web-only fix-pr session for PR #187 (feat: implement View Learning screen with design system and i18n support). Restored coverage above CI threshold by adding 36 unit tests; removed dead code.
@@ -380,6 +392,8 @@ Web-only fix-pr session for PR #187 (feat: implement View Learning screen with d
 ## Active / Pending
 
 ⏳ Pending: Author using app for 1+ week (Phase 1 exit criterion)
+
+Mobile design system migration progress (Wave 1): S0.1 ✅, S1.1 ✅, S1.2 ✅ — S1.3 (markdown + feed components) and Wave 2 (screens) pending.
 
 ---
 
