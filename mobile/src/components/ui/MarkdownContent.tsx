@@ -7,17 +7,19 @@ interface MarkdownContentProps {
   content: string;
 }
 
-function buildStyles(theme: AppTheme) {
+export function buildStyles(theme: AppTheme) {
   const { typography, colors, spacing, radii } = theme;
   return {
     body: {
-      color: colors.textPrimary,
+      color: colors.contentBody,
       fontSize: typography.sizes.md,
+      fontFamily: typography.fontFamily.body,
       lineHeight: typography.sizes.md * typography.lineHeights.normal,
     },
     heading1: {
       fontSize: typography.sizes.xxxl,
       fontWeight: typography.weights.bold,
+      fontFamily: typography.fontFamily.heading,
       color: colors.textPrimary,
       marginBottom: spacing.sm,
       marginTop: spacing.md,
@@ -25,6 +27,7 @@ function buildStyles(theme: AppTheme) {
     heading2: {
       fontSize: typography.sizes.xxl,
       fontWeight: typography.weights.semibold,
+      fontFamily: typography.fontFamily.heading,
       color: colors.textPrimary,
       marginBottom: spacing.xs,
       marginTop: spacing.sm,
@@ -32,6 +35,7 @@ function buildStyles(theme: AppTheme) {
     heading3: {
       fontSize: typography.sizes.xl,
       fontWeight: typography.weights.medium,
+      fontFamily: typography.fontFamily.heading,
       color: colors.textPrimary,
       marginBottom: spacing.xs,
       marginTop: spacing.sm,
