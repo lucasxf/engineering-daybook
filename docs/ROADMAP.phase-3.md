@@ -125,6 +125,23 @@
 - Test results: 179 passing, 80.92% line coverage (above 80% threshold).
 - **Next:** S1.2/S1.3 — parallel worktrees for input/card/avatar and markdown/feed components.
 
+### Wave 2 — DS Screen Patches (step 4)
+
+Three branches run in parallel, each targeting a screen cluster:
+
+| Branch | Screens | Status |
+|--------|---------|--------|
+| `feat/ds-feed-detail` | FeedScreen, LearningDetailScreen, LearningNewScreen | ✅ Done (2026-03-15) |
+| `feat/ds-auth-screens` | LoginScreen, RegisterScreen, ForgotPasswordScreen, ChooseHandleScreen | ⏳ Pending |
+| `feat/ds-profile-discover` | ProfileScreen, DiscoverScreen, LearnerProfileScreen | ⏳ Pending |
+
+**S2.2 (feat/ds-feed-detail, 2026-03-15) ✅**
+- `FeedScreen.tsx` — tab pill `fontWeight` strings replaced with `theme.typography.weights.semibold` / `.regular` tokens; `spacing.xs + 2` magic number replaced with literal `6` (with comment).
+- `LearningDetailScreen.tsx` — tag pills now use `tagPillBg`/`tagPillText` semantic tokens (was `surfaceAlt`); tag text uses `caption` variant (was `bodySm`); padding matches canonical LearningCard pattern; spacing arithmetic `sm + 2` replaced with literal `10` (with comment); add-tag and remove-tag labels both use `caption` variant.
+- `LearningNewScreen.tsx` — audited; no changes needed (already token-compliant).
+- Test results: 229 passing, lint clean (0 errors).
+- **Next:** `feat/ds-auth-screens` and `feat/ds-profile-discover` (remaining Wave 2 branches).
+
 ---
 
 ## Milestone 3.2: AI Connections

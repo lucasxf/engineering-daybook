@@ -261,15 +261,15 @@ export function LearningDetailScreen() {
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
-                  backgroundColor: theme.colors.surfaceAlt,
+                  backgroundColor: theme.colors.tagPillBg,
                   borderRadius: theme.radii.full,
-                  paddingLeft: theme.spacing.md,
+                  paddingLeft: theme.spacing.sm,
                   paddingRight: theme.spacing.xs,
-                  paddingVertical: theme.spacing.xs,
+                  paddingVertical: 2,
                   gap: theme.spacing.xs,
                 }}
               >
-                <Text variant="bodySm">{tag.displayName}</Text>
+                <Text variant="caption" color={theme.colors.tagPillText}>{tag.displayName}</Text>
                 <TouchableOpacity
                   accessibilityRole="button"
                   accessibilityLabel={t('learnings.detail.removeTagAccessibilityLabel', { tagName: tag.displayName })}
@@ -277,7 +277,7 @@ export function LearningDetailScreen() {
                   disabled={tagActionLoading}
                   hitSlop={{ top: 8, right: 8, bottom: 8, left: 4 }}
                 >
-                  <Text variant="bodySm" color={theme.colors.textSecondary}>✕</Text>
+                  <Text variant="caption" color={theme.colors.tagPillText}>✕</Text>
                 </TouchableOpacity>
               </View>
             ))}
@@ -299,7 +299,7 @@ export function LearningDetailScreen() {
                 gap: theme.spacing.xs,
               }}
             >
-              <Text variant="bodySm" color={theme.colors.textSecondary}>+ {t('learnings.detail.addTag')}</Text>
+              <Text variant="caption" color={theme.colors.textSecondary}>+ {t('learnings.detail.addTag')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -364,7 +364,7 @@ export function LearningDetailScreen() {
                       onPress={() => handleAddTag(item)}
                       style={{
                         paddingHorizontal: theme.spacing.md,
-                        paddingVertical: theme.spacing.sm + 2,
+                        paddingVertical: 10, /* sm(8) + 2: modal row vertical padding */
                         borderBottomWidth: 1,
                         borderBottomColor: theme.colors.border,
                       }}

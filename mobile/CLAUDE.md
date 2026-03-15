@@ -168,6 +168,8 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
 
 - **Gradle: "Could not set unknown property 'enableBundleCompression'"** — Occurs when EAS resolves a newer React Native Gradle plugin (RN 0.77+) during build while `package.json` still pins RN 0.76. The `enableBundleCompression` property was removed in the RN 0.77 Gradle plugin. Fix: upgrade all packages to Expo SDK 53 expected versions (React 18→19, RN 0.76→0.79). Use `npm install --legacy-peer-deps` rather than `expo install --check`, which itself fails with ERESOLVE on SDK 53. (Added 2026-03-08)
 
+- **Detail screen tag pills must use `tagPillBg`/`tagPillText` tokens and `caption` text variant — not `surfaceAlt`/`bodySm`:** The canonical tag pill pattern (established in `LearningCard.tsx`) uses the `tagPillBg` and `tagPillText` semantic tokens for background and text colour, and renders the label using the `caption` Text variant. Using `surfaceAlt` for the pill background or `bodySm` for the text produces a visible mismatch between the feed card and the detail screen. This applies to both the read-mode tag chips and the inline add-tag / remove-tag controls in `LearningDetailScreen`. (Added 2026-03-15)
+
 - **EAS `npm ci` fails with ERESOLVE** — EAS runs `npm ci` (strict lockfile mode) on the build server. Two common causes: (1) `react-test-renderer` is on a different major version than `react` (e.g., `react@19` + `react-test-renderer@18`); (2) peer dep conflicts that local `npm install --legacy-peer-deps` masks. Fix: (a) ensure `react-test-renderer` version matches `react` version exactly; (b) create `mobile/.npmrc` with `legacy-peer-deps=true` so that EAS's `npm ci` uses legacy resolution — EAS copies `.npmrc` from the repo into the build environment. Without `.npmrc`, the build server uses npm defaults (strict), diverging from the local install. (Added 2026-03-08)
 
 - **`eas init` requires local `eas-cli` install before `npx eas init`** — Running `npx eas init` without a prior local install fails because npx cannot locate the binary in ephemeral environments. Fix: run `npm install eas-cli` inside the `mobile/` directory first to add it to `node_modules/.bin/`, then run `npx eas init`. (Added 2026-03-08)
@@ -178,4 +180,4 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
 
 ---
 
-*Last updated: 2026-03-15 (session: fix-pr/205 — Wave 1 PR review fixes: font synthesis, magic number comments, mock paths)*
+*Last updated: 2026-03-15 (session: feat/ds-feed-detail — S2.2: FeedScreen + LearningDetailScreen token compliance)*
