@@ -439,5 +439,17 @@
     "errors": {
       "searchFailed": "Busca falhou. Tente novamente."
     }
+  },
+  "learnerProfile": {
+    "login": "Entrar",
+    "goToProfile": "Ir para perfil de @{handle}",
+    "privateProfile": "Este perfil é privado",
+    "notFound": "Perfil não encontrado",
+    "notFoundHint": "O perfil que você está procurando não existe ou foi removido.",
+    "noPublicLearnings": "Nenhum aprendizado público ainda",
+    "learnings": "Aprendizados",
+    "follow": "Seguir",
+    "following": "Seguindo",
+    "editProfile": "Editar perfil"
   }
 }

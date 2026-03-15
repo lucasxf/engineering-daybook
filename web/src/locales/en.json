@@ -439,5 +439,17 @@
     "errors": {
       "searchFailed": "Search failed. Please try again."
     }
+  },
+  "learnerProfile": {
+    "login": "Log in",
+    "goToProfile": "Go to profile of @{handle}",
+    "privateProfile": "This profile is private",
+    "notFound": "Profile not found",
+    "notFoundHint": "The profile you're looking for doesn't exist or was removed.",
+    "noPublicLearnings": "No public learnings yet",
+    "learnings": "Learnings",
+    "follow": "Follow",
+    "following": "Following",
+    "editProfile": "Edit profile"
   }
 }
