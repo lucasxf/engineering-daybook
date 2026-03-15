@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, useEffect } from "react";
+import { useId, useState, useEffect, type FormEvent } from "react";
 import { Loader2, Check } from "lucide-react";
 
 type SaveState = "idle" | "saving" | "saved";
@@ -65,7 +65,7 @@ export function ProfileSection({ initialDisplayName = "Lucas", initialBio = "", 
     }
   }, [saveState]);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setNameTouched(true);
     setBioTouched(true);

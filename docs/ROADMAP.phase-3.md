@@ -115,6 +115,16 @@
 - Test results: 174 passing, 80.53% line coverage (above 80% threshold).
 - **Next:** Step 3 — patch existing screens with Library at Dusk component styles using the `mobile-design-system` skill.
 
+### Wave 1 — DS Component Patches (step 3)
+
+**S1.1 (feat/ds-text-button-error, 2026-03-14) ✅**
+- `Text.tsx` — `fontFamily` wired per variant: Sora_600SemiBold for title/heading/subheading; DMSans_500Medium for label; DMSans_400Regular for body/bodySm/caption. Removed unused StyleSheet import.
+- `Button.tsx` — disabled state now uses `colors.disabledBg` / `colors.disabledText` (was `colors.border` / `colors.textDisabled`); replaced spacing arithmetic with literal `10`; secondary variant gets `borderWidth: 1, borderColor: colors.border`. Removed unused StyleSheet import.
+- `ErrorMessage.tsx` — verified clean; no changes needed.
+- Tests: `Text.test.tsx` extended (fontFamily assertions for Sora/DM Sans per variant); `Button.test.tsx` extended (disabledBg/disabledText token + secondary border); `ErrorMessage.test.tsx` created (5 new tests covering null renders and theme color usage).
+- Test results: 179 passing, 80.92% line coverage (above 80% threshold).
+- **Next:** S1.2/S1.3 — parallel worktrees for input/card/avatar and markdown/feed components.
+
 ---
 
 ## Milestone 3.2: AI Connections
