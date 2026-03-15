@@ -32,7 +32,8 @@ export const TextInput = forwardRef<RNTextInput, Props>(
               borderColor: error ? colors.error : colors.inputBorder,
               borderRadius: radii.md,
               paddingHorizontal: spacing.md,
-              paddingVertical: 10,
+              paddingVertical: 10, // optical balance between spacing.sm (8) and spacing.md (16)
+
               fontSize: typography.sizes.md,
               color: colors.textPrimary,
               backgroundColor: colors.inputBg,

@@ -157,10 +157,10 @@ describe('Avatar', () => {
     expect(style.fontFamily).toBe('DMSans_500Medium');
   });
 
-  it('initials fontWeight uses typography.weights.semibold', () => {
+  it('initials fontWeight uses typography.weights.medium to match DMSans_500Medium', () => {
     const result = Avatar({ ...defaultProps });
     const style = getInitialStyle(result as React.ReactElement);
-    expect(style.fontWeight).toBe('600');
+    expect(style.fontWeight).toBe('500');
   });
 
   it('colorForHandle is deterministic (same handle → same color)', () => {

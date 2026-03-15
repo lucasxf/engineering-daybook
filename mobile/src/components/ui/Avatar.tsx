@@ -73,7 +73,8 @@ export function Avatar({ avatarUrl, displayName, handle, size = 40 }: AvatarProp
           {
             fontSize,
             color: colors.textInverse,
-            fontWeight: typography.weights.semibold,
+            // fontWeight matches DMSans_500Medium (weight baked in; semibold would trigger synthesis)
+            fontWeight: typography.weights.medium,
             fontFamily: typography.fontFamily.bodyMedium,
           },
         ]}

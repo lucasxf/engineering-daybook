@@ -28,7 +28,7 @@ jest.mock('@/contexts/ThemeContext', () => ({
   }),
 }));
 
-jest.mock('@/components/ui/Text', () => ({
+jest.mock('../Text', () => ({
   Text: ({ children }: { children: React.ReactNode }) => children,
 }));
 

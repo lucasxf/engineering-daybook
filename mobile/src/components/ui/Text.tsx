@@ -14,11 +14,13 @@ function getVariantStyle(variant: TextVariant, theme: AppTheme) {
   const { typography, colors } = theme;
   switch (variant) {
     case 'title':
-      return { fontSize: typography.sizes.xxxl, fontWeight: typography.weights.bold, fontFamily: typography.fontFamily.heading, color: colors.textPrimary };
+      // fontWeight omitted — Sora_600SemiBold has the weight baked in; a conflicting value triggers Android font synthesis
+      return { fontSize: typography.sizes.xxxl, fontFamily: typography.fontFamily.heading, color: colors.textPrimary };
     case 'heading':
       return { fontSize: typography.sizes.xl, fontWeight: typography.weights.semibold, fontFamily: typography.fontFamily.heading, color: colors.textPrimary };
     case 'subheading':
-      return { fontSize: typography.sizes.lg, fontWeight: typography.weights.medium, fontFamily: typography.fontFamily.heading, color: colors.textPrimary };
+      // fontWeight omitted — Sora_600SemiBold has the weight baked in; a conflicting value triggers Android font synthesis
+      return { fontSize: typography.sizes.lg, fontFamily: typography.fontFamily.heading, color: colors.textPrimary };
     case 'label':
       return { fontSize: typography.sizes.md, fontWeight: typography.weights.medium, fontFamily: typography.fontFamily.bodyMedium, color: colors.textPrimary };
     case 'bodySm':

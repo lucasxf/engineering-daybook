@@ -61,7 +61,8 @@ export function Button({
         {
           backgroundColor: getBackgroundColor(),
           borderRadius: radii.md,
-          paddingVertical: 10,
+          paddingVertical: 10, // optical balance between spacing.sm (8) and spacing.md (16)
+
           paddingHorizontal: spacing.md,
           alignItems: 'center' as const,
           justifyContent: 'center' as const,
