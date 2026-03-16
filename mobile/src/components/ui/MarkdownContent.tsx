@@ -40,7 +40,9 @@ export function buildStyles(theme: AppTheme) {
       marginTop: spacing.sm,
     },
     strong: {
-      fontWeight: typography.weights.bold,
+      // fontWeight omitted — no DMSans bold variant loaded; bodyMedium (500) provides visual emphasis
+      // without triggering Android font synthesis from an unloaded weight.
+      fontFamily: typography.fontFamily.bodyMedium,
     },
     em: {
       fontStyle: 'italic' as const,
