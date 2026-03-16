@@ -143,6 +143,23 @@
 - Session fix-pr 206 (2026-03-16): removed unused `mockSetServerError`, renamed misleading test in LoginScreen, replaced `'Pass123!'` fixture with `'testpassword123'` in all auth tests (resolved GitGuardian CI false positive), extracted shared `mockTheme` + `findAllByType` helper to `mobile/src/screens/auth/__tests__/test-utils.ts` (eliminated ~120 lines of duplication across 4 test files).
 - **Next:** S2.2 — feat/ds-feed-detail; S2.3 — feat/ds-profile-discover.
 
+### Wave 2 — DS Screen Patches (step 4)
+
+Three branches run in parallel, each targeting a screen cluster:
+
+| Branch | Screens | Status |
+|--------|---------|--------|
+| `feat/ds-feed-detail` | FeedScreen, LearningDetailScreen, LearningNewScreen | ✅ Done (2026-03-15) |
+| `feat/ds-auth-screens` | LoginScreen, RegisterScreen, ForgotPasswordScreen, ChooseHandleScreen | ⏳ Pending |
+| `feat/ds-profile-discover` | ProfileScreen, DiscoverScreen, LearnerProfileScreen | ⏳ Pending |
+
+**S2.2 (feat/ds-feed-detail, 2026-03-15) ✅**
+- `FeedScreen.tsx` — tab pill `fontWeight` strings replaced with `theme.typography.weights.semibold` / `.regular` tokens; `spacing.xs + 2` magic number replaced with literal `6` (with comment).
+- `LearningDetailScreen.tsx` — tag pills now use `tagPillBg`/`tagPillText` semantic tokens (was `surfaceAlt`); tag text uses `caption` variant (was `bodySm`); padding matches canonical LearningCard pattern; spacing arithmetic `sm + 2` replaced with literal `10` (with comment); add-tag and remove-tag labels both use `caption` variant.
+- `LearningNewScreen.tsx` — audited; no changes needed (already token-compliant).
+- Test results: 229 passing, lint clean (0 errors).
+- **Next:** `feat/ds-auth-screens` and `feat/ds-profile-discover` (remaining Wave 2 branches).
+
 ---
 
 ## Milestone 3.2: AI Connections
