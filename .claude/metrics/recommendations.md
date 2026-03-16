@@ -35,8 +35,8 @@
 | REC-022 | 2026-03-15 | metrics | claude-code-guide appears in agent_usage in usage-stats.toml but has no corresponding .md file in .claude/agents/ — phantom entry should be removed or the agent file created | open | 2026-03-15 |
 | REC-023 | 2026-03-15 | metrics | mobile-design-system is double-registered as both command_usage.mobile-design-system (1 invocation) and skill_usage.mobile-design-system (0 invocations) — split counts create false zero in skill tracking; remove the command_usage entry and ensure invocations flow to skill_usage | open | 2026-03-15 |
 | REC-024 | 2026-03-15 | archival | Three skills have 0 invocations and no wiring to any command: doc-coauthoring, frontend-design, skill-creator — evaluate whether these serve active workflows or should be documented as on-demand-only with explicit trigger examples | open | 2026-03-15 |
-| REC-025 | 2026-03-16 | archival | tech-writer.md Integration section references archived session-optimizer agent — stale cross-reference should be removed or updated to reflect current wiring | open | 2026-03-16 |
-| REC-026 | 2026-03-16 | workflow | /review-spec has 0 invocations despite 5 post-creation specs (2 draft plus 3 planned) — the spec review gate is inactive; ensure new specs are routed through /review-spec before /implement-spec | open | 2026-03-16 |
+| REC-025 | 2026-03-16 | archival | tech-writer.md Integration section references archived session-optimizer agent — stale cross-reference should be removed or updated to reflect current wiring | implemented | 2026-03-16 |
+| REC-026 | 2026-03-16 | workflow | /review-spec has 0 invocations despite 5 post-creation specs (2 draft plus 3 planned) — the spec review gate is inactive; ensure new specs are routed through /review-spec before /implement-spec | rejected | 2026-03-16 |
 
 ## Archive
 
