@@ -123,7 +123,25 @@
 - `ErrorMessage.tsx` — verified clean; no changes needed.
 - Tests: `Text.test.tsx` extended (fontFamily assertions for Sora/DM Sans per variant); `Button.test.tsx` extended (disabledBg/disabledText token + secondary border); `ErrorMessage.test.tsx` created (5 new tests covering null renders and theme color usage).
 - Test results: 179 passing, 80.92% line coverage (above 80% threshold).
-- **Next:** S1.2/S1.3 — parallel worktrees for input/card/avatar and markdown/feed components.
+
+**S1.2 (feat/ds-input-card-avatar, 2026-03-15) ✅**
+- `TextInput.tsx` — Library at Dusk token wiring: `inputBg`, `inputBorder`, `inputPlaceholder` applied; DM Sans font family set; focused border uses `colors.primary`; error state border uses `colors.error`.
+- `Card.tsx` — background uses `colors.surface`; shadow tokens applied for elevation; border radius updated to match design language.
+- `Avatar.tsx` — placeholder background uses `colors.tagPillBg`; initials text uses `colors.tagPillText`; consistent border radius.
+- Tests extended with token assertions; test results: 204 passing, 81.2% line coverage (above 80% threshold).
+
+**S1.3 (feat/ds-markdown-feedcomps, 2026-03-15) ✅**
+- `MarkdownContent.tsx` — `contentBody` token wired for prose text color; heading styles use Sora font; code block background uses `colors.inputBg`.
+- Feed components (`PokCard`, `FeedList`) — surface/border tokens applied; spacing updated to match Library at Dusk grid.
+- Tests extended; all 3 Wave 1 PRs (#201 S1.1, #202 S1.2, S1.3 merged — 2026-03-15).
+
+### Wave 2 — DS Screen Patches (step 4)
+
+**S2.1 (feat/ds-auth-screens, 2026-03-15) 🔄 PR open / under review**
+- Auth screen design system audit: all 4 screens (`LoginScreen`, `RegisterScreen`, `ForgotPasswordScreen`, `ChooseHandleScreen`) patched with Library at Dusk tokens, DM Sans / Sora typography, and component-recipe layouts.
+- Tests: 4 auth screen test files written covering theme token usage, form validation, and API interaction. All 271 tests pass; 83.45% line coverage (above 80% threshold).
+- Session fix-pr 206 (2026-03-16): removed unused `mockSetServerError`, renamed misleading test in LoginScreen, replaced `'Pass123!'` fixture with `'testpassword123'` in all auth tests (resolved GitGuardian CI false positive), extracted shared `mockTheme` + `findAllByType` helper to `mobile/src/screens/auth/__tests__/test-utils.ts` (eliminated ~120 lines of duplication across 4 test files).
+- **Next:** S2.2 — feat/ds-feed-detail; S2.3 — feat/ds-profile-discover.
 
 ---
 
