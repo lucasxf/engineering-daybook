@@ -63,7 +63,7 @@ jest.mock('@hookform/resolvers/zod', () => ({
 }));
 
 const mockHandleSubmit = jest.fn((onSubmit) =>
-  jest.fn(() => onSubmit({ email: 'test@example.com', password: 'testpassword123' }))
+  jest.fn(() => onSubmit({ email: 'test@example.com', password: 'mock-p4ssword' }))
 );
 jest.mock('react-hook-form', () => ({
   useForm: () => ({
@@ -104,7 +104,7 @@ describe('LoginScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockHandleSubmit.mockImplementation((onSubmit) =>
-      jest.fn(() => onSubmit({ email: 'test@example.com', password: 'testpassword123' }))
+      jest.fn(() => onSubmit({ email: 'test@example.com', password: 'mock-p4ssword' }))
     );
   });
 
@@ -138,7 +138,7 @@ describe('LoginScreen', () => {
 
     await (submitBtn?.props.onPress as () => Promise<void>)();
 
-    expect(mockLoginApi).toHaveBeenCalledWith({ email: 'test@example.com', password: 'testpassword123' });
+    expect(mockLoginApi).toHaveBeenCalledWith({ email: 'test@example.com', password: 'mock-p4ssword' });
   });
 
   it('calls setUser after successful login', async () => {
@@ -182,18 +182,20 @@ describe('LoginScreen', () => {
   });
 
   it('renders a sign-up link Text with primary color', () => {
+    const { mockTheme } = require('./test-utils');
     const result = LoginScreen({} as never);
     const texts = findAllByType(result, 'Text');
     const primaryText = texts.find(
-      (t) => (t.props.color as string)?.includes('#D4854A')
+      (t) => (t.props.color as string)?.includes(mockTheme.colors.primary)
     );
     expect(primaryText).toBeDefined();
   });
 
   it('sign-up link navigates to Register', () => {
+    const { mockTheme } = require('./test-utils');
     const result = LoginScreen({} as never);
     const texts = findAllByType(result, 'Text');
-    const signUpLink = texts.find((t) => (t.props.color as string)?.includes('#D4854A'));
+    const signUpLink = texts.find((t) => (t.props.color as string)?.includes(mockTheme.colors.primary));
     (signUpLink?.props.onPress as () => void)();
     expect(mockNavigate).toHaveBeenCalledWith('Register');
   });

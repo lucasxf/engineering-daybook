@@ -302,7 +302,7 @@ export function FeedScreen() {
               >
                 <Text
                   variant="bodySm"
-                  style={{ fontWeight: active ? theme.typography.weights.semibold : theme.typography.weights.regular }}
+                  style={{ fontFamily: active ? theme.typography.fontFamily.bodyMedium : theme.typography.fontFamily.body }}
                   color={active ? theme.colors.textInverse : theme.colors.textSecondary}
                 >
                   {tab.label}

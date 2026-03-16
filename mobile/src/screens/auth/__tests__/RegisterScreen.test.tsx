@@ -58,8 +58,8 @@ const mockHandleSubmit = jest.fn((onSubmit) =>
   jest.fn(() =>
     onSubmit({
       email: 'new@example.com',
-      password: 'testpassword123',
-      confirmPassword: 'testpassword123',
+      password: 'mock-p4ssword',
+      confirmPassword: 'mock-p4ssword',
       displayName: 'New User',
       handle: 'newuser',
     })
@@ -107,8 +107,8 @@ describe('RegisterScreen', () => {
       jest.fn(() =>
         onSubmit({
           email: 'new@example.com',
-          password: 'testpassword123',
-          confirmPassword: 'testpassword123',
+          password: 'mock-p4ssword',
+          confirmPassword: 'mock-p4ssword',
           displayName: 'New User',
           handle: 'newuser',
         })
@@ -140,7 +140,7 @@ describe('RegisterScreen', () => {
 
     expect(mockRegisterApi).toHaveBeenCalledWith({
       email: 'new@example.com',
-      password: 'testpassword123',
+      password: 'mock-p4ssword',
       displayName: 'New User',
       handle: 'newuser',
     });
@@ -173,16 +173,18 @@ describe('RegisterScreen', () => {
   });
 
   it('renders a sign-in link Text with primary color', () => {
+    const { mockTheme } = require('./test-utils');
     const result = RegisterScreen({} as never);
     const texts = findAllByType(result, 'Text');
-    const primaryText = texts.find((t) => (t.props.color as string)?.includes('#D4854A'));
+    const primaryText = texts.find((t) => (t.props.color as string)?.includes(mockTheme.colors.primary));
     expect(primaryText).toBeDefined();
   });
 
   it('sign-in link navigates to Login', () => {
+    const { mockTheme } = require('./test-utils');
     const result = RegisterScreen({} as never);
     const texts = findAllByType(result, 'Text');
-    const signInLink = texts.find((t) => (t.props.color as string)?.includes('#D4854A'));
+    const signInLink = texts.find((t) => (t.props.color as string)?.includes(mockTheme.colors.primary));
     (signInLink?.props.onPress as () => void)();
     expect(mockNavigate).toHaveBeenCalledWith('Login');
   });
