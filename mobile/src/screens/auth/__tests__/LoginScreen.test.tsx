@@ -63,7 +63,7 @@ jest.mock('@hookform/resolvers/zod', () => ({
 }));
 
 const mockHandleSubmit = jest.fn((onSubmit) =>
-  jest.fn(() => onSubmit({ email: 'test@example.com', password: 'Pass123!' }))
+  jest.fn(() => onSubmit({ email: 'test@example.com', password: 'testpassword123' }))
 );
 jest.mock('react-hook-form', () => ({
   useForm: () => ({
@@ -104,7 +104,7 @@ describe('LoginScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockHandleSubmit.mockImplementation((onSubmit) =>
-      jest.fn(() => onSubmit({ email: 'test@example.com', password: 'Pass123!' }))
+      jest.fn(() => onSubmit({ email: 'test@example.com', password: 'testpassword123' }))
     );
   });
 
@@ -138,7 +138,7 @@ describe('LoginScreen', () => {
 
     await (submitBtn?.props.onPress as () => Promise<void>)();
 
-    expect(mockLoginApi).toHaveBeenCalledWith({ email: 'test@example.com', password: 'Pass123!' });
+    expect(mockLoginApi).toHaveBeenCalledWith({ email: 'test@example.com', password: 'testpassword123' });
   });
 
   it('calls setUser after successful login', async () => {
