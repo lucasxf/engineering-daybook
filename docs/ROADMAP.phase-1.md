@@ -434,7 +434,7 @@ Web-only fix-pr session for PR #187 (feat: implement View Learning screen with d
 
 ⏳ Pending: Author using app for 1+ week (Phase 1 exit criterion)
 
-Mobile design system migration progress (Wave 2): S2.1 ✅ (feat/ds-auth-screens) — auth screens done. Next: S2.2 (feat/ds-feed-detail), S2.3 (feat/ds-profile-discover).
+Mobile design system migration progress (Wave 2): S2.1 ✅ S2.2 ✅ S2.3 ✅ — all Wave 2 screen migrations complete (feat/ds-auth-screens, feat/ds-feed-detail, feat/ds-profile-discover).
 
 ---
 

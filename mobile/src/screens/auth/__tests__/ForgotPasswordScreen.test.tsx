@@ -90,7 +90,7 @@ jest.mock('@/components/ui/ErrorMessage', () => ({
 // ---------------------------------------------------------------------------
 
 import { ForgotPasswordScreen } from '../ForgotPasswordScreen';
-import { findAllByType } from './test-utils';
+import { findAllByType, mockTheme } from './test-utils';
 import type { ReactEl } from './test-utils';
 
 // ---------------------------------------------------------------------------
@@ -176,12 +176,12 @@ describe('ForgotPasswordScreen', () => {
     mockSuccessMessage = 'auth.forgotPassword.successMessage';
 
     const result = ForgotPasswordScreen({} as never);
-    // Success container is a View with borderColor: theme.colors.success (#27AE60)
+    // Success container is a View with borderColor: theme.colors.success
     function findSuccessContainer(node: unknown): boolean {
       if (!node || typeof node !== 'object') return false;
       const el = node as ReactEl;
       const style = el.props?.style as Record<string, unknown> | undefined;
-      if (style && style.borderColor === '#27AE60') return true;
+      if (style && style.borderColor === mockTheme.colors.success) return true;
       const children = el.props?.children;
       if (Array.isArray(children)) return children.some(findSuccessContainer);
       if (children) return findSuccessContainer(children);

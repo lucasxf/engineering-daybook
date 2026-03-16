@@ -198,4 +198,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-03-15 (session: feat/ds-profile-discover — Wave 2 S2.3 done: ProfileScreen, AppTabs conformant; DiscoverScreen + LearnerProfileScreen patched; 230 tests, 84.21% coverage)*
+*Last updated: 2026-03-16 (session: develop/PR #209 — Wave 2 complete: S2.1–S2.3 merged; 271 tests, 82.82% coverage)*

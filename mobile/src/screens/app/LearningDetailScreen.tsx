@@ -265,7 +265,7 @@ export function LearningDetailScreen() {
                   borderRadius: theme.radii.full,
                   paddingLeft: theme.spacing.sm,
                   paddingRight: theme.spacing.xs,
-                  paddingVertical: 2,
+                  paddingVertical: 2, /* canonical tag pill vertical padding (matches LearningCard) */
                   gap: theme.spacing.xs,
                 }}
               >

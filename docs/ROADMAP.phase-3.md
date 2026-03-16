@@ -148,10 +148,10 @@ Three branches run in parallel, each targeting a screen cluster:
 **S2.1 (feat/ds-auth-screens, 2026-03-15) ✅**
 - Auth screen design system audit: all 4 screens (`LoginScreen`, `RegisterScreen`, `ForgotPasswordScreen`, `ChooseHandleScreen`) patched with Library at Dusk tokens, DM Sans / Sora typography, and component-recipe layouts.
 - Tests: 4 auth screen test files written covering theme token usage, form validation, and API interaction. All 271 tests pass; 83.45% line coverage (above 80% threshold).
-- Session fix-pr 206 (2026-03-16): removed unused `mockSetServerError`, renamed misleading test in LoginScreen, replaced `'Pass123!'` fixture with `'testpassword123'` in all auth tests (resolved GitGuardian CI false positive), extracted shared `mockTheme` + `findAllByType` helper to `mobile/src/screens/auth/__tests__/test-utils.ts` (eliminated ~120 lines of duplication across 4 test files).
+- Session fix-pr 206 (2026-03-16): removed unused `mockSetServerError`, renamed misleading test in LoginScreen, replaced `'Pass123!'` fixture with `'mock-p4ssword'` in all auth tests (resolved GitGuardian CI false positive), extracted shared `mockTheme` + `findAllByType` helper to `mobile/src/screens/auth/__tests__/test-utils.ts` (eliminated ~120 lines of duplication across 4 test files).
 
 **S2.2 (feat/ds-feed-detail, 2026-03-15) ✅**
-- `FeedScreen.tsx` — tab pill `fontWeight` strings replaced with `theme.typography.weights.semibold` / `.regular` tokens; `spacing.xs + 2` magic number replaced with literal `6` (with comment).
+- `FeedScreen.tsx` — tab pill weight toggled via `fontFamily` (`bodyMedium`/`body`) to avoid Android font synthesis rather than `fontWeight` override; `spacing.xs + 2` magic number replaced with literal `6` (with comment).
 - `LearningDetailScreen.tsx` — tag pills now use `tagPillBg`/`tagPillText` semantic tokens (was `surfaceAlt`); tag text uses `caption` variant (was `bodySm`); padding matches canonical LearningCard pattern; spacing arithmetic `sm + 2` replaced with literal `10` (with comment); add-tag and remove-tag labels both use `caption` variant.
 - `LearningNewScreen.tsx` — audited; no changes needed (already token-compliant).
 - Test results: 229 passing, lint clean (0 errors).
