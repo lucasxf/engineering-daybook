@@ -2,7 +2,7 @@
 # Compiled by /compile-metrics, analyzed by automation-sentinel agent
 
 [metadata]
-timestamp = "2026-03-15T13:22:27Z"
+timestamp = "2026-03-16T22:49:43Z"
 commit_sha = ""
 branch = "develop"
 schema_version = "1.0.0"
@@ -10,7 +10,7 @@ updated_by = "compile-metrics"
 
 # Agent Usage Metrics
 [agent_usage.Explore]
-invocations = 88
+invocations = 90
 last_used = "2026-03-15T11:47:02Z"
 
 [agent_usage.Plan]
@@ -18,12 +18,12 @@ invocations = 12
 last_used = "2026-03-13T14:33:19Z"
 
 [agent_usage.general-purpose]
-invocations = 64
+invocations = 65
 last_used = "2026-03-15T13:13:49Z"
 
 [agent_usage.automation-sentinel]
-invocations = 5
-last_used = "2026-03-12T11:59:30Z"
+invocations = 6
+last_used = "2026-03-15T13:48:11Z"
 
 [agent_usage.hedy]
 invocations = 2
@@ -62,16 +62,16 @@ invocations = 0
 last_used = ""
 
 [agent_usage.keepr]
-invocations = 3
+invocations = 5
 last_used = "2026-03-15T11:17:23Z"
 
 # Command Usage Metrics
 [command_usage.compile-metrics]
-invocations = 15
-last_used = "2026-03-15T13:21:28Z"
+invocations = 17
+last_used = "2026-03-16T22:45:20Z"
 
 [command_usage.create-pr]
-invocations = 29
+invocations = 30
 last_used = "2026-03-15T12:01:12Z"
 
 [command_usage.directive]
@@ -79,12 +79,12 @@ invocations = 1
 last_used = "2026-03-06T18:44:46Z"
 
 [command_usage.finish-session]
-invocations = 54
+invocations = 56
 last_used = "2026-03-15T13:15:19Z"
 
 [command_usage.fix-pr]
-invocations = 13
-last_used = "2026-03-15T12:55:24Z"
+invocations = 18
+last_used = "2026-03-16T22:17:58Z"
 
 [command_usage.generate-v0-prompt]
 invocations = 8
@@ -95,15 +95,15 @@ invocations = 6
 last_used = "2026-03-08T09:44:25Z"
 
 [command_usage.review-pr]
-invocations = 15
-last_used = "2026-03-15T12:44:26Z"
+invocations = 21
+last_used = "2026-03-16T22:07:47Z"
 
 [command_usage.save-response]
-invocations = 5
-last_used = "2026-03-11T21:33:52Z"
+invocations = 6
+last_used = "2026-03-16T21:09:23Z"
 
 [command_usage.start-session]
-invocations = 34
+invocations = 40
 last_used = "2026-03-15T12:52:45Z"
 
 [command_usage.write-spec]
@@ -139,24 +139,34 @@ last_used = ""
 
 # Productivity Metrics
 
+
+[agent_usage.claude-code-guide]
+invocations = 1
+last_used = "2026-03-15T10:41:44Z"
+
+
+[command_usage.mobile-design-system]
+invocations = 1
+last_used = "2026-03-15T11:52:45Z"
+
 [productivity]
-current_total_locs = 58069
-current_production_locs = 26957
-current_test_locs = 31112
-test_ratio_percent = 115.4
+current_total_locs = 59811
+current_production_locs = 26953
+current_test_locs = 32858
+test_ratio_percent = 121.9
 total_locs_added = 0
 total_locs_deleted = 0
 net_locs = 0
 
 # PR Review Quality Metrics
 [pr_review_quality]
-total_prs_triaged = 6
-total_comments_triaged = 40
-accepted = 29
+total_prs_triaged = 15
+total_comments_triaged = 83
+accepted = 54
 rejected = 0
-deferred = 2
+deferred = 9
 questions = 0
-informational = 9
+informational = 20
 
 # Spec Pipeline Health
 # NOTE: approved = 0 is EXPECTED — /review-spec was created AFTER all 19 implemented specs were written.
@@ -172,5 +182,5 @@ implemented = 19
 # Health Metrics
 [health]
 schema_errors = 0
-total_agents = 14
-total_commands = 12
+total_agents = 15
+total_commands = 13
