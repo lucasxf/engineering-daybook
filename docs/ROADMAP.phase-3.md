@@ -125,23 +125,36 @@
 - Test results: 179 passing, 80.92% line coverage (above 80% threshold).
 
 **S1.2 (feat/ds-input-card-avatar, 2026-03-15) ✅** (PR #202)
-- `TextInput.tsx` — Library at Dusk input styling applied: `inputBg`, `inputBorder`, `inputPlaceholder` tokens wired; border-radius and padding aligned to design system.
-- `Card.tsx` — surface color and shadow updated to Library at Dusk palette.
-- `Avatar.tsx` — initials font updated to Sora_600SemiBold; `fontWeight` conflict removed (weight baked into variant name).
-- Tests extended for new token usage. Test results: passing, above 80% threshold.
+- `TextInput.tsx` — Library at Dusk token wiring: `inputBg`, `inputBorder`, `inputPlaceholder` applied; DM Sans font family set; focused border uses `colors.primary`; error state border uses `colors.error`.
+- `Card.tsx` — background uses `colors.surface`; shadow tokens applied for elevation; border radius updated to match design language.
+- `Avatar.tsx` — initials font updated to Sora_600SemiBold; `fontWeight` conflict removed (weight baked into variant name); placeholder uses `colors.tagPillBg` / `colors.tagPillText`.
+- Tests extended with token assertions; test results: 204 passing, 81.2% line coverage (above 80% threshold).
 
 **S1.3 (feat/ds-markdown-feedcomps, 2026-03-15) ✅**
-- `MarkdownContent.tsx` — heading font updated to Sora_600SemiBold; `fontWeight` conflict removed per Android font synthesis fix.
+- `MarkdownContent.tsx` — `contentBody` token wired for prose text color; heading font updated to Sora_600SemiBold; `fontWeight` conflict removed per Android font synthesis fix; code block background uses `colors.inputBg`.
 - Feed components (`LearningCard`, `LearningForm`) — Library at Dusk tokens applied throughout; `StyleSheet.create` blocks replaced with inline style objects per convention; all values remain token-derived.
-- Tests extended. Test results: passing, above 80% threshold.
+- Tests extended; all 3 Wave 1 PRs (#201 S1.1, #202 S1.2, S1.3 merged — 2026-03-15).
 
-### Wave 2 — DS Screen Patches (step 3, continued)
+### Wave 2 — DS Screen Patches (step 4)
 
-**S2.1 (feat/ds-auth-screens) ⏳ Pending**
-- Targets: `LoginScreen.tsx`, `RegisterScreen.tsx`, `ForgotPasswordScreen.tsx`, `ChooseHandleScreen.tsx`
+Three branches run in parallel, each targeting a screen cluster:
 
-**S2.2 (feat/ds-feed-detail) ⏳ Pending**
-- Targets: `FeedScreen.tsx`, `LearningNewScreen.tsx`, `LearningDetailScreen.tsx`
+| Branch | Screens | Status |
+|--------|---------|--------|
+| `feat/ds-auth-screens` | LoginScreen, RegisterScreen, ForgotPasswordScreen, ChooseHandleScreen | ✅ Done (2026-03-15) |
+| `feat/ds-feed-detail` | FeedScreen, LearningDetailScreen, LearningNewScreen | ✅ Done (2026-03-15) |
+| `feat/ds-profile-discover` | ProfileScreen, DiscoverScreen, LearnerProfileScreen | ✅ Done (2026-03-15) |
+
+**S2.1 (feat/ds-auth-screens, 2026-03-15) ✅**
+- Auth screen design system audit: all 4 screens (`LoginScreen`, `RegisterScreen`, `ForgotPasswordScreen`, `ChooseHandleScreen`) patched with Library at Dusk tokens, DM Sans / Sora typography, and component-recipe layouts.
+- Tests: 4 auth screen test files written covering theme token usage, form validation, and API interaction. All 271 tests pass; 83.45% line coverage (above 80% threshold).
+- Session fix-pr 206 (2026-03-16): removed unused `mockSetServerError`, renamed misleading test in LoginScreen, replaced `'Pass123!'` fixture with `'testpassword123'` in all auth tests (resolved GitGuardian CI false positive), extracted shared `mockTheme` + `findAllByType` helper to `mobile/src/screens/auth/__tests__/test-utils.ts` (eliminated ~120 lines of duplication across 4 test files).
+
+**S2.2 (feat/ds-feed-detail, 2026-03-15) ✅**
+- `FeedScreen.tsx` — tab pill `fontWeight` strings replaced with `theme.typography.weights.semibold` / `.regular` tokens; `spacing.xs + 2` magic number replaced with literal `6` (with comment).
+- `LearningDetailScreen.tsx` — tag pills now use `tagPillBg`/`tagPillText` semantic tokens (was `surfaceAlt`); tag text uses `caption` variant (was `bodySm`); padding matches canonical LearningCard pattern; spacing arithmetic `sm + 2` replaced with literal `10` (with comment); add-tag and remove-tag labels both use `caption` variant.
+- `LearningNewScreen.tsx` — audited; no changes needed (already token-compliant).
+- Test results: 229 passing, lint clean (0 errors).
 
 **S2.3 (feat/ds-profile-discover, 2026-03-15) ✅**
 - Audited 4 files against the Library at Dusk design system skill.

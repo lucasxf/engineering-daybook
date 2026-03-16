@@ -363,6 +363,19 @@ Mobile Wave 1 step 3: wired new Library at Dusk semantic tokens into markdown, f
 
 Wave 1 complete: S1.1 (PR #201) + S1.2 (PR #202) + S1.3 (this branch) all done. Next: Wave 2 screen patches.
 
+### S2.1 — Auth Screens Design System Audit (feat/ds-auth-screens, 2026-03-15) ✅
+
+Wave 2 screen patches (S2.1): auth screens confirmed conformant with Library at Dusk tokens.
+
+| Area | Change |
+|------|--------|
+| `ChooseHandleScreen.tsx` | Removed unused `useNavigation` import (ESLint fix) |
+| `ForgotPasswordScreen.tsx` | Added success message border (`borderWidth: 1, borderColor: theme.colors.success`) |
+| `jest.config.js` | Added `screens` jest project (node env); excluded `screens/` from `rn` project |
+| `src/__mocks__/react-native.js` | Extended with ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator, Modal |
+| `src/__mocks__/react-native-safe-area-context.js` | New mock for SafeAreaView |
+| Tests | 42 new tests across 4 auth screen test files (LoginScreen, RegisterScreen, ForgotPasswordScreen, ChooseHandleScreen); 271 total, 82.82% coverage |
+
 ### PR #205 Review Fixes (fix-pr/205, 2026-03-15) ✅
 
 Mobile-only fix-pr session for PR #205 (feat(mobile): Wave 1 design system — Library at Dusk primitives migration). No new milestones. Three correctness fixes addressing font synthesis, magic number documentation, and fragile test mock paths.
@@ -421,7 +434,7 @@ Web-only fix-pr session for PR #187 (feat: implement View Learning screen with d
 
 ⏳ Pending: Author using app for 1+ week (Phase 1 exit criterion)
 
-Mobile design system migration progress (Wave 1): S0.1 ✅, S1.1 ✅, S1.2 ✅, S1.3 ✅ — Wave 1 complete. Wave 2 (screen patches) pending.
+Mobile design system migration progress (Wave 2): S2.1 ✅ (feat/ds-auth-screens) — auth screens done. Next: S2.2 (feat/ds-feed-detail), S2.3 (feat/ds-profile-discover).
 
 ---
 

@@ -168,6 +168,8 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
 
 - **Gradle: "Could not set unknown property 'enableBundleCompression'"** — Occurs when EAS resolves a newer React Native Gradle plugin (RN 0.77+) during build while `package.json` still pins RN 0.76. The `enableBundleCompression` property was removed in the RN 0.77 Gradle plugin. Fix: upgrade all packages to Expo SDK 53 expected versions (React 18→19, RN 0.76→0.79). Use `npm install --legacy-peer-deps` rather than `expo install --check`, which itself fails with ERESOLVE on SDK 53. (Added 2026-03-08)
 
+- **Detail screen tag pills must use `tagPillBg`/`tagPillText` tokens and `caption` text variant — not `surfaceAlt`/`bodySm`:** The canonical tag pill pattern (established in `LearningCard.tsx`) uses the `tagPillBg` and `tagPillText` semantic tokens for background and text colour, and renders the label using the `caption` Text variant. Using `surfaceAlt` for the pill background or `bodySm` for the text produces a visible mismatch between the feed card and the detail screen. This applies to both the read-mode tag chips and the inline add-tag / remove-tag controls in `LearningDetailScreen`. (Added 2026-03-15)
+
 - **EAS `npm ci` fails with ERESOLVE** — EAS runs `npm ci` (strict lockfile mode) on the build server. Two common causes: (1) `react-test-renderer` is on a different major version than `react` (e.g., `react@19` + `react-test-renderer@18`); (2) peer dep conflicts that local `npm install --legacy-peer-deps` masks. Fix: (a) ensure `react-test-renderer` version matches `react` version exactly; (b) create `mobile/.npmrc` with `legacy-peer-deps=true` so that EAS's `npm ci` uses legacy resolution — EAS copies `.npmrc` from the repo into the build environment. Without `.npmrc`, the build server uses npm defaults (strict), diverging from the local install. (Added 2026-03-08)
 
 - **`eas init` requires local `eas-cli` install before `npx eas init`** — Running `npx eas init` without a prior local install fails because npx cannot locate the binary in ephemeral environments. Fix: run `npm install eas-cli` inside the `mobile/` directory first to add it to `node_modules/.bin/`, then run `npx eas init`. (Added 2026-03-08)
@@ -176,6 +178,39 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
 
 - **Expo Google Fonts + fontWeight conflict triggers Android font synthesis:** When using weight-specific Google Font variants (e.g., `Sora_600SemiBold`, `DMSans_500Medium`), the font weight is baked into the filename. Setting a conflicting `fontWeight` in the React Native style prop (e.g., `fontWeight: '700'` on a `600SemiBold` font) causes Android to synthesize the requested weight, producing incorrect and often ugly rendering. Fix: omit `fontWeight` when using weight-specific font variants, or use a `fontWeight` that exactly matches the weight in the filename. Applied in Wave 1 design system migration (Text.tsx title/subheading, MarkdownContent.tsx headings, Avatar.tsx initials). (Added 2026-03-15)
 
+- **`findAllByType` must check both string type and function name when mocking components:** When mock factories return named functions (e.g., `Button: (props) => ...`), the React element's `el.type` is the function itself — not the string `'Button'`. Arrow functions assigned to object properties get their name inferred from the property key in modern JS (e.g., `{ Button: (props) => null }` creates a function whose `.name` is `'Button'`). A `findAllByType(tree, 'Button')` check that only tests `el.type === type` will miss all such elements. Fix: check both conditions — `el.type === type || (el.type as any)?.name === type`. This applies to any traversal helper used with jest.mock factories. (Added 2026-03-15)
+
+  ```ts
+  function findAllByType(element: any, type: string): any[] {
+    const results: any[] = [];
+    function walk(el: any) {
+      if (!el || typeof el !== 'object') return;
+      if (el.type === type || (el.type as any)?.name === type) results.push(el);
+      [el.props?.children].flat().forEach(walk);
+    }
+    walk(element);
+    return results;
+  }
+  ```
+
+- **`jest.mock()` callCount for `useState` sequencing must live at module scope, not inside the factory closure:** When a factory closure manages a `callCount` variable internally, it persists across tests but cannot be reset from `beforeEach` — the variable is inaccessible from outside the closure. Fix: declare `let mockStateCallCount = 0` at module scope (the `mock` prefix satisfies Jest's hoisting exception for referenced variables). The factory closure then captures the module-scope variable, and `beforeEach` can reset it between tests. This pattern is required for any mock that sequences React `useState` calls differently per test (e.g., loading state on call 1, error state on call 2). (Added 2026-03-15)
+
+  ```ts
+  // at module scope — Jest hoisting exception allows 'mock'-prefixed vars
+  let mockStateCallCount = 0;
+
+  jest.mock('react', () => ({
+    ...jest.requireActual('react'),
+    useState: (init: any) => {
+      mockStateCallCount++;
+      if (mockStateCallCount === 2) return [true, jest.fn()]; // e.g. loading=true on call 2
+      return [init, jest.fn()];
+    },
+  }));
+
+  beforeEach(() => { mockStateCallCount = 0; });
+  ```
+
 ---
 
-*Last updated: 2026-03-15 (session: fix-pr/205 — Wave 1 PR review fixes: font synthesis, magic number comments, mock paths)*
+*Last updated: 2026-03-15 (session: feat/ds-feed-detail — S2.2: FeedScreen + LearningDetailScreen token compliance)*
