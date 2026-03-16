@@ -52,37 +52,7 @@ export function DiscoverScreen() {
     navigation.setOptions({ title: t('discover.title') });
   }, [navigation, t]);
 
-  const styles = StyleSheet.create({
-    safeArea: {
-      flex: 1,
-      backgroundColor: theme.colors.background,
-    },
-    container: {
-      flex: 1,
-    },
-    searchContainer: {
-      paddingHorizontal: theme.spacing.md,
-      paddingTop: theme.spacing.md,
-      paddingBottom: theme.spacing.sm,
-    },
-    contentContainer: {
-      flex: 1,
-    },
-    centeredFeedback: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingHorizontal: theme.spacing.lg,
-    },
-    listContent: {
-      paddingBottom: theme.spacing.lg,
-    },
-    separator: {
-      height: StyleSheet.hairlineWidth,
-      backgroundColor: theme.colors.border,
-      marginHorizontal: theme.spacing.md,
-    },
-  });
+  const separatorHeight = StyleSheet.hairlineWidth;
 
   function handleCardPress(handle: string) {
     navigation.navigate('LearnerProfile', { handle });
@@ -104,7 +74,15 @@ export function DiscoverScreen() {
   }
 
   function renderSeparator() {
-    return <View style={styles.separator} />;
+    return (
+      <View
+        style={{
+          height: separatorHeight,
+          backgroundColor: theme.colors.border,
+          marginHorizontal: theme.spacing.md,
+        }}
+      />
+    );
   }
 
   function keyExtractor(item: LearnerSearchResult) {
@@ -115,10 +93,17 @@ export function DiscoverScreen() {
   // Content area
   // ---------------------------------------------------------------------------
 
+  const centeredFeedback = {
+    flex: 1,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    paddingHorizontal: theme.spacing.lg,
+  };
+
   function renderContent() {
     if (query.length < 2) {
       return (
-        <View style={styles.centeredFeedback}>
+        <View style={centeredFeedback}>
           <Text variant="body" color={theme.colors.textSecondary}>
             {t('discover.minCharsPrompt')}
           </Text>
@@ -128,7 +113,7 @@ export function DiscoverScreen() {
 
     if (loading) {
       return (
-        <View style={styles.centeredFeedback}>
+        <View style={centeredFeedback}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
         </View>
       );
@@ -136,7 +121,7 @@ export function DiscoverScreen() {
 
     if (error != null) {
       return (
-        <View style={styles.centeredFeedback}>
+        <View style={centeredFeedback}>
           <ErrorMessage message={t('discover.loadError')} />
         </View>
       );
@@ -144,7 +129,7 @@ export function DiscoverScreen() {
 
     if (results.length === 0) {
       return (
-        <View style={styles.centeredFeedback}>
+        <View style={centeredFeedback}>
           <Text variant="body" color={theme.colors.textSecondary}>
             {t('discover.noResults')}
           </Text>
@@ -158,16 +143,25 @@ export function DiscoverScreen() {
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         ItemSeparatorComponent={renderSeparator}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={{ paddingBottom: theme.spacing.lg }}
         keyboardShouldPersistTaps="handled"
       />
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
-      <View style={styles.container}>
-        <View style={styles.searchContainer}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: theme.colors.background }}
+      edges={['bottom', 'left', 'right']}
+    >
+      <View style={{ flex: 1 }}>
+        <View
+          style={{
+            paddingHorizontal: theme.spacing.md,
+            paddingTop: theme.spacing.md,
+            paddingBottom: theme.spacing.sm,
+          }}
+        >
           <TextInput
             value={query}
             onChangeText={setQuery}
@@ -179,7 +173,7 @@ export function DiscoverScreen() {
             clearButtonMode="while-editing"
           />
         </View>
-        <View style={styles.contentContainer}>{renderContent()}</View>
+        <View style={{ flex: 1 }}>{renderContent()}</View>
       </View>
     </SafeAreaView>
   );
