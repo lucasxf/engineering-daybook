@@ -437,12 +437,20 @@ Read: .claude/templates/review-pr-report.md
 
 Write the triage report to `$TRIAGE_FILE` using the Write tool (not bash redirection), following that structure.
 
-After saving, confirm to the user:
+After saving, confirm to the user with an outcome-appropriate message:
 
+**If "Approved for implementation" has 1+ items:**
 ```
 Triage report saved → <absolute path to TRIAGE_FILE>
 
 Next step: /fix-pr $PR_NUMBER
+```
+
+**If "Approved for implementation" is empty (no action items):**
+```
+Triage report saved → <absolute path to TRIAGE_FILE>
+
+No action items — PR is ready to merge.
 ```
 
 ## Step 6.5: Extract Verdict Metrics
@@ -453,10 +461,18 @@ Parse the triage report and append verdict counts to the current session delta f
 python3 .claude/scripts/extract_triage_metrics.py "$TRIAGE_FILE"
 ```
 
-After the confirmation, output this exact closing banner so the user knows the command has finished:
+After the confirmation, output a closing banner matching the outcome:
 
+**If there are action items:**
 ```
 ---
 ✅ /review-pr complete — triage saved for PR #$PR_NUMBER
+---
+```
+
+**If there are no action items (clean LGTM):**
+```
+---
+✅ /review-pr complete — PR #$PR_NUMBER is clean, no fixes needed
 ---
 ```

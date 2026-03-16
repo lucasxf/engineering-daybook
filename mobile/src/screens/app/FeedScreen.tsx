@@ -295,14 +295,17 @@ export function FeedScreen() {
                 onPress={() => setActiveTab(tab.key)}
                 style={{
                   paddingHorizontal: theme.spacing.md,
-                  paddingVertical: theme.spacing.xs + 2,
+                  paddingVertical: 6, /* xs(4) + 2: pill vertical padding */
                   borderRadius: theme.radii.full,
                   backgroundColor: active ? theme.colors.primary : theme.colors.surfaceAlt,
                 }}
               >
                 <Text
                   variant="bodySm"
-                  style={{ fontWeight: active ? '600' : '400' }}
+                  style={{
+                    fontFamily: active ? theme.typography.fontFamily.bodyMedium : theme.typography.fontFamily.body,
+                    fontWeight: active ? theme.typography.weights.medium : theme.typography.weights.regular,
+                  }}
                   color={active ? theme.colors.textInverse : theme.colors.textSecondary}
                 >
                   {tab.label}

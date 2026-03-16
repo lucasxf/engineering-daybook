@@ -123,7 +123,46 @@
 - `ErrorMessage.tsx` — verified clean; no changes needed.
 - Tests: `Text.test.tsx` extended (fontFamily assertions for Sora/DM Sans per variant); `Button.test.tsx` extended (disabledBg/disabledText token + secondary border); `ErrorMessage.test.tsx` created (5 new tests covering null renders and theme color usage).
 - Test results: 179 passing, 80.92% line coverage (above 80% threshold).
-- **Next:** S1.2/S1.3 — parallel worktrees for input/card/avatar and markdown/feed components.
+
+**S1.2 (feat/ds-input-card-avatar, 2026-03-15) ✅** (PR #202)
+- `TextInput.tsx` — Library at Dusk token wiring: `inputBg`, `inputBorder`, `inputPlaceholder` applied; DM Sans font family set; focused border uses `colors.primary`; error state border uses `colors.error`.
+- `Card.tsx` — background uses `colors.surface`; shadow tokens applied for elevation; border radius updated to match design language.
+- `Avatar.tsx` — initials font updated to Sora_600SemiBold; `fontWeight` conflict removed (weight baked into variant name); placeholder uses `colors.tagPillBg` / `colors.tagPillText`.
+- Tests extended with token assertions; test results: 204 passing, 81.2% line coverage (above 80% threshold).
+
+**S1.3 (feat/ds-markdown-feedcomps, 2026-03-15) ✅**
+- `MarkdownContent.tsx` — `contentBody` token wired for prose text color; heading font updated to Sora_600SemiBold; `fontWeight` conflict removed per Android font synthesis fix; code block background uses `colors.inputBg`.
+- Feed components (`LearningCard`, `LearningForm`) — Library at Dusk tokens applied throughout; `StyleSheet.create` blocks replaced with inline style objects per convention; all values remain token-derived.
+- Tests extended; all 3 Wave 1 PRs (#201 S1.1, #202 S1.2, S1.3 merged — 2026-03-15).
+
+### Wave 2 — DS Screen Patches (step 4)
+
+Three branches run in parallel, each targeting a screen cluster:
+
+| Branch | Screens | Status |
+|--------|---------|--------|
+| `feat/ds-auth-screens` | LoginScreen, RegisterScreen, ForgotPasswordScreen, ChooseHandleScreen | ✅ Done (2026-03-15) |
+| `feat/ds-feed-detail` | FeedScreen, LearningDetailScreen, LearningNewScreen | ✅ Done (2026-03-15) |
+| `feat/ds-profile-discover` | ProfileScreen, DiscoverScreen, LearnerProfileScreen | ✅ Done (2026-03-15) |
+
+**S2.1 (feat/ds-auth-screens, 2026-03-15) ✅**
+- Auth screen design system audit: all 4 screens (`LoginScreen`, `RegisterScreen`, `ForgotPasswordScreen`, `ChooseHandleScreen`) patched with Library at Dusk tokens, DM Sans / Sora typography, and component-recipe layouts.
+- Tests: 4 auth screen test files written covering theme token usage, form validation, and API interaction. All 271 tests pass; 83.45% line coverage (above 80% threshold).
+- Session fix-pr 206 (2026-03-16): removed unused `mockSetServerError`, renamed misleading test in LoginScreen, replaced `'Pass123!'` fixture with `'mock-p4ssword'` in all auth tests (resolved GitGuardian CI false positive), extracted shared `mockTheme` + `findAllByType` helper to `mobile/src/screens/auth/__tests__/test-utils.ts` (eliminated ~120 lines of duplication across 4 test files).
+
+**S2.2 (feat/ds-feed-detail, 2026-03-15) ✅**
+- `FeedScreen.tsx` — tab pill weight toggled via `fontFamily` (`bodyMedium`/`body`) to avoid Android font synthesis rather than `fontWeight` override; `spacing.xs + 2` magic number replaced with literal `6` (with comment).
+- `LearningDetailScreen.tsx` — tag pills now use `tagPillBg`/`tagPillText` semantic tokens (was `surfaceAlt`); tag text uses `caption` variant (was `bodySm`); padding matches canonical LearningCard pattern; spacing arithmetic `sm + 2` replaced with literal `10` (with comment); add-tag and remove-tag labels both use `caption` variant.
+- `LearningNewScreen.tsx` — audited; no changes needed (already token-compliant).
+- Test results: 229 passing, lint clean (0 errors).
+
+**S2.3 (feat/ds-profile-discover, 2026-03-15) ✅**
+- Audited 4 files against the Library at Dusk design system skill.
+- `ProfileScreen.tsx` — fully conformant, no changes needed.
+- `AppTabs.tsx` — fully conformant, matches tab bar recipe exactly.
+- `DiscoverScreen.tsx` — fixed: replaced `StyleSheet.create` block with inline style objects (kept `StyleSheet.hairlineWidth`); all values remain token-derived.
+- `LearnerProfileScreen.tsx` — fixed: replaced `marginTop` on retry Button with `gap` on parent View (convention alignment).
+- Test results: 230 passing, 84.21% line coverage (above 80% threshold). Commit: `18dda74`.
 
 ---
 

@@ -1,13 +1,20 @@
 /**
- * Minimal react-native mock for the 'components' jest project.
- * This project uses node environment to avoid jest-expo setup.js failures on Node 22 + RN 0.76.
+ * Minimal react-native mock for the 'components' and 'screens' jest projects.
+ * These projects use node environment to avoid jest-expo setup.js failures on Node 22 + RN 0.76.
  */
 const React = require('react');
 
 const Text = ({ children, testID }) =>
   React.createElement('span', { 'data-testid': testID }, children);
 
-const View = ({ children }) => React.createElement('div', null, children);
+const View = ({ children, style }) =>
+  React.createElement('div', { style }, children);
+
+const ScrollView = ({ children, contentContainerStyle }) =>
+  React.createElement('div', { style: contentContainerStyle }, children);
+
+const KeyboardAvoidingView = ({ children, style }) =>
+  React.createElement('div', { style }, children);
 
 const Pressable = ({ children, onPress, accessibilityRole, accessibilityLabel, style }) =>
   React.createElement(
@@ -28,4 +35,23 @@ const Image = ({ testID, accessibilityLabel, source, ...props }) => {
   return React.createElement('img', { 'data-testid': testID, 'aria-label': accessibilityLabel, src, ...props });
 };
 
-module.exports = { Text, View, Pressable, StyleSheet, TextInput, Image };
+const ActivityIndicator = () => React.createElement('span', null, 'loading');
+
+const Modal = ({ children, visible }) =>
+  visible ? React.createElement('div', { role: 'dialog' }, children) : null;
+
+const Platform = { OS: 'ios', select: (obj) => obj.ios ?? obj.default };
+
+module.exports = {
+  Text,
+  View,
+  ScrollView,
+  KeyboardAvoidingView,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  Image,
+  ActivityIndicator,
+  Modal,
+  Platform,
+};

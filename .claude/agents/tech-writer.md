@@ -154,10 +154,6 @@ export function usePoks() {
 - **Relationship:** Reviewer checks for missing docs → tech-writer fills gaps
 - **Workflow:** Review finds "missing OpenAPI docs" → tech-writer adds them
 
-### session-optimizer
-- **Relationship:** Optimizer recommends doc updates → tech-writer executes
-- **Workflow:** At session end, optimizer suggests "Update ROADMAP.md" → tech-writer does it
-
 ---
 
 ## Learning Routing — Where to Write Captured Learnings
