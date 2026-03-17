@@ -36,7 +36,7 @@ The mobile app was built against the original 2-tier visibility model (`PRIVATE`
 
 - [ ] **FR1** `[Must Have]` The duplicate `PokVisibility` type declaration in `mobile/src/lib/auth.ts` is removed. All consumers that currently import `PokVisibility` from `auth.ts` are updated to import it from `pokApi.ts` instead. No runtime behaviour changes.
 
-- [ ] **FR2** `[Must Have]` A new shared `VisibilityPicker` component (`mobile/src/components/ui/VisibilityPicker.tsx`) renders a vertical list of 4 tappable option rows: `PRIVATE`, `FOLLOWERS_ONLY`, `COLLEAGUES_ONLY`, `PUBLIC`. Each row shows an icon, a short label, and a one-line description. The currently selected option is visually highlighted.
+- [ ] **FR2** `[Must Have]` A new shared `VisibilityPicker` component (`mobile/src/components/ui/VisibilityPicker.tsx`) renders a vertical list of 4 tappable option rows: `PRIVATE`, `COLLEAGUES_ONLY`, `FOLLOWERS_ONLY`, `PUBLIC` (ordered from most to least restrictive — colleagues = mutual follows = smaller set than followers). Each row shows an icon, a short label, and a one-line description. The currently selected option is visually highlighted.
 
 - [ ] **FR3** `[Must Have]` `LearningNewScreen` replaces the inline 2-button row with the shared `VisibilityPicker`. The initial value is read from `user.defaultPokVisibility` (via `useAuth`). If `defaultPokVisibility` is absent or unrecognised it falls back to `'PRIVATE'`.
 
@@ -138,7 +138,7 @@ interface VisibilityPickerProps {
 ```
 
 Rendering contract:
-- 4 rows in order: `PRIVATE`, `FOLLOWERS_ONLY`, `COLLEAGUES_ONLY`, `PUBLIC`
+- 4 rows in order: `PRIVATE`, `COLLEAGUES_ONLY`, `FOLLOWERS_ONLY`, `PUBLIC`
 - Each row: icon (emoji or vector) + translated label + translated description
 - Selected row: highlighted border + background (`theme.colors.primary` / `theme.colors.surfaceAlt`)
 - Disabled row: `opacity: 0.4`, `accessibilityState={{ disabled: true }}`, no `onPress`
@@ -195,7 +195,7 @@ instead of a `Button` row, while the `profileVisibility` block keeps the existin
 
 **Purpose:** Shared 4-tier picker used in LearningNewScreen, LearningDetailScreen (edit), and ProfileScreen (default visibility).
 
-**Layout:** Vertical list of 4 tappable rows. Each row: `[icon] [label]\n[description]`. Selected row has highlighted border + background. Disabled rows are faded (`opacity: 0.4`).
+**Layout:** Vertical list of 4 tappable rows in order: PRIVATE, COLLEAGUES_ONLY, FOLLOWERS_ONLY, PUBLIC. Each row: `[icon] [label]\n[description]`. Selected row has highlighted border + background. Disabled rows are faded (`opacity: 0.4`).
 
 **Components:** `TouchableOpacity` per row, `Text` (label + description), `VisibilityBadge` (icon).
 
@@ -246,8 +246,8 @@ instead of a `Button` row, while the `profileVisibility` block keeps the existin
 
 **States:**
 - Current visibility `PRIVATE`: all 4 options enabled
-- Current visibility `FOLLOWERS_ONLY`: `PRIVATE` disabled
-- Current visibility `COLLEAGUES_ONLY`: `PRIVATE`, `FOLLOWERS_ONLY` disabled
+- Current visibility `COLLEAGUES_ONLY`: `PRIVATE` disabled
+- Current visibility `FOLLOWERS_ONLY`: `PRIVATE`, `COLLEAGUES_ONLY` disabled
 - Current visibility `PUBLIC`: picker hidden; locked badge shown
 
 **i18n:** `learnings.visibility.lockedPublic`, `learnings.visibility.publicWarning`.
@@ -350,11 +350,11 @@ Existing keys that remain unchanged: `private`, `public`, `pickerLabel`, `public
 **WHEN** the visibility picker is shown
 **THEN** all 4 tier options are selectable
 
-### AC8: Edit learning — `FOLLOWERS_ONLY` and lower tiers disabled when current is `COLLEAGUES_ONLY`
+### AC8: Edit learning — `PRIVATE` disabled when current is `COLLEAGUES_ONLY`
 **GIVEN** I have a `COLLEAGUES_ONLY` learning and enter edit mode
 **WHEN** the visibility picker is shown
-**THEN** `PRIVATE` and `FOLLOWERS_ONLY` options are rendered as disabled and non-tappable
-**AND** `COLLEAGUES_ONLY` and `PUBLIC` options are selectable
+**THEN** the `PRIVATE` option is rendered as disabled and non-tappable
+**AND** `COLLEAGUES_ONLY`, `FOLLOWERS_ONLY`, and `PUBLIC` options are selectable
 
 ### AC9: Edit learning — picker hidden and locked badge shown when current visibility is `PUBLIC`
 **GIVEN** I have a `PUBLIC` learning and enter edit mode
@@ -425,8 +425,8 @@ import { Text } from '@/components/ui/Text';
 // Ordered from most restrictive to most open
 const VISIBILITY_OPTIONS: Array<{ value: PokVisibility; icon: string; labelKey: string; descKey: string }> = [
   { value: 'PRIVATE',         icon: '🔒', labelKey: 'learnings.visibility.private',       descKey: 'learnings.visibility.privateDesc' },
-  { value: 'FOLLOWERS_ONLY',  icon: '👥', labelKey: 'learnings.visibility.followersOnly',  descKey: 'learnings.visibility.followersOnlyDesc' },
   { value: 'COLLEAGUES_ONLY', icon: '🤝', labelKey: 'learnings.visibility.colleaguesOnly', descKey: 'learnings.visibility.colleaguesOnlyDesc' },
+  { value: 'FOLLOWERS_ONLY',  icon: '👥', labelKey: 'learnings.visibility.followersOnly',  descKey: 'learnings.visibility.followersOnlyDesc' },
   { value: 'PUBLIC',          icon: '🌐', labelKey: 'learnings.visibility.public',         descKey: 'learnings.visibility.publicDesc' },
 ];
 ```
@@ -459,7 +459,7 @@ const [visibility, setVisibility] = useState<PokVisibility>(
 In edit mode, compute `disabledValues` from current `pok.visibility`:
 
 ```typescript
-const TIER_ORDER: PokVisibility[] = ['PRIVATE', 'FOLLOWERS_ONLY', 'COLLEAGUES_ONLY', 'PUBLIC'];
+const TIER_ORDER: PokVisibility[] = ['PRIVATE', 'COLLEAGUES_ONLY', 'FOLLOWERS_ONLY', 'PUBLIC'];
 
 function getDisabledValues(currentVisibility: PokVisibility): PokVisibility[] {
   const currentIndex = TIER_ORDER.indexOf(currentVisibility);
@@ -497,8 +497,8 @@ Add keys to both locale files under `learnings.visibility`:
 
 - [ ] **`getDisabledValues` unit tests** (`lib` jest project — pure function, no RN):
   - `PRIVATE` → `[]` (nothing disabled)
-  - `FOLLOWERS_ONLY` → `['PRIVATE']`
-  - `COLLEAGUES_ONLY` → `['PRIVATE', 'FOLLOWERS_ONLY']`
+  - `COLLEAGUES_ONLY` → `['PRIVATE']`
+  - `FOLLOWERS_ONLY` → `['PRIVATE', 'COLLEAGUES_ONLY']`
   - `PUBLIC` → irrelevant (picker is hidden)
 
 ### File Changes
