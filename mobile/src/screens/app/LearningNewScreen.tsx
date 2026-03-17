@@ -21,7 +21,7 @@ export function LearningNewScreen() {
   const nav = useNavigation<BottomTabNavigationProp<AppTabsParamList>>();
   const [serverError, setServerError] = useState<string | null>(null);
   const [visibility, setVisibility] = useState<PokVisibility>(
-    (user?.defaultPokVisibility as PokVisibility) ?? 'PRIVATE'
+    user?.defaultPokVisibility ?? 'PRIVATE'
   );
 
   async function handleSubmit(data: PokFormData) {
