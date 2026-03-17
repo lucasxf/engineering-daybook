@@ -12,6 +12,7 @@
 - **Forms:** react-hook-form + @hookform/resolvers + zod
 - **i18n:** i18n-js 4 + expo-localization
 - **Auth storage:** expo-secure-store (tokens only)
+- **Media:** expo-image-picker (avatar upload)
 - **Testing (unit):** jest 29 + jest-expo preset (two-project config)
 - **Testing (E2E):** Maestro YAML flows (`mobile/e2e/`)
 
@@ -33,7 +34,7 @@ mobile/
     ├── contexts/
     │   ├── ThemeContext.tsx   # useTheme() — light/dark/system override
     │   ├── I18nContext.tsx    # useI18n() — locale + t()
-    │   └── AuthContext.tsx    # useAuth() — session init, setUser, logout, double-401
+    │   └── AuthContext.tsx    # useAuth() — session init, setUser, updateUser, logout, double-401
     ├── i18n/
     │   ├── i18n.ts            # i18n-js setup, resolveLocale()
     │   └── locales/en.ts, pt-BR.ts
@@ -54,7 +55,7 @@ mobile/
     │   ├── useFeedData.ts     # Paginated feed with refresh + infinite scroll
     │   └── __tests__/
     ├── components/
-    │   ├── ui/                # Text, Button, TextInput, Card, ErrorMessage
+    │   ├── ui/                # Text, Button, TextInput, Card, ErrorMessage, Avatar, AvatarPicker
     │   └── feed/              # LearningCard, LearningForm
     └── screens/
         ├── auth/              # LoginScreen, RegisterScreen, ForgotPassword, ChooseHandle
@@ -213,4 +214,4 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
 
 ---
 
-*Last updated: 2026-03-15 (session: feat/ds-feed-detail — S2.2: FeedScreen + LearningDetailScreen token compliance)*
+*Last updated: 2026-03-17 (session: feat/mobile-profile-editing — Wave 3: AvatarPicker, AuthContext.updateUser, inline display name/bio editing on ProfileScreen)*

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -7,8 +7,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Avatar } from '@/components/ui/Avatar';
-import { updateUserSettings } from '@/lib/userApi';
+import { TextInput } from '@/components/ui/TextInput';
+import { AvatarPicker } from '@/components/ui/AvatarPicker';
+import { deleteAvatar, updateUserSettings, uploadAvatar } from '@/lib/userApi';
 import type { ProfileVisibility, PokVisibility } from '@/lib/auth';
 import type { Locale } from '@/i18n/i18n';
 
@@ -17,7 +18,29 @@ type ColorSchemeOverride = 'light' | 'dark' | 'system';
 export function ProfileScreen() {
   const { theme, override, setOverride } = useTheme();
   const { t, locale, setAppLocale } = useI18n();
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
+
+  // ---------------------------------------------------------------------------
+  // Identity editing state
+  // ---------------------------------------------------------------------------
+
+  const [displayName, setDisplayName] = useState(user?.displayName ?? '');
+  const [bio, setBio] = useState(user?.bio ?? '');
+  const [displayNameSaving, setDisplayNameSaving] = useState(false);
+  const [bioSaving, setBioSaving] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+
+  // Sync local state when AuthContext user updates (e.g. after updateUser call from another screen)
+  useEffect(() => {
+    if (user) {
+      setDisplayName(user.displayName ?? '');
+      setBio(user.bio ?? '');
+    }
+  }, [user]);
+
+  // ---------------------------------------------------------------------------
+  // Privacy / visibility state
+  // ---------------------------------------------------------------------------
 
   const [profileVisibility, setProfileVisibility] = useState<ProfileVisibility>(
     user?.profileVisibility ?? 'PRIVATE'
@@ -25,6 +48,64 @@ export function ProfileScreen() {
   const [defaultPokVisibility, setDefaultPokVisibility] = useState<PokVisibility>(
     user?.defaultPokVisibility ?? 'PRIVATE'
   );
+
+  // ---------------------------------------------------------------------------
+  // Identity handlers
+  // ---------------------------------------------------------------------------
+
+  const handleDisplayNameSave = useCallback(async () => {
+    setDisplayNameSaving(true);
+    try {
+      await updateUserSettings({ displayName });
+      updateUser({ displayName });
+    } catch {
+      setDisplayName(user?.displayName ?? '');
+      Alert.alert(t('profile.saveError'));
+    } finally {
+      setDisplayNameSaving(false);
+    }
+  }, [displayName, user, updateUser, t]);
+
+  const handleBioSave = useCallback(async () => {
+    setBioSaving(true);
+    try {
+      await updateUserSettings({ bio });
+      updateUser({ bio });
+    } catch {
+      setBio(user?.bio ?? '');
+      Alert.alert(t('profile.saveError'));
+    } finally {
+      setBioSaving(false);
+    }
+  }, [bio, user, updateUser, t]);
+
+  const handleAvatarUpload = useCallback(async (uri: string, type: string, fileName: string) => {
+    setAvatarUploading(true);
+    try {
+      const { avatarUrl } = await uploadAvatar(uri, type, fileName);
+      updateUser({ avatarUrl });
+    } catch {
+      Alert.alert(t('profile.saveError'));
+    } finally {
+      setAvatarUploading(false);
+    }
+  }, [updateUser, t]);
+
+  const handleAvatarRemove = useCallback(async () => {
+    setAvatarUploading(true);
+    try {
+      await deleteAvatar();
+      updateUser({ avatarUrl: undefined });
+    } catch {
+      Alert.alert(t('profile.saveError'));
+    } finally {
+      setAvatarUploading(false);
+    }
+  }, [updateUser, t]);
+
+  // ---------------------------------------------------------------------------
+  // Privacy handlers
+  // ---------------------------------------------------------------------------
 
   async function handleProfileVisibilityChange(value: ProfileVisibility) {
     setProfileVisibility(value);
@@ -45,6 +126,10 @@ export function ProfileScreen() {
       Alert.alert(t('profile.privacy.saveError'));
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // Options
+  // ---------------------------------------------------------------------------
 
   const privacyOptions: Array<{ value: ProfileVisibility; label: string }> = [
     { value: 'PRIVATE', label: t('profile.privacy.private') },
@@ -82,26 +167,65 @@ export function ProfileScreen() {
       <ScrollView contentContainerStyle={{ padding: theme.spacing.md, gap: theme.spacing.md }}>
         <Text variant="heading">{t('profile.title')}</Text>
 
+        {/* Identity card — avatar + display name + bio */}
         {user && (
-          <Card style={{ gap: theme.spacing.sm }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.md }}>
-              <Avatar
-                avatarUrl={user.avatarUrl}
-                displayName={user.displayName ?? user.handle}
-                handle={user.handle}
-                size={56}
+          <Card style={{ gap: theme.spacing.md, alignItems: 'center' }}>
+            <AvatarPicker
+              avatarUrl={user.avatarUrl}
+              displayName={user.displayName ?? user.handle}
+              handle={user.handle}
+              size={72}
+              uploading={avatarUploading}
+              onUpload={handleAvatarUpload}
+              onRemove={handleAvatarRemove}
+            />
+
+            <Text variant="bodySm">@{user.handle}</Text>
+            <Text variant="caption">{user.email}</Text>
+
+            {/* Display name field */}
+            <View style={{ width: '100%', gap: theme.spacing.xs }}>
+              <Text variant="label">{t('profile.displayName')}</Text>
+              <TextInput
+                value={displayName}
+                onChangeText={setDisplayName}
+                placeholder={t('profile.displayNamePlaceholder')}
+                maxLength={100}
+                accessibilityLabel={t('profile.displayNamePlaceholder')}
               />
-              <View style={{ flex: 1 }}>
-                {user.displayName ? (
-                  <Text variant="label">{user.displayName}</Text>
-                ) : null}
-                <Text variant="bodySm">@{user.handle}</Text>
-                <Text variant="caption">{user.email}</Text>
-              </View>
+              <Button
+                label={displayNameSaving ? t('profile.displayNameSaving') : t('profile.displayNameSave')}
+                onPress={handleDisplayNameSave}
+                disabled={displayNameSaving}
+                fullWidth
+                accessibilityState={{ disabled: displayNameSaving }}
+                accessibilityLabel={displayNameSaving ? t('profile.displayNameSaving') : t('profile.displayNameSave')}
+              />
             </View>
-            {user.bio ? (
-              <Text variant="bodySm">{user.bio}</Text>
-            ) : null}
+
+            {/* Bio field */}
+            <View style={{ width: '100%', gap: theme.spacing.xs }}>
+              <Text variant="label">{t('profile.bio')}</Text>
+              <TextInput
+                value={bio}
+                onChangeText={setBio}
+                placeholder={t('profile.bioPlaceholder')}
+                multiline
+                maxLength={200}
+                accessibilityLabel={t('profile.bioPlaceholder')}
+              />
+              <Text variant="caption" style={{ textAlign: 'right' }}>
+                {t('profile.bioCharCount').replace('{count}', String(bio.length))}
+              </Text>
+              <Button
+                label={bioSaving ? t('profile.bioSaving') : t('profile.bioSave')}
+                onPress={handleBioSave}
+                disabled={bioSaving}
+                fullWidth
+                accessibilityState={{ disabled: bioSaving }}
+                accessibilityLabel={bioSaving ? t('profile.bioSaving') : t('profile.bioSave')}
+              />
+            </View>
           </Card>
         )}
 
