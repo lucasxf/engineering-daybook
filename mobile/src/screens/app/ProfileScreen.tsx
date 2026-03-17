@@ -8,11 +8,10 @@ import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 
-import { Avatar } from '@/components/ui/Avatar';
 import { VisibilityPicker } from '@/components/ui/VisibilityPicker';
 import { deleteAvatar, updateUserSettings, uploadAvatar } from '@/lib/userApi';
 import type { PokVisibility } from '@/lib/pokApi';
-import type { ProfileVisibility, PokVisibility } from '@/lib/auth';
+import type { ProfileVisibility } from '@/lib/auth';
 import { TextInput } from '@/components/ui/TextInput';
 import { AvatarPicker } from '@/components/ui/AvatarPicker';
 import type { Locale } from '@/i18n/i18n';

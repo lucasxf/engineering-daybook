@@ -31,19 +31,13 @@ export function getDisabledValues(currentVisibility: PokVisibility): PokVisibili
 // VisibilityBadge
 // ---------------------------------------------------------------------------
 
-const ICON_MAP: Record<PokVisibility, string> = {
-  PRIVATE: '🔒',
-  FOLLOWERS_ONLY: '👥',
-  COLLEAGUES_ONLY: '🤝',
-  PUBLIC: '🌐',
-};
+const ICON_MAP = Object.fromEntries(
+  VISIBILITY_OPTIONS.map((o) => [o.value, o.icon])
+) as Record<PokVisibility, string>;
 
-const LABEL_KEY_MAP: Record<PokVisibility, string> = {
-  PRIVATE: 'learnings.visibility.private',
-  FOLLOWERS_ONLY: 'learnings.visibility.followersOnly',
-  COLLEAGUES_ONLY: 'learnings.visibility.colleaguesOnly',
-  PUBLIC: 'learnings.visibility.public',
-};
+const LABEL_KEY_MAP = Object.fromEntries(
+  VISIBILITY_OPTIONS.map((o) => [o.value, o.labelKey])
+) as Record<PokVisibility, string>;
 
 interface VisibilityBadgeProps {
   visibility: PokVisibility;

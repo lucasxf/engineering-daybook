@@ -155,7 +155,7 @@ describe('VisibilityPicker', () => {
     const onChange = jest.fn();
     const result = VisibilityPicker({ value: 'PRIVATE', onChange });
     const rows = findAllByType(result, 'TouchableOpacity');
-    // Find the PUBLIC row (last) — not disabled
+    // Find any non-selected, non-disabled row that has an onPress — Array.find returns the first match
     const publicRow = rows.find((r: any) => r.props.accessibilityState?.selected === false && !r.props.accessibilityState?.disabled && r.props.onPress);
     expect(publicRow).toBeDefined();
     publicRow.props.onPress();
