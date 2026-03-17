@@ -1,8 +1,9 @@
 # Mobile Profile Editing
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-03-09
 > **Reviewed:** 2026-03-17
+> **Implemented:** 2026-03-17
 
 ---
 
@@ -448,12 +449,33 @@ Run under `rn` jest project (jest-expo preset).
 
 ## Post-Implementation Notes
 
-> _This section is filled AFTER implementation._
-
 ### Commits
+
+| Commit | Description |
+|--------|-------------|
+| `eb647a6` | chore: install expo-image-picker |
+| `d0a29e7` | feat: add updateUser(patch) to AuthContext |
+| `d7dfbc4` | feat: add AvatarPicker component with image pick/remove |
+| `b0810c7` | feat: add i18n keys for profile editing (EN + PT-BR) |
+| `2464217` | feat: wire profile editing into ProfileScreen |
+| `8885cb1` | test: add Maestro E2E flow for profile editing |
 
 ### Architectural Decisions
 
+1. **`jest.resetAllMocks()` over `jest.clearAllMocks()` in AvatarPicker tests** — `clearAllMocks` only resets call history but leaves `mockImplementation` in place. AvatarPicker tests set Alert mock implementations in some tests (for dialog simulation); using `resetAllMocks` prevents implementation bleed-through between tests.
+
+2. **`Alert` added to `__mocks__/react-native.js` as `jest.fn()`** — Rather than re-mocking `react-native` inline in each test file, the shared mock now exports `Alert: { alert: jest.fn() }`. Tests can spy on it directly via `Alert.alert as jest.Mock`. This is more consistent with how other RN mock exports are used across the project.
+
+3. **`useI18n()` called once (not twice)** — The initial ProfileScreen draft called `useI18n()` twice (once for `t`, once for `locale`/`setAppLocale`). Fixed to a single destructuring call per React hook rules.
+
 ### Deviations from Spec
 
+- **Maestro E2E covers only edit-displayName and edit-bio flows.** Avatar pick/remove flows require interaction with the native image picker dialog, which is not automatable via Maestro YAML without platform-specific workarounds (e.g. tapping into the iOS Photos app). The spec listed 4 flows; 2 were implemented; avatar flows are documented as manual-only.
+- **ProfileScreen test project is `screens` (node env) not `rn` (jest-expo).** The spec noted tests "run under `rn` jest project (jest-expo preset)" but the project already established that screen tests use the `screens` project (node env) to avoid jest-expo/Node 22 incompatibility. Tests were written accordingly.
+- **`profile.bioCharCount` key format uses `{count}` placeholder** rather than a runtime ICU-style replacement — consistent with how other i18n interpolation works in the project. The `t()` function in `ProfileScreen` manually calls `.replace('{count}', String(bio.length))` since i18n-js 4 doesn't auto-substitute without explicit call syntax.
+
 ### Lessons Learned
+
+- `jest.resetAllMocks()` vs `jest.clearAllMocks()`: prefer `resetAllMocks` in component test suites where any test sets a `mockImplementation` that shouldn't bleed into subsequent tests.
+- Tree traversal for component tests: React elements before mounting have `type = ComponentFunction` (not the DOM string). `findAllByType` must match by `el.type?.name` (function name inferred from variable), not the rendered DOM element type string (e.g. `'button'`). Also access props like `onPress` directly, not the DOM-translated `onClick`.
+- `jest.requireMock` called inside a `jest.mock()` factory for the same module causes infinite recursion (the factory calls itself). Fix: add items to the shared `__mocks__/react-native.js` file instead of trying to extend it inline.
