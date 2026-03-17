@@ -1,0 +1,55 @@
+appId: net.learnimo.app
+---
+# AC-8: alice removes her own re-learning from FeedScreen.
+# The card disappears optimistically without requiring a full refresh.
+#
+# Test data assumptions:
+#   - Logged-in user: test@learnimo.net / TestPass123 (handle: "alice")
+#   - "alice" has already re-learned at least one learning by "bob" — the
+#     re-learned card appears in her social feed labelled "re-learned by @alice"
+#   - Run re-learning-create.yaml first if no re-learning exists
+
+# Start fresh and log in
+- launchApp:
+    clearState: true
+
+- assertVisible: "Welcome back"
+
+- tapOn:
+    text: "Email"
+- inputText: "test@learnimo.net"
+- tapOn:
+    text: "Password"
+- inputText: "TestPass123"
+- tapOn:
+    text: "Sign in"
+
+# Verify: land on the social feed
+- assertVisible: "Feed"
+
+# Verify: alice's re-learned card is visible
+- assertVisible: "re-learned by"
+
+# Verify: Remove re-learning button is visible on alice's re-learning
+- assertVisible: "Remove re-learning"
+
+# Tap the Remove button
+- tapOn:
+    text: "Remove re-learning"
+
+- waitForAnimationToEnd:
+
+# Verify: confirmation alert appeared
+- assertVisible: "Remove re-learning?"
+
+# Verify: the confirmation message is shown
+- assertVisible: "This will remove your re-learning from your feed."
+
+# Tap the confirm Remove button in the alert
+- tapOn:
+    text: "Remove"
+
+- waitForAnimationToEnd:
+
+# Verify: the card is gone from the feed (optimistic removal)
+- assertNotVisible: "Remove re-learning"
