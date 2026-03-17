@@ -213,4 +213,4 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
 
 ---
 
-*Last updated: 2026-03-15 (session: feat/ds-feed-detail — S2.2: FeedScreen + LearningDetailScreen token compliance)*
+*Last updated: 2026-03-17 (session: feat/mobile-4-tier-visibility — Wave 4: 4-tier visibility picker across all mobile screens)*

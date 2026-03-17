@@ -428,6 +428,21 @@ Web-only fix-pr session for PR #187 (feat: implement View Learning screen with d
 | `web/src/components/view-learning/learning-markdown.test.tsx` | Added 11 tests — LearningMarkdown (plain text, bold, italic, inline-code, fenced code, h1/h2/h3, bullet list, blockquote, spacers) |
 | Line coverage | Restored from 48.1% → above 50% CI threshold (all 462 tests passing) |
 
+### Mobile 4-Tier Visibility (feat/mobile-4-tier-visibility, 2026-03-17)
+
+Wave 4 of the mobile parity execution plan: upgraded visibility model from 2-tier (PRIVATE/PUBLIC) to 4-tier (PRIVATE/COLLEAGUES_ONLY/FOLLOWERS_ONLY/PUBLIC) across all mobile screens.
+
+| Area | Change |
+|------|--------|
+| `mobile/src/lib/auth.ts` | Removed duplicate 2-tier `PokVisibility` type; added import from `pokApi.ts` (canonical 4-tier source) |
+| `mobile/src/components/ui/VisibilityPicker.tsx` | New shared component: `VisibilityPicker` (4-row picker with disabled state + public warning), `VisibilityBadge` (icon + label for any tier), `getDisabledValues` helper |
+| `mobile/src/components/ui/__tests__/VisibilityPicker.test.tsx` | 27 unit tests: all 4 badge values, onChange, disabled no-press, selected state, public warning, getDisabledValues |
+| `mobile/src/screens/app/LearningNewScreen.tsx` | Replaced 2-button picker with `VisibilityPicker`; initial value from `user.defaultPokVisibility ?? 'PRIVATE'` |
+| `mobile/src/screens/app/LearningDetailScreen.tsx` | Edit mode: `VisibilityPicker` with `getDisabledValues(pok.visibility)` + PUBLIC locked badge; read mode: `VisibilityBadge` |
+| `mobile/src/screens/app/ProfileScreen.tsx` | `defaultPokVisibility` selector replaced with `VisibilityPicker`; `profileVisibility` 2-option row unchanged |
+| `mobile/src/i18n/locales/en.ts`, `pt-BR.ts` | 7 new keys: `followersOnly`, `followersOnlyDesc`, `colleaguesOnly`, `colleaguesOnlyDesc`, `privateDesc`, `publicDesc`, `lockedPublic` |
+| Tests | 299 total (27 new), 84.42% line coverage |
+
 ### Mobile Parity Gap Analysis + Execution Plan (develop, 2026-03-16)
 
 Planning session: no code implemented. Analyzed web-mobile feature parity and produced a cross-session execution plan for closing all remaining gaps before Play Store submission.
@@ -485,7 +500,7 @@ Wave sequencing:
 
 Mobile design system migration progress (Wave 2): S2.1 ✅ S2.2 ✅ S2.3 ✅ — all Wave 2 screen migrations complete (feat/ds-auth-screens, feat/ds-feed-detail, feat/ds-profile-discover).
 
-Mobile parity gap analysis complete. Execution plan at `mobile/store-assets/mobile-parity-execution-plan.md`. Next: pre-work session (parity table corrections + 2 new specs + /review-spec all 6).
+Mobile parity execution plan progress: Wave 4 (4-tier visibility) ✅ done (feat/mobile-4-tier-visibility, 2026-03-17). Pre-work complete (2026-03-17): parity table corrected, 8 specs Approved. Next: Wave 3 (profile editing, feat/mobile-profile-editing) — required for Play Store submission.
 
 ---
 
