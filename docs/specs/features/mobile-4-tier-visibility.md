@@ -1,9 +1,9 @@
 # Mobile 4-Tier Visibility
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-03-09
 > **Reviewed:** 2026-03-17
-> **Implemented:** _pending_
+> **Implemented:** 2026-03-17
 
 ---
 
@@ -575,20 +575,24 @@ _To be filled in after implementation._
 
 ### Commits
 
-| # | Description |
-|---|-------------|
-| 1 | `fix(mobile): remove duplicate PokVisibility from auth.ts, import from pokApi.ts` |
-| 2 | `feat(mobile): add VisibilityPicker and VisibilityBadge components with 4-tier support` |
-| 3 | `feat(mobile): expand LearningNewScreen visibility picker to 4 tiers` |
-| 4 | `feat(mobile): expand LearningDetailScreen visibility picker and badge to 4 tiers` |
-| 5 | `feat(mobile): expand ProfileScreen default learning visibility to 4-tier picker` |
-| 6 | `feat(mobile/i18n): add followersOnly and colleaguesOnly visibility keys in EN and PT-BR` |
-| 7 | `test(mobile): add VisibilityPicker, VisibilityBadge and getDisabledValues unit tests` |
+| # | Hash | Description |
+|---|------|-------------|
+| 1 | c27547c | `fix(mobile): remove duplicate PokVisibility from auth.ts; import from pokApi.ts` |
+| 2 | 41ab2af | `feat(mobile/i18n): add followersOnly and colleaguesOnly visibility keys in EN and PT-BR` |
+| 3 | 23ae5ca | `feat(mobile): add VisibilityPicker and VisibilityBadge components with 4-tier support` |
+| 4 | ca5f432 | `feat(mobile): expand LearningNewScreen visibility picker to 4 tiers` |
+| 5 | 7f27246 | `feat(mobile): expand LearningDetailScreen visibility picker and badge to 4 tiers` |
+| 6 | 518c498 | `feat(mobile): expand ProfileScreen default learning visibility to 4-tier picker` |
+| 7 | 883bf58 | `fix(mobile): remove unnecessary PokVisibility cast in LearningNewScreen` |
 
 ### Architectural Decisions
 
-_To be recorded after implementation._
+- `VisibilityPicker` and `VisibilityBadge` are co-located in one file (`VisibilityPicker.tsx`) since `VisibilityBadge` is a simple inline subcomponent with no standalone use case outside the picker context.
+- `getDisabledValues` exported as a standalone pure function from the same file, making it testable in the `lib` jest project if needed and usable directly by screen code.
+- `showPublicWarning` prop defaults `false` — only `LearningNewScreen` and `LearningDetailScreen` pass it as `true`; `ProfileScreen` omits it since the default visibility preference is always reversible.
 
 ### Deviations from Spec
 
-_To be recorded after implementation._
+- **Task 6 (i18n) committed before Task 2 (component)** — spec plan ordered i18n as parallel with Tasks 2–5 but with no dependency. Committed as Task 6 before Task 2 for atomic commit hygiene (i18n keys must exist before components reference them at runtime).
+- **`accessibilityRole="button"` retained on picker rows** — spec explicitly specifies `"button"`; post-implementation review suggested `"radio"` would be more semantically accurate, but since the spec mandates `"button"` it was preserved for now.
+- **Cast removed** — `(user?.defaultPokVisibility as PokVisibility)` was an unnecessary cast (type is already correct after Task 1 changes); removed in a follow-up commit after post-implementation review.
