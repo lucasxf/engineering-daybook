@@ -223,6 +223,39 @@ export default {
     },
   },
 
+  // Re-learnings
+  relearnings: {
+    relearn: 'Re-aprender',
+    relearned: 'Re-aprendido',
+    remove: 'Remover re-aprendizado',
+    removeConfirmTitle: 'Remover re-aprendizado?',
+    removeConfirmMessage: 'Isso removerá seu re-aprendizado do seu feed.',
+    removeConfirmOk: 'Remover',
+    removeConfirmCancel: 'Cancelar',
+    attributedTo: 'Originalmente por @{handle}',
+    modal: {
+      title: 'Re-aprender este aprendizado',
+      originalPreview: 'Aprendizado original',
+      noteLabel: 'Nota pessoal (opcional)',
+      notePlaceholder: 'Adicione seu contexto…',
+      noteHint: 'Isso não modifica o original',
+      charCounter: '{current} / {max}',
+      charCounterLabel: '{current} de {max} caracteres',
+      visibilityLabel: 'Quem pode ver seu re-aprendizado?',
+      confirm: 'Re-aprender',
+      cancel: 'Cancelar',
+      close: 'Fechar',
+      errorDuplicate: 'Você já re-aprendeu isso',
+      errorGeneric: 'Algo deu errado. Tente novamente.',
+    },
+    visibility: {
+      private: 'Privado',
+      colleaguesOnly: 'Apenas colegas',
+      followersOnly: 'Apenas seguidores',
+      public: 'Público',
+    },
+  },
+
   common: {
     loading: 'Carregando…',
     retry: 'Tentar novamente',

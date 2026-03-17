@@ -1,0 +1,114 @@
+appId: net.learnimo.app
+---
+# AC-1 + AC-2: alice re-learns bob's PUBLIC learning from LearnerProfileScreen,
+# then verifies it appears in alice's feed after pull-to-refresh.
+#
+# Test data assumptions:
+#   - Logged-in user: test@learnimo.net / TestPass123 (handle: "alice")
+#   - Another learner with handle "bob" exists with a public profile and at
+#     least one PUBLIC learning titled "My First Learning"
+#   - "alice" does NOT already follow "bob" at the start (optional — profile
+#     learnings are still visible for public profiles)
+#   - "alice" has NOT already re-learned "My First Learning" (delete any
+#     existing re-learning before running this flow)
+
+# Start fresh and log in
+- launchApp:
+    clearState: true
+
+- assertVisible: "Welcome back"
+
+- tapOn:
+    text: "Email"
+- inputText: "test@learnimo.net"
+- tapOn:
+    text: "Password"
+- inputText: "TestPass123"
+- tapOn:
+    text: "Sign in"
+
+# Verify: land on the social feed
+- assertVisible: "Feed"
+
+# Navigate to Discover to reach bob's profile
+- tapOn:
+    text: "🔍"
+
+- assertVisible: "Discover Learners"
+
+- tapOn:
+    text: "Search by name or handle"
+- inputText: "bo"
+
+- waitForAnimationToEnd:
+
+# Tap bob's card to go to his profile
+- tapOn:
+    text: "@bob"
+
+- waitForAnimationToEnd:
+
+# Verify: bob's profile is shown
+- assertVisible: "@bob"
+
+# Verify: the public learning is visible
+- assertVisible: "My First Learning"
+
+# Verify: Re-learn button is visible on the learning card
+- assertVisible: "Re-learn"
+
+# Tap Re-learn on the learning card
+- tapOn:
+    text: "Re-learn"
+
+- waitForAnimationToEnd:
+
+# Verify: ReLearningModal is open
+- assertVisible: "Re-learn this learning"
+
+# Verify: original preview is shown
+- assertVisible: "Original learning"
+
+# Verify: note field is present
+- assertVisible: "Personal note (optional)"
+
+# Verify: visibility picker is visible
+- assertVisible: "Who can see your re-learning?"
+
+# Type a personal note
+- tapOn:
+    text: "Add your own context…"
+- inputText: "This is very useful for my work"
+
+# Verify: character counter updates
+- assertVisible: "30 / 500"
+
+# Tap the confirm button
+- tapOn:
+    text: "Re-learn"
+    index: 1
+
+- waitForAnimationToEnd:
+
+# Verify: modal closed (title no longer visible)
+- assertNotVisible: "Re-learn this learning"
+
+# Verify: button label changed to Re-learned on the profile card
+- assertVisible: "Re-learned"
+
+# Navigate back to the social feed
+- tapOn:
+    text: "Feed"
+
+# Pull to refresh
+- scroll:
+    direction: DOWN
+    speed: SLOW
+    startX: 50%
+    startY: 30%
+    endY: 80%
+
+- waitForAnimationToEnd:
+
+# Verify: the re-learned card appears in the feed (attributed to bob)
+- assertVisible: "re-learned by"

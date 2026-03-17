@@ -134,3 +134,47 @@ export function searchLearners(
   if (params?.size !== undefined) search.set('size', String(params.size));
   return apiFetch<LearnerSearchPage>(`/learners/search?${search.toString()}`, {}, signal);
 }
+
+// ---------------------------------------------------------------------------
+// Re-learning (share) types and functions
+// ---------------------------------------------------------------------------
+
+export interface ShareLearningRequest {
+  note?: string | null;
+  visibility: PokVisibility;
+}
+
+/**
+ * Create a re-learning of another user's PUBLIC learning.
+ * POST /api/v1/poks/{pokId}/share
+ */
+export function shareLearning(
+  pokId: string,
+  body: ShareLearningRequest
+): Promise<PokShare> {
+  return apiFetch<PokShare>(`/poks/${pokId}/share`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+/**
+ * Remove a re-learning.
+ * DELETE /api/v1/poks/shared/{shareId}
+ */
+export function unshareLearning(shareId: string): Promise<void> {
+  return apiFetch<void>(`/poks/shared/${shareId}`, { method: 'DELETE' });
+}
+
+const VISIBILITY_ORDER: PokVisibility[] = [
+  'PRIVATE', 'COLLEAGUES_ONLY', 'FOLLOWERS_ONLY', 'PUBLIC'
+];
+
+/**
+ * Returns all visibility tiers up to and including the given max tier.
+ */
+export function visibilityOptionsUpTo(max: PokVisibility): PokVisibility[] {
+  const maxIdx = VISIBILITY_ORDER.indexOf(max);
+  return VISIBILITY_ORDER.slice(0, maxIdx + 1);
+}

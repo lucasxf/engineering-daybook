@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Pressable,
   TouchableOpacity,
@@ -11,10 +12,12 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/contexts/I18nContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useSocialFeedData } from '@/hooks/useSocialFeedData';
 import { useFeedData } from '@/hooks/useFeedData';
 import { useDebounce } from '@/hooks/useDebounce';
 import type { FeedItem } from '@/lib/learnerApi';
+import { unshareLearning } from '@/lib/learnerApi';
 import type { Pok } from '@/lib/pokApi';
 import type { AppStackParamList } from '@/navigation/AppStack';
 import { LearningCard } from '@/components/feed/LearningCard';
@@ -33,9 +36,12 @@ function SocialContent({ onPokPress }: { onPokPress: (pok: Pok) => void }) {
   const { theme } = useTheme();
   const { t } = useI18n();
   const nav = useNavigation<AppNav>();
+  const { user } = useAuth();
 
   const { items, loading, refreshing, loadingMore, hasMore, error, refresh, loadMore } =
     useSocialFeedData();
+
+  const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
 
   function handleAuthorPress(handle: string) {
     if (handle) {
@@ -43,8 +49,33 @@ function SocialContent({ onPokPress }: { onPokPress: (pok: Pok) => void }) {
     }
   }
 
+  function handleRemove(shareId: string) {
+    Alert.alert(
+      t('relearnings.removeConfirmTitle'),
+      t('relearnings.removeConfirmMessage'),
+      [
+        { text: t('relearnings.removeConfirmCancel'), style: 'cancel' },
+        {
+          text: t('relearnings.removeConfirmOk'),
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await unshareLearning(shareId);
+              setRemovedIds((prev) => new Set(prev).add(shareId));
+            } catch {
+              // Silently fail — item stays in list
+            }
+          },
+        },
+      ]
+    );
+  }
+
   function renderItem({ item }: { item: FeedItem }) {
     if (item.type === 'shared') {
+      // Skip optimistically removed items
+      if (removedIds.has(item.id)) return null;
+
       const originalPok = item.originalPok;
       if (!originalPok) return null;
 
@@ -80,20 +111,36 @@ function SocialContent({ onPokPress }: { onPokPress: (pok: Pok) => void }) {
             pok={{ ...originalPok, tags: originalPok.tags ?? [], pendingSuggestions: originalPok.pendingSuggestions ?? [] }}
             onPress={onPokPress}
           />
-          {/* Original author attribution is tappable */}
-          <Pressable
-            onPress={() => handleAuthorPress(authorHandle)}
-            accessibilityRole="button"
-            accessibilityLabel={authorName}
-            style={{
-              paddingHorizontal: theme.spacing.md,
-              paddingBottom: theme.spacing.xs,
-            }}
-          >
-            <Text variant="caption" color={theme.colors.textSecondary}>
-              {t('learnings.socialFeed.by')} {authorName}
-            </Text>
-          </Pressable>
+          {/* Footer: original author + remove button (own re-learnings only) */}
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: theme.spacing.md,
+            paddingBottom: theme.spacing.xs,
+          }}>
+            <Pressable
+              onPress={() => handleAuthorPress(authorHandle)}
+              accessibilityRole="button"
+              accessibilityLabel={authorName}
+              style={{ flex: 1 }}
+            >
+              <Text variant="caption" color={theme.colors.textSecondary}>
+                {t('learnings.socialFeed.by')} {authorName}
+              </Text>
+            </Pressable>
+            {item.sharedByHandle === user?.handle && (
+              <TouchableOpacity
+                accessibilityRole="button"
+                accessibilityLabel={t('relearnings.remove')}
+                onPress={() => handleRemove(item.id)}
+                hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
+              >
+                <Text variant="caption" color={theme.colors.error}>
+                  {t('relearnings.remove')}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
       );
     }
