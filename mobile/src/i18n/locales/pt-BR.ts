@@ -123,6 +123,13 @@ export default {
       public: 'Público',
       pickerLabel: 'Visibilidade',
       publicWarning: 'Uma vez público, não pode ser tornado privado novamente.',
+      followersOnly: 'Apenas seguidores',
+      followersOnlyDesc: 'Visível para quem te segue',
+      colleaguesOnly: 'Apenas colegas',
+      colleaguesOnlyDesc: 'Visível para seguidores mútuos',
+      privateDesc: 'Apenas você pode ver',
+      publicDesc: 'Qualquer pessoa no learnimo pode ver',
+      lockedPublic: 'Este aprendizado é público e não pode ser tornado privado',
     },
     errors: {
       contentRequired: 'O conteúdo é obrigatório',

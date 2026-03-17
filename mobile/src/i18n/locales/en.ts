@@ -125,6 +125,13 @@ export default {
       public: 'Public',
       pickerLabel: 'Visibility',
       publicWarning: 'Once public, this cannot be made private again.',
+      followersOnly: 'Followers only',
+      followersOnlyDesc: 'Visible to people who follow you',
+      colleaguesOnly: 'Colleagues only',
+      colleaguesOnlyDesc: 'Visible to mutual followers',
+      privateDesc: 'Only you can see this',
+      publicDesc: 'Anyone on learnimo can see this',
+      lockedPublic: 'This learning is public and cannot be made private',
     },
     errors: {
       contentRequired: 'Content is required',

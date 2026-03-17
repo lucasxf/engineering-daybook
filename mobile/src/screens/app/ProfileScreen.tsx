@@ -7,10 +7,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+
+import { VisibilityPicker } from '@/components/ui/VisibilityPicker';
+import { deleteAvatar, updateUserSettings, uploadAvatar } from '@/lib/userApi';
+import type { PokVisibility } from '@/lib/pokApi';
+import type { ProfileVisibility } from '@/lib/auth';
 import { TextInput } from '@/components/ui/TextInput';
 import { AvatarPicker } from '@/components/ui/AvatarPicker';
-import { deleteAvatar, updateUserSettings, uploadAvatar } from '@/lib/userApi';
-import type { ProfileVisibility, PokVisibility } from '@/lib/auth';
 import type { Locale } from '@/i18n/i18n';
 
 type ColorSchemeOverride = 'light' | 'dark' | 'system';
@@ -279,17 +282,10 @@ export function ProfileScreen() {
           </View>
 
           <Text variant="bodySm">{t('profile.privacy.defaultPokVisibility')}</Text>
-          <View style={{ flexDirection: 'row', gap: theme.spacing.xs }}>
-            {privacyOptions.map((opt) => (
-              <Button
-                key={opt.value}
-                label={opt.label}
-                variant={defaultPokVisibility === opt.value ? 'primary' : 'secondary'}
-                onPress={() => handleDefaultPokVisibilityChange(opt.value)}
-                style={{ flex: 1 }}
-              />
-            ))}
-          </View>
+          <VisibilityPicker
+            value={defaultPokVisibility}
+            onChange={handleDefaultPokVisibilityChange}
+          />
         </Card>
 
         <Button
