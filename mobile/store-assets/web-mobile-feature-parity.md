@@ -41,9 +41,9 @@
 | **My Learnings (personal feed)** | ✅ | ✅ | FeedScreen tab toggle: "Feed" (social) ↔ "My Learnings" (personal, via `useFeedData`) |
 | **Search bar UI** | ✅ | ✅ | Debounced search bar in My Learnings tab |
 | **Social: Discovery feed (following feed)** | ✅ | ✅ | Both done — mobile FeedScreen uses `useSocialFeedData` |
-| **Social: Discover page (learner search)** | ✅ | ❌ | Web has Discover page; `searchLearners` not in mobile `learnerApi` |
-| **Social: Follow/unfollow** | ✅ | ❌ | No follow endpoints in mobile `learnerApi` |
-| **Social: Learner profiles** | ✅ | ❌ | No `LearnerProfileScreen`; no `getLearnerProfile` in mobile `learnerApi` |
+| **Social: Discover page (learner search)** | ✅ | ✅ | Web has Discover page; `searchLearners` not in mobile `learnerApi` |
+| **Social: Follow/unfollow** | ✅ | ✅ | No follow endpoints in mobile `learnerApi` |
+| **Social: Learner profiles** | ✅ | ✅ | No `LearnerProfileScreen`; no `getLearnerProfile` in mobile `learnerApi` |
 | **Social: Re-Learning (share)** | ✅ | ❌ | No share endpoints in mobile `learnerApi`; no `ReLearningModal` |
 | **Dark/light/system theme** | ✅ | ✅ | — |
 | **i18n (EN + PT-BR)** | ✅ | ✅ | — |

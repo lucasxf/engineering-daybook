@@ -196,6 +196,14 @@ Do NOT run /implement-spec until all FAILs are resolved.
 ```
 Do not commit in this case.
 
+After the report (success or partial), output this exact closing banner so the user knows the command has finished:
+
+```
+---
+✅ /fix-spec complete
+---
+```
+
 ---
 
 ## Error Handling

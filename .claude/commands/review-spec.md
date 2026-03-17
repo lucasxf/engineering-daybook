@@ -292,3 +292,11 @@ Run /fix-spec <spec-path> to apply fixes automatically.
 - **Spec file not found:** Show error and list `docs/specs/features/`
 - **virgil agent fails:** Fall back to listing the FR-AC check items as a manual checklist with "Review manually" note
 - **Spec has no FRs at all:** Report as FAIL in structural completeness; skip FR-AC check with note "No FRs to evaluate"
+
+After the report and any follow-up messages, output this exact closing banner so the user knows the command has finished:
+
+```
+---
+✅ /review-spec complete
+---
+```
