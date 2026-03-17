@@ -1,7 +1,8 @@
 # Mobile Google OAuth Sign-In
 
-> **Status:** Draft
+> **Status:** Approved
 > **Created:** 2026-03-17
+> **Reviewed:** 2026-03-17
 > **Implemented:** _pending_
 
 ---
@@ -27,7 +28,8 @@ All backend infrastructure for mobile Google OAuth is already complete and teste
 - [ ] **FR3** _(Must Have)_ — For existing Google users (backend returns `requiresHandle: false`): `setUser` is called, app navigates to Feed
 - [ ] **FR4** _(Must Have)_ — For new Google users (backend returns `requiresHandle: true`): app navigates to `ChooseHandle` screen with `{ tempToken, email }` params (screen is already implemented)
 - [ ] **FR5** _(Must Have)_ — OAuth cancellation (user dismisses the consent screen) shows no error and returns to the login screen silently
-- [ ] **FR6** _(Must Have)_ — Any error (Google or backend) shows `auth.errors.googleFailed` inline; the button re-enables
+- [ ] **FR6** _(Must Have)_ — A Google-side OAuth error (network failure, permission denied during consent) shows `auth.errors.googleFailed` inline; the button re-enables
+- [ ] **FR6b** _(Must Have)_ — A backend API error (e.g. 409 email already registered with password, 500) shows `auth.errors.googleFailed` inline; the button re-enables
 - [ ] **FR7** _(Should Have)_ — "Continue with Google" button also appears on `RegisterScreen` with the same flow (web parity, reduces friction for new users)
 - [ ] **FR8** _(Should Have)_ — While the OAuth flow is in progress the button shows a loading indicator and is disabled (prevents double-tap)
 - [ ] **FR9** _(Could Have)_ — When `EXPO_PUBLIC_GOOGLE_CLIENT_ID` is absent the Google button is hidden rather than crashing
@@ -202,6 +204,11 @@ LoginScreen / RegisterScreen
 - `webClientId` from `EXPO_PUBLIC_GOOGLE_CLIENT_ID`; `androidClientId` from `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID`; `iosClientId` from `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`
 - Returns `null` request when all client IDs are absent (FR9)
 - `WebBrowser.maybeCompleteAuthSession()` must be called at module top-level (required by expo-auth-session)
+- `WebBrowser.warmUpAsync()` is called in a `useEffect` on hook mount (Android cold-start optimization); `WebBrowser.coolDownAsync()` is called in the cleanup to release the browser connection
+- **`promptAsync()` response type branching:**
+  - `response.type === 'success'` → extract `params.id_token`, call `googleLoginApi(idToken)`, handle result (FR3/FR4)
+  - `response.type === 'cancel'` or `response.type === 'dismiss'` → silent no-op; return without setting error (FR5)
+  - `response.type === 'error'` → set error state, show `auth.errors.googleFailed` (FR6)
 - The hook returns `{ loading, handlePress }` — `handlePress` calls `promptAsync()` then handles the response
 
 ### Test Strategy
@@ -221,7 +228,9 @@ LoginScreen / RegisterScreen
 
 **Modified:**
 - `mobile/src/screens/auth/LoginScreen.tsx` — add divider + `<GoogleSignInButton>`
+- `mobile/src/screens/auth/LoginScreen.test.tsx` — add tests for Google button render, loading state, and hidden state when client ID absent
 - `mobile/src/screens/auth/RegisterScreen.tsx` — add divider + `<GoogleSignInButton>`
+- `mobile/src/screens/auth/RegisterScreen.test.tsx` — add tests for Google button render and same flow as LoginScreen
 - `mobile/app.config.ts` — read `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID` and `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`
 
 ---
@@ -241,7 +250,7 @@ LoginScreen / RegisterScreen
 - **Stack:** mobile
 
 ### Task 3: Wire Google button into LoginScreen and RegisterScreen
-- **Files:** `mobile/src/screens/auth/LoginScreen.tsx`, `mobile/src/screens/auth/RegisterScreen.tsx`
+- **Files:** `mobile/src/screens/auth/LoginScreen.tsx`, `mobile/src/screens/auth/LoginScreen.test.tsx`, `mobile/src/screens/auth/RegisterScreen.tsx`, `mobile/src/screens/auth/RegisterScreen.test.tsx`
 - **Depends on:** Task 2
 - **Commit:** `feat(mobile): wire Google OAuth into auth screens`
 - **Stack:** mobile
