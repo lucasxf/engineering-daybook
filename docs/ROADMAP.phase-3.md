@@ -112,7 +112,8 @@
   - `mobile-sort-options.md` ✅ Approved (Wave 7)
 - Execution plan rewritten to leaner wave-focused format (`mobile/store-assets/mobile-parity-execution-plan.md`); parallel session map archived to `mobile/store-assets/mobile-parity-pre-work.litcoffee`.
 - `/fix-spec` and `/review-spec` commands improved: closing banners (`✅ /fix-spec complete`, `✅ /review-spec complete`) added.
-- **Next:** Sessions A + B + C can now run in parallel — `/implement-spec` on Wave 3, 4, 5 specs.
+- **Wave 3 done (2026-03-17):** `mobile-profile-editing.md` implemented — `feat/mobile-profile-editing` branch; AvatarPicker component, AuthContext.updateUser, inline displayName/bio editing on ProfileScreen; 297 tests passing, 83.05% coverage.
+- **Next:** Sessions B + C run in parallel — `/implement-spec` on Wave 4 (`mobile-4-tier-visibility`) and Wave 5 (`mobile-tag-management`) specs.
 
 **Progress update (2026-03-13 — mobile-design-system skill):**
 - ✅ Step 1 of execution sequence complete: `mobile-design-system` skill created at `.claude/skills/mobile-design-system/`.
