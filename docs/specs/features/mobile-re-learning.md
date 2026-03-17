@@ -1,6 +1,6 @@
 # Mobile — Re-Learning (Share)
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Reviewed:** 2026-03-17
 > **Created:** 2026-03-09
 > **Milestone:** 3.4 (App Store Publishing) — parity with web Milestone 6.4
@@ -550,13 +550,25 @@ All keys live under the `relearnings.*` namespace, mirroring the web `relearning
 > _This section is filled AFTER implementation._
 
 ### Commits
-_pending_
+- `f2f21e9` feat: add relearnings i18n keys for mobile (EN + PT-BR)
+- `0b9b55f` feat: add shareLearning and unshareLearning to mobile learnerApi
+- `ba4611c` feat: add mobile ReLearningModal component
+- `b0da39e` feat: add Re-learn button and modal to LearningDetailScreen
+- `98dedb4` feat: add per-card Re-learn button to LearnerProfileScreen
+- `f032e23` feat: add Remove action for own re-learnings on mobile FeedScreen
+- `e554ce7` test: add Maestro E2E flows for mobile re-learning
+- `91cce38` fix: apply review fixes — document any cast, align handleRelearnSuccess signature
 
 ### Architectural Decisions
-_pending_
+- Task 2 (VisibilityPicker) skipped — component already existed from Wave 4 (`mobile/src/components/ui/VisibilityPicker.tsx`). Reused as-is.
+- `visibilityOptionsUpTo` helper exported from `learnerApi.ts` (spec architecture). `visibilityOptionsAbove` (inverse) defined locally in `ReLearningModal` since it is only needed there.
+- i18n keys added in a dedicated first commit (before modal component) to avoid hardcoded strings anywhere.
+- Re-learn button in `LearnerProfileScreen` uses a plain `TouchableOpacity` inline (not `Button` component) to keep the action lightweight and right-aligned below each card.
+- `FeedScreen` Remove action uses optimistic removal via a `Set<string>` of removed IDs rather than triggering a full refresh, satisfying FR14.
 
 ### Deviations from Spec
-_pending_
+- Task ordering adjusted: Task 7 (i18n) done first (before Task 3) since key list was fully pre-specified in spec — no finalization needed after Task 3.
+- `handleRelearnSuccess` in `LearningDetailScreen` ignores the returned `PokShare` (no local feed to update on this screen). Signature accepts `_share: PokShare` to satisfy TypeScript prop type.
 
 ### Lessons Learned
-_pending_
+- `VISIBILITY_ORDER` const is duplicated between `ReLearningModal` and `learnerApi.ts`. If a future spec needs the inverse helper elsewhere, export `VISIBILITY_ORDER` from `learnerApi.ts` and import it.
