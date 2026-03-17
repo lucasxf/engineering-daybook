@@ -50,7 +50,7 @@ All backend infrastructure for mobile Google OAuth is already complete and teste
 **Stack:** Mobile
 
 **Technologies:**
-- Expo SDK 53 / React Native 0.76 / TypeScript strict
+- Expo SDK 53 / React Native 0.79 / TypeScript strict
 - `expo-auth-session@~6.2.1` — already installed; use `Google.useAuthRequest()` from `expo-auth-session/providers/google`
 - `expo-web-browser@~14.2.0` — already installed; call `WebBrowser.warmUpAsync()` on Android for faster cold-start
 - Env vars: `EXPO_PUBLIC_GOOGLE_CLIENT_ID` (web/Expo Go), `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID`, `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`

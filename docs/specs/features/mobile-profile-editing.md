@@ -65,7 +65,7 @@ What is missing:
 
 **Stack:** Mobile
 
-**Technologies:** Expo SDK 53, React Native 0.76.x, TypeScript 5 (strict), `expo-image-picker` (Expo SDK 53 bundled), `expo-secure-store`, React Navigation 6
+**Technologies:** Expo SDK 53, React Native 0.79.x, TypeScript 5 (strict), `expo-image-picker` (Expo SDK 53 bundled), `expo-secure-store`, React Navigation 6
 
 **Integration Points:**
 - `mobile/src/contexts/AuthContext.tsx` — adds `updateUser` to context value and provider
