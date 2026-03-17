@@ -121,7 +121,7 @@ export function LearningDetailScreen() {
     setReLearningModalVisible(true);
   }
 
-  function handleRelearnSuccess() {
+  function handleRelearnSuccess(_share: import('@/lib/learnerApi').PokShare) {
     setReLearningModalVisible(false);
     setHasRelearned(true);
   }

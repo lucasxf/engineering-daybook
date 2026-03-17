@@ -87,7 +87,7 @@ export function ReLearningModal({
         visibility,
       });
       onSuccess(share);
-    } catch (err: any) {
+    } catch (err: any) { // `any` required to access `err.status` from ApiRequestError at runtime
       if (err?.status === 409) {
         setError(t('relearnings.modal.errorDuplicate'));
       } else {
