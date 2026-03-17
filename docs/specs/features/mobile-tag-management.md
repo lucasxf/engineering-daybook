@@ -1,6 +1,6 @@
 # Mobile Tag Management
 
-> **Status:** Planned
+> **Status:** Approved
 > **Created:** 2026-03-09
 > **Milestone:** 3.4 (App Store Publishing) — companion UX milestone
 
