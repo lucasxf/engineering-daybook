@@ -248,7 +248,8 @@ Then save a structured review report so `/fix-spec` can consume it:
 
 ```
 MAIN_REPO=$(git worktree list --porcelain | grep '^worktree' | head -1 | sed 's/worktree //')
-SLUG=$(basename <spec-path> .md)
+SPEC_PATH=$ARGUMENTS
+SLUG=$(basename "$SPEC_PATH" .md)
 REPORT="$MAIN_REPO/.claude/reviews/spec-$SLUG-review.md"
 ```
 

@@ -84,7 +84,7 @@ The mobile app was built against the original 2-tier visibility model (`PRIVATE`
 
 **Technologies:**
 
-- Expo SDK 53, React Native 0.76+, TypeScript strict mode
+- Expo SDK 53, React Native 0.79+, TypeScript strict mode
 - i18n-js 4 (`useI18n` / `t()`)
 - jest 29 — `components` project for component tests, `lib` project for pure logic
 
