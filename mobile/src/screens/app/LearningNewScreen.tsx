@@ -1,23 +1,28 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
 import type { AppTabsParamList } from '@/navigation/AppTabs';
 import { useI18n } from '@/contexts/I18nContext';
 import { pokApi, type PokVisibility } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
 import type { PokFormData } from '@/lib/validations';
 import { Text } from '@/components/ui/Text';
+import { VisibilityPicker } from '@/components/ui/VisibilityPicker';
 import { LearningForm } from '@/components/feed/LearningForm';
 
 export function LearningNewScreen() {
   const { theme } = useTheme();
   const { t } = useI18n();
+  const { user } = useAuth();
   const nav = useNavigation<BottomTabNavigationProp<AppTabsParamList>>();
   const [serverError, setServerError] = useState<string | null>(null);
-  const [visibility, setVisibility] = useState<PokVisibility>('PRIVATE');
+  const [visibility, setVisibility] = useState<PokVisibility>(
+    (user?.defaultPokVisibility as PokVisibility) ?? 'PRIVATE'
+  );
 
   async function handleSubmit(data: PokFormData) {
     setServerError(null);
@@ -45,47 +50,13 @@ export function LearningNewScreen() {
       </Text>
 
       {/* Visibility picker */}
-      <View style={{ paddingHorizontal: theme.spacing.md, paddingBottom: theme.spacing.sm, gap: theme.spacing.xs }}>
-        <Text variant="label">{t('learnings.visibility.pickerLabel')}</Text>
-        <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityState={{ selected: visibility === 'PRIVATE' }}
-            onPress={() => setVisibility('PRIVATE')}
-            style={{
-              flex: 1,
-              padding: theme.spacing.sm,
-              borderRadius: theme.radii.md,
-              borderWidth: 1,
-              borderColor: visibility === 'PRIVATE' ? theme.colors.primary : theme.colors.border,
-              backgroundColor: visibility === 'PRIVATE' ? theme.colors.surfaceAlt : 'transparent',
-              alignItems: 'center',
-            }}
-          >
-            <Text variant="bodySm">🔒 {t('learnings.visibility.private')}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            accessibilityRole="button"
-            accessibilityState={{ selected: visibility === 'PUBLIC' }}
-            onPress={() => setVisibility('PUBLIC')}
-            style={{
-              flex: 1,
-              padding: theme.spacing.sm,
-              borderRadius: theme.radii.md,
-              borderWidth: 1,
-              borderColor: visibility === 'PUBLIC' ? theme.colors.primary : theme.colors.border,
-              backgroundColor: visibility === 'PUBLIC' ? theme.colors.surfaceAlt : 'transparent',
-              alignItems: 'center',
-            }}
-          >
-            <Text variant="bodySm">🌐 {t('learnings.visibility.public')}</Text>
-          </TouchableOpacity>
-        </View>
-        {visibility === 'PUBLIC' && (
-          <Text variant="bodySm" style={{ color: theme.colors.warning }}>
-            {t('learnings.visibility.publicWarning')}
-          </Text>
-        )}
+      <View style={{ paddingHorizontal: theme.spacing.md, paddingBottom: theme.spacing.sm }}>
+        <Text variant="label" style={{ marginBottom: theme.spacing.xs }}>{t('learnings.visibility.pickerLabel')}</Text>
+        <VisibilityPicker
+          value={visibility}
+          onChange={setVisibility}
+          showPublicWarning
+        />
       </View>
 
       <LearningForm
