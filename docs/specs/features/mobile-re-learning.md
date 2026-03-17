@@ -1,6 +1,6 @@
 # Mobile — Re-Learning (Share)
 
-> **Status:** Approved
+> **Status:** In Progress
 > **Reviewed:** 2026-03-17
 > **Created:** 2026-03-09
 > **Milestone:** 3.4 (App Store Publishing) — parity with web Milestone 6.4
