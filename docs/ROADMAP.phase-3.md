@@ -113,7 +113,9 @@
 - Execution plan rewritten to leaner wave-focused format (`mobile/store-assets/mobile-parity-execution-plan.md`); parallel session map archived to `mobile/store-assets/mobile-parity-pre-work.litcoffee`.
 - `/fix-spec` and `/review-spec` commands improved: closing banners (`✅ /fix-spec complete`, `✅ /review-spec complete`) added.
 - **Wave 3 done (2026-03-17):** `mobile-profile-editing.md` implemented — `feat/mobile-profile-editing` branch; AvatarPicker component, AuthContext.updateUser, inline displayName/bio editing on ProfileScreen; 297 tests passing, 83.05% coverage.
-- **Next:** Sessions B + C run in parallel — `/implement-spec` on Wave 4 (`mobile-4-tier-visibility`) and Wave 5 (`mobile-tag-management`) specs.
+- **Wave 4 done (2026-03-17):** `mobile-4-tier-visibility.md` implemented — `feat/mobile-4-tier-visibility` branch; VisibilityPicker + VisibilityBadge components, 4-tier visibility wired into LearningNewScreen / LearningDetailScreen / ProfileScreen settings, i18n keys.
+- **Wave 6 done (2026-03-17):** `mobile-re-learning.md` implemented — `feat/mobile-re-learning` branch; `shareLearning()`/`unshareLearning()` API functions, `ReLearningModal` component (note + visibility picker), Re-learn button on LearningDetailScreen and LearnerProfileScreen (others' PUBLIC learnings only), Remove action for own re-learnings in FeedScreen, i18n keys (EN + PT-BR), 2 Maestro E2E flows (create + remove re-learning); 345 tests passing, 84.35% line coverage.
+- **Next:** Wave 5 (`mobile-tag-management`), Wave 7 (`mobile-sort-options` + `mobile-google-oauth`).
 
 **Progress update (2026-03-13 — mobile-design-system skill):**
 - ✅ Step 1 of execution sequence complete: `mobile-design-system` skill created at `.claude/skills/mobile-design-system/`.
