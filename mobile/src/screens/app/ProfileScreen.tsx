@@ -8,6 +8,7 @@ import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
+import { VisibilityPicker } from '@/components/ui/VisibilityPicker';
 import { updateUserSettings } from '@/lib/userApi';
 import type { PokVisibility } from '@/lib/pokApi';
 import type { ProfileVisibility } from '@/lib/auth';
@@ -156,17 +157,10 @@ export function ProfileScreen() {
           </View>
 
           <Text variant="bodySm">{t('profile.privacy.defaultPokVisibility')}</Text>
-          <View style={{ flexDirection: 'row', gap: theme.spacing.xs }}>
-            {privacyOptions.map((opt) => (
-              <Button
-                key={opt.value}
-                label={opt.label}
-                variant={defaultPokVisibility === opt.value ? 'primary' : 'secondary'}
-                onPress={() => handleDefaultPokVisibilityChange(opt.value)}
-                style={{ flex: 1 }}
-              />
-            ))}
-          </View>
+          <VisibilityPicker
+            value={defaultPokVisibility}
+            onChange={handleDefaultPokVisibilityChange}
+          />
         </Card>
 
         <Button
