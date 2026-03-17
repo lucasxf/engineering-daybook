@@ -1,6 +1,6 @@
 # Mobile 4-Tier Visibility
 
-> **Status:** Approved
+> **Status:** In Progress
 > **Created:** 2026-03-09
 > **Reviewed:** 2026-03-17
 > **Implemented:** _pending_
