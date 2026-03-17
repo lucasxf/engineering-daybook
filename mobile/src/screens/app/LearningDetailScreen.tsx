@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/Button';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { LearningForm } from '@/components/feed/LearningForm';
 import { MarkdownContent } from '@/components/ui/MarkdownContent';
+import { VisibilityPicker, VisibilityBadge, getDisabledValues } from '@/components/ui/VisibilityPicker';
 
 type RouteProps = RouteProp<AppStackParamList, 'LearningDetail'>;
 
@@ -179,50 +180,22 @@ export function LearningDetailScreen() {
           {t('learnings.edit.title')}
         </Text>
 
-        {pok.visibility === 'PRIVATE' && (
-          <View style={{ paddingHorizontal: theme.spacing.md, paddingBottom: theme.spacing.sm, gap: theme.spacing.xs }}>
-            <Text variant="label">{t('learnings.visibility.pickerLabel')}</Text>
-            <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityState={{ selected: editVisibility === 'PRIVATE' }}
-                onPress={() => setEditVisibility('PRIVATE')}
-                style={{
-                  flex: 1,
-                  padding: theme.spacing.sm,
-                  borderRadius: theme.radii.md,
-                  borderWidth: 1,
-                  borderColor: editVisibility === 'PRIVATE' ? theme.colors.primary : theme.colors.border,
-                  backgroundColor: editVisibility === 'PRIVATE' ? theme.colors.surfaceAlt : 'transparent',
-                  alignItems: 'center',
-                }}
-              >
-                <Text variant="bodySm">🔒 {t('learnings.visibility.private')}</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                accessibilityRole="button"
-                accessibilityState={{ selected: editVisibility === 'PUBLIC' }}
-                onPress={() => setEditVisibility('PUBLIC')}
-                style={{
-                  flex: 1,
-                  padding: theme.spacing.sm,
-                  borderRadius: theme.radii.md,
-                  borderWidth: 1,
-                  borderColor: editVisibility === 'PUBLIC' ? theme.colors.primary : theme.colors.border,
-                  backgroundColor: editVisibility === 'PUBLIC' ? theme.colors.surfaceAlt : 'transparent',
-                  alignItems: 'center',
-                }}
-              >
-                <Text variant="bodySm">🌐 {t('learnings.visibility.public')}</Text>
-              </TouchableOpacity>
-            </View>
-            {editVisibility === 'PUBLIC' && (
-              <Text variant="bodySm" style={{ color: theme.colors.warning }}>
-                {t('learnings.visibility.publicWarning')}
-              </Text>
-            )}
-          </View>
-        )}
+        {/* Visibility picker (edit mode) */}
+        <View style={{ paddingHorizontal: theme.spacing.md, paddingBottom: theme.spacing.sm }}>
+          <Text variant="label" style={{ marginBottom: theme.spacing.xs }}>{t('learnings.visibility.pickerLabel')}</Text>
+          {pok.visibility === 'PUBLIC' ? (
+            <Text variant="bodySm" style={{ color: theme.colors.textSecondary }}>
+              🔒 {t('learnings.visibility.lockedPublic')}
+            </Text>
+          ) : (
+            <VisibilityPicker
+              value={editVisibility}
+              onChange={setEditVisibility}
+              disabledValues={getDisabledValues(pok.visibility)}
+              showPublicWarning
+            />
+          )}
+        </View>
 
         <LearningForm
           defaultValues={{ title: pok.title ?? '', content: pok.content }}
@@ -245,11 +218,7 @@ export function LearningDetailScreen() {
         <MarkdownContent content={pok.content} />
 
         {/* Visibility badge */}
-        <Text variant="bodySm" style={{ color: theme.colors.textSecondary }}>
-          {pok.visibility === 'PUBLIC'
-            ? `🌐 ${t('learnings.visibility.public')}`
-            : `🔒 ${t('learnings.visibility.private')}`}
-        </Text>
+        <VisibilityBadge visibility={pok.visibility} />
 
         {/* Tags section */}
         <View style={{ gap: theme.spacing.xs }}>
