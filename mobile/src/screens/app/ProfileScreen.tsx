@@ -38,6 +38,8 @@ export function ProfileScreen() {
     if (user) {
       setDisplayName(user.displayName ?? '');
       setBio(user.bio ?? '');
+      setProfileVisibility(user.profileVisibility ?? 'PRIVATE');
+      setDefaultPokVisibility(user.defaultPokVisibility ?? 'PRIVATE');
     }
   }, [user]);
 
@@ -114,6 +116,7 @@ export function ProfileScreen() {
     setProfileVisibility(value);
     try {
       await updateUserSettings({ profileVisibility: value });
+      updateUser({ profileVisibility: value });
     } catch {
       setProfileVisibility(user?.profileVisibility ?? 'PRIVATE');
       Alert.alert(t('profile.privacy.saveError'));
@@ -124,6 +127,7 @@ export function ProfileScreen() {
     setDefaultPokVisibility(value);
     try {
       await updateUserSettings({ defaultPokVisibility: value });
+      updateUser({ defaultPokVisibility: value });
     } catch {
       setDefaultPokVisibility(user?.defaultPokVisibility ?? 'PRIVATE');
       Alert.alert(t('profile.privacy.saveError'));

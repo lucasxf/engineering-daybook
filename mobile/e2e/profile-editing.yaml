@@ -54,6 +54,9 @@ appId: net.learnimo.app
   optional: true
 - clearText
 - inputText: "I love learning!"
-- tapOn: "Save"
+- tapOn:
+    text: "Save"
+    index: 1
+  # finds the bio Save button (index 1 — displayName Save is index 0)
 - waitForAnimationToEnd
 - assertVisible: "I love learning!"
