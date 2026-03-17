@@ -42,6 +42,12 @@ const Modal = ({ children, visible }) =>
 
 const Platform = { OS: 'ios', select: (obj) => obj.ios ?? obj.default };
 
+// Alert — tests can spy on Alert.alert via jest.spyOn(require('react-native'), 'Alert') or
+// override individual calls via jest.fn. The default implementation is a no-op.
+const Alert = {
+  alert: jest.fn(),
+};
+
 module.exports = {
   Text,
   View,
@@ -54,4 +60,5 @@ module.exports = {
   ActivityIndicator,
   Modal,
   Platform,
+  Alert,
 };

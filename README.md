@@ -200,7 +200,7 @@ The mobile app requires `EXPO_PUBLIC_API_URL` for the same.
   - Visibility picker at creation; visibility badge and toggle on detail screen
   - Discover screen — learner search and follow/unfollow
   - Learner profile screen with avatar, bio, and follow status
-  - Avatar and bio display on ProfileScreen; avatar upload/remove via settings
+  - Inline profile editing on ProfileScreen — display name, bio, and avatar upload/remove (expo-image-picker)
   - Dark mode / light mode / system theme
   - Internationalization (EN/PT-BR)
 

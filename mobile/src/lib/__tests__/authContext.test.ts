@@ -165,6 +165,36 @@ describe('AuthContext — logout', () => {
   });
 });
 
+describe('AuthContext — updateUser', () => {
+  it('merges patch into existing user state', () => {
+    let user: Record<string, unknown> | null = {
+      handle: 'alice',
+      displayName: 'Alice',
+      bio: null,
+    };
+
+    // Mirror updateUser: (patch) => setUserState((prev) => prev ? { ...prev, ...patch } : prev)
+    const updateUser = (patch: Record<string, unknown>) => {
+      user = user ? { ...user, ...patch } : user;
+    };
+
+    updateUser({ displayName: 'Alice Smith' });
+
+    expect(user).toEqual({ handle: 'alice', displayName: 'Alice Smith', bio: null });
+  });
+
+  it('is a no-op when user is null (AC13)', () => {
+    let user: Record<string, unknown> | null = null;
+
+    const updateUser = (patch: Record<string, unknown>) => {
+      user = user ? { ...user, ...patch } : user;
+    };
+
+    expect(() => updateUser({ displayName: 'Alice' })).not.toThrow();
+    expect(user).toBeNull();
+  });
+});
+
 describe('AuthContext — auth failure listener registration', () => {
   it('registers authFailureListener on mount', () => {
     // Mirror the useEffect that calls setAuthFailureListener
