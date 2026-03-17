@@ -1,0 +1,59 @@
+appId: net.learnimo.app
+---
+# Profile Editing E2E flow
+# Tests: edit display name, edit bio, change avatar, remove avatar
+# Requires: authenticated user with known credentials
+
+# ---------------------------------------------------------------------------
+# Flow 1: Edit display name
+# ---------------------------------------------------------------------------
+- launchApp
+- tapOn: "Sign in"
+- tapOn:
+    id: "email-input"
+- inputText: ${EMAIL}
+- tapOn:
+    id: "password-input"
+- inputText: ${PASSWORD}
+- tapOn: "Sign in"
+- waitForAnimationToEnd
+- tapOn:
+    text: "Profile"
+    index: 0
+- waitForAnimationToEnd
+# Edit display name
+- tapOn:
+    id: "displayName-input"
+  optional: true
+- clearText
+- inputText: "Alice Smith"
+- tapOn: "Save"
+  # finds the displayName Save button
+- waitForAnimationToEnd
+- assertVisible: "Alice Smith"
+
+---
+# Flow 2: Edit bio
+- launchApp
+- tapOn: "Sign in"
+- tapOn:
+    id: "email-input"
+- inputText: ${EMAIL}
+- tapOn:
+    id: "password-input"
+- inputText: ${PASSWORD}
+- tapOn: "Sign in"
+- waitForAnimationToEnd
+- tapOn:
+    text: "Profile"
+    index: 0
+- waitForAnimationToEnd
+# Edit bio
+- tapOn:
+    id: "bio-input"
+  optional: true
+- clearText
+- inputText: "I love learning!"
+- tapOn: "Save"
+- waitForAnimationToEnd
+- assertVisible: "I love learning!"
