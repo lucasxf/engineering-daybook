@@ -428,6 +428,55 @@ Web-only fix-pr session for PR #187 (feat: implement View Learning screen with d
 | `web/src/components/view-learning/learning-markdown.test.tsx` | Added 11 tests — LearningMarkdown (plain text, bold, italic, inline-code, fenced code, h1/h2/h3, bullet list, blockquote, spacers) |
 | Line coverage | Restored from 48.1% → above 50% CI threshold (all 462 tests passing) |
 
+### Mobile Parity Gap Analysis + Execution Plan (develop, 2026-03-16)
+
+Planning session: no code implemented. Analyzed web-mobile feature parity and produced a cross-session execution plan for closing all remaining gaps before Play Store submission.
+
+**Analysis scope:**
+- Reviewed `mobile/store-assets/web-mobile-feature-parity.md` (last updated 2026-03-11)
+- Reviewed all 6 existing mobile parity specs in `docs/specs/features/`
+- Explored mobile codebase to verify actual implementation state
+- Used `/prompt-optimizer` skill to produce a structured investigation prompt
+
+**Key finding — stale parity table:**
+Three social discovery items were marked ❌ in the parity table but had been implemented on 2026-03-10 via the `mobile-social-discovery` spec:
+- Social: Discover page → now ✅ (`DiscoverScreen.tsx`)
+- Social: Follow/unfollow → now ✅ (`FollowButton.tsx`, `learnerApi`)
+- Social: Learner profiles → now ✅ (`LearnerProfileScreen.tsx`)
+
+Note: the parity table itself was NOT updated this session — corrections are documented in the execution plan and are the first pre-work item for the next session.
+
+**Impact × Effort matrix — 11 real gaps remaining (after 3 corrections):**
+
+| Gap | Impact | Effort | Wave |
+|-----|--------|--------|------|
+| Profile: Edit displayName/bio/avatar | High | Medium | 3 |
+| Visibility: 4-tier upgrade (FOLLOWERS/COLLEAGUES) | High | Medium | 4 |
+| Social: Re-Learning/share | High | Medium | 6 |
+| Tags: Tag-at-creation | Medium | Low | 5 |
+| Tags: AI suggestion approve/reject | Medium | Medium | 5 |
+| Tags: Filter feed by tag | Medium | Low | 5 |
+| Sort options (newest/oldest/updated) | Medium | Low | 7 |
+| Auth: Google OAuth button | Low | Low | 7 |
+| Tags: Tag-grouped view | Low | High | Deferred |
+| Timeline view | Low | High | Deferred |
+| Quick Entry inline | Low | Medium | Deferred |
+
+**Execution plan created:** `mobile/store-assets/mobile-parity-execution-plan.md`
+
+Wave sequencing:
+- **Wave 3** (Profile editing) — REQUIRED for Play Store; no deps; `feat/mobile-profile-editing`
+- **Wave 4** (4-tier visibility) — REQUIRED for Play Store; no deps; `feat/mobile-4-tier-visibility`
+- **Wave 6** (Re-Learning/share) — REQUIRED for Play Store; depends on Wave 4 for `VisibilityPicker`
+- **Wave 5** (Tag completion: TM-2/3/4) — post-submission update; no deps
+- **Wave 7** (Sort options + Google OAuth) — post-submission update; specs to be written in pre-work
+
+**Pre-work for next session (single session, before any wave):**
+1. Update `mobile/store-assets/web-mobile-feature-parity.md` — fix 3 stale ❌ → ✅ entries
+2. Write `docs/specs/features/mobile-google-oauth.md` (new spec)
+3. Write `docs/specs/features/mobile-sort-options.md` (new spec)
+4. Run `/review-spec` on all 6 specs (mobile-profile-editing, mobile-4-tier-visibility, mobile-re-learning, mobile-tag-management, mobile-google-oauth, mobile-sort-options)
+
 ---
 
 ## Active / Pending
@@ -435,6 +484,8 @@ Web-only fix-pr session for PR #187 (feat: implement View Learning screen with d
 ⏳ Pending: Author using app for 1+ week (Phase 1 exit criterion)
 
 Mobile design system migration progress (Wave 2): S2.1 ✅ S2.2 ✅ S2.3 ✅ — all Wave 2 screen migrations complete (feat/ds-auth-screens, feat/ds-feed-detail, feat/ds-profile-discover).
+
+Mobile parity gap analysis complete. Execution plan at `mobile/store-assets/mobile-parity-execution-plan.md`. Next: pre-work session (parity table corrections + 2 new specs + /review-spec all 6).
 
 ---
 

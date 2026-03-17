@@ -100,6 +100,20 @@
 - Analyzed "Library at Dusk" design language from the v0-redesigned web app and evaluated 4 approaches to bringing the mobile app to visual parity.
 - Recommended approach: **Skill-driven (Approach D)** — build a `mobile-design-system` skill, update `tokens.ts` first, then patch (not rebuild) all 8 existing screens incrementally. Avoids a full screen rebuild while establishing a reusable design token foundation.
 
+**Progress update (2026-03-17 — pre-work complete, all specs approved):**
+- Parity table (`mobile/store-assets/web-mobile-feature-parity.md`) corrected: 3 stale ❌ → ✅ (Discover page, Follow/unfollow, Learner profiles — implemented 2026-03-10 via mobile-social-discovery).
+- 2 new specs written, reviewed, and approved: `mobile-google-oauth.md` (Wave 7), `mobile-sort-options.md` (Wave 7).
+- All 6 mobile feature parity specs reviewed via `/review-spec` + fixed via `/fix-spec` and marked **Approved**:
+  - `mobile-profile-editing.md` ✅ Approved (Wave 3 — REQUIRED)
+  - `mobile-4-tier-visibility.md` ✅ Approved (Wave 4 — REQUIRED)
+  - `mobile-re-learning.md` ✅ Approved (Wave 6 — REQUIRED)
+  - `mobile-tag-management.md` ✅ Approved (Wave 5)
+  - `mobile-google-oauth.md` ✅ Approved (Wave 7)
+  - `mobile-sort-options.md` ✅ Approved (Wave 7)
+- Execution plan rewritten to leaner wave-focused format (`mobile/store-assets/mobile-parity-execution-plan.md`); parallel session map archived to `mobile/store-assets/mobile-parity-pre-work.litcoffee`.
+- `/fix-spec` and `/review-spec` commands improved: closing banners (`✅ /fix-spec complete`, `✅ /review-spec complete`) added.
+- **Next:** Sessions A + B + C can now run in parallel — `/implement-spec` on Wave 3, 4, 5 specs.
+
 **Progress update (2026-03-13 — mobile-design-system skill):**
 - ✅ Step 1 of execution sequence complete: `mobile-design-system` skill created at `.claude/skills/mobile-design-system/`.
 - Skill encodes: Library at Dusk palette mapped to RN tokens (light + dark), 7 component recipes (Button/Card/Text/TextInput/ErrorMessage/MarkdownContent/Avatar), screen layout patterns, font loading (DM Sans + Sora via expo-font), shadow/animation translations, 5 known gotchas.

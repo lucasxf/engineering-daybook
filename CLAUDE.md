@@ -161,7 +161,7 @@ Active work:
 - [x] Milestone 3.1: Semantic Search — hybrid keyword + vector search, HuggingFace embeddings, pgvector (2026-02-26)
 - [ ] Milestone 3.2: AI Connections (related learnings)
 - [x] Milestone 3.3: Mobile App (Expo/React Native) — done (2026-02-27)
-- [ ] Milestone 3.4: App Store Publishing — Android .aab built, Play Console setup done, Play Store internal track in progress; 6 mobile feature parity specs written (2026-03-09); mobile-design-system skill created (2026-03-13, step 1); Library at Dusk tokens + fonts landed (2026-03-14, step 2); Wave 1 primitives done (S1.1 PR #201, S1.2 PR #202, S1.3 feat/ds-markdown-feedcomps — 2026-03-15); Wave 2 screen patches all done: S2.1 (feat/ds-auth-screens, 2026-03-16), S2.2 (feat/ds-feed-detail, 2026-03-16), S2.3 (feat/ds-profile-discover, 2026-03-15)
+- [ ] Milestone 3.4: App Store Publishing — Android .aab built, Play Console setup done, Play Store internal track in progress; 6 mobile feature parity specs written (2026-03-09); mobile-design-system skill created (2026-03-13, step 1); Library at Dusk tokens + fonts landed (2026-03-14, step 2); Wave 1 primitives done (S1.1 PR #201, S1.2 PR #202, S1.3 feat/ds-markdown-feedcomps — 2026-03-15); Wave 2 screen patches all done: S2.1 (feat/ds-auth-screens, 2026-03-16), S2.2 (feat/ds-feed-detail, 2026-03-16), S2.3 (feat/ds-profile-discover, 2026-03-15); Pre-work done (2026-03-17): parity table corrected, 6 specs Approved (mobile-profile-editing, mobile-4-tier-visibility, mobile-re-learning, mobile-tag-management, mobile-google-oauth, mobile-sort-options); mobile-my-learnings (Status: Planned) and mobile-social-discovery (Status: Implemented) not counted; ready for Wave 3/4/5 parallel impl
 
 **Phase 5: Privacy** — 🔄 In Progress (5.1 done; 5.2 done)
 
@@ -198,4 +198,4 @@ See `docs/ROADMAP.md` for full active milestone details.
 
 ---
 
-*Last updated: 2026-03-16 (session: develop/PR #209 — Wave 2 complete: S2.1–S2.3 merged; 271 tests, 82.82% coverage)*
+*Last updated: 2026-03-17 (session: develop — pre-work complete: parity table corrected, 8 mobile specs Approved, execution plan rewritten for Waves 3-7)*

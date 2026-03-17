@@ -1,46 +1,28 @@
 # Mobile 4-Tier Visibility
 
-> **Status:** Draft
+> **Status:** Approved
 > **Created:** 2026-03-09
+> **Reviewed:** 2026-03-17
 > **Implemented:** _pending_
 
 ---
 
 ## Context
 
-The mobile app was built against the original 2-tier visibility model (`PRIVATE` / `PUBLIC`, Milestone
-5.1). Since then, the backend and web app have been extended to a 4-tier model (`PRIVATE`,
-`FOLLOWERS_ONLY`, `COLLEAGUES_ONLY`, `PUBLIC`) in Milestone 6.1. Mobile has been partially updated —
-`pokApi.ts` already defines the correct 4-tier `PokVisibility` type — but there are three gaps:
+The mobile app was built against the original 2-tier visibility model (`PRIVATE` / `PUBLIC`, Milestone 5.1). Since then, the backend and web app have been extended to a 4-tier model (`PRIVATE`, `FOLLOWERS_ONLY`, `COLLEAGUES_ONLY`, `PUBLIC`) in Milestone 6.1. Mobile has been partially updated — `pokApi.ts` already defines the correct 4-tier `PokVisibility` type — but there are three gaps:
 
-1. **Type conflict:** `mobile/src/lib/auth.ts` independently defines `PokVisibility = 'PRIVATE' | 'PUBLIC'`
-   (lines 8–9). This 2-tier shadow type is what `ProfileScreen` imports, meaning the settings
-   visibility selectors can only ever persist `PRIVATE` or `PUBLIC` to the API.
+1. **Type conflict:** `mobile/src/lib/auth.ts` independently defines `PokVisibility = 'PRIVATE' | 'PUBLIC'` (lines 8–9). This 2-tier shadow type is what `ProfileScreen` imports, meaning the settings visibility selectors can only ever persist `PRIVATE` or `PUBLIC` to the API.
 
-2. **Picker UI is 2-option only:** `LearningNewScreen` and `LearningDetailScreen` each inline a
-   hardcoded two-button row. No `FOLLOWERS_ONLY` or `COLLEAGUES_ONLY` option is offered to the user,
-   so learnings created on mobile can never be set to those tiers. Users who set a
-   `FOLLOWERS_ONLY` default on web will still see the picker default to `PRIVATE` on mobile (because
-   the picker doesn't hold the full 4-tier value set).
+2. **Picker UI is 2-option only:** `LearningNewScreen` and `LearningDetailScreen` each inline a hardcoded two-button row. No `FOLLOWERS_ONLY` or `COLLEAGUES_ONLY` option is offered to the user, so learnings created on mobile can never be set to those tiers. Users who set a `FOLLOWERS_ONLY` default on web will still see the picker default to `PRIVATE` on mobile (because the picker doesn't hold the full 4-tier value set).
 
-3. **Visibility badge is 2-tier only:** The detail view's badge shows `🔒 Private` or `🌐 Public`
-   with no branch for the intermediate tiers.
-
-The `FOLLOWERS_ONLY` and `COLLEAGUES_ONLY` tiers are only meaningful when the learner has follow/
-colleague relationships. This spec therefore depends on `mobile-social-discovery.md` — the follow
-relationship data that backs those tiers must be present before exposing the options makes sense.
-The dependency is soft from a backend perspective (the API already supports all 4 tiers) but firm
-from a UX perspective (showing "Followers only" to a user with zero followers is misleading).
+3. **Visibility badge is 2-tier only:** The detail view's badge shows `🔒 Private` or `🌐 Public` with no branch for the intermediate tiers. The `FOLLOWERS_ONLY` and `COLLEAGUES_ONLY` tiers are only meaningful when the learner has follow/colleague relationships. This spec therefore depends on `mobile-social-discovery.md` — the follow relationship data that backs those tiers must be present before exposing the options makes sense. The dependency is soft from a backend perspective (the API already supports all 4 tiers) but firm from a UX perspective (showing "Followers only" to a user with zero followers is misleading).
 
 **Related:**
-- `docs/specs/features/pok-visibility-controls.md` — original 2-tier spec; defines the
-  irreversible-public rule and backend access-control model
-- `docs/specs/features/learner-profile-privacy.md` — `defaultPokVisibility` and
-  `profileVisibility` settings; defines `PATCH /api/v1/users/me/settings`
-- `docs/specs/features/mobile-social-discovery.md` — follow/colleague relationships needed for
-  `FOLLOWERS_ONLY` / `COLLEAGUES_ONLY` tiers to be meaningful (blocks this spec)
-- `web/src/components/poks/VisibilityPicker.tsx` — web reference implementation (2-tier; the
-  mobile component designed here extends it to 4 tiers)
+
+- `docs/specs/features/pok-visibility-controls.md` — original 2-tier spec; defines the irreversible-public rule and backend access-control model
+- `docs/specs/features/learner-profile-privacy.md` — `defaultPokVisibility` and `profileVisibility` settings; defines `PATCH /api/v1/users/me/settings`
+- `docs/specs/features/mobile-social-discovery.md` — follow/colleague relationships needed for `FOLLOWERS_ONLY` / `COLLEAGUES_ONLY` tiers to be meaningful (blocks this spec)
+- `web/src/components/poks/VisibilityPicker.tsx` — web reference implementation (2-tier; the mobile component designed here extends it to 4 tiers)
 - `mobile/src/lib/pokApi.ts` — canonical 4-tier `PokVisibility` type (source of truth)
 - `mobile/src/lib/auth.ts` — duplicate 2-tier type to remove
 
@@ -52,80 +34,47 @@ from a UX perspective (showing "Followers only" to a user with zero followers is
 
 **Scope:** Mobile only (no backend or web changes)
 
-- [ ] **FR1** `[Must Have]` The duplicate `PokVisibility` type declaration in
-  `mobile/src/lib/auth.ts` is removed. All consumers that currently import `PokVisibility` from
-  `auth.ts` are updated to import it from `pokApi.ts` instead. No runtime behaviour changes.
+- [ ] **FR1** `[Must Have]` The duplicate `PokVisibility` type declaration in `mobile/src/lib/auth.ts` is removed. All consumers that currently import `PokVisibility` from `auth.ts` are updated to import it from `pokApi.ts` instead. No runtime behaviour changes.
 
-- [ ] **FR2** `[Must Have]` A new shared `VisibilityPicker` component
-  (`mobile/src/components/ui/VisibilityPicker.tsx`) renders a vertical list of 4 tappable option
-  rows: `PRIVATE`, `FOLLOWERS_ONLY`, `COLLEAGUES_ONLY`, `PUBLIC`. Each row shows an icon, a
-  short label, and a one-line description. The currently selected option is visually highlighted.
+- [ ] **FR2** `[Must Have]` A new shared `VisibilityPicker` component (`mobile/src/components/ui/VisibilityPicker.tsx`) renders a vertical list of 4 tappable option rows: `PRIVATE`, `COLLEAGUES_ONLY`, `FOLLOWERS_ONLY`, `PUBLIC` (ordered from most to least restrictive — colleagues = mutual follows = smaller set than followers). Each row shows an icon, a short label, and a one-line description. The currently selected option is visually highlighted.
 
-- [ ] **FR3** `[Must Have]` `LearningNewScreen` replaces the inline 2-button row with the shared
-  `VisibilityPicker`. The initial value is read from `user.defaultPokVisibility` (via `useAuth`).
-  If `defaultPokVisibility` is absent or unrecognised it falls back to `'PRIVATE'`.
+- [ ] **FR3** `[Must Have]` `LearningNewScreen` replaces the inline 2-button row with the shared `VisibilityPicker`. The initial value is read from `user.defaultPokVisibility` (via `useAuth`). If `defaultPokVisibility` is absent or unrecognised it falls back to `'PRIVATE'`.
 
-- [ ] **FR4** `[Must Have]` `LearningDetailScreen` replaces the inline 2-button row with the
-  shared `VisibilityPicker` in the edit view. The irreversible-public rule is enforced:
-  - When the learning's current visibility is `PUBLIC`, the picker is hidden and a locked badge is
-    shown instead (no downgrade possible).
-  - For all other current visibilities (`PRIVATE`, `FOLLOWERS_ONLY`, `COLLEAGUES_ONLY`) the picker
-    is shown with only the tiers that are equal or higher in openness than the current value
-    available as selectable options. Options that would be a downgrade are rendered but visually
-    disabled and are not tappable.
+- [ ] **FR4** `[Must Have]` `LearningDetailScreen` replaces the inline 2-button row with the shared `VisibilityPicker` in the edit view. The irreversible-public rule is enforced:
+  - When the learning's current visibility is `PUBLIC`, the picker is hidden and a locked badge is shown instead (no downgrade possible).
+  - For all other current visibilities (`PRIVATE`, `FOLLOWERS_ONLY`, `COLLEAGUES_ONLY`) the picker is shown with only the tiers that are equal or higher in openness than the current value available as selectable options. Options that would be a downgrade are rendered but visually disabled and are not tappable.
 
-- [ ] **FR5** `[Must Have]` `LearningDetailScreen` (read view) replaces the 2-tier badge with a
-  4-tier `VisibilityBadge` subcomponent that maps each value to an icon and translated label:
+- [ ] **FR5** `[Must Have]` `LearningDetailScreen` (read view) replaces the 2-tier badge with a 4-tier `VisibilityBadge` subcomponent that maps each value to an icon and translated label:
   - `PRIVATE` → 🔒 and label
   - `FOLLOWERS_ONLY` → 👥 and label
   - `COLLEAGUES_ONLY` → 🤝 and label
   - `PUBLIC` → 🌐 and label
 
-- [ ] **FR6** `[Must Have]` `ProfileScreen` replaces the 2-option `defaultPokVisibility` selector
-  (which currently maps through the `privacyOptions` array typed as `ProfileVisibility`) with the
-  shared `VisibilityPicker` showing all 4 tiers. The `profileVisibility` selector remains 2-option
-  (`PRIVATE` / `PUBLIC`) — it is a separate control using a separate type.
+- [ ] **FR6** `[Must Have]` `ProfileScreen` replaces the 2-option `defaultPokVisibility` selector (which currently maps through the `privacyOptions` array typed as `ProfileVisibility`) with the shared `VisibilityPicker` showing all 4 tiers. The `profileVisibility` selector remains 2-option  (`PRIVATE` / `PUBLIC`) — it is a separate control using a separate type.
 
-- [ ] **FR7** `[Must Have]` When the user selects `PUBLIC` in any picker context (new learning,
-  edit learning, or default visibility settings), a warning message is shown immediately below the
-  picker: "Once public, this cannot be made private again." The warning text comes from the
-  existing i18n key `learnings.visibility.publicWarning`.
+- [ ] **FR7** `[Must Have]` When the user selects `PUBLIC` in a **new learning or edit learning** picker context, a warning message is shown immediately below the picker: "Once public, this cannot be made private again." The warning text comes from the existing i18n key `learnings.visibility.publicWarning`. This warning does **not** appear on `ProfileScreen` — the default visibility preference is always reversible, so the irreversibility rule does not apply there.
 
-- [ ] **FR8** `[Should Have]` The `VisibilityPicker` accepts a `disabledValues` prop
-  (`PokVisibility[]`) that renders specific options as visually faded and non-tappable. This is
-  used by `LearningDetailScreen` to enforce the irreversibility constraint (see FR4).
+- [ ] **FR8** `[Should Have]` The `VisibilityPicker` accepts a `disabledValues` prop (`PokVisibility[]`) that renders specific options as visually faded and non-tappable. This is used by `LearningDetailScreen` to enforce the irreversibility constraint (see FR4).
 
-- [ ] **FR9** `[Should Have]` New i18n keys are added for `followersOnly` and `colleaguesOnly`
-  in both `en.ts` and `pt-BR.ts` under the existing `learnings.visibility.*` namespace,
-  plus short descriptions for each tier used in the picker rows.
+- [ ] **FR9** `[Should Have]` New i18n keys are added for `followersOnly` and `colleaguesOnly` in both `en.ts` and `pt-BR.ts` under the existing `learnings.visibility.*` namespace, plus short descriptions for each tier used in the picker rows.
 
-- [ ] **FR10** `[Could Have]` `LearningCard` (in the feed) shows the visibility badge icon next
-  to each learning. This brings parity with the web `VisibilityBadge` shown on `PokCard`.
+- [ ] **FR10** `[Could Have]` `LearningCard` (in the feed) shows the visibility badge icon next to each learning. This brings parity with the web `VisibilityBadge` shown on `PokCard`.
 
 #### Explicitly Out of Scope
 
 - Backend changes — all 4 tiers are already supported
-- Web changes — the web `VisibilityPicker` is intentionally left as a 2-tier control until the
-  web settings page and QuickEntry are updated in a separate feature pass
-- `profileVisibility` 4-tier expansion — `User.ProfileVisibility` has a separate enum that is
-  independently scoped; not covered here
-- Gating `FOLLOWERS_ONLY`/`COLLEAGUES_ONLY` behind a "you have no followers" guard — deferred;
-  the backend enforces access, not the picker
-- Maestro E2E flows for the new tiers — deferred; the existing visibility E2E covers the 2-tier
-  happy path; new flows would require a live multi-user setup
+- Web changes — the web `VisibilityPicker` is intentionally left as a 2-tier control until the web settings page and QuickEntry are updated in a separate feature pass
+- `profileVisibility` 4-tier expansion — `User.ProfileVisibility` has a separate enum that is independently scoped; not covered here
+- Gating `FOLLOWERS_ONLY`/`COLLEAGUES_ONLY` behind a "you have no followers" guard — deferred; the backend enforces access, not the picker
+- Maestro E2E flows for the new tiers — deferred; the existing visibility E2E covers the 2-tier happy path; new flows would require a live multi-user setup
 
 ### Non-Functional
 
 1. **Type safety:** After FR1, `tsc --noEmit` must pass with no new errors. No `any` escape hatches.
-2. **No duplicate type declarations:** `PokVisibility` must be declared in exactly one place in
-   the mobile codebase (`pokApi.ts`). The same rule applies to `ProfileVisibility` in `auth.ts`
-   (that type is correctly scoped and must remain there — it covers `User.ProfileVisibility`).
-3. **i18n:** All 4 tier labels and their descriptions are translated in both EN and PT-BR.
-   Raw enum values (`PRIVATE`, `FOLLOWERS_ONLY`, etc.) must never be displayed directly to users.
-4. **Accessibility:** `VisibilityPicker` rows use `accessibilityRole="button"` and
-   `accessibilityState={{ selected: ... }}`. Disabled rows use `accessibilityState={{ disabled: true }}`.
-5. **Test coverage:** The `VisibilityPicker` component and `VisibilityBadge` subcomponent have
-   unit tests in the `components` jest project (node env, stubbed native modules).
+2. **No duplicate type declarations:** `PokVisibility` must be declared in exactly one place in the mobile codebase (`pokApi.ts`). The same rule applies to `ProfileVisibility` in `auth.ts` (that type is correctly scoped and must remain there — it covers `User.ProfileVisibility`).
+3. **i18n:** All 4 tier labels and their descriptions are translated in both EN and PT-BR. Raw enum values (`PRIVATE`, `FOLLOWERS_ONLY`, etc.) must never be displayed directly to users.
+4. **Accessibility:** `VisibilityPicker` rows use `accessibilityRole="button"` and `accessibilityState={{ selected: ... }}`. Disabled rows use `accessibilityState={{ disabled: true }}`.
+5. **Test coverage:** The `VisibilityPicker` component and `VisibilityBadge` subcomponent have unit tests in the `components` jest project (node env, stubbed native modules).
 
 ---
 
@@ -134,7 +83,8 @@ from a UX perspective (showing "Followers only" to a user with zero followers is
 **Stack:** Mobile only
 
 **Technologies:**
-- Expo SDK 53, React Native 0.76+, TypeScript strict mode
+
+- Expo SDK 53, React Native 0.79+, TypeScript strict mode
 - i18n-js 4 (`useI18n` / `t()`)
 - jest 29 — `components` project for component tests, `lib` project for pure logic
 
@@ -188,7 +138,7 @@ interface VisibilityPickerProps {
 ```
 
 Rendering contract:
-- 4 rows in order: `PRIVATE`, `FOLLOWERS_ONLY`, `COLLEAGUES_ONLY`, `PUBLIC`
+- 4 rows in order: `PRIVATE`, `COLLEAGUES_ONLY`, `FOLLOWERS_ONLY`, `PUBLIC`
 - Each row: icon (emoji or vector) + translated label + translated description
 - Selected row: highlighted border + background (`theme.colors.primary` / `theme.colors.surfaceAlt`)
 - Disabled row: `opacity: 0.4`, `accessibilityState={{ disabled: true }}`, no `onPress`
@@ -236,6 +186,112 @@ instead of a `Button` row, while the `profileVisibility` block keeps the existin
   onChange={handleDefaultPokVisibilityChange}
 />
 ```
+
+---
+
+## Screens
+
+### Component: VisibilityPicker
+
+**Purpose:** Shared 4-tier picker used in LearningNewScreen, LearningDetailScreen (edit), and ProfileScreen (default visibility).
+
+**Layout:** Vertical list of 4 tappable rows in order: PRIVATE, COLLEAGUES_ONLY, FOLLOWERS_ONLY, PUBLIC. Each row: `[icon] [label]\n[description]`. Selected row has highlighted border + background. Disabled rows are faded (`opacity: 0.4`).
+
+**Components:** `TouchableOpacity` per row, `Text` (label + description), `VisibilityBadge` (icon).
+
+**States:**
+- Default: all 4 rows enabled, one highlighted as selected
+- With `disabledValues`: specified rows faded and non-tappable
+- `PUBLIC` selected: warning text rendered below picker (in new/edit contexts only)
+
+**i18n:** `learnings.visibility.{private,followersOnly,colleaguesOnly,public}` + `{…}Desc` keys.
+
+**Interactions:**
+- Tap enabled row → `onChange(value)` called
+- Tap disabled row → no-op (no `onPress`)
+
+**Accessibility:** `accessibilityRole="button"`, `accessibilityState={{ selected, disabled }}` per row.
+
+---
+
+### Screen: LearningNewScreen
+
+**Purpose:** Capture a new learning. The visibility picker determines the visibility of the learning being saved.
+
+**Layout:** Existing form; the inline 2-button row is replaced with `<VisibilityPicker>`. Public warning renders between picker and submit button when `PUBLIC` is selected.
+
+**Components:** `VisibilityPicker` (full 4-tier, no `disabledValues`).
+
+**States:**
+- Default: picker pre-selected to `user.defaultPokVisibility ?? 'PRIVATE'`
+- `PUBLIC` selected: warning banner visible beneath picker
+
+**i18n:** `learnings.visibility.publicWarning`.
+
+**Interactions:** Tap option → updates local `visibility` state → included in create API call on save.
+
+**Accessibility:** Inherits from `VisibilityPicker`.
+
+---
+
+### Screen: LearningDetailScreen (edit view)
+
+**Purpose:** Edit an existing learning's visibility. Enforces irreversibility rule.
+
+**Layout:** Existing edit form; inline 2-button row replaced with conditional rendering:
+- `pok.visibility === 'PUBLIC'` → picker hidden, locked badge shown (`learnings.visibility.lockedPublic`)
+- All other visibilities → `<VisibilityPicker disabledValues={getDisabledValues(pok.visibility)} />`
+
+**Components:** `VisibilityPicker`, `VisibilityBadge` (locked state).
+
+**States:**
+- Current visibility `PRIVATE`: all 4 options enabled
+- Current visibility `COLLEAGUES_ONLY`: `PRIVATE` disabled
+- Current visibility `FOLLOWERS_ONLY`: `PRIVATE`, `COLLEAGUES_ONLY` disabled
+- Current visibility `PUBLIC`: picker hidden; locked badge shown
+
+**i18n:** `learnings.visibility.lockedPublic`, `learnings.visibility.publicWarning`.
+
+**Interactions:** Tap enabled option → updates draft visibility → saved on form submit.
+
+**Accessibility:** Inherits from `VisibilityPicker`; locked badge has `accessibilityRole="text"`.
+
+---
+
+### Screen: LearningDetailScreen (read view)
+
+**Purpose:** Display the visibility of a learning in read mode.
+
+**Layout:** Replaces the 2-branch ternary badge with `<VisibilityBadge visibility={pok.visibility} />`.
+
+**Components:** `VisibilityBadge` (icon + translated label).
+
+**States:** Single render state — badge always shown for the 4-tier value.
+
+**i18n:** `learnings.visibility.{private,followersOnly,colleaguesOnly,public}`.
+
+**Interactions:** None (display only).
+
+**Accessibility:** `accessibilityRole="text"`.
+
+---
+
+### Screen: ProfileScreen (default visibility section)
+
+**Purpose:** Set the user's default learning visibility preference. Preference is always reversible — no irreversibility warning is shown here.
+
+**Layout:** The `defaultPokVisibility` button row (currently 2-option) is replaced with `<VisibilityPicker>`. The `profileVisibility` 2-option button row is unchanged.
+
+**Components:** `VisibilityPicker` (no `disabledValues`; no public warning).
+
+**States:**
+- Default: picker pre-selected to `user.defaultPokVisibility ?? 'PRIVATE'`
+
+**i18n:** Picker labels and descriptions only; no `publicWarning`.
+
+**Interactions:** Tap option → optimistic update → `PATCH /api/v1/users/me/settings` with `{ "defaultPokVisibility": value }`.
+
+**Accessibility:** Inherits from `VisibilityPicker`.
 
 ---
 
@@ -294,11 +350,11 @@ Existing keys that remain unchanged: `private`, `public`, `pickerLabel`, `public
 **WHEN** the visibility picker is shown
 **THEN** all 4 tier options are selectable
 
-### AC8: Edit learning — `FOLLOWERS_ONLY` and lower tiers disabled when current is `COLLEAGUES_ONLY`
+### AC8: Edit learning — `PRIVATE` disabled when current is `COLLEAGUES_ONLY`
 **GIVEN** I have a `COLLEAGUES_ONLY` learning and enter edit mode
 **WHEN** the visibility picker is shown
-**THEN** `PRIVATE` and `FOLLOWERS_ONLY` options are rendered as disabled and non-tappable
-**AND** `COLLEAGUES_ONLY` and `PUBLIC` options are selectable
+**THEN** the `PRIVATE` option is rendered as disabled and non-tappable
+**AND** `COLLEAGUES_ONLY`, `FOLLOWERS_ONLY`, and `PUBLIC` options are selectable
 
 ### AC9: Edit learning — picker hidden and locked badge shown when current visibility is `PUBLIC`
 **GIVEN** I have a `PUBLIC` learning and enter edit mode
@@ -337,20 +393,23 @@ Existing keys that remain unchanged: `private`, `public`, `pickerLabel`, `public
 **WHEN** I view the visibility picker on any screen
 **THEN** `Apenas seguidores`, `Apenas colegas`, and their descriptions are displayed (not raw keys)
 
+### AC16: LearningCard shows visibility badge icon for all 4 tiers
+**GIVEN** I am viewing my own feed and a learning in my list has visibility `FOLLOWERS_ONLY`
+**WHEN** the `LearningCard` renders
+**THEN** the 👥 icon is shown next to the learning (matching the icon map in `VisibilityBadge`)
+**AND** the same applies for `PRIVATE` (🔒), `COLLEAGUES_ONLY` (🤝), and `PUBLIC` (🌐)
+
 ---
 
 ## Implementation Approach
 
 ### Architecture
 
-Additive, mobile-only. The change is a UI refactor and type cleanup — no backend calls change, no
-new API endpoints, no new storage.
+Additive, mobile-only. The change is a UI refactor and type cleanup — no backend calls change, no new API endpoints, no new storage.
 
 **Step 1 — Type cleanup (FR1):**
 
-Remove lines 8–9 from `auth.ts` (the 2-tier `PokVisibility` export). Find all import sites via:
-`grep -r "from '@/lib/auth'" src/ | grep PokVisibility` and update each to `@/lib/pokApi`.
-The only known consumer is `ProfileScreen.tsx` (line 12: `import type { ProfileVisibility, PokVisibility } from '@/lib/auth'`).
+Remove lines 8–9 from `auth.ts` (the 2-tier `PokVisibility` export). Find all import sites via: `grep -r "from '@/lib/auth'" src/ | grep PokVisibility` and update each to `@/lib/pokApi`. The only known consumer is `ProfileScreen.tsx` (line 12: `import type { ProfileVisibility, PokVisibility } from '@/lib/auth'`).
 
 **Step 2 — New `VisibilityPicker` component (FR2, FR8):**
 
@@ -366,8 +425,8 @@ import { Text } from '@/components/ui/Text';
 // Ordered from most restrictive to most open
 const VISIBILITY_OPTIONS: Array<{ value: PokVisibility; icon: string; labelKey: string; descKey: string }> = [
   { value: 'PRIVATE',         icon: '🔒', labelKey: 'learnings.visibility.private',       descKey: 'learnings.visibility.privateDesc' },
-  { value: 'FOLLOWERS_ONLY',  icon: '👥', labelKey: 'learnings.visibility.followersOnly',  descKey: 'learnings.visibility.followersOnlyDesc' },
   { value: 'COLLEAGUES_ONLY', icon: '🤝', labelKey: 'learnings.visibility.colleaguesOnly', descKey: 'learnings.visibility.colleaguesOnlyDesc' },
+  { value: 'FOLLOWERS_ONLY',  icon: '👥', labelKey: 'learnings.visibility.followersOnly',  descKey: 'learnings.visibility.followersOnlyDesc' },
   { value: 'PUBLIC',          icon: '🌐', labelKey: 'learnings.visibility.public',         descKey: 'learnings.visibility.publicDesc' },
 ];
 ```
@@ -400,7 +459,7 @@ const [visibility, setVisibility] = useState<PokVisibility>(
 In edit mode, compute `disabledValues` from current `pok.visibility`:
 
 ```typescript
-const TIER_ORDER: PokVisibility[] = ['PRIVATE', 'FOLLOWERS_ONLY', 'COLLEAGUES_ONLY', 'PUBLIC'];
+const TIER_ORDER: PokVisibility[] = ['PRIVATE', 'COLLEAGUES_ONLY', 'FOLLOWERS_ONLY', 'PUBLIC'];
 
 function getDisabledValues(currentVisibility: PokVisibility): PokVisibility[] {
   const currentIndex = TIER_ORDER.indexOf(currentVisibility);
@@ -415,14 +474,12 @@ In read mode, replace the 2-branch ternary with `<VisibilityBadge visibility={po
 
 **Step 5 — `ProfileScreen` refactor (FR6):**
 
-Remove `privacyOptions` mapping for `defaultPokVisibility`. Use `<VisibilityPicker>` for that
-field. Leave the `profileVisibility` button row unchanged (2-option, `ProfileVisibility` type).
+Remove `privacyOptions` mapping for `defaultPokVisibility`. Use `<VisibilityPicker>` for that field. Leave the `profileVisibility` button row unchanged (2-option, `ProfileVisibility` type).
 
 **Step 6 — i18n (FR9):**
 
 Add keys to both locale files under `learnings.visibility`:
-- EN: `followersOnly`, `followersOnlyDesc`, `colleaguesOnly`, `colleaguesOnlyDesc`, `privateDesc`,
-  `publicDesc`, `lockedPublic`
+- EN: `followersOnly`, `followersOnlyDesc`, `colleaguesOnly`, `colleaguesOnlyDesc`, `privateDesc`, `publicDesc`, `lockedPublic`
 - PT-BR: same keys with Portuguese translations
 
 ### Test Strategy
@@ -440,8 +497,8 @@ Add keys to both locale files under `learnings.visibility`:
 
 - [ ] **`getDisabledValues` unit tests** (`lib` jest project — pure function, no RN):
   - `PRIVATE` → `[]` (nothing disabled)
-  - `FOLLOWERS_ONLY` → `['PRIVATE']`
-  - `COLLEAGUES_ONLY` → `['PRIVATE', 'FOLLOWERS_ONLY']`
+  - `COLLEAGUES_ONLY` → `['PRIVATE']`
+  - `FOLLOWERS_ONLY` → `['PRIVATE', 'COLLEAGUES_ONLY']`
   - `PUBLIC` → irrelevant (picker is hidden)
 
 ### File Changes
@@ -503,13 +560,10 @@ Add keys to both locale files under `learnings.visibility`:
 ## Dependencies
 
 **Blocked by:**
-- `docs/specs/features/mobile-social-discovery.md` — follow/colleague relationships must be
-  meaningful to users before `FOLLOWERS_ONLY` / `COLLEAGUES_ONLY` tiers are surfaced in the picker.
-  The type cleanup (FR1) and badge upgrade (FR5) can proceed independently, but the full picker UI
-  (FR2–FR4, FR6) should ship together with or after social discovery.
 
-**Blocks:** None — this is a parity feature. No downstream spec depends on mobile having 4-tier
-pickers.
+- `docs/specs/features/mobile-social-discovery.md` — follow/colleague relationships must be meaningful to users before `FOLLOWERS_ONLY` / `COLLEAGUES_ONLY` tiers are surfaced in the picker. The type cleanup (FR1) and badge upgrade (FR5) can proceed independently, but the full picker UI  (FR2–FR4, FR6) should ship together with or after social discovery.
+
+**Blocks:** None — this is a parity feature. No downstream spec depends on mobile having 4-tier pickers.
 
 **External:** None — backend already supports all 4 tiers.
 

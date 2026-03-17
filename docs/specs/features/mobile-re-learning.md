@@ -1,6 +1,7 @@
 # Mobile — Re-Learning (Share)
 
-> **Status:** Draft
+> **Status:** Approved
+> **Reviewed:** 2026-03-17
 > **Created:** 2026-03-09
 > **Milestone:** 3.4 (App Store Publishing) — parity with web Milestone 6.4
 
@@ -85,7 +86,7 @@ The mobile `learnerApi.ts` exposes the `FeedItem` / `PokShare` types for renderi
 
 **4-tier visibility picker — implementation approach:**
 
-The picker renders as a segmented row of tappable labels (PRIVATE / COLLEAGUES_ONLY / FOLLOWERS_ONLY / PUBLIC), filtered to only include options ≤ the original's tier. A `VisibilityPicker` component (new, reusable) should be considered. It must accept `options: PokVisibility[]`, `value: PokVisibility`, and `onChange: (v: PokVisibility) => void`. If a dedicated `VisibilityPicker` component already exists from a sibling spec (e.g., `mobile-4-tier-visibility.md`), reuse it; otherwise create a simple inline implementation.
+The picker renders a vertical list of tappable options (PRIVATE / COLLEAGUES_ONLY / FOLLOWERS_ONLY / PUBLIC) capped to the original's tier. **Reuse the `VisibilityPicker` component from `mobile-4-tier-visibility.md`** (`mobile/src/components/ui/VisibilityPicker.tsx`), which accepts `value: PokVisibility`, `onChange: (v: PokVisibility) => void`, and `disabledValues?: PokVisibility[]`. To enforce the tier cap, pass `disabledValues={visibilityOptionsAbove(originalVisibility)}` — options above the original's tier are rendered faded and non-tappable. If the sibling spec has not been implemented yet, build a simpler inline component with the same `disabledValues` interface for forward compatibility.
 
 **Integration points:**
 
@@ -210,6 +211,13 @@ The picker renders as a segmented row of tappable labels (PRIVATE / COLLEAGUES_O
 **GIVEN** the device locale is "pt-BR"
 **WHEN** the user opens `ReLearningModal`
 **THEN** all labels (title, note placeholder, char counter, visibility label, Share button, Cancel button) are in Brazilian Portuguese
+
+---
+
+### AC-14 — Re-learn appears on FeedScreen after pull-to-refresh
+**GIVEN** alice has just successfully re-learned bob's PUBLIC learning
+**WHEN** alice navigates to her social `FeedScreen` and pulls-to-refresh
+**THEN** the new `PokShare` item is visible in the feed
 
 ---
 
