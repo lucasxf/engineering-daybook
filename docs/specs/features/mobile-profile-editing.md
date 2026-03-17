@@ -1,7 +1,8 @@
 # Mobile Profile Editing
 
-> **Status:** Planned
+> **Status:** Approved
 > **Created:** 2026-03-09
+> **Reviewed:** 2026-03-17
 
 ---
 
@@ -39,6 +40,15 @@ What is missing:
 
 ---
 
+## Non-Functional Requirements
+
+- **NFR1 — Test coverage _(Must Have)_:** All new code must maintain the 80% line coverage threshold configured in `jest.config.js`. New components and handlers must each have unit tests.
+- **NFR2 — Responsiveness _(Must Have)_:** Save buttons show a loading state within one render cycle of tapping; the UI must not appear frozen. Async operations run asynchronously and do not block the JS thread.
+- **NFR3 — Content safety _(Must Have)_:** `ProfileScreen` edits only `displayName`, `bio`, and `avatarUrl` — never the content of any learning (POK). The `updateUser` patch is constrained to `Partial<AuthResponse>` which contains no POK fields.
+- **NFR4 — Graceful degradation _(Should Have)_:** If `expo-image-picker` permission is denied, the avatar edit flow degrades gracefully with an informative alert — the rest of `ProfileScreen` remains fully functional.
+
+---
+
 ## Non-Goals
 
 - 4-tier visibility controls (PRIVATE / COLLEAGUES_ONLY / FOLLOWERS_ONLY / PUBLIC) — covered in a separate spec; current implementation only exposes PRIVATE/PUBLIC toggles.
@@ -48,6 +58,28 @@ What is missing:
 - Profile visibility controls — already implemented on `ProfileScreen`; not modified here.
 - Backend changes — all API endpoints are already implemented.
 - Web changes — already implemented in Milestone 6.3.
+
+---
+
+## Technical Constraints
+
+**Stack:** Mobile
+
+**Technologies:** Expo SDK 53, React Native 0.76.x, TypeScript 5 (strict), `expo-image-picker` (Expo SDK 53 bundled), `expo-secure-store`, React Navigation 6
+
+**Integration Points:**
+- `mobile/src/contexts/AuthContext.tsx` — adds `updateUser` to context value and provider
+- `mobile/src/lib/userApi.ts` — existing `updateUserSettings`, `uploadAvatar`, `deleteAvatar` (no changes)
+- `mobile/src/components/ui/Avatar.tsx` — consumed by `AvatarPicker`; falls back to initials when `avatarUrl` is `undefined` (existing behaviour, no changes)
+- Backend `PATCH /api/v1/users/me` and `POST /api/v1/users/me/avatar` — already implemented (Milestone 6.3)
+
+**Out of Scope:**
+- 4-tier visibility controls (PRIVATE / COLLEAGUES_ONLY / FOLLOWERS_ONLY / PUBLIC)
+- Google OAuth sign-in
+- Password reset
+- Handle or email editing
+- Profile visibility controls (already implemented)
+- Any backend or web changes
 
 ---
 
@@ -83,7 +115,7 @@ A new `mobile/src/components/ui/AvatarPicker.tsx` component wraps:
 
 Props: `avatarUrl`, `displayName`, `handle`, `size`, `onUpload(uri, type, fileName)`, `onRemove`, `uploading`.
 
-The component is pure — it receives callbacks and does not call `uploadAvatar` or `deleteAvatar` directly. The caller (`ProfileScreen`) owns the async logic and state.
+The component has no domain API calls — it receives callbacks and does not call `uploadAvatar` or `deleteAvatar` directly. It does call `expo-image-picker` APIs and `Alert` (side effects scoped to the component's own UX). The caller (`ProfileScreen`) owns all async save logic and state.
 
 ---
 
@@ -114,7 +146,7 @@ The component is pure — it receives callbacks and does not call `uploadAvatar`
 ### AC5: Avatar upload from media library
 **GIVEN** an authenticated user
 **WHEN** they tap the avatar area and select a valid JPEG image (≤2 MB) from the library
-**THEN** `uploadAvatar` is called with the selected file's uri, type, and fileName, and on success the avatar image updates.
+**THEN** `uploadAvatar` is called with the selected file's `uri`, `mimeType`, and `fileName`, and on success `AvatarPicker` renders the new `avatarUrl` returned by `updateUser`.
 
 ### AC6: Avatar upload rejects oversized image
 **GIVEN** an authenticated user
@@ -132,13 +164,67 @@ The component is pure — it receives callbacks and does not call `uploadAvatar`
 **THEN** `deleteAvatar` is not called and the avatar is unchanged.
 
 ### AC9: `updateUser` reflects changes in `useAuth` consumers
-**GIVEN** any component reading `useAuth().user.displayName`
-**WHEN** `updateUser({ displayName: "Alice Smith" })` is called from `ProfileScreen`
-**THEN** the component re-renders with the updated display name.
+**GIVEN** `ProfileScreen` is mounted and reads `useAuth().user.displayName`
+**WHEN** `updateUser({ displayName: "Alice Smith" })` is called
+**THEN** the display name `TextInput` value in `ProfileScreen` updates to "Alice Smith" within the same render cycle (via the `useEffect` sync from `user`).
 
 ### AC10: Save buttons disabled during in-flight requests
-**GIVEN** a Save request is in flight
-**THEN** the corresponding Save button is disabled and shows a loading indicator (or spinner) until the request completes or fails.
+**GIVEN** a display name or bio Save request is in flight
+**THEN** the corresponding Save `Button` has `disabled={true}` and the button label shows the saving text (`profile.displayNameSaving` / `profile.bioSaving`) until the request resolves or rejects.
+
+### AC11: Bio field enforces max length
+**GIVEN** an authenticated user on ProfileScreen
+**WHEN** they type more than 200 characters into the bio field
+**THEN** the field stops accepting input at 200 characters (enforced by `maxLength` on the input).
+
+### AC12: Avatar upload rejects unsupported file type
+**GIVEN** an authenticated user
+**WHEN** `expo-image-picker` returns an asset whose `mimeType` is not `image/jpeg`, `image/png`, or `image/webp` (e.g., `image/gif`)
+**THEN** an error alert is shown ("Unsupported file type. Please select a JPEG, PNG, or WebP image.") and `uploadAvatar` is not called.
+
+### AC13: `updateUser` is a no-op when user is null
+**GIVEN** the `AuthContext` user is `null` (unauthenticated state)
+**WHEN** `updateUser({ displayName: "Alice" })` is called
+**THEN** no error is thrown, `setUserState` is not called, and the context user remains `null`.
+
+---
+
+## Screens
+
+### Screen: ProfileScreen (modified)
+
+**Purpose:** User views and edits their public-facing identity — display name, bio, and avatar — alongside existing privacy/visibility settings.
+
+**Layout:**
+1. **Identity card** (top) — `AvatarPicker` (avatar tap → image picker; "Remove photo" link below when avatar exists), display name `TextInput` + Save button, bio multiline `TextInput` + character counter + Save button
+2. **Settings section** (below identity card) — existing `profileVisibility` / `defaultPokVisibility` toggles (unchanged)
+3. **Logout button** (bottom) — unchanged
+
+**Components:**
+- `ProfileScreen` → `Card` → `AvatarPicker` (new), `TextInput` (displayName), `Button` (Save displayName), `TextInput` (bio, multiline), `Text` (char counter), `Button` (Save bio)
+
+**States:**
+- **Default (read/edit):** All fields pre-filled; Save buttons enabled; avatar shown or initials placeholder
+- **Saving (displayName):** Display name Save button disabled, label = `profile.displayNameSaving`; bio Save and avatar controls remain enabled
+- **Saving (bio):** Bio Save button disabled, label = `profile.bioSaving`; display name Save and avatar controls remain enabled
+- **Uploading (avatar):** `AvatarPicker` shows `ActivityIndicator` overlay; avatar pressable disabled; other fields remain enabled
+- **Error:** `Alert.alert` shown; affected field reverts to previous value; button re-enabled
+
+**i18n:** See i18n keys table in `## Technical Design > ### i18n keys`.
+
+**Interactions:**
+- Tap avatar / "Change photo" → request `MEDIA_LIBRARY` permission → launch image picker (lazy, on first tap only)
+- Select image → validate type → validate size (if `fileSize` known) → call `onUpload` → `ProfileScreen` calls `uploadAvatar` → on success `updateUser({ avatarUrl })`
+- Tap "Remove photo" → confirmation dialog → on confirm call `onRemove` → `ProfileScreen` calls `deleteAvatar` → on success `updateUser({ avatarUrl: undefined })`
+- Edit display name → tap Save → `handleDisplayNameSave()` → on success `updateUser({ displayName })`, on failure revert + alert
+- Edit bio → tap Save → `handleBioSave()` → on success `updateUser({ bio })`, on failure revert + alert
+- Navigate away during in-flight save → request completes silently; if screen has unmounted, state updates are skipped (no-op); no error thrown
+
+**Accessibility:**
+- Display name `TextInput` has `accessibilityLabel={t('profile.displayNamePlaceholder')}`
+- Bio `TextInput` has `accessibilityLabel={t('profile.bioPlaceholder')}`
+- Save buttons have `accessibilityState={{ disabled: isSaving }}` and `accessibilityLabel` matching button text
+- `AvatarPicker` pressable has `accessibilityLabel={t('profile.changeAvatar')}` and `accessibilityRole="button"`
 
 ---
 
@@ -180,12 +266,15 @@ interface AvatarPickerProps {
 
 Internal flow:
 1. Renders `<Avatar>` wrapped in a `<Pressable>`.
-2. On press, calls `ImagePicker.launchImageLibraryAsync({ mediaTypes: 'images', allowsEditing: true, quality: 0.9 })`.
-3. Validates file size client-side (uses `ImagePicker.ImagePickerAsset.fileSize`).
-4. Calls `onUpload(asset.uri, asset.mimeType ?? 'image/jpeg', asset.fileName ?? 'avatar.jpg')`.
-5. When `avatarUrl` is set, renders a secondary "Remove photo" pressable (text, destructive color) below the avatar.
+2. On press, calls `ImagePicker.requestMediaLibraryPermissionsAsync()` (lazy — only on first tap). If denied, shows alert with `t('profile.avatarPermissionDenied')` and returns.
+3. Calls `ImagePicker.launchImageLibraryAsync({ mediaTypes: 'images', allowsEditing: true, aspect: [1, 1], quality: 0.9 })`. The `aspect: [1, 1]` gives the user a preview of the square crop that matches the 200×200 server resize.
+4. If `result.canceled` is true, returns without action.
+5. Validates `mimeType` — if not `image/jpeg`, `image/png`, or `image/webp`, shows error alert and returns (AC12).
+6. Validates file size: if `asset.fileSize` is defined and `> 2 * 1024 * 1024`, shows error alert ("Image must be under 2 MB") and returns (AC6). If `asset.fileSize` is `undefined` (common on some Android versions), skips the client-side size check and proceeds — the server enforces 2 MB regardless.
+7. Calls `onUpload(asset.uri, asset.mimeType ?? 'image/jpeg', asset.fileName ?? 'avatar.jpg')`.
+8. When `avatarUrl` is set, renders a secondary "Remove photo" pressable (text, destructive color) below the avatar.
 
-The `uploading` prop controls a loading overlay or activity indicator on the avatar.
+The `uploading` prop controls a loading overlay (`ActivityIndicator`) on the avatar area and sets the pressable to `disabled`.
 
 **Permission:** `expo-image-picker` requires the `MEDIA_LIBRARY` permission on Android and `NSPhotoLibraryUsageDescription` on iOS. The component requests permission via `ImagePicker.requestMediaLibraryPermissionsAsync()` before launching the library; if denied, an alert is shown.
 
@@ -211,6 +300,8 @@ useEffect(() => {
   }
 }, [user]);
 ```
+
+**Navigate-away during in-flight save:** No navigation guard is implemented. If the user navigates away mid-save, the async handler continues to completion. On success, `updateUser` is called (updating `AuthContext` globally — harmless). State setters (`setDisplayNameSaving`, etc.) are called on an unmounted component, which React 18+ silently ignores (no-op, no error). This is acceptable for this feature's scope.
 
 New handlers:
 
@@ -240,6 +331,7 @@ New keys to add under `profile` namespace in `mobile/src/i18n/locales/en.ts` and
 | `profile.removeAvatarConfirmTitle` | Remove profile photo? | Remover foto de perfil? |
 | `profile.removeAvatarConfirmOk` | Remove | Remover |
 | `profile.avatarTooLarge` | Image must be under 2 MB | A imagem deve ter menos de 2 MB |
+| `profile.avatarUnsupportedType` | Unsupported file type. Please select a JPEG, PNG, or WebP image. | Tipo de arquivo não suportado. Selecione uma imagem JPEG, PNG ou WebP. |
 | `profile.avatarPermissionDenied` | Photo library access denied | Acesso à biblioteca de fotos negado |
 | `profile.saveSuccess` | Saved | Salvo |
 | `profile.saveError` | Failed to save. Please try again. | Falha ao salvar. Tente novamente. |
@@ -265,10 +357,12 @@ Run under the `components` jest project (`testEnvironment: 'node'`, native modul
 
 ### Unit tests — `mobile/src/contexts/__tests__/AuthContext.test.tsx`
 
+Run under the `lib` jest project (`testEnvironment: 'node'`). Note: an existing `authContext.test.ts` lives at `mobile/src/lib/__tests__/` and tests token-related auth flows — this new file is separate and tests only the `updateUser` method added to the context.
+
 | Test | Description |
 |------|-------------|
 | `updateUser` merges patch into user state | setUserState called with spread; new fields reflected in context value |
-| `updateUser` is a no-op when user is null | No error; state unchanged |
+| `updateUser` is a no-op when user is null | No error; state unchanged (AC13) |
 
 ### Unit tests — `mobile/src/screens/app/__tests__/ProfileScreen.test.tsx`
 
@@ -340,13 +434,15 @@ Run under `rn` jest project (jest-expo preset).
 
 ---
 
-## Open Questions
+## Decisions
 
-1. **`expo-image-picker` `fileSize` availability:** The `ImagePickerAsset.fileSize` field is documented but may be `undefined` on some Android versions. If unavailable, should the size check be skipped (optimistic) or should the upload be rejected conservatively? Recommendation: skip the client-side size check when `fileSize` is undefined and let the server return 400 on oversized files (server enforces 2 MB regardless).
+> _Open questions resolved during spec review (2026-03-17). All three have been incorporated into the Technical Design above._
 
-2. **Image crop UI:** `allowsEditing: true` in `launchImageLibraryAsync` shows the system crop UI. Should it be enabled (forces square crop matching 200×200 server resize) or disabled (users pick the full image)? Recommendation: enable `allowsEditing: true` with `aspect: [1, 1]` to give users a preview of the square crop before upload.
+1. **`fileSize` undefined on Android → skip client-side check:** When `asset.fileSize` is `undefined`, skip the 2 MB validation and proceed with the upload. The server enforces the 2 MB limit regardless and will return 400 on oversized files.
 
-3. **`expo-image-picker` permission prompt timing:** Request permissions on first tap (lazy) or on `ProfileScreen` mount (eager)? Lazy is preferred (UX mandate: minimum friction) — only prompt when the user actually taps the avatar.
+2. **Image crop UI → enabled with square aspect:** Use `allowsEditing: true` with `aspect: [1, 1]` in `launchImageLibraryAsync`. This shows the system crop UI and gives users a preview of the square crop that matches the 200×200 server resize.
+
+3. **Permission prompt → lazy (on first tap):** Request `MEDIA_LIBRARY` permission inside `AvatarPicker` on the first tap, not on `ProfileScreen` mount. Aligns with the UX mandate of minimum friction.
 
 ---
 

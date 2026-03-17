@@ -244,6 +244,44 @@ Issues to fix:
 
 Do NOT update the spec Status on NEEDS WORK — leave it as Draft.
 
+Then save a structured review report so `/fix-spec` can consume it:
+
+```
+MAIN_REPO=$(git worktree list --porcelain | grep '^worktree' | head -1 | sed 's/worktree //')
+SLUG=$(basename <spec-path> .md)
+REPORT="$MAIN_REPO/.claude/reviews/spec-$SLUG-review.md"
+```
+
+Write the file (create `.claude/reviews/` directory if absent) with this format:
+
+```markdown
+---
+spec: <spec-path>
+date: YYYY-MM-DD
+verdict: NEEDS WORK
+fail_count: N
+---
+
+## FAIL Items
+
+- [FAIL item 1 — exact text from the Issues to fix list]
+- [FAIL item 2]
+
+## WARN Items
+
+- [WARN item 1 — optional, from informational warnings]
+
+## Full Report
+
+[paste the complete Phase 6 output verbatim]
+```
+
+After saving, tell the user:
+```
+Review report saved: .claude/reviews/spec-<slug>-review.md
+Run /fix-spec <spec-path> to apply fixes automatically.
+```
+
 > WARNs (missing Implementation Plan, unknown file paths) do not block implementation — they are informational.
 
 ---

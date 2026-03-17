@@ -12,6 +12,7 @@
 | `/directive` | Add a new coding directive with smart deduplication to appropriate file | `/directive <directive-content>` |
 | `/finish-session` | Finish session with build, lint, tests, docs update, and commit | `/finish-session <optional-commit-message-context>` |
 | `/fix-pr` | Implement approved items from a /review-pr triage report — fix CI/CD failures, apply review feedback, commit, push | `/fix-pr <pr-number>` |
+| `/fix-spec` | Apply fixes from a /review-spec report — resolve all FAIL items, re-run review checks, mark spec Approved | `/fix-spec <path-to-spec-file>` |
 | `/generate-v0-prompt` | Convert a spec file into a self-contained v0.dev prompt | `/generate-v0-prompt <screen-name>` |
 | `/implement-spec` | Implement a feature from a specification file with TDD and approval gates | `/implement-spec <path-to-spec-file>` |
 | `/review-pr` | Triage an open PR — check CI/CD status, fetch and evaluate review comments, save structured report for /fix-pr | `/review-pr <optional-pr-number>` |
