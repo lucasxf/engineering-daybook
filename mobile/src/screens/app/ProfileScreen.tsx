@@ -9,7 +9,8 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { updateUserSettings } from '@/lib/userApi';
-import type { ProfileVisibility, PokVisibility } from '@/lib/auth';
+import type { PokVisibility } from '@/lib/pokApi';
+import type { ProfileVisibility } from '@/lib/auth';
 import type { Locale } from '@/i18n/i18n';
 
 type ColorSchemeOverride = 'light' | 'dark' | 'system';

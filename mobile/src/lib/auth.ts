@@ -1,11 +1,11 @@
 import { apiFetch, apiPublicFetch } from './api';
 import { tokenStore } from './tokenStore';
+import type { PokVisibility } from './pokApi';
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-export type PokVisibility = 'PRIVATE' | 'PUBLIC';
 export type ProfileVisibility = 'PRIVATE' | 'PUBLIC';
 
 /** User identity returned to consumers (no tokens). */
