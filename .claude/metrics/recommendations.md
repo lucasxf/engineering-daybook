@@ -37,6 +37,9 @@
 | REC-024 | 2026-03-15 | archival | Three skills have 0 invocations and no wiring to any command: doc-coauthoring, frontend-design, skill-creator — evaluate whether these serve active workflows or should be documented as on-demand-only with explicit trigger examples | open | 2026-03-15 |
 | REC-025 | 2026-03-16 | archival | tech-writer.md Integration section references archived session-optimizer agent — stale cross-reference should be removed or updated to reflect current wiring | implemented | 2026-03-16 |
 | REC-026 | 2026-03-16 | workflow | /review-spec has 0 invocations despite 5 post-creation specs (2 draft plus 3 planned) — the spec review gate is inactive; ensure new specs are routed through /review-spec before /implement-spec | rejected | 2026-03-16 |
+| REC-027 | 2026-03-18 | workflow | hedy agent unused during Wave 6 mobile parity work (last used 2026-03-13, Wave 6 merged 2026-03-17) — mobile specialist should be consulted for mobile feature waves; verify REC-009 deferral or add hedy trigger to /implement-spec mobile tasks | open | 2026-03-18 |
+| REC-028 | 2026-03-18 | workflow | hedy.md references Expo SDK 52 in Project Stack section but project is on Expo SDK 53 — stale reference may cause incorrect recommendations; update hedy.md to match mobile/CLAUDE.md | open | 2026-03-18 |
+| REC-029 | 2026-03-18 | workflow | sous-chef has only 1 invocation (2026-03-12) despite significant backend work across Phases 3/5/6/8 — backend code review specialist is systematically under-utilised; add explicit sous-chef delegation to /finish-session backend gate or /create-pr pre-flight | open | 2026-03-18 |
 
 ## Archive
 
