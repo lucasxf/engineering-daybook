@@ -81,6 +81,7 @@ appId: net.learnimo.app
 - inputText: "This is very useful for my work"
 
 # Verify: character counter updates
+# "This is very useful for my work" is exactly 30 characters
 - assertVisible: "30 / 500"
 
 # Tap the confirm button

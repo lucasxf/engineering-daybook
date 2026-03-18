@@ -235,13 +235,11 @@ export default {
     removeConfirmMessage: 'This will remove your re-learning from your feed.',
     removeConfirmOk: 'Remove',
     removeConfirmCancel: 'Cancel',
-    attributedTo: 'Originally by @{handle}',
     modal: {
       title: 'Re-learn this learning',
       originalPreview: 'Original learning',
       noteLabel: 'Personal note (optional)',
       notePlaceholder: 'Add your own context…',
-      noteHint: 'This won\'t modify the original',
       charCounter: '{current} / {max}',
       charCounterLabel: '{current} of {max} characters',
       visibilityLabel: 'Who can see your re-learning?',

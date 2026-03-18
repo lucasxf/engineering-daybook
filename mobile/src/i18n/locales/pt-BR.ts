@@ -232,13 +232,11 @@ export default {
     removeConfirmMessage: 'Isso removerá seu re-aprendizado do seu feed.',
     removeConfirmOk: 'Remover',
     removeConfirmCancel: 'Cancelar',
-    attributedTo: 'Originalmente por @{handle}',
     modal: {
       title: 'Re-aprender este aprendizado',
       originalPreview: 'Aprendizado original',
       noteLabel: 'Nota pessoal (opcional)',
       notePlaceholder: 'Adicione seu contexto…',
-      noteHint: 'Isso não modifica o original',
       charCounter: '{current} / {max}',
       charCounterLabel: '{current} de {max} caracteres',
       visibilityLabel: 'Quem pode ver seu re-aprendizado?',

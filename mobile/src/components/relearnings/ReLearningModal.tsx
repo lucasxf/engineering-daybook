@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Modal,
   ScrollView,
@@ -70,6 +70,15 @@ export function ReLearningModal({
   const [visibility, setVisibility] = useState<PokVisibility>(originalVisibility);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Reset error (and note) when modal reopens so stale state doesn't persist
+  // across open/close cycles (modal stays mounted in LearningDetailScreen).
+  useEffect(() => {
+    if (visible) {
+      setError(null);
+      setNote('');
+    }
+  }, [visible]);
 
   const MAX_NOTE_LENGTH = 500;
   const disabledVisibilities = visibilityOptionsAbove(originalVisibility);

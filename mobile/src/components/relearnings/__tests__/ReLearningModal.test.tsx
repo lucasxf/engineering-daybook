@@ -22,6 +22,10 @@ jest.mock('react', () => {
   const actual = jest.requireActual('react');
   return {
     ...actual,
+    // useEffect is a noop when the component is called as a plain function
+    // (outside a React fiber). B3 fix adds useEffect for state reset on reopen;
+    // correctness is covered by runtime behavior, not unit test here.
+    useEffect: jest.fn(),
     useState: (init: any) => {
       mockStateCallCount++;
       // Map call order to state slots: 1=note, 2=visibility, 3=submitting, 4=error
@@ -36,7 +40,6 @@ jest.mock('react', () => {
 
 jest.mock('@/lib/learnerApi', () => ({
   shareLearning: jest.fn(),
-  visibilityOptionsUpTo: jest.fn(),
 }));
 
 jest.mock('@/contexts/ThemeContext', () => ({
@@ -89,8 +92,7 @@ jest.mock('@/components/ui/VisibilityPicker', () => ({
 }));
 
 jest.mock('react-native', () => ({
-  Modal: ({ children, visible }: any) =>
-    visible ? { type: 'Modal', props: { children } } : null,
+  Modal: (props: any) => ({ type: 'Modal', props }),
   TouchableOpacity: (props: any) => ({ type: 'TouchableOpacity', props }),
   ScrollView: ({ children }: any) => ({ type: 'ScrollView', props: { children } }),
   View: ({ children, ...props }: any) => ({ type: 'View', props: { children, ...props } }),

@@ -246,7 +246,7 @@ export function LearnerProfileScreen() {
         }
         renderItem={({ item }) => {
           const pok = mapToPok(item, profile.handle);
-          const showRelearn = !isOwnProfile && item.visibility === 'PUBLIC';
+          const showRelearn = !isOwnProfile && pok.visibility === 'PUBLIC';
           const alreadyRelearned = reLearnedIds.has(item.id);
 
           return (
@@ -298,7 +298,7 @@ export function LearnerProfileScreen() {
       {/* Re-learning modal */}
       {reLearningTarget && !isOwnProfile && (
         <ReLearningModal
-          visible={reLearningTarget !== null}
+          visible={true}
           originalPokId={reLearningTarget.id}
           originalTitle={reLearningTarget.title ?? null}
           originalContentPreview={reLearningTarget.content}

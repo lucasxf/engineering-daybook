@@ -9,7 +9,7 @@ export interface PokShare {
   originalPok: Pok | null;
   sharedByHandle: string;
   note: string | null;
-  visibility: string;
+  visibility: PokVisibility;
   createdAt: string;
   originalAuthorHandle: string | null;
   originalAuthorDisplayName: string | null;
