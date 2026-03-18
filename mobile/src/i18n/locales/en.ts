@@ -226,6 +226,37 @@ export default {
     },
   },
 
+  // Re-learnings
+  relearnings: {
+    relearn: 'Re-learn',
+    relearned: 'Re-learned',
+    remove: 'Remove re-learning',
+    removeConfirmTitle: 'Remove re-learning?',
+    removeConfirmMessage: 'This will remove your re-learning from your feed.',
+    removeConfirmOk: 'Remove',
+    removeConfirmCancel: 'Cancel',
+    modal: {
+      title: 'Re-learn this learning',
+      originalPreview: 'Original learning',
+      noteLabel: 'Personal note (optional)',
+      notePlaceholder: 'Add your own context…',
+      charCounter: '{current} / {max}',
+      charCounterLabel: '{current} of {max} characters',
+      visibilityLabel: 'Who can see your re-learning?',
+      confirm: 'Re-learn',
+      cancel: 'Cancel',
+      close: 'Close',
+      errorDuplicate: 'You have already re-learned this',
+      errorGeneric: 'Something went wrong. Try again.',
+    },
+    visibility: {
+      private: 'Private',
+      colleaguesOnly: 'Colleagues only',
+      followersOnly: 'Followers only',
+      public: 'Public',
+    },
+  },
+
   // Common
   common: {
     loading: 'Loading…',

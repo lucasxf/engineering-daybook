@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, View } from 'react-native';
+import { ActivityIndicator, FlatList, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
@@ -14,8 +14,9 @@ import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Text } from '@/components/ui/Text';
 import { LearningCard } from '@/components/feed/LearningCard';
 import { FollowButton } from '@/components/learners/FollowButton';
+import { ReLearningModal } from '@/components/relearnings/ReLearningModal';
 import type { AppStackParamList } from '@/navigation/AppStack';
-import type { RelationshipStatus, LearnerPokSummary, LearnerProfileResponse } from '@/lib/learnerApi';
+import type { RelationshipStatus, LearnerPokSummary, LearnerProfileResponse, PokShare } from '@/lib/learnerApi';
 import type { Pok } from '@/lib/pokApi';
 
 type LearnerProfileRoute = RouteProp<AppStackParamList, 'LearnerProfile'>;
@@ -135,6 +136,17 @@ export function LearnerProfileScreen() {
   }, [profile, nav]);
 
   const isOwnProfile = user?.handle === handle;
+
+  const [reLearningTarget, setReLearningTarget] = useState<LearnerPokSummary | null>(null);
+  const [reLearnedIds, setReLearnedIds] = useState<Set<string>>(new Set());
+
+  function handleRelearnSuccess(_share: PokShare) {
+    if (reLearningTarget) {
+      setReLearnedIds((prev) => new Set(prev).add(reLearningTarget.id));
+    }
+    setReLearningTarget(null);
+  }
+
   const isPrivateShell =
     profile?.profileVisibility === 'PRIVATE' && profile?.learnings == null;
 
@@ -232,12 +244,39 @@ export function LearnerProfileScreen() {
             </View>
           </View>
         }
-        renderItem={({ item }) => (
-          <LearningCard
-            pok={mapToPok(item, profile.handle)}
-            onPress={(pok) => nav.navigate('LearningDetail', { pokId: pok.id })}
-          />
-        )}
+        renderItem={({ item }) => {
+          const pok = mapToPok(item, profile.handle);
+          const showRelearn = !isOwnProfile && pok.visibility === 'PUBLIC';
+          const alreadyRelearned = reLearnedIds.has(item.id);
+
+          return (
+            <View>
+              <LearningCard
+                pok={pok}
+                onPress={(p) => nav.navigate('LearningDetail', { pokId: p.id })}
+              />
+              {showRelearn && (
+                <TouchableOpacity
+                  accessibilityRole="button"
+                  accessibilityLabel={alreadyRelearned ? t('relearnings.relearned') : t('relearnings.relearn')}
+                  disabled={alreadyRelearned}
+                  onPress={() => setReLearningTarget(item)}
+                  style={{
+                    marginTop: theme.spacing.xs,
+                    marginHorizontal: theme.spacing.md,
+                    paddingVertical: theme.spacing.xs,
+                    alignItems: 'flex-end',
+                    opacity: alreadyRelearned ? 0.5 : 1,
+                  }}
+                >
+                  <Text variant="bodySm" color={theme.colors.primary}>
+                    {alreadyRelearned ? t('relearnings.relearned') : t('relearnings.relearn')}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          );
+        }}
         ListEmptyComponent={
           <View
             style={{
@@ -256,6 +295,18 @@ export function LearnerProfileScreen() {
         }}
         ItemSeparatorComponent={() => <View style={{ height: theme.spacing.sm }} />}
       />
+      {/* Re-learning modal */}
+      {reLearningTarget && !isOwnProfile && (
+        <ReLearningModal
+          visible={true}
+          originalPokId={reLearningTarget.id}
+          originalTitle={reLearningTarget.title ?? null}
+          originalContentPreview={reLearningTarget.content}
+          originalVisibility={reLearningTarget.visibility ?? 'PUBLIC'}
+          onSuccess={handleRelearnSuccess}
+          onDismiss={() => setReLearningTarget(null)}
+        />
+      )}
     </SafeAreaView>
   );
 }

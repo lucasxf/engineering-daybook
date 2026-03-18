@@ -14,6 +14,8 @@ import type { AppStackParamList } from '@/navigation/AppStack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/contexts/I18nContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { ReLearningModal } from '@/components/relearnings/ReLearningModal';
 import { pokApi, type Pok, type PokVisibility } from '@/lib/pokApi';
 import { tagApi, type Tag } from '@/lib/tagApi';
 import { ApiRequestError } from '@/lib/api';
@@ -30,6 +32,7 @@ type RouteProps = RouteProp<AppStackParamList, 'LearningDetail'>;
 export function LearningDetailScreen() {
   const { theme } = useTheme();
   const { t } = useI18n();
+  const { user } = useAuth();
   const nav = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
   const route = useRoute<RouteProps>();
   const { pokId } = route.params;
@@ -40,6 +43,9 @@ export function LearningDetailScreen() {
   const [error, setError] = useState<string | null>(null);
   const [serverError, setServerError] = useState<string | null>(null);
   const [editVisibility, setEditVisibility] = useState<PokVisibility>('PRIVATE');
+
+  const [reLearningModalVisible, setReLearningModalVisible] = useState(false);
+  const [hasRelearned, setHasRelearned] = useState(false);
 
   // Tag management
   const [allTags, setAllTags] = useState<Tag[]>([]);
@@ -102,6 +108,22 @@ export function LearningDetailScreen() {
         },
       ]
     );
+  }
+
+  const canRelearn = !!(
+    pok &&
+    pok.visibility === 'PUBLIC' &&
+    user?.userId &&
+    pok.userId !== user.userId
+  );
+
+  function handleRelearn() {
+    setReLearningModalVisible(true);
+  }
+
+  function handleRelearnSuccess(_share: import('@/lib/learnerApi').PokShare) {
+    setReLearningModalVisible(false);
+    setHasRelearned(true);
   }
 
   async function openTagModal() {
@@ -274,20 +296,47 @@ export function LearningDetailScreen() {
         </View>
 
         <View style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.md }}>
-          <Button
-            label={t('learnings.detail.editButton')}
-            variant="secondary"
-            onPress={() => { setEditing(true); setEditVisibility(pok.visibility); }}
-            style={{ flex: 1 }}
-          />
-          <Button
-            label={t('learnings.detail.deleteButton')}
-            variant="danger"
-            onPress={handleDelete}
-            style={{ flex: 1 }}
-          />
+          {canRelearn ? (
+            <Button
+              label={hasRelearned ? t('relearnings.relearned') : t('relearnings.relearn')}
+              variant="secondary"
+              onPress={handleRelearn}
+              disabled={hasRelearned}
+              accessibilityRole="button"
+              accessibilityLabel={hasRelearned ? t('relearnings.relearned') : t('relearnings.relearn')}
+              style={{ flex: 1 }}
+            />
+          ) : (
+            <>
+              <Button
+                label={t('learnings.detail.editButton')}
+                variant="secondary"
+                onPress={() => { setEditing(true); setEditVisibility(pok.visibility); }}
+                style={{ flex: 1 }}
+              />
+              <Button
+                label={t('learnings.detail.deleteButton')}
+                variant="danger"
+                onPress={handleDelete}
+                style={{ flex: 1 }}
+              />
+            </>
+          )}
         </View>
       </ScrollView>
+
+      {/* Re-learning modal */}
+      {canRelearn && pok && (
+        <ReLearningModal
+          visible={reLearningModalVisible}
+          originalPokId={pok.id}
+          originalTitle={pok.title}
+          originalContentPreview={pok.content}
+          originalVisibility={pok.visibility}
+          onSuccess={handleRelearnSuccess}
+          onDismiss={() => setReLearningModalVisible(false)}
+        />
+      )}
 
       {/* Tag picker modal */}
       <Modal

@@ -8,8 +8,12 @@ import {
   followLearner,
   unfollowLearner,
   searchLearners,
+  shareLearning,
+  unshareLearning,
+  visibilityOptionsUpTo,
   type LearnerProfileResponse,
   type LearnerSearchPage,
+  type PokShare,
 } from '@/lib/learnerApi';
 
 const mockApiFetch = apiFetch as jest.MockedFunction<typeof apiFetch>;
@@ -190,5 +194,116 @@ describe('searchLearners', () => {
     mockApiFetch.mockRejectedValueOnce(new Error('Server error'));
 
     await expect(searchLearners('fail')).rejects.toThrow('Server error');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// shareLearning
+// ---------------------------------------------------------------------------
+
+describe('shareLearning', () => {
+  const pokShare: PokShare = {
+    type: 'shared',
+    id: 'share-1',
+    originalPokId: 'pok-1',
+    originalPok: null,
+    sharedByHandle: 'alice',
+    note: null,
+    visibility: 'PUBLIC',
+    createdAt: '2026-03-17T00:00:00Z',
+    originalAuthorHandle: 'bob',
+    originalAuthorDisplayName: 'Bob',
+    originalAuthorAvatarUrl: null,
+  };
+
+  it('POSTs to /poks/{pokId}/share and returns a PokShare', async () => {
+    mockApiFetch.mockResolvedValueOnce(pokShare);
+
+    const result = await shareLearning('pok-1', { visibility: 'PUBLIC' });
+
+    expect(mockApiFetch).toHaveBeenCalledTimes(1);
+    expect(mockApiFetch).toHaveBeenCalledWith('/poks/pok-1/share', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ visibility: 'PUBLIC' }),
+    });
+    expect(result).toEqual(pokShare);
+  });
+
+  it('includes optional note in the request body', async () => {
+    mockApiFetch.mockResolvedValueOnce({ ...pokShare, note: 'my note', visibility: 'FOLLOWERS_ONLY' });
+
+    await shareLearning('pok-1', { note: 'my note', visibility: 'FOLLOWERS_ONLY' });
+
+    expect(mockApiFetch).toHaveBeenCalledWith('/poks/pok-1/share', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ note: 'my note', visibility: 'FOLLOWERS_ONLY' }),
+    });
+  });
+
+  it('rejects on 409 Conflict', async () => {
+    mockApiFetch.mockRejectedValueOnce(new Error('Conflict'));
+
+    await expect(shareLearning('pok-1', { visibility: 'PUBLIC' })).rejects.toThrow('Conflict');
+  });
+
+  it('rejects on 400 Bad Request', async () => {
+    mockApiFetch.mockRejectedValueOnce(new Error('Bad Request'));
+
+    await expect(shareLearning('pok-1', { visibility: 'PUBLIC' })).rejects.toThrow('Bad Request');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// unshareLearning
+// ---------------------------------------------------------------------------
+
+describe('unshareLearning', () => {
+  it('sends DELETE to /poks/shared/{shareId} and resolves void', async () => {
+    mockApiFetch.mockResolvedValueOnce(undefined);
+
+    await unshareLearning('share-1');
+
+    expect(mockApiFetch).toHaveBeenCalledTimes(1);
+    expect(mockApiFetch).toHaveBeenCalledWith('/poks/shared/share-1', { method: 'DELETE' });
+  });
+
+  it('rejects on 403 Forbidden', async () => {
+    mockApiFetch.mockRejectedValueOnce(new Error('Forbidden'));
+
+    await expect(unshareLearning('share-1')).rejects.toThrow('Forbidden');
+  });
+
+  it('rejects on 404 Not Found', async () => {
+    mockApiFetch.mockRejectedValueOnce(new Error('Not Found'));
+
+    await expect(unshareLearning('share-1')).rejects.toThrow('Not Found');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// visibilityOptionsUpTo
+// ---------------------------------------------------------------------------
+
+describe('visibilityOptionsUpTo', () => {
+  it('returns only PRIVATE when max is PRIVATE', () => {
+    expect(visibilityOptionsUpTo('PRIVATE')).toEqual(['PRIVATE']);
+  });
+
+  it('returns PRIVATE and COLLEAGUES_ONLY when max is COLLEAGUES_ONLY', () => {
+    expect(visibilityOptionsUpTo('COLLEAGUES_ONLY')).toEqual(['PRIVATE', 'COLLEAGUES_ONLY']);
+  });
+
+  it('returns PRIVATE, COLLEAGUES_ONLY, and FOLLOWERS_ONLY when max is FOLLOWERS_ONLY', () => {
+    expect(visibilityOptionsUpTo('FOLLOWERS_ONLY')).toEqual([
+      'PRIVATE', 'COLLEAGUES_ONLY', 'FOLLOWERS_ONLY',
+    ]);
+  });
+
+  it('returns all four tiers when max is PUBLIC', () => {
+    expect(visibilityOptionsUpTo('PUBLIC')).toEqual([
+      'PRIVATE', 'COLLEAGUES_ONLY', 'FOLLOWERS_ONLY', 'PUBLIC',
+    ]);
   });
 });

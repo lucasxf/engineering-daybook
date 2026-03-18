@@ -116,6 +116,6 @@ Update this section as waves complete:
 | 3 — Profile | A | ⏳ Pending | — | — |
 | 4 — Visibility | B | ⏳ Pending | — | — |
 | 5 — Tags | C | ⏳ Pending | — | — |
-| 6 — Re-Learning | D | ⏳ Pending | — | — |
+| 6 — Re-Learning | D | ✅ Done (2026-03-17) | feat/mobile-re-learning | — |
 | 7 — Polish | E | ⏳ Pending | — | — |
 | **Play Store Submit** | — | ⏳ Blocked by 3+4+6 | — | — |
