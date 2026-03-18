@@ -6,6 +6,9 @@ const withNextIntl = createNextIntlPlugin('./src/lib/i18n.ts');
 const nextConfig = {
   reactStrictMode: true,
   typedRoutes: true,
+  logging: {
+    browserToTerminal: true,
+  },
 };
 
 module.exports = withNextIntl(nextConfig);

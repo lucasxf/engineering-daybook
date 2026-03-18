@@ -45,7 +45,7 @@ export default function RootLayout({
 }) {
   return (
     <html suppressHydrationWarning>
-      <body className={`${bricolageGrotesque.variable} ${dmSans.variable} ${sora.variable} font-sans antialiased`}>
+      <body suppressHydrationWarning className={`${bricolageGrotesque.variable} ${dmSans.variable} ${sora.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <GoogleOAuthWrapper>
             <AuthProvider>{children}</AuthProvider>
