@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/contexts/I18nContext';
 
@@ -55,17 +56,32 @@ export function AppTabs() {
       <Tab.Screen
         name="Feed"
         component={FeedTab}
-        options={{ title: t('learnings.feed.title') }}
+        options={{
+          title: t('learnings.feed.title'),
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="library-outline" size={size} color={color} />
+          ),
+        }}
       />
       <Tab.Screen
         name="NewLearning"
         component={NewLearningTab}
-        options={{ title: t('learnings.new.title') }}
+        options={{
+          title: t('learnings.new.title'),
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="add-circle-outline" size={size} color={color} />
+          ),
+        }}
       />
       <Tab.Screen
         name="Profile"
         component={ProfileTab}
-        options={{ title: t('profile.title') }}
+        options={{
+          title: t('profile.title'),
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person-outline" size={size} color={color} />
+          ),
+        }}
       />
     </Tab.Navigator>
   );
