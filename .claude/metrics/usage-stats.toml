@@ -154,10 +154,10 @@ invocations = 1
 last_used = "2026-03-15T11:52:45Z"
 
 [productivity]
-current_total_locs = 62889
-current_production_locs = 27630
-current_test_locs = 35259
-test_ratio_percent = 127.6
+current_total_locs = 44675
+current_production_locs = 24624
+current_test_locs = 20051
+test_ratio_percent = 81.4
 total_locs_added = 0
 total_locs_deleted = 0
 net_locs = 0
