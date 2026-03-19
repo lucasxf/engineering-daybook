@@ -93,7 +93,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 11
-        versionName "1.0.1"
+        versionName "1.0.2"
     }
     signingConfigs {
         debug {
@@ -103,10 +103,20 @@ android {
             keyPassword 'android'
         }
         release {
-            storeFile file(System.getenv("ANDROID_KEYSTORE_PATH") ?: "release.keystore")  // path relative to android/app/
-            storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: ""
-            keyAlias System.getenv("ANDROID_KEY_ALIAS") ?: ""
-            keyPassword System.getenv("ANDROID_KEY_PASSWORD") ?: ""
+            // Gradle evaluates signingConfigs blocks at configuration time (even for debug tasks),
+            // so unconditional env-var requirements would break `./gradlew assembleDebug` on
+            // machines without release credentials. Signing is optional here:
+            //   - Local release builds: set ANDROID_KEYSTORE_PATH (and companion vars) before
+            //     running `./gradlew bundleRelease`.
+            //   - EAS cloud builds: EAS injects credentials automatically via eas.json.
+            //   - All other invocations (debug builds, CI without release creds): no-op.
+            def keystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
+            if (keystorePath) {
+                storeFile file(keystorePath)
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: ""
+                keyAlias System.getenv("ANDROID_KEY_ALIAS") ?: ""
+                keyPassword System.getenv("ANDROID_KEY_PASSWORD") ?: ""
+            }
         }
     }
     buildTypes {
@@ -114,9 +124,10 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            // Local builds: set ANDROID_KEYSTORE_PATH/PASSWORD/KEY_ALIAS/KEY_PASSWORD env vars.
-            // EAS Build overrides this with its own injected signing config.
-            signingConfig signingConfigs.release
+            // Caution! In production, you need to generate your own keystore file.
+            // see https://reactnative.dev/docs/signed-apk-android.
+            // Signing is injected by EAS Build via eas.json credentials.
+            // Do not set signingConfig here.
             shrinkResources (findProperty('android.enableShrinkResourcesInReleaseBuilds')?.toBoolean() ?: false)
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"

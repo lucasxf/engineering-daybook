@@ -40,6 +40,12 @@ Do NOT use parenthetical annotations like "(built-in)" in the agent name column.
 - Trend Analysis: Historical trends, correlation analysis
 - Productivity Analysis: LOCs metrics, test ratios, velocity
 - Spec Pipeline Health: Report spec counts by status (draft/planned/approved/in_progress/implemented) from `[spec_pipeline]`. **Do NOT flag `approved = 0` as a quality gate bypass** — `/review-spec` was created after the existing 19 implemented specs were written, so approved=0 is expected and not a defect. Only flag if a spec is newly implemented (i.e. `implemented` count increases between runs) while `approved` remains 0.
+- **Productivity Dashboard** (ADR-008): When `[dc_timeline]`, `[dora_metrics]`, or `[loc_churn]` sections are present in `usage-stats.toml`, include a **Productivity Dashboard** section in the health report with:
+  - DC velocity: current week vs. 4-week moving average; alert if velocity drops >30%
+  - DORA snapshot: deployment frequency and lead time; flag if lead time > 48h
+  - LOC churn trend: net lines per period; flag if deletions consistently exceed additions (may indicate rework)
+  - DC/milestone ratio: DCs per completed milestone; alert if rising (potential milestone item inflation)
+  - Actionable insight: one concrete suggestion based on the data (e.g., "test ratio fell from 127% to 95% this period — prioritize coverage before new features")
 
 ---
 

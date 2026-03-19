@@ -160,66 +160,10 @@ If output contains `NO_SESSION_FILES`, stop — nothing to compile.
 
 ## 4B. Compute LOC Productivity Metrics
 
-Count lines of code across all stacks and write snapshot values into the `[productivity]` block of `usage-stats.toml`.
-
-> Note: Only snapshot counts (`current_*` and `test_ratio_percent`) are computed here. Cumulative churn metrics (`total_locs_added`, `total_locs_deleted`, `net_locs`) require tracking a baseline commit and are deferred — they remain at 0.
+Count lines of code across all stacks and write snapshot values into the `[productivity]` block of `usage-stats.toml`. Includes mobile Maestro E2E YAML files in the test count.
 
 ```bash
-python3 - <<'PYEOF'
-import re
-from pathlib import Path
-
-def count_lines(patterns, exclude_substrings=None):
-    total = 0
-    for pattern in patterns:
-        for f in Path('.').glob(pattern):
-            path_str = str(f).replace('\\', '/')
-            if exclude_substrings and any(ex in path_str for ex in exclude_substrings):
-                continue
-            try:
-                total += sum(1 for _ in f.open(encoding='utf-8', errors='ignore'))
-            except OSError:
-                pass
-    return total
-
-# Backend
-be_prod = count_lines(['backend/src/main/java/**/*.java'])
-be_test = count_lines(['backend/src/test/java/**/*.java'])
-
-# Web — production: *.ts / *.tsx excluding tests
-web_prod = count_lines(
-    ['web/src/**/*.ts', 'web/src/**/*.tsx'],
-    exclude_substrings=['__tests__/', '.test.ts', '.test.tsx', '.spec.ts', '.spec.tsx']
-)
-web_test = count_lines(['web/src/**/*.test.ts', 'web/src/**/*.test.tsx'])
-web_test += count_lines(['web/src/**/__tests__/**/*.ts', 'web/src/**/__tests__/**/*.tsx'])
-e2e_test = count_lines(['web/e2e/**/*.ts'])
-
-# Mobile
-mob_prod = count_lines(
-    ['mobile/src/**/*.ts', 'mobile/src/**/*.tsx'],
-    exclude_substrings=['__tests__/', '.test.ts', '.test.tsx', '.spec.ts', '.spec.tsx']
-)
-mob_test = count_lines(['mobile/src/**/*.test.ts', 'mobile/src/**/*.test.tsx'])
-mob_test += count_lines(['mobile/src/**/__tests__/**/*.ts', 'mobile/src/**/__tests__/**/*.tsx'])
-
-prod_total = be_prod + web_prod + mob_prod
-test_total = be_test + web_test + e2e_test + mob_test
-grand_total = prod_total + test_total
-ratio = (test_total / prod_total * 100) if prod_total > 0 else 0.0
-
-stats = Path('.claude/metrics/usage-stats.toml').read_text(encoding='utf-8')
-stats = re.sub(r'current_total_locs = \d+', f'current_total_locs = {grand_total}', stats)
-stats = re.sub(r'current_production_locs = \d+', f'current_production_locs = {prod_total}', stats)
-stats = re.sub(r'current_test_locs = \d+', f'current_test_locs = {test_total}', stats)
-stats = re.sub(r'test_ratio_percent = [\d.]+', f'test_ratio_percent = {ratio:.1f}', stats)
-Path('.claude/metrics/usage-stats.toml').write_text(stats, encoding='utf-8')
-
-print(f'Production LOC: {prod_total:,}  (backend={be_prod:,}, web={web_prod:,}, mobile={mob_prod:,})')
-print(f'Test LOC:       {test_total:,}  (backend={be_test:,}, web={web_test:,}, e2e={e2e_test:,}, mobile={mob_test:,})')
-print(f'Total LOC:      {grand_total:,}')
-print(f'Test ratio:     {ratio:.1f}%')
-PYEOF
+python3 .claude/scripts/loc_compute.py
 ```
 
 ## 4C. Aggregate PR Review Quality Metrics
@@ -227,54 +171,7 @@ PYEOF
 Sum the `[pr_review_quality]` section across all session delta files into `usage-stats.toml`.
 
 ```bash
-python3 - <<'PYEOF'
-import re
-from pathlib import Path
-
-sessions_dir = Path('.claude/metrics/sessions')
-baseline_path = Path('.claude/metrics/usage-stats.toml')
-
-session_files = [f for f in sessions_dir.glob('*.toml') if f.name != '.gitkeep']
-if not session_files:
-    raise SystemExit(0)
-
-totals = {
-    'total_prs_triaged': 0,
-    'total_comments_triaged': 0,
-    'accepted': 0,
-    'rejected': 0,
-    'deferred': 0,
-    'questions': 0,
-    'informational': 0,
-}
-
-for sf in session_files:
-    text = sf.read_text(encoding='utf-8')
-    m = re.search(r'\[pr_review_quality\](.*?)(?=\n\[|\Z)', text, re.DOTALL)
-    if not m:
-        continue
-    section = m.group(1)
-    for key in totals:
-        km = re.search(rf'^{re.escape(key)}\s*=\s*(\d+)', section, re.MULTILINE)
-        if km:
-            totals[key] += int(km.group(1))
-
-if any(v > 0 for v in totals.values()):
-    baseline = baseline_path.read_text(encoding='utf-8')
-    # Read current baseline values and add delta totals
-    for key, delta_val in totals.items():
-        def inc_field(m, dv=delta_val):
-            return m.group(1) + str(int(m.group(2)) + dv)
-        baseline = re.sub(
-            rf'({re.escape(key)} = )(\d+)',
-            inc_field,
-            baseline,
-        )
-    baseline_path.write_text(baseline, encoding='utf-8')
-    print(f'PR review quality aggregated: {totals}')
-else:
-    print('No PR review quality deltas found — skipping')
-PYEOF
+python3 .claude/scripts/pr_quality.py
 ```
 
 ## 4D. Compute Spec Pipeline Health
@@ -284,38 +181,39 @@ Count spec files in `docs/specs/features/` by their current Status and write sna
 Status normalization: `Complete` → `implemented`; `In Progress` → `in_progress`; all others lowercased with spaces replaced by underscores.
 
 ```bash
-python3 - <<'PYEOF'
-import re
-from pathlib import Path
-
-counts = {'draft': 0, 'planned': 0, 'approved': 0, 'in_progress': 0, 'implemented': 0}
-spec_files = list(Path('docs/specs/features').glob('*.md'))
-
-for f in spec_files:
-    lines = f.read_text(encoding='utf-8', errors='ignore').splitlines()
-    for line in lines[:5]:
-        m = re.search(r'\*\*Status:\*\*\s*(.+)', line)
-        if m:
-            raw = m.group(1).strip()
-            normalized = raw.lower().replace(' ', '_')
-            if normalized == 'complete':
-                normalized = 'implemented'
-            if normalized in counts:
-                counts[normalized] += 1
-            break
-
-total = len(spec_files)
-stats = Path('.claude/metrics/usage-stats.toml').read_text(encoding='utf-8')
-stats = re.sub(r'(total_specs = )\d+', f'\\g<1>{total}', stats)
-for key, val in counts.items():
-    stats = re.sub(rf'(\[spec_pipeline\][^\[]*\b{re.escape(key)} = )\d+', f'\\g<1>{val}', stats)
-Path('.claude/metrics/usage-stats.toml').write_text(stats, encoding='utf-8')
-
-print(f'Spec pipeline: total={total}, draft={counts["draft"]}, planned={counts["planned"]}, approved={counts["approved"]}, in_progress={counts["in_progress"]}, implemented={counts["implemented"]}')
-if counts['approved'] == 0 and counts['implemented'] > 0:
-    print(f'  ⚠ Review gate bypass: {counts["implemented"]} implemented specs, 0 approved — /review-spec is not being used')
-PYEOF
+python3 .claude/scripts/spec_pipeline.py
 ```
+
+## 4F. Compute Delivered Capability (DC) Metrics
+
+Parse all `docs/ROADMAP.phase-*.md` files for milestone items, compute weighted DC totals and time-series periods. See ADR-008 for weight definitions.
+
+```bash
+python3 .claude/scripts/dc_counter.py --json | python3 .claude/scripts/dc_timeline.py
+```
+
+`dc_counter.py` writes `[dc_timeline]` totals to `usage-stats.toml` and emits DC JSON to stdout.
+`dc_timeline.py` reads that JSON and writes `[[dc_timeline.periods]]` entries.
+
+## 4G. Compute DORA Performance Metrics
+
+Compute deployment frequency and lead time from git merge history (last 8 weeks by default).
+
+```bash
+python3 .claude/scripts/dora_metrics.py
+```
+
+Writes `[dora_metrics]` to `usage-stats.toml`.
+
+## 4H. Compute LOC Churn
+
+Track lines added/deleted since the last `/compile-metrics` run.
+
+```bash
+python3 .claude/scripts/loc_churn.py
+```
+
+Appends a `[[loc_churn.periods]]` entry and updates `churn_baseline_commit` in `[metadata]`.
 
 ## 4E. Trigger Automation Sentinel
 
@@ -341,6 +239,7 @@ The agent should:
 ```bash
 git add .claude/metrics/usage-stats.toml
 git add .claude/metrics/recommendations.md
+git add .claude/metrics/productivity-reports/ 2>/dev/null || true
 git rm .claude/metrics/sessions/*.toml 2>/dev/null || true
 ```
 
