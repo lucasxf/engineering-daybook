@@ -53,15 +53,15 @@ KNOWN_AGENTS = {
 KNOWN_COMMANDS = {
     "compile-metrics", "create-pr", "directive", "finish-session",
     "fix-pr", "fix-spec", "generate-v0-prompt", "implement-spec",
-    "review-pr", "review-spec", "save-response", "start-session",
-    "write-spec",
+    "productivity-report", "review-pr", "review-spec", "save-response",
+    "start-session", "write-spec",
 }
 # --- END AUTO-GENERATED: KNOWN_COMMANDS ---
 
 # --- BEGIN AUTO-GENERATED: KNOWN_SKILLS ---
 KNOWN_SKILLS = {
     "doc-coauthoring", "frontend-design", "mobile-design-system",
-    "prompt-optimizer", "skill-creator",
+    "productivity-metrics", "prompt-optimizer", "skill-creator",
 }
 # --- END AUTO-GENERATED: KNOWN_SKILLS ---
 
