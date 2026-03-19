@@ -40,6 +40,7 @@
 | REC-027 | 2026-03-18 | workflow | hedy agent unused during Wave 6 mobile parity work (last used 2026-03-13, Wave 6 merged 2026-03-17) — mobile specialist should be consulted for mobile feature waves; verify REC-009 deferral or add hedy trigger to /implement-spec mobile tasks | open | 2026-03-18 |
 | REC-028 | 2026-03-18 | workflow | hedy.md references Expo SDK 52 in Project Stack section but project is on Expo SDK 53 — stale reference may cause incorrect recommendations; update hedy.md to match mobile/CLAUDE.md | open | 2026-03-18 |
 | REC-029 | 2026-03-18 | workflow | sous-chef has only 1 invocation (2026-03-12) despite significant backend work across Phases 3/5/6/8 — backend code review specialist is systematically under-utilised; add explicit sous-chef delegation to /finish-session backend gate or /create-pr pre-flight | open | 2026-03-18 |
+| REC-030 | 2026-03-19 | workflow | /implement-spec has 6 invocations (last used 2026-03-08, 11 days ago) while write-spec has 9 and review-spec has 7; 3 specs are now Approved and 1 is Planned — approved specs are accumulating without being consumed; verify whether the approved specs are blocking on user scheduling or whether /implement-spec is being bypassed in favour of ad-hoc implementation | open | 2026-03-19 |
 
 ## Archive
 

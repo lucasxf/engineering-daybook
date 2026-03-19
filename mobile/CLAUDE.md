@@ -6,7 +6,7 @@
 
 ## Tech Stack
 
-- **Framework:** Expo SDK 53 (React Native 0.76.x, managed workflow)
+- **Framework:** Expo SDK 53 (React Native 0.79.6, bare workflow with committed `android/`)
 - **Language:** TypeScript 5+ (strict mode, `@/` path alias → `src/`)
 - **Navigation:** React Navigation 6 (native-stack + bottom-tabs)
 - **Forms:** react-hook-form + @hookform/resolvers + zod
@@ -117,6 +117,71 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
 
 ---
 
+## Android Release Workflow
+
+> **IMPORTANT:** Always follow this sequence before every Play Store submission.
+> Skipping the preview smoke test is how release-only native crashes ship undetected.
+
+### Step 1 — Regenerate native directory
+
+```bash
+cd mobile
+npx expo prebuild --clean --platform android
+```
+
+This wipes `android/` and regenerates it from scratch, then runs all 4 config plugins automatically:
+- `withSecureStoreBackupRules` — copies `res/xml/` backup rule files from `expo-secure-store`
+- `withCleanPermissions` — removes `RECORD_AUDIO`/`SYSTEM_ALERT_WINDOW`, pins storage `maxSdkVersion=28`
+- `withReleaseSigning` — removes debug `signingConfig` from release buildType (EAS injects it)
+- `withActivityPin` — forces `androidx.activity:1.9.3` for AGP 8.8.x + compileSdk 35
+
+**Never skip this step.** Manual patches to `android/` are wiped on every clean prebuild. All patches must live in `mobile/plugins/`.
+
+### Step 2 — Run unit tests
+
+```bash
+npm run test:coverage
+```
+
+Must pass with ≥ 80% line coverage. Fix failures before continuing.
+
+### Step 3 — EAS Preview build (pre-publish smoke test gate)
+
+```bash
+eas build --platform android --profile preview
+```
+
+When done, install on emulator:
+```bash
+eas build:run --platform android --profile preview
+# or: download APK from expo.dev → Builds, drag onto emulator
+# or: adb install /path/to/downloaded.apk
+```
+
+**Verify:**
+- [ ] App launches from home screen icon (not from Android Studio)
+- [ ] Splash screen + Onnim icon appear
+- [ ] Login screen loads within ~2 seconds
+- [ ] Cold start works: kill app → relaunch → same result
+
+**Do not proceed to production if any of the above fail.** This is the gate that catches release-only native crashes (e.g., missing XML resources, wrong signing, manifest merger errors) that Maestro E2E misses because it runs on debug builds.
+
+### Step 4 — EAS Production build
+
+```bash
+eas build --platform android --profile production
+```
+
+### Step 5 — Submit to Play Store
+
+```bash
+eas submit --platform android --profile production
+```
+
+This uploads the AAB to the Play Store internal track. Promote to production via the Play Console after internal testing.
+
+---
+
 ## Known Issues / Pitfalls
 
 - **`react@18.3.2` does not exist** — use `18.3.1`. Package.json was fixed during Milestone 3.3 implementation.
@@ -212,10 +277,44 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
   beforeEach(() => { mockStateCallCount = 0; });
   ```
 
-- **`expo prebuild --clean` does NOT generate `res/xml/` backup rules even with `expo-secure-store` in plugins:** The expo-secure-store plugin adds `@xml/secure_store_backup_rules` and `@xml/secure_store_data_extraction_rules` references to `AndroidManifest.xml`, but does NOT generate the corresponding XML files in `res/xml/` on at least some versions of Expo SDK 53. Android throws `Resources.NotFoundException` at launch before any JS loads. Fix: copy these files manually from `node_modules/expo-secure-store/android/src/main/res/xml/` into `android/app/src/main/res/xml/` and commit them. (Added 2026-03-18)
+- **`local.properties` Windows path format:** Writing `sdk.dir=C\:\Users\...` (backslash before colon) causes a Gradle error: "A sintaxe do nome do arquivo... está incorreta" (incorrect filename syntax). Correct format: `sdk.dir=C\:/Users/lucas/AppData/Local/Android/Sdk` (escaped colon + forward slashes). This file is gitignored and must be recreated after every clean checkout.
 
-- **`expo prebuild --clean` adds spurious permissions to AndroidManifest:** A fresh clean prebuild on Expo SDK 53 + expo-dev-client adds `RECORD_AUDIO` and `SYSTEM_ALERT_WINDOW` to the manifest and omits `maxSdkVersion="28"` from storage permissions (`READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`). After any clean prebuild, always manually review `AndroidManifest.xml` permissions and restore the correct set before committing. (Added 2026-03-18)
+- **`expo prebuild --clean` does NOT generate `res/xml/` backup rules even with `expo-secure-store` in plugins:** The expo-secure-store plugin adds `@xml/secure_store_backup_rules` and `@xml/secure_store_data_extraction_rules` references to `AndroidManifest.xml`, but does NOT generate the corresponding XML files in `res/xml/` on at least some versions of Expo SDK 53. Android throws `Resources.NotFoundException` at launch before any JS loads. The permanent fix is `mobile/plugins/withSecureStoreBackupRules.js` which copies the files automatically after every prebuild. (Added 2026-03-18; automated 2026-03-19)
+
+- **`expo prebuild --clean` adds spurious permissions to AndroidManifest:** A fresh clean prebuild on Expo SDK 53 adds `RECORD_AUDIO` and `SYSTEM_ALERT_WINDOW` to the manifest and omits `maxSdkVersion="28"` from storage permissions. The permanent fix is `mobile/plugins/withCleanPermissions.js`. (Added 2026-03-18; automated 2026-03-19)
+
+- **`expo prebuild --clean` re-adds `signingConfig signingConfigs.debug` to the release buildType:** Every clean prebuild resets the release signing config to the debug keystore. This makes release builds signed with the wrong key and incompatible with Play Store. The permanent fix is `mobile/plugins/withReleaseSigning.js`, which removes the spurious debug signingConfig. After the plugin runs, the release buildType has **no `signingConfig` line** — EAS injects the correct signing credentials externally at build time via `eas.json` secrets. `signingConfigs.release` is defined in `build.gradle` via env vars, but the release buildType does not reference it after a clean prebuild; for local `./gradlew bundleRelease`, add `signingConfig signingConfigs.release` to the release buildType manually after prebuild (or use `apksigner` to sign the output). (Added 2026-03-19)
+
+- **Manual patches to `android/` do NOT survive `expo prebuild --clean`:** Any direct edits to `android/app/build.gradle`, `AndroidManifest.xml`, or `res/` are wiped on the next clean prebuild. Always encode Android patches as Expo config plugins in `mobile/plugins/` and register them in `app.json`. The current plugin set: `withSecureStoreBackupRules`, `withCleanPermissions`, `withReleaseSigning`, `withActivityPin`. (Added 2026-03-19)
+
+- **`android/` native directory must match `package.json` React Native version:** The committed `android/` directory was generated by `expo prebuild` for a specific RN version. If `package.json` is upgraded (e.g. RN 0.76 → 0.79) without regenerating the native directory, the boilerplate native code becomes stale and can cause runtime crashes. After any significant RN/Expo SDK version bump, run `expo prebuild --clean` and re-apply config plugins. (Added 2026-03-19)
 
 ---
 
-*Last updated: 2026-03-18 (session: chore/mobile-fix-open-app-bug — Android launch crash + icon fix)*
+## Testing Gap: Release Build Smoke Test
+
+**The crash-on-launch bug evades all current tests.** Here is why and what to do about it.
+
+### Why current tests didn't catch it
+
+| Test type | What it tests | Why it missed the crash |
+|-----------|--------------|------------------------|
+| Jest unit tests (39) | Pure TS logic, no native | Run in Node env — no Android at all |
+| Maestro E2E flows (9) | User flows on a live device | Run against **debug builds** via `expo run:android`. Debug builds: (1) load JS from Metro dev server (not compiled bundle), (2) use debug keystore, (3) don't trigger `Resources.NotFoundException` from missing XML because debug resources differ |
+| EAS Preview build | Produces a distributable APK | ✅ Would catch this IF someone installs it and launches before every submission |
+
+### The fundamental gap
+
+Debug builds (`expo run:android`) and release builds (`eas build --profile production`) use different code paths. The backup-rules crash only manifests in release mode because Android enforces `fullBackupContent` and `dataExtractionRules` XML references at install time for release builds. Maestro runs on debug — it is structurally blind to this class of bug.
+
+### What could have prevented it
+
+1. **EAS Preview smoke test before every production submit:** Run `eas build --profile preview` and install the APK on a device/emulator before running `eas submit`. If the app doesn't reach the login screen, do not submit. This is a manual process gate today.
+
+2. **Config plugins (permanent fix):** Now that manual patches are encoded as plugins, `expo prebuild --clean` followed by plugins produces a correct native directory every time. The stale-android-dir class of bug is eliminated.
+
+3. **Release-mode Maestro test:** Run `maestro test e2e/auth-login.yaml` against the EAS Preview APK (not the debug build). Maestro supports installing a specific APK with `appId` + sideloading. This is the highest-confidence pre-publish gate but requires a CI runner with Android emulator access.
+
+---
+
+*Last updated: 2026-03-19 (session: fix/android-crash-regen — config plugins, retrospective)*

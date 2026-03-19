@@ -587,6 +587,63 @@ AUTH-04 requires session persistence across browser restarts. The current implem
 
 ---
 
+## 6.5. ADR-008: AI Productivity Measurement Framework
+
+**Status:** Accepted (2026-03-19)
+
+**Context:**
+The repository has accumulated tooling usage metrics since early 2026 (`usage-stats.toml`, session delta hooks). These measure *activity* (agent invocations, LOC snapshots, PR triage) but not *business value delivery*. To validate AI productivity gains longitudinally (pre-AI baseline → adoption → maturity), a structured measurement framework is needed.
+
+**Metric unit: Delivered Capability (DC)**
+
+A DC is one milestone item (row in a `docs/ROADMAP.phase-*.md` table) that transitions to Done status. DCs are the atomic unit of value delivery because they are already maintained by the author, have hierarchical IDs (e.g., `6.1.1`), carry MoSCoW priority, and are machine-parseable.
+
+DCs are **not** bug fixes, chores, or refactorings — those are tracked separately as maintenance effort.
+
+**DC weight by MoSCoW priority (anti-gaming):**
+
+| Priority | Weight |
+|----------|--------|
+| Must Have | 1.0 |
+| Should Have | 0.7 |
+| Could Have | 0.4 |
+| Won't Have / Deferred | 0.0 |
+
+Weighted DC = SUM(weight × done_items). Splitting a Must Have into two Could Haves *reduces* the weighted total (1.0 → 0.4 + 0.4 = 0.8), resisting artificial inflation.
+
+Phase files without a Priority column (e.g., Phase 1) default to Must Have weight (1.0).
+
+**Framework: SPACE (not DORA-only)**
+
+DORA (Deployment Frequency, Lead Time, CFR, MTTR) was considered but rejected as the primary framework because:
+- This is a single-developer repo: CFR and MTTR are structurally ~0 (2 of 4 metrics are uninformative)
+- Deployment frequency measures *volume*, not *value* — 10 trivial deploys score higher than 1 major feature
+- Lead time measures *speed*, not *impact*
+
+SPACE (Satisfaction, Performance, Activity, Communication, Efficiency) is used instead. DORA's two informative metrics (deployment frequency, lead time) are included as the Performance dimension.
+
+**Metric mapping:**
+
+| SPACE Dimension | Metric | Source |
+|-----------------|--------|--------|
+| Satisfaction | 1-5 score per report | Manual input |
+| Performance | Deployment frequency (feat PRs/week) | git log |
+| Performance | Lead time (median: first commit → merge) | git log |
+| Activity | DC velocity (weighted DCs/week) | ROADMAP phase files |
+| Activity | Spec throughput (implemented/month) | spec_pipeline |
+| Communication | PR review accept/reject ratio | pr_review_quality |
+| Efficiency | Test-to-production LOC ratio | loc_compute.py |
+| Efficiency | LOC churn (adds/deletes per period) | git diff |
+
+**Alternatives rejected:**
+
+- *DORA pure*: Deployment frequency ≠ value delivery; 2 of 4 metrics are ~0 for solo dev
+- *AST/diff complexity parsing*: High implementation cost (3 languages), complexity ≠ capability, refactoring registers as negative
+
+**Implementation:** Scripts in `.claude/scripts/` (`dc_counter.py`, `dc_timeline.py`, `dora_metrics.py`, `loc_churn.py`); integrated into `/compile-metrics` steps 4F–4H; on-demand report via `/productivity-report`; interpretive layer via `productivity-metrics` skill.
+
+---
+
 ## 7. Security Architecture
 
 ### 7.1 Authentication Flow
@@ -638,3 +695,4 @@ AUTH-04 requires session persistence across browser restarts. The current implem
 | 1.1 | 2026-02-09 | Lucas Xavier Ferreira | Added handle field to users table and auth API endpoints |
 | 1.2 | 2026-02-20 | Lucas Xavier Ferreira | Fixed auth flow (Spring Security + direct Google ID token — no Supabase Auth); updated to Spring Boot 4.0+; confirmed Railway as backend host; updated ADR-005 |
 | 1.3 | 2026-02-21 | Lucas Xavier Ferreira | Added ADR-007: Frontend Token Storage Strategy (proposed — resolves AUTH-04 implementation gap) |
+| 1.4 | 2026-03-19 | Lucas Xavier Ferreira | Added ADR-008: AI Productivity Measurement Framework (SPACE + DC metric, dc_counter/dora_metrics/loc_churn scripts, productivity-metrics skill) |

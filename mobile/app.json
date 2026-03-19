@@ -33,7 +33,11 @@
     "scheme": "learnimo",
     "plugins": [
       "expo-secure-store",
-      "expo-localization"
+      "expo-localization",
+      "./plugins/withSecureStoreBackupRules",
+      "./plugins/withCleanPermissions",
+      "./plugins/withReleaseSigning",
+      "./plugins/withActivityPin"
     ],
     "extra": {
       "apiUrl": "http://localhost:8080/api/v1",

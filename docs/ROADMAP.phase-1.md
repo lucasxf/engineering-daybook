@@ -454,6 +454,45 @@ Post-publish hotfix for two Play Store issues discovered after first Android rel
 | `mobile/src/lib/tokenStore.ts` | Changed SecureStore keys from colon-separated to underscore-separated (Android rejects colons) |
 | `mobile/assets/` + `mobile/android/` | Replaced all icon/splash assets with correct lighter mascot (1024×1024); regenerated 20 native density variants via clean prebuild |
 
+### SPACE Productivity Toolset (develop, 2026-03-19)
+
+Meta-infrastructure session: no product features delivered; no phase milestones progressed. All changes confined to `.claude/` automation tooling and `docs/ARCHITECTURE.md`.
+
+| Task | Status |
+|------|--------|
+| Consolidated 6 duplicate Python scripts (LOC counters, PR quality, spec pipeline) | ✅ Done |
+| Created `dc_counter.py` — parses ROADMAP phase files, counts and weights Delivered Capabilities | ✅ Done |
+| Created `dc_timeline.py` — weekly DC velocity chart from git history | ✅ Done |
+| Created `dora_metrics.py` — deployment frequency, lead time, change fail rate from git log | ✅ Done |
+| Created `loc_churn.py` — LOC delta per commit (add/remove/net) | ✅ Done |
+| Created `/productivity-report` slash command — SPACE dashboard (Satisfaction/Performance/Activity/Communication/Efficiency) | ✅ Done |
+| Created `productivity-metrics` skill — interpretive layer over raw SPACE numbers | ✅ Done |
+| Enhanced `automation-sentinel` with Productivity Dashboard section | ✅ Done |
+| Updated `compile-metrics.md` — wired Steps 4F/4G/4H for new scripts; canonicalized 4B/4C/4D references | ✅ Done |
+| Added ADR-008 to `docs/ARCHITECTURE.md` — DC metric definition, SPACE framework, rejected alternatives | ✅ Done |
+| Rewrote `.claude/metrics/README.md` — full schema, data flow, MoSCoW weight table | ✅ Done |
+| Registered `productivity-report` command and `productivity-metrics` skill in `usage-stats.toml` and registry | ✅ Done |
+
+### Android Crash-on-Launch — Recurring Fix via Config Plugins (fix/android-crash-regen, 2026-03-19) ✅
+
+Bugfix session: eliminated the recurring Android crash-on-launch root cause permanently. The crash (`Resources.NotFoundException` before any JS loads) recurred after `expo prebuild --clean` wiped manually-patched files in `android/`. Four Expo config plugins now automate all patches so they survive future prebuilds. Also resolved a JS crash caused by a React version mismatch, configured env-var-based local signing, and published versionCode 11 to the Play Store internal track.
+
+| Area | Fix |
+|------|-----|
+| `mobile/plugins/withSecureStoreBackupRules.js` | New config plugin — generates `secure_store_backup_rules.xml` and `secure_store_data_extraction_rules.xml` in `res/xml/` after every prebuild |
+| `mobile/plugins/withCleanPermissions.js` | New config plugin — removes spurious `RECORD_AUDIO` and `SYSTEM_ALERT_WINDOW` permissions; restores `maxSdkVersion="28"` on storage permissions; adds `tools:replace="android:maxSdkVersion"` to prevent manifest merger failure with expo-image-picker |
+| `mobile/plugins/withReleaseSigning.js` | New config plugin — removes `signingConfig signingConfigs.debug` from release buildType (EAS injects the correct keystore at build time); sanity check scoped to release block only to avoid false-positive on the debug block |
+| `mobile/plugins/withActivityPin.js` | New config plugin — forces `androidx.activity:1.9.3` (compileSdk 35 / AGP 8.8.x compat; 1.11.0+ requires compileSdk 36) |
+| `mobile/app.json` | Registered all 4 plugins in the `plugins` array |
+| `mobile/src/App.tsx` | Added `ErrorBoundary` wrapper for JS crash resilience |
+| `mobile/package.json` | Pinned `react` and `react-test-renderer` to `19.0.0` — mismatch between `react@19.2.4` and `react-native-renderer@19.0.0` caused JS crash on launch in release builds |
+| `mobile/android/app/build.gradle` | Configured env-var-based signing (`ANDROID_KEYSTORE_PATH`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`); bumped `versionCode` to 11, `versionName` to 1.0.1 |
+| `mobile/eas.json` | Fixed `cache` field format — must be an object, not a boolean |
+| `mobile/android/.gitignore` | Added `release.keystore` to prevent accidental commit of signing credentials |
+| `mobile/CLAUDE.md` | Documented Android Release Workflow (5-step process: prebuild → unit tests → EAS Preview smoke test → EAS production build → submit); added `local.properties` Windows path pitfall; updated 3 existing prebuild pitfall entries with "(automated 2026-03-19)"; added "Testing Gap: Release Build Smoke Test" retrospective section |
+
+**Milestone 3.4 status after this session:** Play Store internal track updated to versionCode 11 (1.0.1). Config plugins prevent crash recurrence across future prebuilds. Google OAuth for mobile still pending — Milestone 3.4 remains open.
+
 ### Mobile Parity Gap Analysis + Execution Plan (develop, 2026-03-16)
 
 Planning session: no code implemented. Analyzed web-mobile feature parity and produced a cross-session execution plan for closing all remaining gaps before Play Store submission.
@@ -512,6 +551,8 @@ Wave sequencing:
 Mobile design system migration progress (Wave 2): S2.1 ✅ S2.2 ✅ S2.3 ✅ — all Wave 2 screen migrations complete (feat/ds-auth-screens, feat/ds-feed-detail, feat/ds-profile-discover).
 
 Mobile parity execution plan progress: Wave 4 (4-tier visibility) ✅ done (feat/mobile-4-tier-visibility, 2026-03-17). Pre-work complete (2026-03-17): parity table corrected, 8 specs Approved. Next: Wave 3 (profile editing, feat/mobile-profile-editing) — required for Play Store submission.
+
+Milestone 3.4 (App Store Publishing): Play Store internal track updated to versionCode 11 (1.0.1) on 2026-03-19. Crash-on-launch permanently fixed via 4 Expo config plugins. `react` pinned to 19.0.0 to resolve JS crash from renderer version mismatch. Local signing workflow documented. Google OAuth for mobile still pending before production track promotion.
 
 ---
 

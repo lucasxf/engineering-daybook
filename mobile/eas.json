@@ -13,6 +13,7 @@
     },
     "preview": {
       "distribution": "internal",
+      "cache": { "disabled": false },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://engineering-daybook-production.up.railway.app/api/v1"
       }
@@ -29,7 +30,8 @@
     "production": {
       "android": {
         "serviceAccountKeyPath": "./google-play-service-account.json",
-        "track": "internal"
+        "track": "internal",
+        "releaseStatus": "draft"
       }
     }
   }

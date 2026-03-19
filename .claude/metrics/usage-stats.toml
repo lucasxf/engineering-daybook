@@ -2,13 +2,14 @@
 # Compiled by /compile-metrics, analyzed by automation-sentinel agent
 
 [metadata]
-timestamp = "2026-03-18T12:56:55Z"
+timestamp = "2026-03-19T08:23:07Z"
 commit_sha = ""
 branch = "develop"
 schema_version = "1.0.0"
 updated_by = "compile-metrics"
 
 # Agent Usage Metrics
+churn_baseline_commit = "4c16e2d64927f2b9b7bc0e51216cc0dceba7fd08"
 [agent_usage.Explore]
 invocations = 96
 last_used = "2026-03-18T10:32:36Z"
@@ -67,8 +68,8 @@ last_used = "2026-03-15T11:17:23Z"
 
 # Command Usage Metrics
 [command_usage.compile-metrics]
-invocations = 17
-last_used = "2026-03-16T22:45:20Z"
+invocations = 18
+last_used = "2026-03-19T08:22:18Z"
 
 [command_usage.create-pr]
 invocations = 31
@@ -83,8 +84,8 @@ invocations = 59
 last_used = "2026-03-17T09:55:08Z"
 
 [command_usage.fix-pr]
-invocations = 19
-last_used = "2026-03-18T08:43:53Z"
+invocations = 20
+last_used = "2026-03-18T23:43:30Z"
 
 [command_usage.fix-spec]
 invocations = 6
@@ -99,16 +100,20 @@ invocations = 6
 last_used = "2026-03-08T09:44:25Z"
 
 [command_usage.review-pr]
-invocations = 23
-last_used = "2026-03-18T08:33:32Z"
+invocations = 25
+last_used = "2026-03-18T21:46:18Z"
 
 [command_usage.save-response]
 invocations = 6
 last_used = "2026-03-16T21:09:23Z"
 
 [command_usage.start-session]
-invocations = 41
-last_used = "2026-03-16T23:32:26Z"
+invocations = 42
+last_used = "2026-03-18T21:40:37Z"
+
+[command_usage.productivity-report]
+invocations = 0
+last_used = ""
 
 [command_usage.write-spec]
 invocations = 9
@@ -141,6 +146,10 @@ last_used = ""
 invocations = 0
 last_used = ""
 
+[skill_usage.productivity-metrics]
+invocations = 0
+last_used = ""
+
 # Productivity Metrics
 
 
@@ -154,23 +163,23 @@ invocations = 1
 last_used = "2026-03-15T11:52:45Z"
 
 [productivity]
-current_total_locs = 44675
-current_production_locs = 24624
-current_test_locs = 20051
-test_ratio_percent = 81.4
+current_total_locs = 62906
+current_production_locs = 27647
+current_test_locs = 35259
+test_ratio_percent = 127.5
 total_locs_added = 0
 total_locs_deleted = 0
 net_locs = 0
 
 # PR Review Quality Metrics
 [pr_review_quality]
-total_prs_triaged = 17
-total_comments_triaged = 91
-accepted = 62
+total_prs_triaged = 18
+total_comments_triaged = 100
+accepted = 67
 rejected = 0
-deferred = 9
+deferred = 10
 questions = 0
-informational = 20
+informational = 23
 
 # Spec Pipeline Health
 # NOTE: approved = 0 is EXPECTED — /review-spec was created AFTER all 19 implemented specs were written.
@@ -184,6 +193,41 @@ in_progress = 2
 implemented = 22
 
 # Health Metrics
+
+# Delivered Capability (DC) Metrics — ADR-008
+[dc_timeline]
+total_dcs = 96
+total_weighted_dcs = 93.3
+total_milestones_complete = 5
+total_phases_complete = 3
+
+[[dc_timeline.periods]]
+period = "2026-W10"
+dcs_completed = 37
+weighted_dcs = 35.2
+milestones_completed = ["6.1", "6.3", "6.4", "8.2"]
+
+
+# DORA Performance Dimension — ADR-008
+[dora_metrics]
+deployment_frequency_weekly = 0.25
+lead_time_median_hours = 313.2
+change_failure_rate = 0.037
+mttr_hours = 0.0
+measurement_window_start = "2026-01-22"
+measurement_window_end = "2026-03-19"
+measurement_weeks = 8
+
+# LOC Churn per Compile Window — ADR-008
+[loc_churn]
+[[loc_churn.periods]]
+period = "historical"
+lines_added = 56082
+lines_deleted = 0
+net = 56082
+baseline_commit = "428a408e"
+head_commit = "4c16e2d6"
+
 [health]
 schema_errors = 0
 total_agents = 15

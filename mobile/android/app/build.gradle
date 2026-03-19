@@ -79,7 +79,7 @@ def enableProguardInReleaseBuilds = (findProperty('android.enableProguardInRelea
  * give correct results when using with locales other than en-US. Note that
  * this variant is about 6MiB larger per architecture than default.
  */
-def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.0.0'
+def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
 android {
     ndkVersion rootProject.ext.ndkVersion
@@ -92,8 +92,8 @@ android {
         applicationId 'net.learnimo.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0.0"
+        versionCode 11
+        versionName "1.0.2"
     }
     signingConfigs {
         debug {
@@ -102,16 +102,32 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            // Gradle evaluates signingConfigs blocks at configuration time (even for debug tasks),
+            // so unconditional env-var requirements would break `./gradlew assembleDebug` on
+            // machines without release credentials. Signing is optional here:
+            //   - Local release builds: set ANDROID_KEYSTORE_PATH (and companion vars) before
+            //     running `./gradlew bundleRelease`.
+            //   - EAS cloud builds: EAS injects credentials automatically via eas.json.
+            //   - All other invocations (debug builds, CI without release creds): no-op.
+            def keystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
+            if (keystorePath) {
+                storeFile file(keystorePath)
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: ""
+                keyAlias System.getenv("ANDROID_KEY_ALIAS") ?: ""
+                keyPassword System.getenv("ANDROID_KEY_PASSWORD") ?: ""
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
+            // Caution! In production, you need to generate your own keystore file.
+            // see https://reactnative.dev/docs/signed-apk-android.
             // Signing is injected by EAS Build via eas.json credentials.
-            // Do not set signingConfig here — using the debug key for release
-            // produces an unuploadable AAB and is silently incompatible with
-            // Play Store signing requirements.
+            // Do not set signingConfig here.
             shrinkResources (findProperty('android.enableShrinkResourcesInReleaseBuilds')?.toBoolean() ?: false)
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
@@ -125,16 +141,6 @@ android {
     }
     androidResources {
         ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~'
-    }
-}
-
-// Force androidx.activity to a version compatible with compileSdk 35 and AGP 8.8.x.
-// androidx.activity:1.11.0+ requires compileSdk 36 + AGP 8.9.1, which Expo SDK 53
-// does not yet target. Remove once Expo SDK upgrades its Gradle toolchain.
-configurations.all {
-    resolutionStrategy {
-        force 'androidx.activity:activity:1.9.3'
-        force 'androidx.activity:activity-ktx:1.9.3'
     }
 }
 
@@ -155,6 +161,17 @@ configurations.all {
         options.each {
             android.packagingOptions[prop] += it
         }
+    }
+}
+
+
+// Force androidx.activity to a version compatible with compileSdk 35 and AGP 8.8.x.
+// androidx.activity:1.11.0+ requires compileSdk 36 + AGP 8.9.1, which Expo SDK 53
+// does not yet target. Remove once Expo SDK upgrades its Gradle toolchain.
+configurations.all {
+    resolutionStrategy {
+        force 'androidx.activity:activity:1.9.3'
+        force 'androidx.activity:activity-ktx:1.9.3'
     }
 }
 
