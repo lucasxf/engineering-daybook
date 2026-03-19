@@ -110,7 +110,7 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            // signingConfig is intentionally omitted — EAS Build injects its own signing config.
+            signingConfig signingConfigs.debug
             shrinkResources (findProperty('android.enableShrinkResourcesInReleaseBuilds')?.toBoolean() ?: false)
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
@@ -124,6 +124,16 @@ android {
     }
     androidResources {
         ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~'
+    }
+}
+
+// Force androidx.activity to a version compatible with compileSdk 35 and AGP 8.8.x.
+// androidx.activity:1.11.0+ requires compileSdk 36 + AGP 8.9.1, which Expo SDK 53
+// does not yet target. Remove once Expo SDK upgrades its Gradle toolchain.
+configurations.all {
+    resolutionStrategy {
+        force 'androidx.activity:activity:1.9.3'
+        force 'androidx.activity:activity-ktx:1.9.3'
     }
 }
 
@@ -144,16 +154,6 @@ android {
         options.each {
             android.packagingOptions[prop] += it
         }
-    }
-}
-
-// Force androidx.activity to a version compatible with compileSdk 35 and AGP 8.8.x.
-// androidx.activity:1.11.0+ requires compileSdk 36 + AGP 8.9.1, which Expo SDK 53
-// does not yet target. Remove once Expo SDK upgrades its Gradle toolchain.
-configurations.all {
-    resolutionStrategy {
-        force 'androidx.activity:activity:1.9.3'
-        force 'androidx.activity:activity-ktx:1.9.3'
     }
 }
 
