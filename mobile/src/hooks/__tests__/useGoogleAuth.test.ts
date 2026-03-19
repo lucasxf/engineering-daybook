@@ -111,6 +111,14 @@ beforeEach(() => {
   mockGoogleLoginApi.mockClear();
   mockUseAuthRequest.mockClear();
   mockUseAuthRequest.mockImplementation(() => [mockRequest, mockAuthResponse, mockPromptAsync]);
+  // Provide a default client ID so the hook is enabled for all non-FR9 tests
+  process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID = 'test-client-id';
+});
+
+afterEach(() => {
+  delete process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
+  delete process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
+  delete process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
 });
 
 // ---------------------------------------------------------------------------
@@ -127,15 +135,33 @@ describe('useGoogleAuth', () => {
   });
 
   describe('FR9 — disabled when no client IDs', () => {
-    it('returns disabled=true when request is null', () => {
-      mockUseAuthRequest.mockReturnValueOnce([null, null, jest.fn()]);
-      const result = useGoogleAuth(onSuccess, onError);
-      expect(result.disabled).toBe(true);
+    it('returns disabled=true and does NOT throw when all client IDs are absent', () => {
+      delete process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
+      expect(() => {
+        const result = useGoogleAuth(onSuccess, onError);
+        expect(result.disabled).toBe(true);
+      }).not.toThrow();
     });
 
-    it('returns disabled=false when request is present', () => {
+    it('passes dummy clientId to useAuthRequest to prevent invariant throw', () => {
+      delete process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
+      useGoogleAuth(onSuccess, onError);
+      const callArgs = mockUseAuthRequest.mock.calls[0][0] as Record<string, unknown>;
+      expect(callArgs.clientId).toBe('__disabled__');
+    });
+
+    it('returns disabled=false when webClientId is present', () => {
+      // EXPO_PUBLIC_GOOGLE_CLIENT_ID already set in outer beforeEach
       const result = useGoogleAuth(onSuccess, onError);
       expect(result.disabled).toBe(false);
+    });
+
+    it('handlePress is a no-op when disabled', async () => {
+      delete process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
+      const result = useGoogleAuth(onSuccess, onError);
+      await result.handlePress();
+      expect(mockSetLoading).not.toHaveBeenCalled();
+      expect(mockPromptAsync).not.toHaveBeenCalled();
     });
   });
 

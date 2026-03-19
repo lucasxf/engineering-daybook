@@ -36,10 +36,19 @@ export function useGoogleAuth(
   const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
   const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
 
-  const [request, response, promptAsync] = Google.useAuthRequest({
+  // FR9: disabled when no client IDs are configured — computed before calling
+  // Google.useAuthRequest so we can pass a dummy clientId to prevent the
+  // library's invariantClientId() from throwing synchronously during render.
+  const hasClientId = !!(webClientId || androidClientId || iosClientId);
+
+  const [, response, promptAsync] = Google.useAuthRequest({
     webClientId,
     androidClientId,
     iosClientId,
+    // Dummy fallback — prevents expo-auth-session's invariantClientId() throw
+    // when all platform-specific IDs are absent. Never used: button is hidden
+    // via the disabled flag when hasClientId is false.
+    ...(!hasClientId && { clientId: '__disabled__' }),
     responseType: ResponseType.IdToken,
   });
 
@@ -109,12 +118,12 @@ export function useGoogleAuth(
   }, [response]); // intentional: onSuccess/onError are stable callbacks from callers
 
   const handlePress = async (): Promise<void> => {
+    if (disabled) return;
     setLoading(true);
     await promptAsync();
   };
 
-  // FR9: disabled when no client IDs configured (request will be null)
-  const disabled = request === null;
+  const disabled = !hasClientId;
 
   return { loading, handlePress, disabled };
 }
