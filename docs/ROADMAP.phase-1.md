@@ -456,18 +456,23 @@ Post-publish hotfix for two Play Store issues discovered after first Android rel
 
 ### Android Crash-on-Launch — Recurring Fix via Config Plugins (fix/android-crash-regen, 2026-03-19) ✅
 
-Bugfix session: eliminated the recurring Android crash-on-launch root cause permanently. The crash (`Resources.NotFoundException` before any JS loads) recurred after `expo prebuild --clean` wiped manually-patched files in `android/`. Four Expo config plugins now automate all patches so they survive future prebuilds.
+Bugfix session: eliminated the recurring Android crash-on-launch root cause permanently. The crash (`Resources.NotFoundException` before any JS loads) recurred after `expo prebuild --clean` wiped manually-patched files in `android/`. Four Expo config plugins now automate all patches so they survive future prebuilds. Also resolved a JS crash caused by a React version mismatch, configured env-var-based local signing, and published versionCode 11 to the Play Store internal track.
 
 | Area | Fix |
 |------|-----|
 | `mobile/plugins/withSecureStoreBackupRules.js` | New config plugin — generates `secure_store_backup_rules.xml` and `secure_store_data_extraction_rules.xml` in `res/xml/` after every prebuild |
-| `mobile/plugins/withCleanPermissions.js` | New config plugin — removes spurious `RECORD_AUDIO` and `SYSTEM_ALERT_WINDOW` permissions and restores `maxSdkVersion="28"` on storage permissions |
-| `mobile/plugins/withReleaseSigning.js` | New config plugin — removes `signingConfig signingConfigs.debug` from release buildType (EAS injects the correct keystore at build time) |
+| `mobile/plugins/withCleanPermissions.js` | New config plugin — removes spurious `RECORD_AUDIO` and `SYSTEM_ALERT_WINDOW` permissions; restores `maxSdkVersion="28"` on storage permissions; adds `tools:replace="android:maxSdkVersion"` to prevent manifest merger failure with expo-image-picker |
+| `mobile/plugins/withReleaseSigning.js` | New config plugin — removes `signingConfig signingConfigs.debug` from release buildType (EAS injects the correct keystore at build time); sanity check scoped to release block only to avoid false-positive on the debug block |
 | `mobile/plugins/withActivityPin.js` | New config plugin — forces `androidx.activity:1.9.3` (compileSdk 35 / AGP 8.8.x compat; 1.11.0+ requires compileSdk 36) |
 | `mobile/app.json` | Registered all 4 plugins in the `plugins` array |
 | `mobile/src/App.tsx` | Added `ErrorBoundary` wrapper for JS crash resilience |
-| `mobile/package.json` | Removed unused `react-native-keyboard-aware-scroll-view` |
-| `mobile/CLAUDE.md` | Added `local.properties` Windows path pitfall; updated 3 existing prebuild pitfall entries with "(automated 2026-03-19)"; added "Testing Gap: Release Build Smoke Test" retrospective section |
+| `mobile/package.json` | Pinned `react` and `react-test-renderer` to `19.0.0` — mismatch between `react@19.2.4` and `react-native-renderer@19.0.0` caused JS crash on launch in release builds |
+| `mobile/android/app/build.gradle` | Configured env-var-based signing (`KEYSTORE_FILE`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`); bumped `versionCode` to 11, `versionName` to 1.0.1 |
+| `mobile/eas.json` | Fixed `cache` field format — must be an object, not a boolean |
+| `mobile/android/.gitignore` | Added `release.keystore` to prevent accidental commit of signing credentials |
+| `mobile/CLAUDE.md` | Documented Android Release Workflow (5-step process: prebuild → unit tests → EAS Preview smoke test → EAS production build → submit); added `local.properties` Windows path pitfall; updated 3 existing prebuild pitfall entries with "(automated 2026-03-19)"; added "Testing Gap: Release Build Smoke Test" retrospective section |
+
+**Milestone 3.4 status after this session:** Play Store internal track updated to versionCode 11 (1.0.1). Config plugins prevent crash recurrence across future prebuilds. Google OAuth for mobile still pending — Milestone 3.4 remains open.
 
 ### Mobile Parity Gap Analysis + Execution Plan (develop, 2026-03-16)
 
@@ -527,6 +532,8 @@ Wave sequencing:
 Mobile design system migration progress (Wave 2): S2.1 ✅ S2.2 ✅ S2.3 ✅ — all Wave 2 screen migrations complete (feat/ds-auth-screens, feat/ds-feed-detail, feat/ds-profile-discover).
 
 Mobile parity execution plan progress: Wave 4 (4-tier visibility) ✅ done (feat/mobile-4-tier-visibility, 2026-03-17). Pre-work complete (2026-03-17): parity table corrected, 8 specs Approved. Next: Wave 3 (profile editing, feat/mobile-profile-editing) — required for Play Store submission.
+
+Milestone 3.4 (App Store Publishing): Play Store internal track updated to versionCode 11 (1.0.1) on 2026-03-19. Crash-on-launch permanently fixed via 4 Expo config plugins. `react` pinned to 19.0.0 to resolve JS crash from renderer version mismatch. Local signing workflow documented. Google OAuth for mobile still pending before production track promotion.
 
 ---
 
