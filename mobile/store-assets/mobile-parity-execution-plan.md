@@ -117,5 +117,5 @@ Update this section as waves complete:
 | 4 — Visibility | B | ⏳ Pending | — | — |
 | 5 — Tags | C | ⏳ Pending | — | — |
 | 6 — Re-Learning | D | ✅ Done (2026-03-17) | feat/mobile-re-learning | — |
-| 7 — Polish | E | ⏳ Pending | — | — |
+| 7 — Polish | E | ✅ Done (2026-03-19) | feat/mobile-google-sign-in | — |
 | **Play Store Submit** | — | ⏳ Blocked by 3+4+6 | — | — |

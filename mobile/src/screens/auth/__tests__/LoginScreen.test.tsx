@@ -88,6 +88,16 @@ jest.mock('@/components/ui/ErrorMessage', () => ({
   ErrorMessage: (props: Record<string, unknown>) => require('react').createElement('ErrorMessage', props),
 }));
 
+const mockHandlePress = jest.fn();
+const mockUseGoogleAuth = jest.fn(() => ({ loading: false, handlePress: mockHandlePress, disabled: false }));
+jest.mock('@/hooks/useGoogleAuth', () => ({
+  useGoogleAuth: (...args: unknown[]) => mockUseGoogleAuth(...args),
+}));
+
+jest.mock('@/components/auth/GoogleSignInButton', () => ({
+  GoogleSignInButton: (props: Record<string, unknown>) => require('react').createElement('GoogleSignInButton', props),
+}));
+
 // ---------------------------------------------------------------------------
 // Import under test (after mocks)
 // ---------------------------------------------------------------------------
@@ -214,5 +224,37 @@ describe('LoginScreen', () => {
     await (submitBtn?.props.onPress as () => Promise<void>)();
     // setUser should not have been called
     expect(mockSetUser).not.toHaveBeenCalled();
+  });
+
+  // ---------------------------------------------------------------------------
+  // Google Sign-In tests
+  // ---------------------------------------------------------------------------
+
+  it('renders GoogleSignInButton', () => {
+    const result = LoginScreen({} as never);
+    const googleBtns = findAllByType(result, 'GoogleSignInButton');
+    expect(googleBtns.length).toBeGreaterThan(0);
+  });
+
+  it('passes loading=false to GoogleSignInButton by default', () => {
+    mockUseGoogleAuth.mockReturnValue({ loading: false, handlePress: mockHandlePress, disabled: false });
+    const result = LoginScreen({} as never);
+    const googleBtns = findAllByType(result, 'GoogleSignInButton');
+    expect(googleBtns[0].props.loading).toBe(false);
+  });
+
+  it('passes disabled from useGoogleAuth to GoogleSignInButton', () => {
+    mockUseGoogleAuth.mockReturnValue({ loading: false, handlePress: mockHandlePress, disabled: true });
+    const result = LoginScreen({} as never);
+    const googleBtns = findAllByType(result, 'GoogleSignInButton');
+    expect(googleBtns[0].props.disabled).toBe(true);
+  });
+
+  it('tapping GoogleSignInButton calls handlePress from useGoogleAuth', async () => {
+    mockHandlePress.mockResolvedValue(undefined);
+    const result = LoginScreen({} as never);
+    const googleBtns = findAllByType(result, 'GoogleSignInButton');
+    await (googleBtns[0].props.onPress as () => Promise<void>)();
+    expect(mockHandlePress).toHaveBeenCalled();
   });
 });
