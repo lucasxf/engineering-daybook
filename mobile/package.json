@@ -42,7 +42,6 @@
     "react-native": "^0.79.6",
     "react-native-error-boundary": "^1.2.4",
     "react-native-gesture-handler": "~2.24.0",
-    "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-markdown-display": "^7.0.2",
     "react-native-safe-area-context": "^5.4.0",
     "react-native-screens": "~4.11.1",
