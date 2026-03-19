@@ -237,7 +237,7 @@ See [ROADMAP.phase-3.md](./docs/ROADMAP.phase-3.md)
 - [x] Semantic search — hybrid keyword + vector search via pgvector; embeddings from HuggingFace Inference API
 - [ ] AI Connections (related learnings)
 - [x] Mobile app (Expo/React Native) — auth, feed, create/edit/delete, dark mode, i18n EN/PT-BR
-- [ ] App Store Publishing (TestFlight + Play Store internal track)
+- [ ] App Store Publishing (Android published to Play Store internal track; recurring crash-on-launch fixed via config plugins 2026-03-19; iOS pending)
 
 ### Phase 4: Growth — ⏸️ Postponed
 See [ROADMAP.phase-4.md](./docs/ROADMAP.phase-4.md)

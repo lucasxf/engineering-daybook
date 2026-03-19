@@ -212,6 +212,8 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
   beforeEach(() => { mockStateCallCount = 0; });
   ```
 
+- **`local.properties` Windows path format:** Writing `sdk.dir=C\:\Users\...` (backslash before colon) causes a Gradle error: "A sintaxe do nome do arquivo... está incorreta" (incorrect filename syntax). Correct format: `sdk.dir=C\:/Users/lucas/AppData/Local/Android/Sdk` (escaped colon + forward slashes). This file is gitignored and must be recreated after every clean checkout.
+
 - **`expo prebuild --clean` does NOT generate `res/xml/` backup rules even with `expo-secure-store` in plugins:** The expo-secure-store plugin adds `@xml/secure_store_backup_rules` and `@xml/secure_store_data_extraction_rules` references to `AndroidManifest.xml`, but does NOT generate the corresponding XML files in `res/xml/` on at least some versions of Expo SDK 53. Android throws `Resources.NotFoundException` at launch before any JS loads. The permanent fix is `mobile/plugins/withSecureStoreBackupRules.js` which copies the files automatically after every prebuild. (Added 2026-03-18; automated 2026-03-19)
 
 - **`expo prebuild --clean` adds spurious permissions to AndroidManifest:** A fresh clean prebuild on Expo SDK 53 adds `RECORD_AUDIO` and `SYSTEM_ALERT_WINDOW` to the manifest and omits `maxSdkVersion="28"` from storage permissions. The permanent fix is `mobile/plugins/withCleanPermissions.js`. (Added 2026-03-18; automated 2026-03-19)
