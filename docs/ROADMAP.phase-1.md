@@ -454,6 +454,25 @@ Post-publish hotfix for two Play Store issues discovered after first Android rel
 | `mobile/src/lib/tokenStore.ts` | Changed SecureStore keys from colon-separated to underscore-separated (Android rejects colons) |
 | `mobile/assets/` + `mobile/android/` | Replaced all icon/splash assets with correct lighter mascot (1024×1024); regenerated 20 native density variants via clean prebuild |
 
+### SPACE Productivity Toolset (develop, 2026-03-19)
+
+Meta-infrastructure session: no product features delivered; no phase milestones progressed. All changes confined to `.claude/` automation tooling and `docs/ARCHITECTURE.md`.
+
+| Task | Status |
+|------|--------|
+| Consolidated 6 duplicate Python scripts (LOC counters, PR quality, spec pipeline) | ✅ Done |
+| Created `dc_counter.py` — parses ROADMAP phase files, counts and weights Delivered Capabilities | ✅ Done |
+| Created `dc_timeline.py` — weekly DC velocity chart from git history | ✅ Done |
+| Created `dora_metrics.py` — deployment frequency, lead time, change fail rate from git log | ✅ Done |
+| Created `loc_churn.py` — LOC delta per commit (add/remove/net) | ✅ Done |
+| Created `/productivity-report` slash command — SPACE dashboard (Satisfaction/Performance/Activity/Communication/Efficiency) | ✅ Done |
+| Created `productivity-metrics` skill — interpretive layer over raw SPACE numbers | ✅ Done |
+| Enhanced `automation-sentinel` with Productivity Dashboard section | ✅ Done |
+| Updated `compile-metrics.md` — wired Steps 4F/4G/4H for new scripts; canonicalized 4B/4C/4D references | ✅ Done |
+| Added ADR-008 to `docs/ARCHITECTURE.md` — DC metric definition, SPACE framework, rejected alternatives | ✅ Done |
+| Rewrote `.claude/metrics/README.md` — full schema, data flow, MoSCoW weight table | ✅ Done |
+| Registered `productivity-report` command and `productivity-metrics` skill in `usage-stats.toml` and registry | ✅ Done |
+
 ### Android Crash-on-Launch — Recurring Fix via Config Plugins (fix/android-crash-regen, 2026-03-19) ✅
 
 Bugfix session: eliminated the recurring Android crash-on-launch root cause permanently. The crash (`Resources.NotFoundException` before any JS loads) recurred after `expo prebuild --clean` wiped manually-patched files in `android/`. Four Expo config plugins now automate all patches so they survive future prebuilds. Also resolved a JS crash caused by a React version mismatch, configured env-var-based local signing, and published versionCode 11 to the Play Store internal track.
