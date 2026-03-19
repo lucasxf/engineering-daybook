@@ -36,8 +36,12 @@ export function RegisterScreen() {
       nav.navigate('ChooseHandle', { tempToken: result.tempToken, email: result.email });
     }
   };
-  const { loading: googleLoading, handlePress: handleGoogleSignIn, disabled: googleDisabled } =
+  const { loading: googleLoading, handlePress, disabled: googleDisabled } =
     useGoogleAuth(handleGoogleSuccess, (msg) => setServerError(t(msg)));
+  const handleGoogleSignIn = async () => {
+    setServerError(null);
+    await handlePress();
+  };
 
   const {
     control,
