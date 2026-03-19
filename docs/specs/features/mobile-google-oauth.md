@@ -1,6 +1,6 @@
 # Mobile Google OAuth Sign-In
 
-> **Status:** Approved
+> **Status:** In Progress
 > **Created:** 2026-03-17
 > **Reviewed:** 2026-03-17
 > **Implemented:** _pending_
