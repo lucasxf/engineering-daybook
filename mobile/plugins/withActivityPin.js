@@ -32,6 +32,16 @@ const withActivityPin = (config) => {
         /^dependencies \{/m,
         `${FORCE_PIN_BLOCK}\ndependencies {`,
       );
+      // Verify the replacement actually happened — the regex targets an unindented
+      // `dependencies {` line. If the Gradle template ever changes its indentation or
+      // block order, replace() silently no-ops and the pin is never applied.
+      if (!cfg.modResults.contents.includes('androidx.activity:activity:1.9.3')) {
+        throw new Error(
+          '[withActivityPin] Could not insert resolution strategy — ' +
+            'expected to find an unindented `dependencies {` block in build.gradle ' +
+            'but the pattern did not match. Check the Gradle template for changes.',
+        );
+      }
     }
     return cfg;
   });

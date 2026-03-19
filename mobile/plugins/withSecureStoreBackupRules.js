@@ -51,8 +51,15 @@ const withSecureStoreBackupRules = (config) => {
         if (fs.existsSync(src)) {
           fs.copyFileSync(src, dest);
         } else {
-          console.warn(
-            `[withSecureStoreBackupRules] Source not found: ${src} — skipping`,
+          // Fail hard: AndroidManifest already references these XML files via
+          // android:fullBackupContent and android:dataExtractionRules. If the files
+          // are absent, Android throws Resources.NotFoundException on launch — the
+          // exact crash this plugin prevents. A missing source means node_modules is
+          // corrupt or expo-secure-store is not installed; that must be fixed before
+          // the native directory is usable, not papered over with a warning.
+          throw new Error(
+            `[withSecureStoreBackupRules] Source not found: ${src} — ` +
+              `ensure expo-secure-store is installed (run 'npm install --legacy-peer-deps').`,
           );
         }
       }
