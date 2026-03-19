@@ -5,16 +5,12 @@
  * buildType. This makes release builds signed with the debug keystore, producing
  * AABs that are rejected or incorrectly signed for Play Store.
  *
- * Two-path signing approach:
- *  - Local builds (./gradlew bundleRelease): signingConfig is set via env vars
- *    (ANDROID_KEYSTORE_PATH, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS,
- *    ANDROID_KEY_PASSWORD) and the release buildType references signingConfigs.release.
- *  - EAS cloud builds: EAS injects the correct signing config automatically via
- *    eas.json credentials — no signingConfig line should appear in the release buildType.
- *
  * This plugin removes the spurious `signingConfig signingConfigs.debug` that prebuild
- * inserts into the release buildType. The env-var signingConfig for local builds is
- * set separately in android/app/build.gradle and is not affected by this plugin.
+ * inserts into the release buildType. After the plugin runs, the release buildType has
+ * no signingConfig line. EAS injects the correct signing credentials externally at build
+ * time via eas.json secrets. For local `./gradlew bundleRelease`, add
+ * `signingConfig signingConfigs.release` to the release buildType manually after prebuild,
+ * or sign the output with apksigner post-build.
  */
 const { withAppBuildGradle } = require('@expo/config-plugins');
 
