@@ -212,6 +212,10 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
   beforeEach(() => { mockStateCallCount = 0; });
   ```
 
+- **`expo prebuild --clean` does NOT generate `res/xml/` backup rules even with `expo-secure-store` in plugins:** The expo-secure-store plugin adds `@xml/secure_store_backup_rules` and `@xml/secure_store_data_extraction_rules` references to `AndroidManifest.xml`, but does NOT generate the corresponding XML files in `res/xml/` on at least some versions of Expo SDK 53. Android throws `Resources.NotFoundException` at launch before any JS loads. Fix: copy these files manually from `node_modules/expo-secure-store/android/src/main/res/xml/` into `android/app/src/main/res/xml/` and commit them. (Added 2026-03-18)
+
+- **`expo prebuild --clean` adds spurious permissions to AndroidManifest:** A fresh clean prebuild on Expo SDK 53 + expo-dev-client adds `RECORD_AUDIO` and `SYSTEM_ALERT_WINDOW` to the manifest and omits `maxSdkVersion="28"` from storage permissions (`READ_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`). After any clean prebuild, always manually review `AndroidManifest.xml` permissions and restore the correct set before committing. (Added 2026-03-18)
+
 ---
 
-*Last updated: 2026-03-17 (session: feat/mobile-4-tier-visibility — Wave 4: 4-tier visibility picker across all mobile screens)*
+*Last updated: 2026-03-18 (session: chore/mobile-fix-open-app-bug — Android launch crash + icon fix)*

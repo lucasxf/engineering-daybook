@@ -20,8 +20,8 @@ jest.mock('expo-secure-store', () => ({
 // Helpers
 // ---------------------------------------------------------------------------
 
-const ACCESS_KEY = 'learnimo:access_token';
-const REFRESH_KEY = 'learnimo:refresh_token';
+const ACCESS_KEY = 'learnimo_access_token';
+const REFRESH_KEY = 'learnimo_refresh_token';
 
 beforeEach(async () => {
   // Reset SecureStore backing store
