@@ -340,4 +340,4 @@ Debug builds (`expo run:android`) and release builds (`eas build --profile produ
 
 ---
 
-*Last updated: 2026-03-19 (session: develop — release signing automation, build-release.sh, app.json versionCode source of truth)*
+*Last updated: 2026-03-19 (session: feat/mobile-google-sign-in — Wave 7 Google OAuth sign-in, 381 tests; release signing automation, build-release.sh, app.json versionCode source of truth)*
