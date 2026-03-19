@@ -117,6 +117,71 @@ maestro test e2e/auth-login.yaml        # Run an E2E flow (requires Maestro CLI)
 
 ---
 
+## Android Release Workflow
+
+> **IMPORTANT:** Always follow this sequence before every Play Store submission.
+> Skipping the preview smoke test is how release-only native crashes ship undetected.
+
+### Step 1 — Regenerate native directory
+
+```bash
+cd mobile
+npx expo prebuild --clean --platform android
+```
+
+This wipes `android/` and regenerates it from scratch, then runs all 4 config plugins automatically:
+- `withSecureStoreBackupRules` — copies `res/xml/` backup rule files from `expo-secure-store`
+- `withCleanPermissions` — removes `RECORD_AUDIO`/`SYSTEM_ALERT_WINDOW`, pins storage `maxSdkVersion=28`
+- `withReleaseSigning` — removes debug `signingConfig` from release buildType (EAS injects it)
+- `withActivityPin` — forces `androidx.activity:1.9.3` for AGP 8.8.x + compileSdk 35
+
+**Never skip this step.** Manual patches to `android/` are wiped on every clean prebuild. All patches must live in `mobile/plugins/`.
+
+### Step 2 — Run unit tests
+
+```bash
+npm run test:coverage
+```
+
+Must pass with ≥ 80% line coverage. Fix failures before continuing.
+
+### Step 3 — EAS Preview build (pre-publish smoke test gate)
+
+```bash
+eas build --platform android --profile preview
+```
+
+When done, install on emulator:
+```bash
+eas build:run --platform android --profile preview
+# or: download APK from expo.dev → Builds, drag onto emulator
+# or: adb install /path/to/downloaded.apk
+```
+
+**Verify:**
+- [ ] App launches from home screen icon (not from Android Studio)
+- [ ] Splash screen + Onnim icon appear
+- [ ] Login screen loads within ~2 seconds
+- [ ] Cold start works: kill app → relaunch → same result
+
+**Do not proceed to production if any of the above fail.** This is the gate that catches release-only native crashes (e.g., missing XML resources, wrong signing, manifest merger errors) that Maestro E2E misses because it runs on debug builds.
+
+### Step 4 — EAS Production build
+
+```bash
+eas build --platform android --profile production
+```
+
+### Step 5 — Submit to Play Store
+
+```bash
+eas submit --platform android --profile production
+```
+
+This uploads the AAB to the Play Store internal track. Promote to production via the Play Console after internal testing.
+
+---
+
 ## Known Issues / Pitfalls
 
 - **`react@18.3.2` does not exist** — use `18.3.1`. Package.json was fixed during Milestone 3.3 implementation.
