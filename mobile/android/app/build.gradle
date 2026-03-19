@@ -79,7 +79,7 @@ def enableProguardInReleaseBuilds = (findProperty('android.enableProguardInRelea
  * give correct results when using with locales other than en-US. Note that
  * this variant is about 6MiB larger per architecture than default.
  */
-def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.0.0'
+def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
 android {
     ndkVersion rootProject.ext.ndkVersion
@@ -108,10 +108,10 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
+            // Caution! In production, you need to generate your own keystore file.
+            // see https://reactnative.dev/docs/signed-apk-android.
             // Signing is injected by EAS Build via eas.json credentials.
-            // Do not set signingConfig here — using the debug key for release
-            // produces an unuploadable AAB and is silently incompatible with
-            // Play Store signing requirements.
+            // Do not set signingConfig here.
             shrinkResources (findProperty('android.enableShrinkResourcesInReleaseBuilds')?.toBoolean() ?: false)
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
@@ -125,16 +125,6 @@ android {
     }
     androidResources {
         ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~'
-    }
-}
-
-// Force androidx.activity to a version compatible with compileSdk 35 and AGP 8.8.x.
-// androidx.activity:1.11.0+ requires compileSdk 36 + AGP 8.9.1, which Expo SDK 53
-// does not yet target. Remove once Expo SDK upgrades its Gradle toolchain.
-configurations.all {
-    resolutionStrategy {
-        force 'androidx.activity:activity:1.9.3'
-        force 'androidx.activity:activity-ktx:1.9.3'
     }
 }
 
@@ -155,6 +145,17 @@ configurations.all {
         options.each {
             android.packagingOptions[prop] += it
         }
+    }
+}
+
+
+// Force androidx.activity to a version compatible with compileSdk 35 and AGP 8.8.x.
+// androidx.activity:1.11.0+ requires compileSdk 36 + AGP 8.9.1, which Expo SDK 53
+// does not yet target. Remove once Expo SDK upgrades its Gradle toolchain.
+configurations.all {
+    resolutionStrategy {
+        force 'androidx.activity:activity:1.9.3'
+        force 'androidx.activity:activity-ktx:1.9.3'
     }
 }
 
