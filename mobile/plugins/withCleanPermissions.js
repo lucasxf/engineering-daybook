@@ -33,10 +33,13 @@ const withCleanPermissions = (config) => {
       return !PERMISSIONS_TO_REMOVE.includes(name);
     });
 
-    // Add maxSdkVersion to legacy storage permissions
+    // Add maxSdkVersion + tools:replace to legacy storage permissions
+    // tools:replace is required because expo-image-picker also sets maxSdkVersion=32
+    // on these same permissions — without it, manifest merger fails.
     for (const perm of manifest.manifest['uses-permission']) {
       if (PERMISSIONS_NEEDS_MAX_SDK.includes(perm.$['android:name'])) {
         perm.$['android:maxSdkVersion'] = MAX_SDK_VERSION;
+        perm.$['tools:replace'] = 'android:maxSdkVersion';
       }
     }
 

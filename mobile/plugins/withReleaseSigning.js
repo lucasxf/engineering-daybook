@@ -35,23 +35,15 @@ const withReleaseSigning = (config) => {
     // (e.g., the Gradle template changed), the replace() silently no-ops and the release
     // buildType is still signed with the debug keystore — a Play Store rejection waiting
     // to happen. Detect this early during prebuild instead of at submission time.
-    if (before !== cfg.modResults.contents) {
-      // Replacement happened — sanity-check that no debug signingConfig remains
-      if (/signingConfig\s+signingConfigs\.debug/.test(cfg.modResults.contents)) {
-        throw new Error(
-          '[withReleaseSigning] Patch applied but `signingConfig signingConfigs.debug` ' +
-            'is still present in build.gradle. The replacement may be incomplete.',
-        );
-      }
-    } else {
-      // No change — either it was already clean (acceptable) or the pattern didn't match.
-      // Only fail if a debug signingConfig reference still exists.
-      if (/signingConfig\s+signingConfigs\.debug/.test(cfg.modResults.contents)) {
-        throw new Error(
-          '[withReleaseSigning] Could not remove `signingConfig signingConfigs.debug` — ' +
-            'the pattern did not match. Check the Gradle template for changes.',
-        );
-      }
+    // Sanity-check: verify the release block no longer contains signingConfig.
+    // The debug block legitimately keeps `signingConfig signingConfigs.debug`, so we
+    // scope the check to only the release block content.
+    const releaseBlockMatch = cfg.modResults.contents.match(/release\s*\{([^}]*)\}/s);
+    if (releaseBlockMatch && /signingConfig\s+signingConfigs\.debug/.test(releaseBlockMatch[1])) {
+      throw new Error(
+        '[withReleaseSigning] `signingConfig signingConfigs.debug` is still present in the ' +
+          'release buildType. The replacement may be incomplete — check the Gradle template.',
+      );
     }
     return cfg;
   });
