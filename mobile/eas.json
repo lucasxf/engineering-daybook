@@ -13,7 +13,7 @@
     },
     "preview": {
       "distribution": "internal",
-      "cache": true,
+      "cache": { "disabled": false },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://engineering-daybook-production.up.railway.app/api/v1"
       }
