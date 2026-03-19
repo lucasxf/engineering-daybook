@@ -443,6 +443,17 @@ Wave 4 of the mobile parity execution plan: upgraded visibility model from 2-tie
 | `mobile/src/i18n/locales/en.ts`, `pt-BR.ts` | 7 new keys: `followersOnly`, `followersOnlyDesc`, `colleaguesOnly`, `colleaguesOnlyDesc`, `privateDesc`, `publicDesc`, `lockedPublic` |
 | Tests | 299 total (27 new), 84.42% line coverage |
 
+### Android App Launch Crash + Icon Fix (chore/mobile-fix-open-app-bug, 2026-03-18) ✅
+
+Post-publish hotfix for two Play Store issues discovered after first Android release.
+
+| Area | Fix |
+|------|-----|
+| `mobile/android/app/src/main/res/xml/` | Added `secure_store_backup_rules.xml` + `secure_store_data_extraction_rules.xml` — missing from committed android/ dir, causing `Resources.NotFoundException` crash before any JS loaded |
+| `mobile/android/app/src/main/AndroidManifest.xml` | Removed spurious RECORD_AUDIO + SYSTEM_ALERT_WINDOW permissions added by fresh prebuild; restored `maxSdkVersion="28"` on storage permissions |
+| `mobile/src/lib/tokenStore.ts` | Changed SecureStore keys from colon-separated to underscore-separated (Android rejects colons) |
+| `mobile/assets/` + `mobile/android/` | Replaced all icon/splash assets with correct lighter mascot (1024×1024); regenerated 20 native density variants via clean prebuild |
+
 ### Mobile Parity Gap Analysis + Execution Plan (develop, 2026-03-16)
 
 Planning session: no code implemented. Analyzed web-mobile feature parity and produced a cross-session execution plan for closing all remaining gaps before Play Store submission.
