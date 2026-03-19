@@ -162,6 +162,9 @@ mobile/android/local.properties
 mobile/android/*.iml
 mobile/android/.idea/
 
+# Keep Gradle wrapper jar (needed by EAS Build — overrides global *.jar rule)
+!mobile/android/gradle/wrapper/gradle-wrapper.jar
+
 # iOS
 mobile/ios/Pods/
 mobile/ios/.xcode.env.local

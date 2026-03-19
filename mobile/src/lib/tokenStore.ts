@@ -1,12 +1,13 @@
 import * as SecureStore from 'expo-secure-store';
 
 /**
- * SecureStore key names — all tokens are namespaced under `learnimo:`.
+ * SecureStore key names — all tokens are namespaced under `learnimo_`.
  * Only two keys are stored: access token (short-lived JWT) and refresh token (opaque).
+ * Note: Android SecureStore only allows alphanumeric, '.', '-', and '_' — no colons.
  */
 const KEYS = {
-  ACCESS_TOKEN: 'learnimo:access_token',
-  REFRESH_TOKEN: 'learnimo:refresh_token',
+  ACCESS_TOKEN: 'learnimo_access_token',
+  REFRESH_TOKEN: 'learnimo_refresh_token',
 } as const;
 
 /**
