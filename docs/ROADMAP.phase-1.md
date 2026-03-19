@@ -486,7 +486,7 @@ Bugfix session: eliminated the recurring Android crash-on-launch root cause perm
 | `mobile/app.json` | Registered all 4 plugins in the `plugins` array |
 | `mobile/src/App.tsx` | Added `ErrorBoundary` wrapper for JS crash resilience |
 | `mobile/package.json` | Pinned `react` and `react-test-renderer` to `19.0.0` — mismatch between `react@19.2.4` and `react-native-renderer@19.0.0` caused JS crash on launch in release builds |
-| `mobile/android/app/build.gradle` | Configured env-var-based signing (`KEYSTORE_FILE`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`); bumped `versionCode` to 11, `versionName` to 1.0.1 |
+| `mobile/android/app/build.gradle` | Configured env-var-based signing (`ANDROID_KEYSTORE_PATH`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`); bumped `versionCode` to 11, `versionName` to 1.0.1 |
 | `mobile/eas.json` | Fixed `cache` field format — must be an object, not a boolean |
 | `mobile/android/.gitignore` | Added `release.keystore` to prevent accidental commit of signing credentials |
 | `mobile/CLAUDE.md` | Documented Android Release Workflow (5-step process: prebuild → unit tests → EAS Preview smoke test → EAS production build → submit); added `local.properties` Windows path pitfall; updated 3 existing prebuild pitfall entries with "(automated 2026-03-19)"; added "Testing Gap: Release Build Smoke Test" retrospective section |

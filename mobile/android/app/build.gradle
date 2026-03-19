@@ -103,19 +103,20 @@ android {
             keyPassword 'android'
         }
         release {
+            // Gradle evaluates signingConfigs blocks at configuration time (even for debug tasks),
+            // so unconditional env-var requirements would break `./gradlew assembleDebug` on
+            // machines without release credentials. Signing is optional here:
+            //   - Local release builds: set ANDROID_KEYSTORE_PATH (and companion vars) before
+            //     running `./gradlew bundleRelease`.
+            //   - EAS cloud builds: EAS injects credentials automatically via eas.json.
+            //   - All other invocations (debug builds, CI without release creds): no-op.
             def keystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
-            if (!keystorePath) {
-                throw new GradleException(
-                    "[release signing] ANDROID_KEYSTORE_PATH is not set. " +
-                    "For local builds: set ANDROID_KEYSTORE_PATH (and ANDROID_KEYSTORE_PASSWORD, " +
-                    "ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD) to your release keystore. " +
-                    "For EAS builds: configure credentials in eas.json."
-                )
+            if (keystorePath) {
+                storeFile file(keystorePath)
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: ""
+                keyAlias System.getenv("ANDROID_KEY_ALIAS") ?: ""
+                keyPassword System.getenv("ANDROID_KEY_PASSWORD") ?: ""
             }
-            storeFile file(keystorePath)
-            storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: ""
-            keyAlias System.getenv("ANDROID_KEY_ALIAS") ?: ""
-            keyPassword System.getenv("ANDROID_KEY_PASSWORD") ?: ""
         }
     }
     buildTypes {
