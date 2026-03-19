@@ -317,4 +317,4 @@ Debug builds (`expo run:android`) and release builds (`eas build --profile produ
 
 ---
 
-*Last updated: 2026-03-19 (session: fix/android-crash-regen — config plugins, retrospective)*
+*Last updated: 2026-03-19 (session: feat/mobile-google-sign-in — Wave 7 Google OAuth sign-in, 381 tests)*

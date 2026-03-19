@@ -106,7 +106,7 @@ export function useGoogleAuth(
           setLoading(false);
         });
     }
-  }, [response]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [response]); // intentional: onSuccess/onError are stable callbacks from callers
 
   const handlePress = async (): Promise<void> => {
     setLoading(true);
