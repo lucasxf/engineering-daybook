@@ -103,7 +103,16 @@ android {
             keyPassword 'android'
         }
         release {
-            storeFile file(System.getenv("ANDROID_KEYSTORE_PATH") ?: "release.keystore")  // path relative to android/app/
+            def keystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
+            if (!keystorePath) {
+                throw new GradleException(
+                    "[release signing] ANDROID_KEYSTORE_PATH is not set. " +
+                    "For local builds: set ANDROID_KEYSTORE_PATH (and ANDROID_KEYSTORE_PASSWORD, " +
+                    "ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD) to your release keystore. " +
+                    "For EAS builds: configure credentials in eas.json."
+                )
+            }
+            storeFile file(keystorePath)
             storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: ""
             keyAlias System.getenv("ANDROID_KEY_ALIAS") ?: ""
             keyPassword System.getenv("ANDROID_KEY_PASSWORD") ?: ""
