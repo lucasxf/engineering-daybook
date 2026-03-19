@@ -5,11 +5,16 @@
  * buildType. This makes release builds signed with the debug keystore, producing
  * AABs that are rejected or incorrectly signed for Play Store.
  *
- * EAS Build injects the correct signing config automatically — no signingConfig
- * line should appear in the release buildType.
+ * Two-path signing approach:
+ *  - Local builds (./gradlew bundleRelease): signingConfig is set via env vars
+ *    (ANDROID_KEYSTORE_PATH, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS,
+ *    ANDROID_KEY_PASSWORD) and the release buildType references signingConfigs.release.
+ *  - EAS cloud builds: EAS injects the correct signing config automatically via
+ *    eas.json credentials — no signingConfig line should appear in the release buildType.
  *
- * This plugin removes the signingConfig from the release buildType after every
- * prebuild by patching build.gradle with a regex replacement.
+ * This plugin removes the spurious `signingConfig signingConfigs.debug` that prebuild
+ * inserts into the release buildType. The env-var signingConfig for local builds is
+ * set separately in android/app/build.gradle and is not affected by this plugin.
  */
 const { withAppBuildGradle } = require('@expo/config-plugins');
 
@@ -20,7 +25,6 @@ const withReleaseSigning = (config) => {
     // The pattern targets only the line inside `release { ... }` by looking for the
     // word "release" earlier in the block, but Gradle build files aren't parseable
     // with a simple regex. We use a targeted replacement of the exact generated line.
-    const before = cfg.modResults.contents;
     cfg.modResults.contents = cfg.modResults.contents.replace(
       /(\s*release\s*\{[^}]*?)\s*signingConfig signingConfigs\.debug(\s)/gs,
       (match, beforeGroup, after) => {
