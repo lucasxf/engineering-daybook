@@ -93,7 +93,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 11
-        versionName "1.0.1"
+        versionName "1.0.2"
     }
     signingConfigs {
         debug {
@@ -123,9 +123,10 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            // Local builds: set ANDROID_KEYSTORE_PATH/PASSWORD/KEY_ALIAS/KEY_PASSWORD env vars.
-            // EAS Build overrides this with its own injected signing config.
-            signingConfig signingConfigs.release
+            // Caution! In production, you need to generate your own keystore file.
+            // see https://reactnative.dev/docs/signed-apk-android.
+            // Signing is injected by EAS Build via eas.json credentials.
+            // Do not set signingConfig here.
             shrinkResources (findProperty('android.enableShrinkResourcesInReleaseBuilds')?.toBoolean() ?: false)
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
