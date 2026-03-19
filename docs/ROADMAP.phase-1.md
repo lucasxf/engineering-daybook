@@ -454,6 +454,21 @@ Post-publish hotfix for two Play Store issues discovered after first Android rel
 | `mobile/src/lib/tokenStore.ts` | Changed SecureStore keys from colon-separated to underscore-separated (Android rejects colons) |
 | `mobile/assets/` + `mobile/android/` | Replaced all icon/splash assets with correct lighter mascot (1024×1024); regenerated 20 native density variants via clean prebuild |
 
+### Android Crash-on-Launch — Recurring Fix via Config Plugins (fix/android-crash-regen, 2026-03-19) ✅
+
+Bugfix session: eliminated the recurring Android crash-on-launch root cause permanently. The crash (`Resources.NotFoundException` before any JS loads) recurred after `expo prebuild --clean` wiped manually-patched files in `android/`. Four Expo config plugins now automate all patches so they survive future prebuilds.
+
+| Area | Fix |
+|------|-----|
+| `mobile/plugins/withSecureStoreBackupRules.js` | New config plugin — generates `secure_store_backup_rules.xml` and `secure_store_data_extraction_rules.xml` in `res/xml/` after every prebuild |
+| `mobile/plugins/withCleanPermissions.js` | New config plugin — removes spurious `RECORD_AUDIO` and `SYSTEM_ALERT_WINDOW` permissions and restores `maxSdkVersion="28"` on storage permissions |
+| `mobile/plugins/withReleaseSigning.js` | New config plugin — removes `signingConfig signingConfigs.debug` from release buildType (EAS injects the correct keystore at build time) |
+| `mobile/plugins/withActivityPin.js` | New config plugin — forces `androidx.activity:1.9.3` (compileSdk 35 / AGP 8.8.x compat; 1.11.0+ requires compileSdk 36) |
+| `mobile/app.json` | Registered all 4 plugins in the `plugins` array |
+| `mobile/src/App.tsx` | Added `ErrorBoundary` wrapper for JS crash resilience |
+| `mobile/package.json` | Removed unused `react-native-keyboard-aware-scroll-view` |
+| `mobile/CLAUDE.md` | Added `local.properties` Windows path pitfall; updated 3 existing prebuild pitfall entries with "(automated 2026-03-19)"; added "Testing Gap: Release Build Smoke Test" retrospective section |
+
 ### Mobile Parity Gap Analysis + Execution Plan (develop, 2026-03-16)
 
 Planning session: no code implemented. Analyzed web-mobile feature parity and produced a cross-session execution plan for closing all remaining gaps before Play Store submission.
