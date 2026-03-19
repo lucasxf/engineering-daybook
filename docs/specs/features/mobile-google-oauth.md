@@ -1,9 +1,9 @@
 # Mobile Google OAuth Sign-In
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-03-17
 > **Reviewed:** 2026-03-17
-> **Implemented:** _pending_
+> **Implemented:** 2026-03-19
 
 ---
 
@@ -281,9 +281,26 @@ LoginScreen / RegisterScreen
 > _This section is filled AFTER implementation._
 
 ### Commits
+- `9438c57` — docs: mark spec mobile-google-oauth as in progress
+- `ebff326` — feat(mobile): add useGoogleAuth hook with expo-auth-session
+- `2ae2c74` — chore(mobile): add Google OAuth platform client ID env vars
+- `f6a774e` — feat(mobile): add GoogleSignInButton component
+- `4d7f881` — feat(mobile): wire Google OAuth into auth screens
 
 ### Architectural Decisions
 
+**Decision: `useGoogleAuth` returns `disabled` flag instead of null**
+The hook returns `{ loading, handlePress, disabled }` where `disabled === true` when all client IDs are absent. `GoogleSignInButton` renders `null` when `disabled === true` (FR9).
+
+**Decision: `WebBrowser.maybeCompleteAuthSession()` at module top-level**
+Required by expo-auth-session for the redirect flow. Called outside the hook body so it runs once on module load.
+
+**Decision: Error message passed as i18n key string**
+`onError` is called with `'auth.errors.googleFailed'` (the key). The screen wraps it: `(msg) => setServerError(t(msg))`. Keeps the hook free from i18n context dependency (unit-testable in node env, NFR1).
+
 ### Deviations from Spec
+None. All FRs and NFRs implemented as specified.
 
 ### Lessons Learned
+- `maybeCompleteAuthSession()` runs at module load time — test mock must use an inline `jest.fn()` in the factory, not a module-scope variable.
+- `jest.config.js` `lib` project needed `transformIgnorePatterns` extended to transpile `expo-auth-session`, `expo-web-browser`, and `expo-modules-core` ES modules.
