@@ -58,13 +58,6 @@ jest.mock('expo-web-browser', () => ({
 }));
 
 // ---------------------------------------------------------------------------
-// expo-auth-session mock (ResponseType enum)
-// ---------------------------------------------------------------------------
-jest.mock('expo-auth-session', () => ({
-  ResponseType: { IdToken: 'id_token' },
-}));
-
-// ---------------------------------------------------------------------------
 // @/lib/auth mock
 // ---------------------------------------------------------------------------
 const mockGoogleLoginApi = jest.fn();
@@ -309,8 +302,8 @@ describe('useGoogleAuth', () => {
       expect(onSuccess).not.toHaveBeenCalled();
     });
 
-    it('calls onError when id_token is missing in success response', () => {
-      mockAuthResponse = { type: 'success', params: {} }; // no id_token
+    it('calls onError when id_token is missing in both params and authentication', () => {
+      mockAuthResponse = { type: 'success', params: {}, authentication: null };
       mockUseAuthRequest.mockReturnValue([mockRequest, mockAuthResponse, mockPromptAsync]);
 
       useGoogleAuth(onSuccess, onError);
@@ -319,6 +312,40 @@ describe('useGoogleAuth', () => {
       expect(mockSetLoading).toHaveBeenCalledWith(false);
       expect(onError).toHaveBeenCalledWith('auth.errors.googleFailed');
       expect(onSuccess).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('authentication.idToken fallback (Android code flow)', () => {
+    it('uses authentication.idToken when params.id_token is absent', async () => {
+      // Android code flow: expo-auth-session auto-exchanges the code and puts
+      // the id_token in authentication.idToken rather than params.id_token.
+      mockAuthResponse = {
+        type: 'success',
+        params: {},
+        authentication: { idToken: 'android-id-token' },
+      };
+      mockUseAuthRequest.mockReturnValue([mockRequest, mockAuthResponse, mockPromptAsync]);
+
+      mockGoogleLoginApi.mockResolvedValue({
+        requiresHandle: false,
+        handle: 'alice',
+        userId: 'user-123',
+        email: 'alice@example.com',
+        accessToken: 'tok-access',
+        refreshToken: 'tok-refresh',
+        tempToken: null,
+      });
+
+      useGoogleAuth(onSuccess, onError);
+      runEffect(1);
+
+      await new Promise((r) => setTimeout(r, 0));
+
+      expect(mockGoogleLoginApi).toHaveBeenCalledWith('android-id-token');
+      expect(onSuccess).toHaveBeenCalledWith({
+        type: 'existing',
+        user: { handle: 'alice', userId: 'user-123', email: 'alice@example.com' },
+      });
     });
   });
 

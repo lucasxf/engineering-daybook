@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
-import { ResponseType } from 'expo-auth-session';
 import { googleLoginApi } from '@/lib/auth';
 import type { AuthResponse } from '@/lib/auth';
 
@@ -51,7 +50,10 @@ export function useGoogleAuth(
     // when all platform-specific IDs are absent. Never used: button is hidden
     // via the disabled flag when hasClientId is false.
     ...(!hasClientId && { clientId: '__disabled__' }),
-    responseType: ResponseType.IdToken,
+    // responseType intentionally omitted — expo-auth-session defaults to
+    // ResponseType.Code on installed apps (Android/iOS) and auto-exchanges
+    // the code for tokens including id_token. ResponseType.IdToken causes
+    // "400: unsupported_response_type" on Android OAuth clients.
   });
 
   // Android cold-start optimisation: warm up the browser on mount
@@ -80,7 +82,9 @@ export function useGoogleAuth(
     }
 
     if (response.type === 'success') {
-      const idToken = response.params?.id_token;
+      // On Android (code flow), id_token comes from the auto-exchanged
+      // authentication object. On web (implicit flow), it's in params directly.
+      const idToken = response.params?.id_token ?? response.authentication?.idToken;
       if (!idToken) {
         setLoading(false);
         onError('auth.errors.googleFailed');

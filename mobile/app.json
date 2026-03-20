@@ -2,7 +2,7 @@
   "expo": {
     "name": "learnimo",
     "slug": "learnimo",
-    "version": "1.0.11",
+    "version": "1.0.12",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -26,21 +26,7 @@
       "package": "net.learnimo.app",
       "softwareKeyboardLayoutMode": "resize",
       "permissions": [],
-      "versionCode": 21,
-      "intentFilters": [
-        {
-          "action": "VIEW",
-          "autoVerify": true,
-          "data": [
-            {
-              "scheme": "com.googleusercontent.apps.521355221840-s9ipi64mlojsp1aoqr6jkarbsm6vf7qg",
-              "host": "oauth2redirect",
-              "pathPrefix": "/google"
-            }
-          ],
-          "category": ["BROWSABLE", "DEFAULT"]
-        }
-      ]
+      "versionCode": 22
     },
     "web": {
       "favicon": "./assets/favicon.png"
