@@ -150,8 +150,8 @@ Must pass with ≥ 80% line coverage. Fix failures before continuing.
 Use the automated script. It handles versionCode bump, prebuild, signing, and bundleRelease in one step:
 
 ```bash
-# Copy release.keystore to mobile/android/app/ first (download from EAS if needed):
-#   eas credentials --platform android → Keystore → Download
+# Ensure the keystore file exists at mobile/@lucasxf__learnimo.jks
+# (download from EAS if needed: eas credentials --platform android → Keystore → Download)
 # Set signing env vars (copy from mobile/.env.signing.example → mobile/.env.signing):
 source mobile/.env.signing
 cd mobile
@@ -161,8 +161,9 @@ bash scripts/build-release.sh
 The script:
 1. Reads `android.versionCode` from `app.json` and bumps it by 1 (source of truth — never edit `build.gradle` directly)
 2. Bumps the patch in `version` (e.g., `1.0.2` → `1.0.3`)
-3. Runs `expo prebuild --clean --platform android`
-4. Runs `./gradlew bundleRelease`
+3. Runs `expo prebuild --clean --platform android` (wipes and regenerates `android/`)
+4. Copies the keystore into `android/app/` **after** prebuild (prebuild wipes `android/`, so copying before is useless)
+5. Runs `./gradlew bundleRelease`
 
 Output AAB: `android/app/build/outputs/bundle/release/app-release.aab`
 

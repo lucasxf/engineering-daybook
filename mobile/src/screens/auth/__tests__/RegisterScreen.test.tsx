@@ -112,7 +112,7 @@ import type { ReactEl } from './test-utils';
 
 describe('RegisterScreen', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
     mockHandleSubmit.mockImplementation((onSubmit) =>
       jest.fn(() =>
         onSubmit({
@@ -124,6 +124,7 @@ describe('RegisterScreen', () => {
         })
       )
     );
+    mockUseGoogleAuth.mockImplementation(() => ({ loading: false, handlePress: mockHandlePress, disabled: false }));
   });
 
   it('returns a valid React element', () => {

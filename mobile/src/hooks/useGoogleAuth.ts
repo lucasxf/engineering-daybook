@@ -123,13 +123,18 @@ export function useGoogleAuth(
     }
   }, [response]); // intentional: onSuccess/onError are stable callbacks from callers
 
+  const disabled = !hasClientId;
+
   const handlePress = async (): Promise<void> => {
     if (disabled) return;
     setLoading(true);
-    await promptAsync();
+    try {
+      await promptAsync();
+    } catch {
+      setLoading(false);
+      onError('auth.errors.googleFailed');
+    }
   };
-
-  const disabled = !hasClientId;
 
   return { loading, handlePress, disabled };
 }

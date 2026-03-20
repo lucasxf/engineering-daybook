@@ -59,18 +59,40 @@ echo "[2/7] Keystore source verified: @lucasxf__learnimo.jks"
 # ── 3. Auto-bump versionCode and version in app.json (BEFORE prebuild) ───────
 # app.json is the source of truth — prebuild reads it to generate build.gradle.
 # Bumping here ensures the correct values survive every prebuild --clean.
+# Uses Node.js for JSON manipulation to avoid GNU-specific grep -oP / sed -i
+# which are unavailable on macOS/BSD.
 APP_JSON="$MOBILE_DIR/app.json"
 
-OLD_VC=$(grep -oP '"versionCode":\s*\K[0-9]+' "$APP_JSON")
-NEW_VC=$((OLD_VC + 1))
-sed -i "s/\"versionCode\": $OLD_VC/\"versionCode\": $NEW_VC/" "$APP_JSON"
+BUMP_INFO=$(APP_JSON="$APP_JSON" node <<'EOF'
+const fs = require('fs');
+const appJsonPath = process.env.APP_JSON;
+const raw = fs.readFileSync(appJsonPath, 'utf8');
+const data = JSON.parse(raw);
+const expo = data.expo || data;
+const android = expo.android || {};
 
-OLD_VN=$(grep -oP '"version":\s*"\K[^"]+' "$APP_JSON" | head -1)
-IFS='.' read -r VN_MAJOR VN_MINOR VN_PATCH <<< "$OLD_VN"
-NEW_PATCH=$((VN_PATCH + 1))
-NEW_VN="$VN_MAJOR.$VN_MINOR.$NEW_PATCH"
-sed -i "s/\"version\": \"$OLD_VN\"/\"version\": \"$NEW_VN\"/" "$APP_JSON"
+const oldVc = Number(android.versionCode);
+if (!Number.isInteger(oldVc) || oldVc < 0) {
+  process.stderr.write('ERROR: versionCode not found or invalid in app.json\n');
+  process.exit(1);
+}
+const oldVn = String(expo.version || '');
+const parts = oldVn.split('.');
+if (parts.length !== 3) {
+  process.stderr.write('ERROR: version must be MAJOR.MINOR.PATCH in app.json\n');
+  process.exit(1);
+}
+const newVc = oldVc + 1;
+const newVn = parts[0] + '.' + parts[1] + '.' + (Number(parts[2]) + 1);
+android.versionCode = newVc;
+expo.version = newVn;
+if (data.expo) data.expo = expo;
+fs.writeFileSync(appJsonPath, JSON.stringify(data, null, 2) + '\n', 'utf8');
+process.stdout.write(newVc + ' ' + newVn + ' ' + oldVc + ' ' + oldVn + '\n');
+EOF
+)
 
+read -r NEW_VC NEW_VN OLD_VC OLD_VN <<< "$BUMP_INFO"
 echo "[3/7] Version bumped in app.json: versionCode $OLD_VC → $NEW_VC | version $OLD_VN → $NEW_VN"
 
 # ── 4. Expo prebuild (wipes android/, then regenerates with config plugins) ──
@@ -121,8 +143,17 @@ echo "[4/7] Running expo prebuild --clean ..."
 npx expo prebuild --clean --platform android
 
 # ── 5. Copy keystore into android/app/ (must be AFTER prebuild wipes android/) ─
-cp "$KEYSTORE_SRC" "$ANDROID_DIR/app/release.keystore"
-echo "[5/7] Keystore copied to android/app/release.keystore"
+# Validate that ANDROID_KEYSTORE_PATH is a simple filename with no path separators.
+# Gradle resolves it relative to android/app/ — a path with separators would look
+# for a non-existent subdirectory and fail with "keystore not found" at bundleRelease.
+if [[ "$ANDROID_KEYSTORE_PATH" == */* ]] || [[ "$ANDROID_KEYSTORE_PATH" == *\\* ]]; then
+  echo "ERROR: ANDROID_KEYSTORE_PATH must be a simple filename (no path separators)."
+  echo "  Current value: '$ANDROID_KEYSTORE_PATH'"
+  echo "  Example:       release.keystore"
+  exit 1
+fi
+cp "$KEYSTORE_SRC" "$ANDROID_DIR/app/$ANDROID_KEYSTORE_PATH"
+echo "[5/7] Keystore copied to android/app/$ANDROID_KEYSTORE_PATH"
 
 # ── 6. Clear Metro transform cache ───────────────────────────────────────────
 # Metro caches Babel-inlined EXPO_PUBLIC_* values. A stale cache from a prior

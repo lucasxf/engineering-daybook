@@ -112,10 +112,11 @@ import type { ReactEl } from './test-utils';
 
 describe('LoginScreen', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
     mockHandleSubmit.mockImplementation((onSubmit) =>
       jest.fn(() => onSubmit({ email: 'test@example.com', password: 'mock-p4ssword' }))
     );
+    mockUseGoogleAuth.mockImplementation(() => ({ loading: false, handlePress: mockHandlePress, disabled: false }));
   });
 
   it('returns a valid React element', () => {

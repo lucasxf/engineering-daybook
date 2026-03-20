@@ -34,7 +34,11 @@ const withReleaseSigning = (config) => {
 
     // ── Step 2: Inject signingConfigs.release block (after the debug block) ──
     // Only inject if not already present (idempotency guard).
-    if (!contents.includes('signingConfigs.release') && !contents.includes('signingConfigs {\n        release')) {
+    // NOTE: We check for something unique to the injected block itself (the storeFile line),
+    // NOT for 'signingConfigs.release' — that substring is also introduced by Step 3's
+    // buildTypes reference, so using it would cause the guard to skip injection after Step 3
+    // runs even if Step 2's regex never matched (leaving Gradle referencing an undefined block).
+    if (!contents.includes('storeFile file(System.getenv("ANDROID_KEYSTORE_PATH")')) {
       const releaseSigningBlock = [
         '        release {',
         '            if (System.getenv("ANDROID_KEYSTORE_PATH")) {',
@@ -72,18 +76,23 @@ const withReleaseSigning = (config) => {
 
     // ── Validation ──
     // 1. Verify `signingConfig signingConfigs.debug` is gone from the release buildType.
-    const releaseBlockMatch = contents.match(/release\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/s);
-    if (releaseBlockMatch && /signingConfig\s+signingConfigs\.debug/.test(releaseBlockMatch[1])) {
+    // Scope to the buildTypes { ... release { ... } } section to avoid matching the
+    // signingConfigs.release block injected by Step 2 (which appears before buildTypes).
+    const buildTypesSection = contents.match(/buildTypes\s*\{([\s\S]*?)\}/s)?.[1] ?? '';
+    const releaseBlockContent = buildTypesSection.match(/release\s*\{([\s\S]*?)\}/s)?.[1] ?? '';
+    if (/signingConfig\s+signingConfigs\.debug/.test(releaseBlockContent)) {
       throw new Error(
         '[withReleaseSigning] `signingConfig signingConfigs.debug` is still present in the ' +
           'release buildType. The replacement may be incomplete — check the Gradle template.',
       );
     }
 
-    // 2. Verify that signingConfigs.release was injected.
-    if (!contents.includes('signingConfigs.release')) {
+    // 2. Verify that the signingConfigs.release block was actually injected (not just referenced).
+    // Check for the storeFile line that is unique to the injected block — NOT 'signingConfigs.release'
+    // which is also present in the buildTypes reference added by Step 3.
+    if (!contents.includes('storeFile file(System.getenv("ANDROID_KEYSTORE_PATH")')) {
       throw new Error(
-        '[withReleaseSigning] `signingConfigs.release` was not injected into build.gradle. ' +
+        '[withReleaseSigning] `signingConfigs.release` block was not injected into build.gradle. ' +
           'The Gradle template may have changed — check withReleaseSigning.js.',
       );
     }
