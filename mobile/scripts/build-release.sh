@@ -86,18 +86,29 @@ if command -v taskkill &>/dev/null; then
 fi
 
 if [[ -d "$ANDROID_DIR" ]]; then
-  rm -rf "$ANDROID_DIR" 2>/dev/null || {
-    echo ""
-    echo "ERROR: Cannot delete android/ — a process has it locked (EBUSY)."
-    echo ""
-    echo "  Most likely cause: a terminal window with CWD inside mobile/android/"
-    echo "  Fix: close or 'cd ~' out of any such terminal, then re-run this script."
-    echo ""
-    echo "  To find the culprit in PowerShell:"
-    echo "    Get-Process mintty | Select-Object Id, MainWindowTitle"
-    echo ""
-    exit 1
-  }
+  echo "[4/7] Removing existing android/ ..."
+  for attempt in 1 2 3; do
+    rm -rf "$ANDROID_DIR" 2>/dev/null && break
+    if [[ $attempt -lt 3 ]]; then
+      echo "  android/ still locked, retrying in 3s (attempt $attempt/3)..."
+      sleep 3
+    else
+      echo ""
+      echo "ERROR: Cannot delete android/ — a process has it locked (EBUSY)."
+      echo ""
+      echo "  Likely causes:"
+      echo "    1. A terminal window with CWD inside mobile/android/"
+      echo "    2. VS Code has files in android/ open"
+      echo "    3. A Chrome tab with a file:// URL inside android/"
+      echo ""
+      echo "  Fix: close those, then re-run this script."
+      echo ""
+      echo "  To find the culprit terminal in PowerShell:"
+      echo "    Get-Process mintty | Select-Object Id, MainWindowTitle"
+      echo ""
+      exit 1
+    fi
+  done
   echo "[4/7] Existing android/ removed"
 fi
 echo "[4/7] Running expo prebuild --clean ..."
