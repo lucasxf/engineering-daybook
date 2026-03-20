@@ -4,7 +4,7 @@ export default {
     login: {
       title: 'Welcome back',
       subtitle: 'Sign in to continue learning',
-      emailLabel: 'Email',
+      emailLabel: 'E-mail',
       emailPlaceholder: 'you@example.com',
       passwordLabel: 'Password',
       submitButton: 'Sign in',
@@ -17,7 +17,7 @@ export default {
     register: {
       title: 'Create account',
       subtitle: 'Start capturing your learnings',
-      emailLabel: 'Email',
+      emailLabel: 'E-mail',
       emailPlaceholder: 'you@example.com',
       passwordLabel: 'Password',
       confirmPasswordLabel: 'Confirm password',
@@ -33,7 +33,7 @@ export default {
     forgotPassword: {
       title: 'Forgot password',
       subtitle: 'Enter your email and we will send a reset link',
-      emailLabel: 'Email',
+      emailLabel: 'E-mail',
       emailPlaceholder: 'you@example.com',
       submitButton: 'Send reset link',
       backToLogin: 'Back to sign in',

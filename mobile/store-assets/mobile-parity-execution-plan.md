@@ -93,6 +93,7 @@
 | **Timeline view** | Feed already shows chronological order with date headers. |
 | **Tag-grouped view** | Power-user feature. Low ROI for launch. |
 | **Reset password (native)** | Deep link to web reset page works. |
+| **Pre-auth theme/locale toggle** | Mobile follows device settings (system theme, device locale). Web has in-app toggles on auth pages (FR6.2 in web-auth spec). Post-launch UX improvement. |
 
 ---
 
