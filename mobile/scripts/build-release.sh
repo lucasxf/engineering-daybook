@@ -78,6 +78,13 @@ echo "[3/7] Version bumped in app.json: versionCode $OLD_VC → $NEW_VC | versio
 # expo's built-in delete uses Node fs.rm which throws EBUSY on Windows when
 # any terminal has android/ as its CWD. bash rm -rf gives a clearer error.
 cd "$MOBILE_DIR"
+
+# Stop any lingering Gradle daemons — they hold file handles inside android/build/
+# and android/app/.cxx/ that cause EBUSY when rm -rf tries to delete the directory.
+if command -v taskkill &>/dev/null; then
+  taskkill //F //IM java.exe &>/dev/null || true
+fi
+
 if [[ -d "$ANDROID_DIR" ]]; then
   rm -rf "$ANDROID_DIR" 2>/dev/null || {
     echo ""
