@@ -74,8 +74,26 @@ sed -i "s/\"version\": \"$OLD_VN\"/\"version\": \"$NEW_VN\"/" "$APP_JSON"
 echo "[3/7] Version bumped in app.json: versionCode $OLD_VC → $NEW_VC | version $OLD_VN → $NEW_VN"
 
 # ── 4. Expo prebuild (wipes android/, then regenerates with config plugins) ──
-echo "[4/7] Running expo prebuild --clean ..."
+# Pre-delete android/ using bash rm -rf before expo prebuild --clean.
+# expo's built-in delete uses Node fs.rm which throws EBUSY on Windows when
+# any terminal has android/ as its CWD. bash rm -rf gives a clearer error.
 cd "$MOBILE_DIR"
+if [[ -d "$ANDROID_DIR" ]]; then
+  rm -rf "$ANDROID_DIR" 2>/dev/null || {
+    echo ""
+    echo "ERROR: Cannot delete android/ — a process has it locked (EBUSY)."
+    echo ""
+    echo "  Most likely cause: a terminal window with CWD inside mobile/android/"
+    echo "  Fix: close or 'cd ~' out of any such terminal, then re-run this script."
+    echo ""
+    echo "  To find the culprit in PowerShell:"
+    echo "    Get-Process mintty | Select-Object Id, MainWindowTitle"
+    echo ""
+    exit 1
+  }
+  echo "[4/7] Existing android/ removed"
+fi
+echo "[4/7] Running expo prebuild --clean ..."
 npx expo prebuild --clean --platform android
 
 # ── 5. Copy keystore into android/app/ (must be AFTER prebuild wipes android/) ─
