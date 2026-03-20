@@ -33,17 +33,17 @@ export function useGoogleAuth(
   const [loading, setLoading] = useState(false);
 
   const webClientId = process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID;
-  const androidClientId = process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID;
   const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
 
-  // FR9: disabled when no client IDs are configured — computed before calling
-  // Google.useAuthRequest so we can pass a dummy clientId to prevent the
-  // library's invariantClientId() from throwing synchronously during render.
-  const hasClientId = !!(webClientId || androidClientId || iosClientId);
+  // expo-auth-session uses a browser-based OAuth flow (Chrome Custom Tab on
+  // Android). Only webClientId is used — androidClientId is for the native
+  // Google Sign-In SDK and causes "Custom URI scheme is not enabled" errors
+  // when passed to a browser-based flow.
+  // FR9: disabled when no client IDs are configured.
+  const hasClientId = !!(webClientId || iosClientId);
 
   const [, response, promptAsync] = Google.useAuthRequest({
     webClientId,
-    androidClientId,
     iosClientId,
     // Dummy fallback — prevents expo-auth-session's invariantClientId() throw
     // when all platform-specific IDs are absent. Never used: button is hidden
