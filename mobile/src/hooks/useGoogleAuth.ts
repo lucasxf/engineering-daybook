@@ -46,13 +46,6 @@ export function useGoogleAuth(
     webClientId,
     iosClientId,
     androidClientId,
-    // Override default redirect URI (net.learnimo.app:/oauthredirect derived from
-    // Application.applicationId) with the app's registered scheme. Android routes
-    // the OAuth callback via intent filters — the manifest only declares scheme
-    // "learnimo" (from app.json), not the package name scheme, so the default
-    // redirect URI is never caught and Chrome stays open instead of returning to
-    // the app.
-    redirectUri: 'learnimo://oauthredirect',
     // Dummy fallback — prevents expo-auth-session's invariantClientId() throw
     // when all platform-specific IDs are absent. Never used: button is hidden
     // via the disabled flag when hasClientId is false.
