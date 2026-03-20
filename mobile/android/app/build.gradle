@@ -92,8 +92,8 @@ android {
         applicationId 'net.learnimo.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 25
-        versionName "1.0.15"
+        versionCode 28
+        versionName "1.0.18"
     }
     signingConfigs {
         debug {

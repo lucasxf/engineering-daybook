@@ -117,6 +117,14 @@
 - **Wave 6 done (2026-03-17):** `mobile-re-learning.md` implemented — `feat/mobile-re-learning` branch; `shareLearning()`/`unshareLearning()` API functions, `ReLearningModal` component (note + visibility picker), Re-learn button on LearningDetailScreen and LearnerProfileScreen (others' PUBLIC learnings only), Remove action for own re-learnings in FeedScreen, i18n keys (EN + PT-BR), 2 Maestro E2E flows (create + remove re-learning); 345 tests passing, 84.35% line coverage.
 - **Next:** Wave 5 (`mobile-tag-management`), Wave 7 (`mobile-sort-options` + `mobile-google-oauth`).
 
+**Progress update (2026-03-20 — Wave 7 backend fix: Google OAuth Android audience):**
+- Backend `GoogleIdTokenVerifier` updated to accept both the web client ID and the Android client ID as valid token audiences. Previously, tokens minted by the Android app (which carry the Android OAuth client ID as the audience) were rejected with `403 Google sign-in failed` because the verifier only trusted the web client ID.
+- `AuthProperties.GoogleProperties` record gained an `androidClientId` field; `application.yml` added `android-client-id: ${GOOGLE_ANDROID_CLIENT_ID:}`.
+- `GoogleOAuthConfig.java` filters both IDs (skipping blank values) and passes the resulting list to `GoogleIdTokenVerifier.Builder.setAudience()`.
+- `PasswordResetServiceTest.java` updated to match new 2-arg `GoogleProperties` constructor.
+- Fix committed and pushed to `develop` (branch: `develop`). Railway deployment will pick up the change automatically once `GOOGLE_ANDROID_CLIENT_ID` env var is set in the Railway dashboard.
+- **Status: blocked on user action** — set `GOOGLE_ANDROID_CLIENT_ID` in Railway env vars, then confirm E2E Google Sign-In on Android device. Wave 7 Google OAuth cannot be marked complete until that confirmation.
+
 **Progress update (2026-03-13 — mobile-design-system skill):**
 - ✅ Step 1 of execution sequence complete: `mobile-design-system` skill created at `.claude/skills/mobile-design-system/`.
 - Skill encodes: Library at Dusk palette mapped to RN tokens (light + dark), 7 component recipes (Button/Card/Text/TextInput/ErrorMessage/MarkdownContent/Avatar), screen layout patterns, font loading (DM Sans + Sora via expo-font), shadow/animation translations, 5 known gotchas.
