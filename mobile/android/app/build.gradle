@@ -92,8 +92,8 @@ android {
         applicationId 'net.learnimo.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 16
-        versionName "1.0.6"
+        versionCode 20
+        versionName "1.0.10"
     }
     signingConfigs {
         debug {
@@ -193,5 +193,14 @@ dependencies {
         implementation("com.facebook.react:hermes-android")
     } else {
         implementation jscFlavor
+    }
+}
+
+// [withShortCxxPath]
+android {
+    externalNativeBuild {
+        cmake {
+            buildStagingDirectory "C:/t/cxx"
+        }
     }
 }

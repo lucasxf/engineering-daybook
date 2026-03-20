@@ -92,7 +92,10 @@ rm -rf "$MOBILE_DIR/node_modules/.cache/metro" 2>/dev/null || true
 rm -rf /tmp/metro-* 2>/dev/null || true
 
 # ── 7. Build ──────────────────────────────────────────────────────────────────
+# NODE_ENV=production ensures @expo/env loads .env.production.local.
+# Without it, Gradle skips .env.production.local and only reads .env.local/.env.
 echo "[7/7] Building signed AAB ..."
+export NODE_ENV=production
 cd "$ANDROID_DIR"
 ./gradlew clean
 ./gradlew bundleRelease

@@ -2,7 +2,7 @@
   "expo": {
     "name": "learnimo",
     "slug": "learnimo",
-    "version": "1.0.6",
+    "version": "1.0.10",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -26,7 +26,7 @@
       "package": "net.learnimo.app",
       "softwareKeyboardLayoutMode": "resize",
       "permissions": [],
-      "versionCode": 16
+      "versionCode": 20
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -38,7 +38,8 @@
       "./plugins/withSecureStoreBackupRules",
       "./plugins/withCleanPermissions",
       "./plugins/withReleaseSigning",
-      "./plugins/withActivityPin"
+      "./plugins/withActivityPin",
+      "./plugins/withShortCxxPath"
     ],
     "extra": {
       "apiUrl": "http://localhost:8080/api/v1",
