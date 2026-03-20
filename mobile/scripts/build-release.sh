@@ -86,30 +86,32 @@ if command -v taskkill &>/dev/null; then
 fi
 
 if [[ -d "$ANDROID_DIR" ]]; then
-  echo "[4/7] Removing existing android/ ..."
-  for attempt in 1 2 3; do
-    rm -rf "$ANDROID_DIR" 2>/dev/null && break
-    if [[ $attempt -lt 3 ]]; then
-      echo "  android/ still locked, retrying in 3s (attempt $attempt/3)..."
-      sleep 3
-    else
-      echo ""
-      echo "ERROR: Cannot delete android/ — a process has it locked (EBUSY)."
-      echo ""
-      echo "  Likely causes:"
-      echo "    1. A terminal window with CWD inside mobile/android/"
-      echo "    2. VS Code has files in android/ open"
-      echo "    3. A Chrome tab with a file:// URL inside android/"
-      echo ""
-      echo "  Fix: close those, then re-run this script."
-      echo ""
-      echo "  To find the culprit terminal in PowerShell:"
-      echo "    Get-Process mintty | Select-Object Id, MainWindowTitle"
-      echo ""
-      exit 1
-    fi
-  done
-  echo "[4/7] Existing android/ removed"
+  # Rename android/ out of the way instead of deleting it.
+  # mv (rename) succeeds even when files inside are locked by Gradle daemons,
+  # Windows Search, VS Code, or ADB — it only moves the directory entry.
+  # expo prebuild --clean then creates a fresh android/ directory.
+  # The renamed backup is deleted in the background; failures are ignored.
+  BACKUP_DIR="${ANDROID_DIR}.bak.$(date +%s)"
+  mv "$ANDROID_DIR" "$BACKUP_DIR" 2>/dev/null || {
+    echo ""
+    echo "ERROR: Cannot rename android/ — something has it locked."
+    echo ""
+    echo "  Likely causes:"
+    echo "    1. A terminal window with CWD inside mobile/android/"
+    echo "    2. VS Code has files in android/ open"
+    echo "    3. A Chrome tab with a file:// URL inside android/"
+    echo ""
+    echo "  Fix: close those, then re-run this script."
+    echo ""
+    echo "  To find the culprit terminal in PowerShell:"
+    echo "    Get-Process mintty | Select-Object Id, MainWindowTitle"
+    echo ""
+    exit 1
+  }
+  echo "[4/7] Existing android/ moved aside → $(basename "$BACKUP_DIR")"
+  # Clean up backup in background — OK if this fails (locked files will be
+  # cleaned up by the next build or a reboot).
+  rm -rf "$BACKUP_DIR" &
 fi
 echo "[4/7] Running expo prebuild --clean ..."
 npx expo prebuild --clean --platform android
