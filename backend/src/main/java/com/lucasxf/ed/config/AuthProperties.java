@@ -31,9 +31,7 @@ public record AuthProperties(
     /**
      * Google OAuth configuration.
      */
-    public record GoogleProperties(
-        String clientId
-    ) {
+    public record GoogleProperties(String clientId, String androidClientId) {
     }
 
     /**

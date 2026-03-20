@@ -52,6 +52,7 @@ auth:
     refresh-token-expiry: 7d
   google:
     client-id: ${GOOGLE_CLIENT_ID:placeholder-configure-in-env}
+    android-client-id: ${GOOGLE_ANDROID_CLIENT_ID:}
   password-reset:
     token-expiry: 1h
   cookie:
