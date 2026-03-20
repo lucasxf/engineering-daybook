@@ -2,7 +2,7 @@
   "expo": {
     "name": "learnimo",
     "slug": "learnimo",
-    "version": "1.0.12",
+    "version": "1.0.15",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -26,7 +26,7 @@
       "package": "net.learnimo.app",
       "softwareKeyboardLayoutMode": "resize",
       "permissions": [],
-      "versionCode": 22
+      "versionCode": 25
     },
     "web": {
       "favicon": "./assets/favicon.png"
