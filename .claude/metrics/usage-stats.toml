@@ -2,29 +2,29 @@
 # Compiled by /compile-metrics, analyzed by automation-sentinel agent
 
 [metadata]
-timestamp = "2026-03-19T08:23:07Z"
+timestamp = "2026-03-20T21:41:27Z"
 commit_sha = ""
 branch = "develop"
 schema_version = "1.0.0"
 updated_by = "compile-metrics"
 
 # Agent Usage Metrics
-churn_baseline_commit = "4c16e2d64927f2b9b7bc0e51216cc0dceba7fd08"
+churn_baseline_commit = "a3a3da24c61846f9b1a47072900f48cad43baabb"
 [agent_usage.Explore]
-invocations = 96
-last_used = "2026-03-18T10:32:36Z"
+invocations = 104
+last_used = "2026-03-20T16:23:15Z"
 
 [agent_usage.Plan]
-invocations = 12
-last_used = "2026-03-13T14:33:19Z"
+invocations = 14
+last_used = "2026-03-19T19:23:15Z"
 
 [agent_usage.general-purpose]
 invocations = 75
 last_used = "2026-03-17T09:41:41Z"
 
 [agent_usage.automation-sentinel]
-invocations = 6
-last_used = "2026-03-15T13:48:11Z"
+invocations = 8
+last_used = "2026-03-19T20:09:39Z"
 
 [agent_usage.hedy]
 invocations = 2
@@ -55,8 +55,8 @@ invocations = 1
 last_used = "2026-03-11T21:47:37Z"
 
 [agent_usage.tech-writer]
-invocations = 11
-last_used = "2026-03-17T00:09:00Z"
+invocations = 12
+last_used = "2026-03-19T21:11:15Z"
 
 [agent_usage.virgil]
 invocations = 2
@@ -68,24 +68,24 @@ last_used = "2026-03-15T11:17:23Z"
 
 # Command Usage Metrics
 [command_usage.compile-metrics]
-invocations = 18
-last_used = "2026-03-19T08:22:18Z"
+invocations = 19
+last_used = "2026-03-20T21:40:25Z"
 
 [command_usage.create-pr]
-invocations = 31
-last_used = "2026-03-17T10:00:10Z"
+invocations = 32
+last_used = "2026-03-19T13:05:18Z"
 
 [command_usage.directive]
 invocations = 1
 last_used = "2026-03-06T18:44:46Z"
 
 [command_usage.finish-session]
-invocations = 59
-last_used = "2026-03-17T09:55:08Z"
+invocations = 65
+last_used = "2026-03-20T21:18:36Z"
 
 [command_usage.fix-pr]
-invocations = 20
-last_used = "2026-03-18T23:43:30Z"
+invocations = 21
+last_used = "2026-03-19T19:18:07Z"
 
 [command_usage.fix-spec]
 invocations = 6
@@ -100,16 +100,16 @@ invocations = 6
 last_used = "2026-03-08T09:44:25Z"
 
 [command_usage.review-pr]
-invocations = 25
-last_used = "2026-03-18T21:46:18Z"
+invocations = 26
+last_used = "2026-03-19T19:08:18Z"
 
 [command_usage.save-response]
 invocations = 6
 last_used = "2026-03-16T21:09:23Z"
 
 [command_usage.start-session]
-invocations = 42
-last_used = "2026-03-18T21:40:37Z"
+invocations = 43
+last_used = "2026-03-20T16:14:05Z"
 
 [command_usage.productivity-report]
 invocations = 0
@@ -163,23 +163,23 @@ invocations = 1
 last_used = "2026-03-15T11:52:45Z"
 
 [productivity]
-current_total_locs = 62906
-current_production_locs = 27647
-current_test_locs = 35259
-test_ratio_percent = 127.5
+current_total_locs = 64918
+current_production_locs = 27915
+current_test_locs = 37003
+test_ratio_percent = 132.6
 total_locs_added = 0
 total_locs_deleted = 0
 net_locs = 0
 
 # PR Review Quality Metrics
 [pr_review_quality]
-total_prs_triaged = 18
-total_comments_triaged = 100
-accepted = 67
-rejected = 0
-deferred = 10
-questions = 0
-informational = 23
+total_prs_triaged = 19
+total_comments_triaged = 109
+accepted = 70
+rejected = 3
+deferred = 11
+questions = 1
+informational = 24
 
 # Spec Pipeline Health
 # NOTE: approved = 0 is EXPECTED — /review-spec was created AFTER all 19 implemented specs were written.
@@ -188,9 +188,9 @@ informational = 23
 total_specs = 28
 draft = 0
 planned = 1
-approved = 3
+approved = 2
 in_progress = 2
-implemented = 22
+implemented = 23
 
 # Health Metrics
 
@@ -207,19 +207,27 @@ dcs_completed = 37
 weighted_dcs = 35.2
 milestones_completed = ["6.1", "6.3", "6.4", "8.2"]
 
+["6.1", "6.3", "6.4", "8.2"]
+
 
 # DORA Performance Dimension — ADR-008
 [dora_metrics]
 deployment_frequency_weekly = 0.25
 lead_time_median_hours = 313.2
-change_failure_rate = 0.037
+change_failure_rate = 0.035
 mttr_hours = 0.0
-measurement_window_start = "2026-01-22"
-measurement_window_end = "2026-03-19"
+measurement_window_start = "2026-01-23"
+measurement_window_end = "2026-03-20"
 measurement_weeks = 8
-
-# LOC Churn per Compile Window — ADR-008
 [loc_churn]
+[[loc_churn.periods]]
+period = "2026-W12"
+lines_added = 1574
+lines_deleted = 316
+net = 1258
+baseline_commit = "4c16e2d6"
+head_commit = "a3a3da24"
+
 [[loc_churn.periods]]
 period = "historical"
 lines_added = 56082
@@ -231,4 +239,4 @@ head_commit = "4c16e2d6"
 [health]
 schema_errors = 0
 total_agents = 15
-total_commands = 14
+total_commands = 15
