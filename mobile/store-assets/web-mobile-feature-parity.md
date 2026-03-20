@@ -6,7 +6,7 @@
 |---------|:---:|:------:|-----|
 | **Auth: Email/password login** | ✅ | ✅ | — |
 | **Auth: Email/password register** | ✅ | ✅ | — |
-| **Auth: Google OAuth** | ✅ | ⚠️ | API layer done, button not wired in LoginScreen |
+| **Auth: Google OAuth** | ✅ | ✅ | — |
 | **Auth: Choose Handle (Google signup)** | ✅ | ✅ | — |
 | **Auth: Forgot password** | ✅ | ✅ | — |
 | **Auth: Reset password** | ✅ | ❌ | Web-only (email deep link opens web) |
@@ -36,6 +36,7 @@
 | **Profile: Avatar display** | ✅ | ✅ | — |
 | **Settings: Theme toggle** | ✅ | ✅ | — |
 | **Settings: Language toggle** | ✅ | ✅ | — |
+| **Settings: Pre-auth theme/locale toggle** | ✅ | ❌ | Web shows toggles on login/register pages (FR6.2); mobile follows device settings — no in-app override before login |
 | **Settings: Privacy (profile visibility)** | ✅ 4-tier | ✅ 2-tier | FOLLOWERS_ONLY / COLLEAGUES_ONLY missing |
 | **Settings: Default learning visibility** | ✅ 4-tier | ✅ 2-tier | FOLLOWERS_ONLY / COLLEAGUES_ONLY missing |
 | **My Learnings (personal feed)** | ✅ | ✅ | FeedScreen tab toggle: "Feed" (social) ↔ "My Learnings" (personal, via `useFeedData`) |

@@ -43,7 +43,7 @@ for var in ANDROID_KEYSTORE_PATH ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS AND
   fi
 done
 
-echo "[1/6] Signing credentials loaded from .env.signing"
+echo "[1/7] Signing credentials loaded from .env.signing"
 
 # ── 2. Verify keystore source file ───────────────────────────────────────────
 if [[ ! -f "$KEYSTORE_SRC" ]]; then
@@ -54,7 +54,7 @@ if [[ ! -f "$KEYSTORE_SRC" ]]; then
   exit 1
 fi
 
-echo "[2/6] Keystore source verified: @lucasxf__learnimo.jks"
+echo "[2/7] Keystore source verified: @lucasxf__learnimo.jks"
 
 # ── 3. Auto-bump versionCode and version in app.json (BEFORE prebuild) ───────
 # app.json is the source of truth — prebuild reads it to generate build.gradle.
@@ -71,19 +71,28 @@ NEW_PATCH=$((VN_PATCH + 1))
 NEW_VN="$VN_MAJOR.$VN_MINOR.$NEW_PATCH"
 sed -i "s/\"version\": \"$OLD_VN\"/\"version\": \"$NEW_VN\"/" "$APP_JSON"
 
-echo "[3/6] Version bumped in app.json: versionCode $OLD_VC → $NEW_VC | version $OLD_VN → $NEW_VN"
+echo "[3/7] Version bumped in app.json: versionCode $OLD_VC → $NEW_VC | version $OLD_VN → $NEW_VN"
 
 # ── 4. Expo prebuild (wipes android/, then regenerates with config plugins) ──
-echo "[4/6] Running expo prebuild --clean ..."
+echo "[4/7] Running expo prebuild --clean ..."
 cd "$MOBILE_DIR"
 npx expo prebuild --clean --platform android
 
 # ── 5. Copy keystore into android/app/ (must be AFTER prebuild wipes android/) ─
 cp "$KEYSTORE_SRC" "$ANDROID_DIR/app/release.keystore"
-echo "[5/6] Keystore copied to android/app/release.keystore"
+echo "[5/7] Keystore copied to android/app/release.keystore"
 
-# ── 6. Build ──────────────────────────────────────────────────────────────────
-echo "[6/6] Building signed AAB ..."
+# ── 6. Clear Metro transform cache ───────────────────────────────────────────
+# Metro caches Babel-inlined EXPO_PUBLIC_* values. A stale cache from a prior
+# build (when env vars were absent) will cause the Google button to stay hidden
+# even after .env.production.local is created. Clearing ensures the next Gradle
+# build gets a fresh bundle with the current env values baked in.
+echo "[6/7] Clearing Metro transform cache ..."
+rm -rf "$MOBILE_DIR/node_modules/.cache/metro" 2>/dev/null || true
+rm -rf /tmp/metro-* 2>/dev/null || true
+
+# ── 7. Build ──────────────────────────────────────────────────────────────────
+echo "[7/7] Building signed AAB ..."
 cd "$ANDROID_DIR"
 ./gradlew clean
 ./gradlew bundleRelease
