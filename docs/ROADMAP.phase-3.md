@@ -137,6 +137,11 @@ Three client-side UX fixes shipped on branch `chore/mobile-ui-improvements-tsa-t
 - 7 new compact-mode tests added to `VisibilityPicker.test.tsx`; `radii.full` added to test mock.
 - Test results: 391 tests pass, 84.18% line coverage (above 80% threshold).
 
+**Progress update (2026-03-21 — inline tag creation):**
+- Tag modal on `LearningDetailScreen` gains a search input with spaces-to-dashes mask and a "Create `{name}`" row — users can now create a new tag and assign it without leaving the detail screen (FR4 from TM-1; closes the "Create tags on the web" dead end).
+- `LearningNewScreen` now navigates to `LearningDetail` after save (TM-3 / FR15), so users land directly on the new learning and can tag it in one flow.
+- 384 tests passing, lint clean; branch: `feat/mobile-save-pok-with-tags`.
+
 **Progress update (2026-03-13 — mobile-design-system skill):**
 - ✅ Step 1 of execution sequence complete: `mobile-design-system` skill created at `.claude/skills/mobile-design-system/`.
 - Skill encodes: Library at Dusk palette mapped to RN tokens (light + dark), 7 component recipes (Button/Card/Text/TextInput/ErrorMessage/MarkdownContent/Avatar), screen layout patterns, font loading (DM Sans + Sora via expo-font), shadow/animation translations, 5 known gotchas.

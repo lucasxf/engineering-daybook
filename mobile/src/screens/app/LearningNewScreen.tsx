@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
-import type { AppTabsParamList } from '@/navigation/AppTabs';
+import type { AppStackParamList } from '@/navigation/AppStack';
 import { useI18n } from '@/contexts/I18nContext';
 import { pokApi, type PokVisibility } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
@@ -18,7 +18,7 @@ export function LearningNewScreen() {
   const { theme } = useTheme();
   const { t } = useI18n();
   const { user } = useAuth();
-  const nav = useNavigation<BottomTabNavigationProp<AppTabsParamList>>();
+  const nav = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
   const [serverError, setServerError] = useState<string | null>(null);
   const [visibility, setVisibility] = useState<PokVisibility>(
     user?.defaultPokVisibility ?? 'PRIVATE'
@@ -30,7 +30,7 @@ export function LearningNewScreen() {
   async function handleSubmit(data: PokFormData) {
     setServerError(null);
     try {
-      await pokApi.create({
+      const pok = await pokApi.create({
         title: data.title || null,
         content: data.content,
         visibility,
@@ -38,8 +38,8 @@ export function LearningNewScreen() {
       // [TSA-P02] Reset form state before navigating so the screen is clean on return.
       setFormKey((k) => k + 1);
       setVisibility(user?.defaultPokVisibility ?? 'PRIVATE');
-      // [TSA-P03] Navigate to the personal feed so the new entry is immediately visible.
-      nav.navigate('Feed', { tab: 'mine' });
+      // Navigate to detail screen so the user can immediately add tags
+      nav.navigate('LearningDetail', { pokId: pok.id });
     } catch (e) {
       if (e instanceof ApiRequestError) {
         setServerError(e.message);
@@ -77,7 +77,7 @@ export function LearningNewScreen() {
         <LearningForm
           key={formKey}
           onSubmit={handleSubmit}
-          onCancel={() => nav.navigate('Feed')}
+          onCancel={() => nav.navigate('AppTabs')}
           submitLabel={t('learnings.new.submitButton')}
           serverError={serverError}
         />
