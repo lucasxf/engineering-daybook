@@ -16,6 +16,9 @@ import { Button } from '@/components/ui/Button';
 import { TextInput } from '@/components/ui/TextInput';
 import { Text } from '@/components/ui/Text';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
+import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+import type { GoogleAuthSuccess } from '@/hooks/useGoogleAuth';
 
 type Nav = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
 
@@ -25,6 +28,20 @@ export function LoginScreen() {
   const { setUser } = useAuth();
   const nav = useNavigation<Nav>();
   const [serverError, setServerError] = useState<string | null>(null);
+
+  const handleGoogleSuccess = (result: GoogleAuthSuccess) => {
+    if (result.type === 'existing') {
+      setUser(result.user);
+    } else {
+      nav.navigate('ChooseHandle', { tempToken: result.tempToken, email: result.email });
+    }
+  };
+  const { loading: googleLoading, handlePress, disabled: googleDisabled } =
+    useGoogleAuth(handleGoogleSuccess, (msg) => setServerError(t(msg)));
+  const handleGoogleSignIn = async () => {
+    setServerError(null);
+    await handlePress();
+  };
 
   const {
     control,
@@ -116,6 +133,12 @@ export function LoginScreen() {
             label={t('auth.login.forgotPassword')}
             variant="ghost"
             onPress={() => nav.navigate('ForgotPassword')}
+          />
+
+          <GoogleSignInButton
+            loading={googleLoading}
+            onPress={handleGoogleSignIn}
+            disabled={googleDisabled}
           />
 
           <View style={{ flexDirection: 'row', justifyContent: 'center', gap: theme.spacing.xs }}>

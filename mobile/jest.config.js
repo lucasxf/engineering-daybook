@@ -7,11 +7,11 @@ module.exports = {
       testEnvironment: 'node',
       testRegex: 'src/(lib|hooks)/__tests__/.*\\.test\\.ts$',
       transform: {
-        '^.+\\.tsx?$': ['babel-jest', { configFile: './babel.config.js' }],
+        '^.+\\.[jt]sx?$': ['babel-jest', { configFile: './babel.config.js' }],
       },
       // Allow ES modules from packages that ship them
       transformIgnorePatterns: [
-        'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*)',
+        'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|expo-auth-session|expo-web-browser|expo-modules-core)',
       ],
       collectCoverageFrom: [
         'src/lib/**/*.{ts,tsx}',

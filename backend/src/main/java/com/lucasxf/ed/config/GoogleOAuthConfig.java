@@ -1,6 +1,7 @@
 package com.lucasxf.ed.config;
 
-import java.util.Collections;
+import java.util.List;
+import java.util.stream.Stream;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,10 +21,15 @@ public class GoogleOAuthConfig {
 
     @Bean
     public GoogleIdTokenVerifier googleIdTokenVerifier(AuthProperties authProperties) {
+        List<String> audiences = Stream.of(
+                authProperties.google().clientId(),
+                authProperties.google().androidClientId())
+            .filter(id -> id != null && !id.isBlank())
+            .toList();
         return new GoogleIdTokenVerifier.Builder(
                 new NetHttpTransport(),
                 GsonFactory.getDefaultInstance())
-            .setAudience(Collections.singletonList(authProperties.google().clientId()))
+            .setAudience(audiences)
             .build();
     }
 }

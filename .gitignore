@@ -140,6 +140,8 @@ mobile/.expo/
 mobile/dist/
 mobile/web-build/
 mobile/*.jks
+mobile/.env.signing
+mobile/android/app/release.keystore
 mobile/*.p8
 mobile/*.p12
 mobile/*.key

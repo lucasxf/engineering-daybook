@@ -92,8 +92,8 @@ android {
         applicationId 'net.learnimo.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 11
-        versionName "1.0.2"
+        versionCode 28
+        versionName "1.0.18"
     }
     signingConfigs {
         debug {
@@ -102,20 +102,12 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
-        release {
-            // Gradle evaluates signingConfigs blocks at configuration time (even for debug tasks),
-            // so unconditional env-var requirements would break `./gradlew assembleDebug` on
-            // machines without release credentials. Signing is optional here:
-            //   - Local release builds: set ANDROID_KEYSTORE_PATH (and companion vars) before
-            //     running `./gradlew bundleRelease`.
-            //   - EAS cloud builds: EAS injects credentials automatically via eas.json.
-            //   - All other invocations (debug builds, CI without release creds): no-op.
-            def keystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
-            if (keystorePath) {
-                storeFile file(keystorePath)
-                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD") ?: ""
-                keyAlias System.getenv("ANDROID_KEY_ALIAS") ?: ""
-                keyPassword System.getenv("ANDROID_KEY_PASSWORD") ?: ""
+            release {
+            if (System.getenv("ANDROID_KEYSTORE_PATH")) {
+                storeFile file(System.getenv("ANDROID_KEYSTORE_PATH"))
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("ANDROID_KEY_ALIAS")
+                keyPassword System.getenv("ANDROID_KEY_PASSWORD")
             }
         }
     }
@@ -124,10 +116,10 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
+            // Local: env-var signing. EAS: null (EAS injects credentials).
+            signingConfig System.getenv("ANDROID_KEYSTORE_PATH") ? signingConfigs.release : null
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            // Signing is injected by EAS Build via eas.json credentials.
-            // Do not set signingConfig here.
             shrinkResources (findProperty('android.enableShrinkResourcesInReleaseBuilds')?.toBoolean() ?: false)
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
@@ -201,5 +193,14 @@ dependencies {
         implementation("com.facebook.react:hermes-android")
     } else {
         implementation jscFlavor
+    }
+}
+
+// [withShortCxxPath]
+android {
+    externalNativeBuild {
+        cmake {
+            buildStagingDirectory "C:/t/cxx"
+        }
     }
 }

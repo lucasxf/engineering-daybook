@@ -24,6 +24,7 @@
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="learnimo"/>
+        <data android:scheme="net.learnimo.app"/>
       </intent-filter>
     </activity>
   </application>

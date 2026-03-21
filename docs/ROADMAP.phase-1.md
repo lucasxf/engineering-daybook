@@ -473,6 +473,35 @@ Meta-infrastructure session: no product features delivered; no phase milestones 
 | Rewrote `.claude/metrics/README.md` — full schema, data flow, MoSCoW weight table | ✅ Done |
 | Registered `productivity-report` command and `productivity-metrics` skill in `usage-stats.toml` and registry | ✅ Done |
 
+### Android Release Signing Automation (tooling, develop, 2026-03-19)
+
+Infrastructure/tooling session supporting Milestone 3.4 (App Store Publishing). No phase milestone completed.
+
+| Area | Change |
+|------|--------|
+| `mobile/plugins/withReleaseSigning.js` | Rewrote plugin to inject a full `signingConfigs.release` block (reads `ANDROID_KEYSTORE_PATH`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` env vars) in addition to removing debug signing from the release buildType — previously only removed debug signing but never injected release signing |
+| `mobile/scripts/build-release.sh` | New fully automated release build script: copies `release.keystore` to `android/app/`, bumps `android.versionCode` + `version` patch in `app.json` (the source of truth — NOT `build.gradle`), runs `expo prebuild --clean`, then `./gradlew bundleRelease` |
+| `mobile/.env.signing.example` | New template documenting all required signing env vars |
+| `mobile/emulator-setup.md` | Rewrote Release Builds section with script-based flow and credential recovery guide |
+| Root `.gitignore` | Added `mobile/.env.signing` to prevent accidental credential commit |
+| `app.json` | `android.versionCode` and `version` are now maintained here as the durable source of truth; survived the session at versionCode 13 / version 1.0.3 |
+
+**Key learning:** `expo prebuild --clean` regenerates `android/app/build.gradle` from `app.json`, resetting `versionCode` to 1. Always store `android.versionCode` in `app.json` and bump it there before prebuild. See MEMORY.md → Android Play Store / Local Builds for the full entry.
+
+### Mobile Google OAuth Sign-In (feat/mobile-google-sign-in, 2026-03-19)
+
+Wave 7 of the mobile parity execution plan: Google OAuth sign-in for mobile (LoginScreen + RegisterScreen).
+
+| Area | Change |
+|------|--------|
+| `mobile/src/hooks/useGoogleAuth.ts` | New hook — `Google.useAuthRequest` from expo-auth-session, handles existing/new user branching, loading/disabled states, WebBrowser warm-up |
+| `mobile/src/components/auth/GoogleSignInButton.tsx` | New reusable component — secondary button + divider, renders null when no client ID configured (FR9) |
+| `mobile/src/screens/auth/LoginScreen.tsx` | Added `<GoogleSignInButton>` + wired `useGoogleAuth` — existing users setUser, new users navigate to ChooseHandle |
+| `mobile/src/screens/auth/RegisterScreen.tsx` | Same Google OAuth wiring as LoginScreen |
+| `mobile/app.config.ts` | Added `googleAndroidClientId` + `googleIosClientId` env var reads |
+| `mobile/.env.example` | Documented all 3 Google client ID env vars with usage notes |
+| Tests | 381 total (up from ~299), 82%+ line coverage; all passing |
+
 ### Android Crash-on-Launch — Recurring Fix via Config Plugins (fix/android-crash-regen, 2026-03-19) ✅
 
 Bugfix session: eliminated the recurring Android crash-on-launch root cause permanently. The crash (`Resources.NotFoundException` before any JS loads) recurred after `expo prebuild --clean` wiped manually-patched files in `android/`. Four Expo config plugins now automate all patches so they survive future prebuilds. Also resolved a JS crash caused by a React version mismatch, configured env-var-based local signing, and published versionCode 11 to the Play Store internal track.
@@ -550,7 +579,7 @@ Wave sequencing:
 
 Mobile design system migration progress (Wave 2): S2.1 ✅ S2.2 ✅ S2.3 ✅ — all Wave 2 screen migrations complete (feat/ds-auth-screens, feat/ds-feed-detail, feat/ds-profile-discover).
 
-Mobile parity execution plan progress: Wave 4 (4-tier visibility) ✅ done (feat/mobile-4-tier-visibility, 2026-03-17). Pre-work complete (2026-03-17): parity table corrected, 8 specs Approved. Next: Wave 3 (profile editing, feat/mobile-profile-editing) — required for Play Store submission.
+Mobile parity execution plan progress: Wave 4 (4-tier visibility) ✅ done (feat/mobile-4-tier-visibility, 2026-03-17). Wave 7 Google OAuth ✅ done (feat/mobile-google-sign-in, 2026-03-19). Pre-work complete (2026-03-17): parity table corrected, 8 specs Approved. Next: Wave 3 (profile editing, feat/mobile-profile-editing) — required for Play Store submission.
 
 Milestone 3.4 (App Store Publishing): Play Store internal track updated to versionCode 11 (1.0.1) on 2026-03-19. Crash-on-launch permanently fixed via 4 Expo config plugins. `react` pinned to 19.0.0 to resolve JS crash from renderer version mismatch. Local signing workflow documented. Google OAuth for mobile still pending before production track promotion.
 
