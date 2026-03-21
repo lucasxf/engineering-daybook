@@ -6,7 +6,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/contexts/I18nContext';
 
 export type AppTabsParamList = {
-  Feed: undefined;
+  Feed: { tab?: 'mine' | 'social' } | undefined;
   NewLearning: undefined;
   Profile: undefined;
 };

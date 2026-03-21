@@ -125,6 +125,18 @@
 - Fix committed and pushed to `develop`. `GOOGLE_ANDROID_CLIENT_ID` env var set in Railway dashboard.
 - **✅ Wave 7 Google OAuth confirmed working** — user successfully authenticated with Google Sign-In on a physical Android device (2026-03-21).
 
+**Progress update (2026-03-21 — mobile UX polish: TSA-P01, TSA-P02, TSA-P03/TMA-01):**
+Three client-side UX fixes shipped on branch `chore/mobile-ui-improvements-tsa-tma`. No backend changes.
+
+| ID | Fix | Files Changed | Status |
+|----|-----|--------------|--------|
+| TSA-P01 | Compact visibility picker — 4 emoji pills in one horizontal row (~50px) instead of 4 stacked full-height rows (~280px); selected tier's label + description shown below; `compact?: boolean` prop added to `VisibilityPicker`; `LearningNewScreen` uses `compact` + `ScrollView` wrapper | `VisibilityPicker.tsx`, `LearningNewScreen.tsx` | ✅ Done |
+| TSA-P02 | Form reset on save — `formKey` state incremented on successful save forces `LearningForm` to remount with clean defaults; unsaved drafts are preserved (key only increments in the success path) | `LearningNewScreen.tsx` | ✅ Done |
+| TSA-P03 / TMA-01 | Correct tab + auto-refresh after save — `AppTabsParamList.Feed` now accepts `{ tab?: 'mine' \| 'social' } \| undefined`; `LearningNewScreen` navigates with `{ tab: 'mine' }` after save; both `SocialContent` and `MyLearningsContent` have `useFocusEffect` with `hasMountedRef` guard for auto-refresh on focus without double-fetching on mount | `FeedScreen.tsx`, `AppTabs.tsx`, `LearningNewScreen.tsx` | ✅ Done |
+
+- 7 new compact-mode tests added to `VisibilityPicker.test.tsx`; `radii.full` added to test mock.
+- Test results: 391 tests pass, 84.18% line coverage (above 80% threshold).
+
 **Progress update (2026-03-13 — mobile-design-system skill):**
 - ✅ Step 1 of execution sequence complete: `mobile-design-system` skill created at `.claude/skills/mobile-design-system/`.
 - Skill encodes: Library at Dusk palette mapped to RN tokens (light + dark), 7 component recipes (Button/Card/Text/TextInput/ErrorMessage/MarkdownContent/Avatar), screen layout patterns, font loading (DM Sans + Sora via expo-font), shadow/animation translations, 5 known gotchas.
@@ -206,3 +218,7 @@ Three branches run in parallel, each targeting a screen cluster:
 - [ ] Mobile app is on Play Store internal track (Android) *(3.4.6 in progress — Play Console forms being filled)*
 - [ ] Mobile app is on TestFlight (iOS) *(deferred — no Apple Developer enrollment yet)*
 - [ ] Author uses mobile app to capture learnings on-the-go
+
+---
+
+*Last updated: 2026-03-21 (session: chore/mobile-ui-improvements-tsa-tma — mobile UX polish: TSA-P01 compact visibility picker, TSA-P02 form reset on save, TSA-P03/TMA-01 correct tab + auto-refresh)*

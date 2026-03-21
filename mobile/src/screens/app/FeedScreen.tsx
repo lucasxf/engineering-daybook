@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -7,8 +7,9 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RouteProp } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/contexts/I18nContext';
@@ -20,6 +21,7 @@ import type { FeedItem } from '@/lib/learnerApi';
 import { unshareLearning } from '@/lib/learnerApi';
 import type { Pok } from '@/lib/pokApi';
 import type { AppStackParamList } from '@/navigation/AppStack';
+import type { AppTabsParamList } from '@/navigation/AppTabs';
 import { LearningCard } from '@/components/feed/LearningCard';
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
@@ -42,6 +44,21 @@ function SocialContent({ onPokPress }: { onPokPress: (pok: Pok) => void }) {
     useSocialFeedData();
 
   const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
+
+  // [TSA-P03] Auto-refresh when the Feed tab regains focus. Skips the initial
+  // mount because the hook's own useEffect handles the first fetch.
+  const hasMountedRef = useRef(false);
+  const refreshRef = useRef(refresh);
+  refreshRef.current = refresh;
+  useFocusEffect(
+    useCallback(() => {
+      if (hasMountedRef.current) {
+        refreshRef.current();
+      } else {
+        hasMountedRef.current = true;
+      }
+    }, [])
+  );
 
   function handleAuthorPress(handle: string) {
     if (handle) {
@@ -244,6 +261,21 @@ function MyLearningsContent({ onPokPress }: { onPokPress: (pok: Pok) => void }) 
     setParams({ keyword: debouncedKeyword || undefined });
   }, [debouncedKeyword, setParams]);
 
+  // [TSA-P03] Auto-refresh when the Feed tab regains focus. Skips the initial
+  // mount because the hook's own useEffect handles the first fetch.
+  const hasMountedRef = useRef(false);
+  const refreshRef = useRef(refresh);
+  refreshRef.current = refresh;
+  useFocusEffect(
+    useCallback(() => {
+      if (hasMountedRef.current) {
+        refreshRef.current();
+      } else {
+        hasMountedRef.current = true;
+      }
+    }, [])
+  );
+
   function renderEmpty() {
     if (loading) return null;
     return (
@@ -309,7 +341,17 @@ export function FeedScreen() {
   const { theme } = useTheme();
   const { t } = useI18n();
   const nav = useNavigation<AppNav>();
+  const route = useRoute<RouteProp<AppTabsParamList, 'Feed'>>();
   const [activeTab, setActiveTab] = useState<TabKey>('social');
+
+  // [TSA-P03] Switch to the requested tab when navigating here with a tab param
+  // (e.g., after saving a new learning we navigate with { tab: 'mine' }).
+  useEffect(() => {
+    const tab = route.params?.tab;
+    if (tab === 'mine' || tab === 'social') {
+      setActiveTab(tab);
+    }
+  }, [route.params?.tab]);
 
   function handlePokPress(pok: Pok) {
     nav.navigate('LearningDetail', { pokId: pok.id });

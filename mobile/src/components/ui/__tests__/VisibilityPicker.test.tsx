@@ -20,7 +20,7 @@ jest.mock('@/contexts/ThemeContext', () => ({
         warning: '#E67E22',
       },
       spacing: { xs: 4, sm: 8, md: 16 },
-      radii: { md: 8 },
+      radii: { md: 8, full: 999 },
     },
   }),
 }));
@@ -233,6 +233,74 @@ describe('VisibilityPicker', () => {
     });
     const allText = findAllText(result);
     expect(allText).not.toContain('learnings.visibility.publicWarning');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// VisibilityPicker compact mode tests
+// ---------------------------------------------------------------------------
+
+describe('VisibilityPicker compact', () => {
+  it('renders without errors in compact mode', () => {
+    const result = VisibilityPicker({ value: 'PRIVATE', onChange: jest.fn(), compact: true });
+    expect(result).toBeTruthy();
+  });
+
+  it('contains all 4 pill buttons in compact mode', () => {
+    const result = VisibilityPicker({ value: 'PRIVATE', onChange: jest.fn(), compact: true });
+    const buttons = findByAccessibilityRole(result, 'button');
+    expect(buttons).toHaveLength(4);
+  });
+
+  it('selected pill has accessibilityState.selected === true', () => {
+    const result = VisibilityPicker({ value: 'FOLLOWERS_ONLY', onChange: jest.fn(), compact: true });
+    const buttons = findByAccessibilityRole(result, 'button');
+    const selected = buttons.filter((b: any) => b.props.accessibilityState?.selected === true);
+    expect(selected).toHaveLength(1);
+    // FOLLOWERS_ONLY is 3rd in list (index 2)
+    expect(buttons[2].props.accessibilityState?.selected).toBe(true);
+  });
+
+  it('calls onChange with correct value when a compact pill is pressed', () => {
+    const onChange = jest.fn();
+    const result = VisibilityPicker({ value: 'PRIVATE', onChange, compact: true });
+    const buttons = findByAccessibilityRole(result, 'button');
+    // Second button is COLLEAGUES_ONLY
+    buttons[1].props.onPress();
+    expect(onChange).toHaveBeenCalledWith('COLLEAGUES_ONLY');
+  });
+
+  it('shows selected tier description in compact mode', () => {
+    const result = VisibilityPicker({ value: 'PUBLIC', onChange: jest.fn(), compact: true });
+    const allText = findAllText(result);
+    expect(allText).toContain('learnings.visibility.public');
+    expect(allText).toContain('learnings.visibility.publicDesc');
+  });
+
+  it('shows public warning in compact mode when showPublicWarning=true and value=PUBLIC', () => {
+    const result = VisibilityPicker({
+      value: 'PUBLIC',
+      onChange: jest.fn(),
+      compact: true,
+      showPublicWarning: true,
+    });
+    const allText = findAllText(result);
+    expect(allText).toContain('learnings.visibility.publicWarning');
+  });
+
+  it('does not call onChange for a disabled pill in compact mode', () => {
+    const onChange = jest.fn();
+    const result = VisibilityPicker({
+      value: 'PUBLIC',
+      onChange,
+      compact: true,
+      disabledValues: ['PRIVATE'],
+    });
+    const buttons = findByAccessibilityRole(result, 'button');
+    const disabledPill = buttons.find((b: any) => b.props.accessibilityState?.disabled === true);
+    expect(disabledPill).toBeDefined();
+    expect(disabledPill.props.onPress).toBeUndefined();
+    expect(onChange).not.toHaveBeenCalled();
   });
 });
 
