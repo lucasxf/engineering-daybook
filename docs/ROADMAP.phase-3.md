@@ -122,8 +122,8 @@
 - `AuthProperties.GoogleProperties` record gained an `androidClientId` field; `application.yml` added `android-client-id: ${GOOGLE_ANDROID_CLIENT_ID:}`.
 - `GoogleOAuthConfig.java` filters both IDs (skipping blank values) and passes the resulting list to `GoogleIdTokenVerifier.Builder.setAudience()`.
 - `PasswordResetServiceTest.java` updated to match new 2-arg `GoogleProperties` constructor.
-- Fix committed and pushed to `develop` (branch: `develop`). Railway deployment will pick up the change automatically once `GOOGLE_ANDROID_CLIENT_ID` env var is set in the Railway dashboard.
-- **Status: blocked on user action** — set `GOOGLE_ANDROID_CLIENT_ID` in Railway env vars, then confirm E2E Google Sign-In on Android device. Wave 7 Google OAuth cannot be marked complete until that confirmation.
+- Fix committed and pushed to `develop`. `GOOGLE_ANDROID_CLIENT_ID` env var set in Railway dashboard.
+- **✅ Wave 7 Google OAuth confirmed working** — user successfully authenticated with Google Sign-In on a physical Android device (2026-03-21).
 
 **Progress update (2026-03-13 — mobile-design-system skill):**
 - ✅ Step 1 of execution sequence complete: `mobile-design-system` skill created at `.claude/skills/mobile-design-system/`.
