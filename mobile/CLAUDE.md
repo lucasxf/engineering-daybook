@@ -341,6 +341,32 @@ Debug builds (`expo run:android`) and release builds (`eas build --profile produ
 
 3. **Release-mode Maestro test:** Run `maestro test e2e/auth-login.yaml` against the EAS Preview APK (not the debug build). Maestro supports installing a specific APK with `appId` + sideloading. This is the highest-confidence pre-publish gate but requires a CI runner with Android emulator access.
 
+- **`useFocusEffect` fires on every tab focus — use a `hasMountedRef` guard to avoid double-fetching on mount:** `useFocusEffect` from `@react-navigation/native` runs the callback both on initial mount AND on every subsequent tab focus. Without a guard, a screen inside a bottom-tab navigator fires a data fetch on mount and then fires it again immediately the first time the user returns to the tab (because focus fires after mount). Pattern: keep a `const hasMountedRef = useRef(false)` in the component, set it to `true` inside the effect on first run, and skip the data-fetch on that first run. On every subsequent focus event the ref is already `true`, so the refresh proceeds normally. This ensures initial data loads happen via the hook's own mount logic (e.g., `useEffect(() => { fetch() }, [])`) while focus-driven refreshes are handled by `useFocusEffect`. Seen in `FeedScreen.tsx` (`SocialContent` and `MyLearningsContent` components). (Added 2026-03-21)
+
+  ```ts
+  const hasMountedRef = useRef(false);
+  useFocusEffect(
+    useCallback(() => {
+      if (!hasMountedRef.current) { hasMountedRef.current = true; return; }
+      refresh(); // only runs on re-focus, not on initial mount
+    }, [refresh]),
+  );
+  ```
+
+- **Use a `formKey` state counter to force-remount a form component after successful save:** In a tab navigator, screens stay mounted between tab switches — their local state persists. After a successful save, simply calling `reset()` on a `react-hook-form` instance may not reliably clear all nested component state (e.g., controlled pickers that hold internal UI state). A more robust pattern: keep a `const [formKey, setFormKey] = useState(0)` in the parent screen, pass it as `key={formKey}` to the form component, and call `setFormKey(k => k + 1)` only in the success path. React tears down and remounts the form with clean defaults on every key change. Unsaved drafts are safe because the key only increments on success. Seen in `LearningNewScreen.tsx`. (Added 2026-03-21)
+
+  ```ts
+  const [formKey, setFormKey] = useState(0);
+
+  const handleSave = async (data: FormValues) => {
+    await saveLearning(data);
+    setFormKey(k => k + 1); // remount form with clean defaults
+    navigation.navigate('Feed', { tab: 'mine' });
+  };
+
+  return <LearningForm key={formKey} onSubmit={handleSave} />;
+  ```
+
 ---
 
-*Last updated: 2026-03-19 (session: chore/mobile-launch-client-id-bug-fix — fix launch crash when EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID absent; added invariantClientId pitfall to Known Issues)*
+*Last updated: 2026-03-21 (session: chore/mobile-ui-improvements-tsa-tma — TSA-P01 compact VisibilityPicker, TSA-P02 formKey remount for form reset, TSA-P03/TMA-01 useFocusEffect hasMountedRef guard)*

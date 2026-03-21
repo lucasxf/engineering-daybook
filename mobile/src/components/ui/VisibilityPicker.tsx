@@ -71,6 +71,9 @@ interface VisibilityPickerProps {
   /** When true, show the public warning below the picker when PUBLIC is selected.
    *  Default: false. Pass true from LearningNewScreen and LearningDetailScreen. */
   showPublicWarning?: boolean;
+  /** Compact horizontal pill layout — 4 emoji pills in one row + selected description below.
+   *  Use on LearningNewScreen to save vertical space when the keyboard is open. */
+  compact?: boolean;
 }
 
 export function VisibilityPicker({
@@ -78,9 +81,53 @@ export function VisibilityPicker({
   onChange,
   disabledValues = [],
   showPublicWarning = false,
+  compact = false,
 }: VisibilityPickerProps) {
   const { theme } = useTheme();
   const { t } = useI18n();
+
+  if (compact) {
+    const selectedOpt = VISIBILITY_OPTIONS.find((o) => o.value === value)!;
+    return (
+      <View style={{ gap: theme.spacing.xs }}>
+        <View style={{ flexDirection: 'row', gap: theme.spacing.xs }}>
+          {VISIBILITY_OPTIONS.map((opt) => {
+            const isSelected = value === opt.value;
+            const isDisabled = disabledValues.includes(opt.value);
+            return (
+              <TouchableOpacity
+                key={opt.value}
+                accessibilityRole="button"
+                accessibilityLabel={t(opt.labelKey)}
+                accessibilityState={{ selected: isSelected, disabled: isDisabled }}
+                style={{
+                  flex: 1,
+                  alignItems: 'center',
+                  paddingVertical: theme.spacing.xs,
+                  borderRadius: theme.radii.full,
+                  borderWidth: isSelected ? 2 : 1,
+                  borderColor: isSelected ? theme.colors.primary : theme.colors.border,
+                  backgroundColor: isSelected ? theme.colors.surfaceAlt : 'transparent',
+                  opacity: isDisabled ? 0.4 : 1,
+                }}
+                onPress={isDisabled ? undefined : () => onChange(opt.value)}
+              >
+                <Text variant="bodySm">{opt.icon}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        <Text variant="caption" style={{ color: theme.colors.textSecondary }}>
+          {t(selectedOpt.labelKey)}: {t(selectedOpt.descKey)}
+        </Text>
+        {showPublicWarning && value === 'PUBLIC' && (
+          <Text variant="bodySm" style={{ color: theme.colors.warning }}>
+            {t('learnings.visibility.publicWarning')}
+          </Text>
+        )}
+      </View>
+    );
+  }
 
   return (
     <View style={{ gap: theme.spacing.sm }}>
