@@ -38,6 +38,7 @@ jest.mock('@/components/ui/Text', () => ({
 
 // react-native is mapped to __mocks__/react-native.js in jest.config.js.
 // Alert.alert is already a jest.fn() in that mock — we spy on it below after import.
+// Platform.OS defaults to 'ios' in the mock; individual tests override it for Android paths.
 
 // expo-image-picker mock
 const mockRequestPermission = jest.fn();
@@ -51,7 +52,7 @@ jest.mock('expo-image-picker', () => ({
 // Imports (after mocks)
 // ---------------------------------------------------------------------------
 
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import { AvatarPicker } from '../AvatarPicker';
 
 // Convenience alias for the jest.fn() that lives in the RN mock
@@ -245,5 +246,35 @@ describe('AvatarPicker', () => {
 
     expect(mockAlert).toHaveBeenCalledWith('profile.avatarTooLarge');
     expect(baseProps.onUpload).not.toHaveBeenCalled();
+  });
+
+  it('shows permission denied alert on iOS when photo library access is denied', async () => {
+    // Platform.OS is 'ios' in the mock — permission check runs
+    mockRequestPermission.mockResolvedValue({ status: 'denied' });
+
+    const result = AvatarPicker({ ...baseProps });
+    const pressables = findAllByType(result, 'Pressable');
+    const onPress = pressables[0]?.props?.onPress as (() => Promise<void>) | undefined;
+    if (onPress) await onPress();
+
+    expect(mockAlert).toHaveBeenCalledWith('profile.avatarPermissionDenied');
+    expect(mockLaunchImageLibrary).not.toHaveBeenCalled();
+  });
+
+  it('skips permission check on Android and launches picker directly', async () => {
+    // The RN mock uses a plain property (not a getter), so assign directly
+    const originalOS = Platform.OS;
+    (Platform as { OS: string }).OS = 'android';
+    mockLaunchImageLibrary.mockResolvedValue({ canceled: true, assets: [] });
+
+    const result = AvatarPicker({ ...baseProps });
+    const pressables = findAllByType(result, 'Pressable');
+    const onPress = pressables[0]?.props?.onPress as (() => Promise<void>) | undefined;
+    if (onPress) await onPress();
+
+    expect(mockRequestPermission).not.toHaveBeenCalled();
+    expect(mockLaunchImageLibrary).toHaveBeenCalled();
+
+    (Platform as { OS: string }).OS = originalOS;
   });
 });
