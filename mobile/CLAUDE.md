@@ -315,6 +315,10 @@ This uploads the AAB to the Play Store internal track. Promote to production via
 
 - **`expo-auth-session` `invariantClientId()` throws synchronously when platform client ID is absent:** `Google.useAuthRequest()` calls `invariantClientId()` inside a `useMemo` during render. If the platform-specific ID (`androidClientId` on Android, `webClientId` on Expo Go/web) is `undefined`, it throws before the hook can return — crashing the app at launch. Any post-hook guard (e.g. `disabled = request === null`) never executes. Fix: compute `hasClientId` from env vars BEFORE calling `Google.useAuthRequest()`, pass a dummy `clientId: '__disabled__'` fallback when absent, and derive `disabled = !hasClientId`. See `useGoogleAuth.ts`. (Added 2026-03-19)
 
+- **`expo-image-picker` plugin must be registered in `app.json` with `microphonePermission: false`:** Installing the package is not enough. Without plugin registration, `expo prebuild --clean` does not apply the Expo config plugin for `expo-image-picker`. Additionally, registering without `{ "microphonePermission": false }` causes the plugin to add `RECORD_AUDIO` to the manifest (for video recording), which `withCleanPermissions` cannot remove because the permission is added via a different pipeline phase (`withPermissions`) that runs after `withAndroidManifest` modifiers. Pass `microphonePermission: false` to block it via manifest merger directive (`tools:node="remove"`). Correct `app.json` entry: `["expo-image-picker", { "microphonePermission": false }]`. (Added 2026-03-22)
+
+- **`requestMediaLibraryPermissionsAsync()` always returns `denied` on Android 13+ without `READ_MEDIA_IMAGES` in manifest:** On Android 13+, `expo-image-picker`'s `launchImageLibraryAsync()` uses the system Photo Picker API (`MediaStore.ACTION_PICK_IMAGES`) which requires no permissions. However, calling `requestMediaLibraryPermissionsAsync()` first checks if `READ_MEDIA_IMAGES` is in the manifest — if not, it returns `denied` immediately, silently aborting the picker launch. Fix: gate the permission request behind `Platform.OS === 'ios'`. iOS still requires the explicit photo library permission dialog; Android 13+ does not. (Added 2026-03-22)
+
 ---
 
 ## Testing Gap: Release Build Smoke Test
@@ -369,4 +373,4 @@ Debug builds (`expo run:android`) and release builds (`eas build --profile produ
 
 ---
 
-*Last updated: 2026-03-21 (session: chore/mobile-ui-improvements-tsa-tma — TSA-P01 compact VisibilityPicker, TSA-P02 formKey remount for form reset, TSA-P03/TMA-01 useFocusEffect hasMountedRef guard)*
+*Last updated: 2026-03-22 (session: feat/mobile-profile-picture — fix avatar photo picker on Android 13+: expo-image-picker plugin registration + Platform.OS permission guard)*
