@@ -171,8 +171,8 @@ Write the optimized prompt to `prompts/optimized/<slug>.md` using the Write tool
 **File structure:**
 
 ```
-@.claude/skills/frontend-design/SKILL.md
-@.claude/skills/mobile-design-system/SKILL.md
+@path/to/relevant-file-1.md
+@path/to/relevant-file-2.md
 
 ## Context
 [prompt body...]
@@ -190,8 +190,9 @@ Rules for the output file:
 **Why this format works:** When the user opens the file in VS Code, copies all content, and pastes into the Claude Code CLI input, the `@` references resolve at paste time — pre-loading file contents into context without any tool calls.
 
 **Terminal output** after writing the file — show only:
-1. The file path: `Prompt saved to: prompts/optimized/<slug>.md`
-2. **Optimization Notes** (one line per change, explaining what changed and why — meta-commentary stays in terminal, not in the prompt file)
+1. The **absolute file path**: `Prompt saved to: <absolute-path>/prompts/optimized/<slug>.md` — always use the full filesystem path, not a relative one, so the user can `@`-reference it from any context including worktrees where gitignored files aren't surfaced by tab completion
+2. A ready-to-paste reference line: `@<absolute-path>/prompts/optimized/<slug>.md` — the user copies this, enters plan mode, and pastes it to load the prompt directly
+3. **Optimization Notes** (one line per change, explaining what changed and why — meta-commentary stays in terminal, not in the prompt file)
 
 ---
 
