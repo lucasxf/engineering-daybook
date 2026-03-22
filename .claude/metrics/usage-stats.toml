@@ -207,10 +207,6 @@ dcs_completed = 37
 weighted_dcs = 35.2
 milestones_completed = ["6.1", "6.3", "6.4", "8.2"]
 
-["6.1", "6.3", "6.4", "8.2"]
-
-["6.1", "6.3", "6.4", "8.2"]
-
 
 # DORA Performance Dimension — ADR-008
 [dora_metrics]
