@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, Alert, Pressable, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, Pressable, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/contexts/I18nContext';
@@ -38,10 +38,15 @@ export function AvatarPicker({
   const { t } = useI18n();
 
   async function handlePickImage() {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert(t('profile.avatarPermissionDenied'));
-      return;
+    // On Android 13+, launchImageLibraryAsync uses the system Photo Picker which
+    // requires no permissions. Only request on iOS where the photo library
+    // permission dialog is still required.
+    if (Platform.OS === 'ios') {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(t('profile.avatarPermissionDenied'));
+        return;
+      }
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({

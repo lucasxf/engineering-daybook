@@ -406,7 +406,10 @@ export function LearningDetailScreen() {
 
                 <RNTextInput
                   value={tagQuery}
-                  onChangeText={(text) => setTagQuery(text.replace(/\s+/g, '-'))}
+                  onChangeText={(text) => {
+                    const normalized = text.replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+                    setTagQuery(normalized);
+                  }}
                   placeholder={t('learnings.detail.tagSearchPlaceholder')}
                   placeholderTextColor={theme.colors.inputPlaceholder}
                   autoCapitalize="none"

@@ -140,7 +140,14 @@ Three client-side UX fixes shipped on branch `chore/mobile-ui-improvements-tsa-t
 **Progress update (2026-03-21 — inline tag creation):**
 - Tag modal on `LearningDetailScreen` gains a search input with spaces-to-dashes mask and a "Create `{name}`" row — users can now create a new tag and assign it without leaving the detail screen (FR4 from TM-1; closes the "Create tags on the web" dead end).
 - `LearningNewScreen` now navigates to `LearningDetail` after save (TM-3 / FR15), so users land directly on the new learning and can tag it in one flow.
-- 384 tests passing, lint clean; branch: `feat/mobile-save-pok-with-tags`.
+- Tests passing, lint clean; branch: `feat/mobile-save-pok-with-tags`.
+
+**Progress update (2026-03-22 — avatar photo picker fix):**
+- Fixed "Change photo" button on ProfileScreen which did nothing on Android 13+ devices (two root causes):
+  1. `expo-image-picker` was not registered in `app.json` plugins array; registered with `microphonePermission: false` to block RECORD_AUDIO via manifest merger directive.
+  2. `AvatarPicker.tsx` called `requestMediaLibraryPermissionsAsync()` unconditionally; on Android 13+, the system Photo Picker requires no permissions, so gated the check behind `Platform.OS === 'ios'`.
+- 393 tests passing, 84.91% line coverage; 2 new tests added.
+- Branch: `feat/mobile-profile-picture`
 
 **Progress update (2026-03-13 — mobile-design-system skill):**
 - ✅ Step 1 of execution sequence complete: `mobile-design-system` skill created at `.claude/skills/mobile-design-system/`.
@@ -226,4 +233,4 @@ Three branches run in parallel, each targeting a screen cluster:
 
 ---
 
-*Last updated: 2026-03-21 (session: chore/mobile-ui-improvements-tsa-tma — mobile UX polish: TSA-P01 compact visibility picker, TSA-P02 form reset on save, TSA-P03/TMA-01 correct tab + auto-refresh)*
+*Last updated: 2026-03-22 (session: feat/mobile-profile-picture — avatar photo picker fix: expo-image-picker plugin + Platform.OS permission guard)*
