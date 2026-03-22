@@ -150,6 +150,10 @@ last_used = ""
 invocations = 0
 last_used = ""
 
+[skill_usage.save-learning]
+invocations = 0
+last_used = ""
+
 # Productivity Metrics
 
 
