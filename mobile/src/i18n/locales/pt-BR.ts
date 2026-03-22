@@ -114,6 +114,7 @@ export default {
       tagAddError: 'Falha ao adicionar etiqueta',
       tagRemoveError: 'Falha ao remover etiqueta',
       noTagsAvailable: 'Digite um nome para criar sua primeira etiqueta',
+      noMoreTagsToAdd: 'Todas as suas etiquetas já foram adicionadas',
       tagSearchPlaceholder: 'Buscar ou criar etiqueta…',
       tagCreateNew: 'Criar "{name}"',
       tagCreateError: 'Falha ao criar etiqueta',

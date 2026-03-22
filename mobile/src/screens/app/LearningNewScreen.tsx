@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, CompositeNavigationProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import type { AppStackParamList } from '@/navigation/AppStack';
+import type { AppTabsParamList } from '@/navigation/AppTabs';
 import { useI18n } from '@/contexts/I18nContext';
 import { pokApi, type PokVisibility } from '@/lib/pokApi';
 import { ApiRequestError } from '@/lib/api';
@@ -14,11 +16,16 @@ import { Text } from '@/components/ui/Text';
 import { VisibilityPicker } from '@/components/ui/VisibilityPicker';
 import { LearningForm } from '@/components/feed/LearningForm';
 
+type Nav = CompositeNavigationProp<
+  BottomTabNavigationProp<AppTabsParamList, 'NewLearning'>,
+  NativeStackNavigationProp<AppStackParamList>
+>;
+
 export function LearningNewScreen() {
   const { theme } = useTheme();
   const { t } = useI18n();
   const { user } = useAuth();
-  const nav = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
+  const nav = useNavigation<Nav>();
   const [serverError, setServerError] = useState<string | null>(null);
   const [visibility, setVisibility] = useState<PokVisibility>(
     user?.defaultPokVisibility ?? 'PRIVATE'
@@ -73,13 +80,15 @@ export function LearningNewScreen() {
           />
         </View>
 
-        {/* [TSA-P02] key={formKey} forces a clean remount after each successful save */}
+        {/* [TSA-P02] key={formKey} forces a clean remount after each successful save.
+            scrollable={false} avoids nested ScrollView — the outer ScrollView handles all scrolling. */}
         <LearningForm
           key={formKey}
           onSubmit={handleSubmit}
-          onCancel={() => nav.navigate('AppTabs')}
+          onCancel={() => nav.navigate('Feed')}
           submitLabel={t('learnings.new.submitButton')}
           serverError={serverError}
+          scrollable={false}
         />
       </ScrollView>
     </SafeAreaView>

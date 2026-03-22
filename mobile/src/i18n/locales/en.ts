@@ -116,6 +116,7 @@ export default {
       tagAddError: 'Failed to add tag',
       tagRemoveError: 'Failed to remove tag',
       noTagsAvailable: 'Type a name to create your first tag',
+      noMoreTagsToAdd: 'All your tags are already added',
       tagSearchPlaceholder: 'Search or create a tag…',
       tagCreateNew: 'Create "{name}"',
       tagCreateError: 'Failed to create tag',

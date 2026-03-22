@@ -433,7 +433,9 @@ export function LearningDetailScreen() {
                     color={theme.colors.textSecondary}
                     style={{ padding: theme.spacing.md, textAlign: 'center' }}
                   >
-                    {t('learnings.detail.noTagsAvailable')}
+                    {allTags.length === 0
+                      ? t('learnings.detail.noTagsAvailable')
+                      : t('learnings.detail.noMoreTagsToAdd')}
                   </Text>
                 ) : (
                   <FlatList

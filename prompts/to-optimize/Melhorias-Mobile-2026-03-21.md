@@ -12,7 +12,7 @@ Os problemas aqui listados não referem-se à versão web.
 - Pense sistematicamente ANTES de propor melhorias ou ajustes
 - Os problemas listados aqui são percepções dos usuários. Eles podem ser sintomas e suas devidas causas raízes devem ser investigadas detalhadamente.
 - NÃO concorde de imediato com todas sugestões propostas. Seja crítico e busque alternativas
-- Avalie trade-offs como: esforço, custos, UI, UX, acessbilidade, etc.
+- Avalie trade-offs como: esforço, custos, UI, UX, acessibilidade, etc.
 
 ## Tela de Salvar Aprendizado (TSA)
 
@@ -25,9 +25,9 @@ Os botões de visibilidade (Privado/Apenas colegas/Apenas seguidores/Público) e
 **Possíveis soluções sugeridas:**
 
 1. Soluções para o curto prazo
-   1. [TSA-P01-S01] Inverter a ordem dos componentes na tela: título e caixa de texto "O que você aprendeu?" no topo da tela, botoões de visibilidade na parte debaixo
+   1. [TSA-P01-S01] Inverter a ordem dos componentes na tela: título e caixa de texto "O que você aprendeu?" no topo da tela, botões de visibilidade na parte debaixo
    2. [TSA-P01-S02] Reduzir o tamanho dos botões
-   3. [TSA-P01-S03] Ambos: inverter a ordem e reduzir os botoões
+   3. [TSA-P01-S03] Ambos: inverter a ordem e reduzir os botões
    4. [TSA-P01-S04] "colapsar/encolher" os botões quando o usuário selecionar a caixa de texto para inserir o conteúdo do aprendizado
 2. Soluções de médio-longo prazo
    1. [TSA-P01-S05] Substituir os botões por componentes mais elegantes, como radio buttons, por exemplo

@@ -344,8 +344,7 @@ export function FeedScreen() {
   const route = useRoute<RouteProp<AppTabsParamList, 'Feed'>>();
   const [activeTab, setActiveTab] = useState<TabKey>('social');
 
-  // [TSA-P03] Switch to the requested tab when navigating here with a tab param
-  // (e.g., after saving a new learning we navigate with { tab: 'mine' }).
+  // [TSA-P03] Switch to the requested tab when navigating here with a tab param.
   useEffect(() => {
     const tab = route.params?.tab;
     if (tab === 'mine' || tab === 'social') {

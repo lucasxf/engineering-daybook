@@ -15,9 +15,11 @@ interface Props {
   onCancel: () => void;
   submitLabel: string;
   serverError?: string | null;
+  /** When false, renders a View instead of ScrollView — use when the parent already provides a scroll container */
+  scrollable?: boolean;
 }
 
-export function LearningForm({ defaultValues, onSubmit, onCancel, submitLabel, serverError }: Props) {
+export function LearningForm({ defaultValues, onSubmit, onCancel, submitLabel, serverError, scrollable = true }: Props) {
   const { theme } = useTheme();
   const { t } = useI18n();
 
@@ -35,9 +37,69 @@ export function LearningForm({ defaultValues, onSubmit, onCancel, submitLabel, s
   const contentValue = watch('content');
   const isContentEmpty = !contentValue || contentValue.trim().length === 0;
 
+  const containerStyle = { padding: theme.spacing.md, gap: theme.spacing.md };
+
+  if (!scrollable) {
+    return (
+      <View style={containerStyle}>
+        <ErrorMessage message={serverError} />
+
+        <Controller
+          control={control}
+          name="title"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              label={t('learnings.new.titleLabel')}
+              placeholder={t('learnings.new.titlePlaceholder')}
+              value={value ?? ''}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              error={errors.title ? t(errors.title.message as string) : undefined}
+            />
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="content"
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              label={t('learnings.new.contentLabel')}
+              placeholder={t('learnings.new.contentPlaceholder')}
+              multiline
+              numberOfLines={8}
+              textAlignVertical="top"
+              style={{ minHeight: 160 }}
+              value={value}
+              onChangeText={onChange}
+              onBlur={onBlur}
+              error={errors.content ? t(errors.content.message as string) : undefined}
+            />
+          )}
+        />
+
+        <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
+          <Button
+            label={t('learnings.new.cancelButton')}
+            variant="secondary"
+            onPress={onCancel}
+            style={{ flex: 1 }}
+          />
+          <Button
+            label={submitLabel}
+            onPress={handleSubmit(onSubmit)}
+            loading={isSubmitting}
+            disabled={isContentEmpty}
+            style={{ flex: 1 }}
+          />
+        </View>
+      </View>
+    );
+  }
+
   return (
     <ScrollView
-      contentContainerStyle={{ padding: theme.spacing.md, gap: theme.spacing.md }}
+      contentContainerStyle={containerStyle}
       keyboardShouldPersistTaps="handled"
     >
       <ErrorMessage message={serverError} />
