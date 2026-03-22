@@ -140,7 +140,7 @@ Three client-side UX fixes shipped on branch `chore/mobile-ui-improvements-tsa-t
 **Progress update (2026-03-21 — inline tag creation):**
 - Tag modal on `LearningDetailScreen` gains a search input with spaces-to-dashes mask and a "Create `{name}`" row — users can now create a new tag and assign it without leaving the detail screen (FR4 from TM-1; closes the "Create tags on the web" dead end).
 - `LearningNewScreen` now navigates to `LearningDetail` after save (TM-3 / FR15), so users land directly on the new learning and can tag it in one flow.
-- 384 tests passing, lint clean; branch: `feat/mobile-save-pok-with-tags`.
+- Tests passing, lint clean; branch: `feat/mobile-save-pok-with-tags`.
 
 **Progress update (2026-03-22 — avatar photo picker fix):**
 - Fixed "Change photo" button on ProfileScreen which did nothing on Android 13+ devices (two root causes):
