@@ -265,16 +265,18 @@ describe('AvatarPicker', () => {
     // The RN mock uses a plain property (not a getter), so assign directly
     const originalOS = Platform.OS;
     (Platform as { OS: string }).OS = 'android';
-    mockLaunchImageLibrary.mockResolvedValue({ canceled: true, assets: [] });
+    try {
+      mockLaunchImageLibrary.mockResolvedValue({ canceled: true, assets: [] });
 
-    const result = AvatarPicker({ ...baseProps });
-    const pressables = findAllByType(result, 'Pressable');
-    const onPress = pressables[0]?.props?.onPress as (() => Promise<void>) | undefined;
-    if (onPress) await onPress();
+      const result = AvatarPicker({ ...baseProps });
+      const pressables = findAllByType(result, 'Pressable');
+      const onPress = pressables[0]?.props?.onPress as (() => Promise<void>) | undefined;
+      if (onPress) await onPress();
 
-    expect(mockRequestPermission).not.toHaveBeenCalled();
-    expect(mockLaunchImageLibrary).toHaveBeenCalled();
-
-    (Platform as { OS: string }).OS = originalOS;
+      expect(mockRequestPermission).not.toHaveBeenCalled();
+      expect(mockLaunchImageLibrary).toHaveBeenCalled();
+    } finally {
+      (Platform as { OS: string }).OS = originalOS;
+    }
   });
 });

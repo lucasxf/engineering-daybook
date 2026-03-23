@@ -31,6 +31,25 @@ import { TextInput } from '@/components/ui/TextInput';
 type AppNav = NativeStackNavigationProp<AppStackParamList>;
 
 // ---------------------------------------------------------------------------
+// Helper: refresh data when the tab regains focus, skipping the initial mount
+// ---------------------------------------------------------------------------
+
+function useRefreshOnRefocus(refresh: () => void) {
+  const hasMountedRef = useRef(false);
+  const refreshRef = useRef(refresh);
+  refreshRef.current = refresh;
+  useFocusEffect(
+    useCallback(() => {
+      if (hasMountedRef.current) {
+        refreshRef.current();
+      } else {
+        hasMountedRef.current = true;
+      }
+    }, [])
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Social feed content (extracted so the hook only runs when this tab is shown)
 // ---------------------------------------------------------------------------
 
@@ -45,20 +64,8 @@ function SocialContent({ onPokPress }: { onPokPress: (pok: Pok) => void }) {
 
   const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
 
-  // [TSA-P03] Auto-refresh when the Feed tab regains focus. Skips the initial
-  // mount because the hook's own useEffect handles the first fetch.
-  const hasMountedRef = useRef(false);
-  const refreshRef = useRef(refresh);
-  refreshRef.current = refresh;
-  useFocusEffect(
-    useCallback(() => {
-      if (hasMountedRef.current) {
-        refreshRef.current();
-      } else {
-        hasMountedRef.current = true;
-      }
-    }, [])
-  );
+  // [TSA-P03] Auto-refresh when the Feed tab regains focus. Skips the initial mount.
+  useRefreshOnRefocus(refresh);
 
   function handleAuthorPress(handle: string) {
     if (handle) {
@@ -261,20 +268,8 @@ function MyLearningsContent({ onPokPress }: { onPokPress: (pok: Pok) => void }) 
     setParams({ keyword: debouncedKeyword || undefined });
   }, [debouncedKeyword, setParams]);
 
-  // [TSA-P03] Auto-refresh when the Feed tab regains focus. Skips the initial
-  // mount because the hook's own useEffect handles the first fetch.
-  const hasMountedRef = useRef(false);
-  const refreshRef = useRef(refresh);
-  refreshRef.current = refresh;
-  useFocusEffect(
-    useCallback(() => {
-      if (hasMountedRef.current) {
-        refreshRef.current();
-      } else {
-        hasMountedRef.current = true;
-      }
-    }, [])
-  );
+  // [TSA-P03] Auto-refresh when the Feed tab regains focus. Skips the initial mount.
+  useRefreshOnRefocus(refresh);
 
   function renderEmpty() {
     if (loading) return null;

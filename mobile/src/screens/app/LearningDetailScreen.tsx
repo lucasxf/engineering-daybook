@@ -6,7 +6,6 @@ import {
   Modal,
   Platform,
   ScrollView,
-  TextInput as RNTextInput,
   TouchableOpacity,
   View,
   ActivityIndicator,
@@ -26,6 +25,7 @@ import type { PokFormData } from '@/lib/validations';
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { TextInput } from '@/components/ui/TextInput';
 import { LearningForm } from '@/components/feed/LearningForm';
 import { MarkdownContent } from '@/components/ui/MarkdownContent';
 import { VisibilityPicker, VisibilityBadge, getDisabledValues } from '@/components/ui/VisibilityPicker';
@@ -404,27 +404,23 @@ export function LearningDetailScreen() {
                   {t('learnings.detail.addTagTitle')}
                 </Text>
 
-                <RNTextInput
+                <TextInput
                   value={tagQuery}
                   onChangeText={(text) => {
                     const normalized = text.replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
                     setTagQuery(normalized);
                   }}
                   placeholder={t('learnings.detail.tagSearchPlaceholder')}
-                  placeholderTextColor={theme.colors.inputPlaceholder}
                   autoCapitalize="none"
                   autoCorrect={false}
-                  style={{
+                  containerStyle={{
                     marginHorizontal: theme.spacing.md,
                     marginBottom: theme.spacing.sm,
+                  }}
+                  style={{
                     paddingHorizontal: theme.spacing.sm,
                     paddingVertical: theme.spacing.xs,
-                    backgroundColor: theme.colors.inputBg,
-                    borderWidth: 1,
-                    borderColor: theme.colors.inputBorder,
                     borderRadius: theme.radii.sm,
-                    color: theme.colors.text,
-                    fontFamily: 'DMSans_400Regular',
                   }}
                 />
 
