@@ -181,7 +181,7 @@ grep "CURRENT_PHASE:" docs/ROADMAP.md
 **Sub-task B — Phase File Update** (always):
 - Update `docs/ROADMAP.phase-{N}.md`: mark completed tasks ✅, move to "Completed" section, update "Active / Pending"
 - If ALL items in any milestone are now ✅: confirm milestone is recorded in the phase file's "Completed" section
-- If the entire phase is complete: update `<!-- CURRENT_PHASE: N -->` in `docs/ROADMAP.md`, update `CLAUDE.md` "Current Focus", update `README.md` roadmap section
+- If the entire phase is complete: update `<!-- CURRENT_PHASE: N -->` in `docs/ROADMAP.md`, update `CLAUDE.md` "Current Focus" one-liner pointer only (it points to `docs/ROADMAP.md` — do NOT expand with milestone details), update `README.md` roadmap section
 
 **Sub-task C — Documentation Staleness Check** (always, scoped to this session):
 - If `backend/` changed: verify OpenAPI annotations (`@Tag`, `@Operation`, `@ApiResponses`, `@Parameter`) on new/modified endpoints (missing = CRITICAL); Javadoc (`@author`, `@since`) on new/modified public classes; `backend/CLAUDE.md` conventions still accurate?

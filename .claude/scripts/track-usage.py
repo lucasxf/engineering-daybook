@@ -61,7 +61,8 @@ KNOWN_COMMANDS = {
 # --- BEGIN AUTO-GENERATED: KNOWN_SKILLS ---
 KNOWN_SKILLS = {
     "doc-coauthoring", "frontend-design", "mobile-design-system",
-    "productivity-metrics", "prompt-optimizer", "skill-creator",
+    "productivity-metrics", "prompt-optimizer", "save-learning",
+    "skill-creator",
 }
 # --- END AUTO-GENERATED: KNOWN_SKILLS ---
 

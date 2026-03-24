@@ -122,8 +122,32 @@
 - `AuthProperties.GoogleProperties` record gained an `androidClientId` field; `application.yml` added `android-client-id: ${GOOGLE_ANDROID_CLIENT_ID:}`.
 - `GoogleOAuthConfig.java` filters both IDs (skipping blank values) and passes the resulting list to `GoogleIdTokenVerifier.Builder.setAudience()`.
 - `PasswordResetServiceTest.java` updated to match new 2-arg `GoogleProperties` constructor.
-- Fix committed and pushed to `develop` (branch: `develop`). Railway deployment will pick up the change automatically once `GOOGLE_ANDROID_CLIENT_ID` env var is set in the Railway dashboard.
-- **Status: blocked on user action** — set `GOOGLE_ANDROID_CLIENT_ID` in Railway env vars, then confirm E2E Google Sign-In on Android device. Wave 7 Google OAuth cannot be marked complete until that confirmation.
+- Fix committed and pushed to `develop`. `GOOGLE_ANDROID_CLIENT_ID` env var set in Railway dashboard.
+- **✅ Wave 7 Google OAuth confirmed working** — user successfully authenticated with Google Sign-In on a physical Android device (2026-03-21).
+
+**Progress update (2026-03-21 — mobile UX polish: TSA-P01, TSA-P02, TSA-P03/TMA-01):**
+Three client-side UX fixes shipped on branch `chore/mobile-ui-improvements-tsa-tma`. No backend changes.
+
+| ID | Fix | Files Changed | Status |
+|----|-----|--------------|--------|
+| TSA-P01 | Compact visibility picker — 4 emoji pills in one horizontal row (~50px) instead of 4 stacked full-height rows (~280px); selected tier's label + description shown below; `compact?: boolean` prop added to `VisibilityPicker`; `LearningNewScreen` uses `compact` + `ScrollView` wrapper | `VisibilityPicker.tsx`, `LearningNewScreen.tsx` | ✅ Done |
+| TSA-P02 | Form reset on save — `formKey` state incremented on successful save forces `LearningForm` to remount with clean defaults; unsaved drafts are preserved (key only increments in the success path) | `LearningNewScreen.tsx` | ✅ Done |
+| TSA-P03 / TMA-01 | Correct tab + auto-refresh on Feed — `AppTabsParamList.Feed` now accepts `{ tab?: 'mine' \| 'social' } \| undefined`; both `SocialContent` and `MyLearningsContent` have `useFocusEffect` with `hasMountedRef` guard for auto-refresh on focus without double-fetching on mount; after save `LearningNewScreen` navigates to `LearningDetail` so the user can tag immediately | `FeedScreen.tsx`, `AppTabs.tsx`, `LearningNewScreen.tsx` | ✅ Done |
+
+- 7 new compact-mode tests added to `VisibilityPicker.test.tsx`; `radii.full` added to test mock.
+- Test results: 391 tests pass, 84.18% line coverage (above 80% threshold).
+
+**Progress update (2026-03-21 — inline tag creation):**
+- Tag modal on `LearningDetailScreen` gains a search input with spaces-to-dashes mask and a "Create `{name}`" row — users can now create a new tag and assign it without leaving the detail screen (FR4 from TM-1; closes the "Create tags on the web" dead end).
+- `LearningNewScreen` now navigates to `LearningDetail` after save (TM-3 / FR15), so users land directly on the new learning and can tag it in one flow.
+- Tests passing, lint clean; branch: `feat/mobile-save-pok-with-tags`.
+
+**Progress update (2026-03-22 — avatar photo picker fix):**
+- Fixed "Change photo" button on ProfileScreen which did nothing on Android 13+ devices (two root causes):
+  1. `expo-image-picker` was not registered in `app.json` plugins array; registered with `microphonePermission: false` to block RECORD_AUDIO via manifest merger directive.
+  2. `AvatarPicker.tsx` called `requestMediaLibraryPermissionsAsync()` unconditionally; on Android 13+, the system Photo Picker requires no permissions, so gated the check behind `Platform.OS === 'ios'`.
+- 393 tests passing, 84.91% line coverage; 2 new tests added.
+- Branch: `feat/mobile-profile-picture`
 
 **Progress update (2026-03-13 — mobile-design-system skill):**
 - ✅ Step 1 of execution sequence complete: `mobile-design-system` skill created at `.claude/skills/mobile-design-system/`.
@@ -206,3 +230,7 @@ Three branches run in parallel, each targeting a screen cluster:
 - [ ] Mobile app is on Play Store internal track (Android) *(3.4.6 in progress — Play Console forms being filled)*
 - [ ] Mobile app is on TestFlight (iOS) *(deferred — no Apple Developer enrollment yet)*
 - [ ] Author uses mobile app to capture learnings on-the-go
+
+---
+
+*Last updated: 2026-03-22 (session: feat/mobile-profile-picture — avatar photo picker fix: expo-image-picker plugin + Platform.OS permission guard)*

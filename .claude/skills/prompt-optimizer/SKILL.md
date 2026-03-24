@@ -1,18 +1,43 @@
 ---
 name: prompt-optimizer
-description: Optimize, rewrite, or review prompts for Claude Code plan mode (Opus) or execution mode (Sonnet). Use when the user wants to improve a prompt they've written, optimize a command or agent for token efficiency, create a high-quality plan-mode or execution-mode prompt from a raw intent, review an existing agent or SKILL.md for prompt quality, convert a prompt between plan and execution mode, or asks about prompt engineering for Claude. Trigger when user mentions "optimize prompt", "improve this prompt", "make this better for sonnet", "make this better for opus", "rewrite for plan mode", "review this command/agent/skill", "reduce tokens in this prompt", "prompt engineering", "how should I phrase this for Claude", "convert plan prompt to execution", or similar.
+description: Optimize, rewrite, or review prompts for Claude Code plan mode (Opus) or execution mode (Sonnet). Use when the user wants to improve a prompt they've written, optimize a command or agent for token efficiency, create a high-quality plan-mode or execution-mode prompt from a raw intent, review an existing agent or SKILL.md for prompt quality, convert a prompt between plan and execution mode, or asks about prompt engineering for Claude. Trigger when user mentions "optimize prompt", "improve this prompt", "make this better for sonnet", "make this better for opus", "rewrite for plan mode", "review this command/agent/skill", "reduce tokens in this prompt", "prompt engineering", "how should I phrase this for Claude", "convert plan prompt to execution", "optimize from queue", "check prompts to optimize", "prompts/to-optimize", or similar.
 ---
 
 # Prompt Optimizer
 
 A skill for transforming raw intent or existing prompts into mode-optimized versions for Claude Code — plan mode (Opus) or execution mode (Sonnet).
 
-There are two workflows:
+There are three workflows:
 
+0. **Discover from queue** — no prompt provided; search `prompts/to-optimize/` and let the user pick
 1. **Optimize a new prompt** — user has an intent or rough prompt; you produce a polished, mode-appropriate version
 2. **Review an existing prompt** — user points at a command, agent, SKILL.md, or any prompt file; you analyze it and suggest improvements
 
 Start by figuring out which workflow the user needs, then jump in.
+
+---
+
+## Workflow 0: Discover Prompts from Queue
+
+**Activate when:** the user runs `/prompt-optimizer` with no argument, mentions "queue", "to-optimize", or `prompts/to-optimize/`.
+
+**Steps:**
+
+1. Use `Glob` to list all `.md` files in `prompts/to-optimize/`
+2. **If empty** → tell the user the queue is empty and fall back to Workflow 1 (ask them to paste a prompt or describe their intent)
+3. **If one file** → auto-select it; tell the user which file was picked
+4. **If multiple files** → read the first heading or first non-empty line of each file for a one-line summary, then present the list and ask the user which prompt to optimize:
+   ```
+   Found N prompts in the queue:
+   1. filename-a.md — [summary]
+   2. filename-b.md — [summary]
+   Which would you like to optimize? (enter number or name)
+   ```
+5. Read the selected file
+6. Proceed to **Step 0: Detect Mode** and then **Workflow 1** as normal, treating the file contents as the raw input prompt
+7. After saving the optimized prompt to `prompts/optimized/`, ask:
+   > "Remove `prompts/to-optimize/<filename>` from the queue now that it's been optimized?"
+   Only delete the source file if the user confirms.
 
 ---
 
@@ -33,7 +58,7 @@ State the detected mode clearly before producing output.
 
 ## Workflow 1: Optimize a New Prompt
 
-**Input**: A raw intent, rough prompt, or description of what the user wants to accomplish.
+**Input**: A raw intent, rough prompt, or description of what the user wants to accomplish — or a file selected from the queue in Workflow 0.
 
 **Steps:**
 
@@ -146,8 +171,8 @@ Write the optimized prompt to `prompts/optimized/<slug>.md` using the Write tool
 **File structure:**
 
 ```
-@.claude/skills/frontend-design/SKILL.md
-@.claude/skills/mobile-design-system/SKILL.md
+@path/to/relevant-file-1.md
+@path/to/relevant-file-2.md
 
 ## Context
 [prompt body...]
@@ -165,8 +190,9 @@ Rules for the output file:
 **Why this format works:** When the user opens the file in VS Code, copies all content, and pastes into the Claude Code CLI input, the `@` references resolve at paste time — pre-loading file contents into context without any tool calls.
 
 **Terminal output** after writing the file — show only:
-1. The file path: `Prompt saved to: prompts/optimized/<slug>.md`
-2. **Optimization Notes** (one line per change, explaining what changed and why — meta-commentary stays in terminal, not in the prompt file)
+1. The **absolute file path**: `Prompt saved to: <absolute-path>/prompts/optimized/<slug>.md` — always use the full filesystem path, not a relative one, so the user can `@`-reference it from any context including worktrees where gitignored files aren't surfaced by tab completion
+2. A ready-to-paste reference line: `@<absolute-path>/prompts/optimized/<slug>.md` — the user copies this, enters plan mode, and pastes it to load the prompt directly
+3. **Optimization Notes** (one line per change, explaining what changed and why — meta-commentary stays in terminal, not in the prompt file)
 
 ---
 

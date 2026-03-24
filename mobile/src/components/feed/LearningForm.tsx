@@ -15,9 +15,11 @@ interface Props {
   onCancel: () => void;
   submitLabel: string;
   serverError?: string | null;
+  /** When false, renders a View instead of ScrollView — use when the parent already provides a scroll container */
+  scrollable?: boolean;
 }
 
-export function LearningForm({ defaultValues, onSubmit, onCancel, submitLabel, serverError }: Props) {
+export function LearningForm({ defaultValues, onSubmit, onCancel, submitLabel, serverError, scrollable = true }: Props) {
   const { theme } = useTheme();
   const { t } = useI18n();
 
@@ -35,11 +37,14 @@ export function LearningForm({ defaultValues, onSubmit, onCancel, submitLabel, s
   const contentValue = watch('content');
   const isContentEmpty = !contentValue || contentValue.trim().length === 0;
 
+  const containerStyle = { padding: theme.spacing.md, gap: theme.spacing.md };
+  const Container = scrollable ? ScrollView : View;
+  const containerProps = scrollable
+    ? { contentContainerStyle: containerStyle, keyboardShouldPersistTaps: 'handled' as const }
+    : { style: containerStyle };
+
   return (
-    <ScrollView
-      contentContainerStyle={{ padding: theme.spacing.md, gap: theme.spacing.md }}
-      keyboardShouldPersistTaps="handled"
-    >
+    <Container {...containerProps}>
       <ErrorMessage message={serverError} />
 
       <Controller
@@ -91,6 +96,6 @@ export function LearningForm({ defaultValues, onSubmit, onCancel, submitLabel, s
           style={{ flex: 1 }}
         />
       </View>
-    </ScrollView>
+    </Container>
   );
 }

@@ -2,7 +2,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   FlatList,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   ScrollView,
   TouchableOpacity,
   View,
@@ -23,6 +25,7 @@ import type { PokFormData } from '@/lib/validations';
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { TextInput } from '@/components/ui/TextInput';
 import { LearningForm } from '@/components/feed/LearningForm';
 import { MarkdownContent } from '@/components/ui/MarkdownContent';
 import { VisibilityPicker, VisibilityBadge, getDisabledValues } from '@/components/ui/VisibilityPicker';
@@ -51,6 +54,7 @@ export function LearningDetailScreen() {
   const [allTags, setAllTags] = useState<Tag[]>([]);
   const [tagModalVisible, setTagModalVisible] = useState(false);
   const [tagActionLoading, setTagActionLoading] = useState(false);
+  const [tagQuery, setTagQuery] = useState('');
 
   const loadPok = useCallback(async () => {
     setLoading(true);
@@ -126,6 +130,11 @@ export function LearningDetailScreen() {
     setHasRelearned(true);
   }
 
+  function closeTagModal() {
+    setTagModalVisible(false);
+    setTagQuery('');
+  }
+
   async function openTagModal() {
     try {
       const tags = await tagApi.list();
@@ -152,9 +161,27 @@ export function LearningDetailScreen() {
         ? { ...prev, tags: [...prev.tags, tag] }
         : prev
       );
-      setTagModalVisible(false);
+      closeTagModal();
     } catch {
       Alert.alert(t('learnings.detail.tagAddError'));
+    } finally {
+      setTagActionLoading(false);
+    }
+  }
+
+  async function handleCreateTag() {
+    if (!pok || !tagQuery.trim()) return;
+    setTagActionLoading(true);
+    try {
+      const newTag = await tagApi.create({ name: tagQuery });
+      await tagApi.assign(pok.id, newTag.tagId);
+      setPok((prev) => prev
+        ? { ...prev, tags: [...prev.tags, newTag] }
+        : prev
+      );
+      closeTagModal();
+    } catch {
+      Alert.alert(t('learnings.detail.tagCreateError'));
     } finally {
       setTagActionLoading(false);
     }
@@ -232,6 +259,19 @@ export function LearningDetailScreen() {
 
   const assignedTagIds = new Set(pok.tags.map((t) => t.tagId));
   const availableTags = allTags.filter((tag) => !assignedTagIds.has(tag.tagId));
+  const filteredTags = tagQuery
+    ? availableTags.filter((tag) =>
+        tag.displayName.toLowerCase().includes(tagQuery.toLowerCase()) ||
+        tag.name.toLowerCase().includes(tagQuery.toLowerCase())
+      )
+    : availableTags;
+  const showCreateRow =
+    tagQuery.length > 0 &&
+    !allTags.some(
+      (tag) =>
+        tag.name.toLowerCase() === tagQuery.toLowerCase() ||
+        tag.displayName.toLowerCase() === tagQuery.toLowerCase()
+    );
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -343,59 +383,98 @@ export function LearningDetailScreen() {
         visible={tagModalVisible}
         transparent
         animationType="slide"
-        onRequestClose={() => setTagModalVisible(false)}
+        onRequestClose={closeTagModal}
       >
         <TouchableOpacity
           style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }}
           activeOpacity={1}
-          onPress={() => setTagModalVisible(false)}
+          onPress={closeTagModal}
         >
           <View style={{ flex: 1 }} />
-          <View onStartShouldSetResponder={() => true}>
-            <View style={{
-              backgroundColor: theme.colors.background,
-              borderTopLeftRadius: theme.radii.lg,
-              borderTopRightRadius: theme.radii.lg,
-              paddingTop: theme.spacing.md,
-              maxHeight: 400,
-            }}>
-              <Text variant="label" style={{ paddingHorizontal: theme.spacing.md, paddingBottom: theme.spacing.sm }}>
-                {t('learnings.detail.addTagTitle')}
-              </Text>
-
-              {tagActionLoading ? (
-                <ActivityIndicator size="small" color={theme.colors.primary} style={{ paddingVertical: theme.spacing.lg }} />
-              ) : availableTags.length === 0 ? (
-                <Text
-                  variant="bodySm"
-                  color={theme.colors.textSecondary}
-                  style={{ padding: theme.spacing.md, textAlign: 'center' }}
-                >
-                  {t('learnings.detail.noTagsAvailable')}
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+            <View onStartShouldSetResponder={() => true}>
+              <View style={{
+                backgroundColor: theme.colors.background,
+                borderTopLeftRadius: theme.radii.lg,
+                borderTopRightRadius: theme.radii.lg,
+                paddingTop: theme.spacing.md,
+                maxHeight: 400,
+              }}>
+                <Text variant="label" style={{ paddingHorizontal: theme.spacing.md, paddingBottom: theme.spacing.sm }}>
+                  {t('learnings.detail.addTagTitle')}
                 </Text>
-              ) : (
-                <FlatList
-                  data={availableTags}
-                  keyExtractor={(item) => item.tagId}
-                  renderItem={({ item }) => (
-                    <TouchableOpacity
-                      onPress={() => handleAddTag(item)}
-                      style={{
-                        paddingHorizontal: theme.spacing.md,
-                        paddingVertical: 10, /* sm(8) + 2: modal row vertical padding */
-                        borderBottomWidth: 1,
-                        borderBottomColor: theme.colors.border,
-                      }}
-                    >
-                      <Text variant="bodySm">{item.displayName}</Text>
-                    </TouchableOpacity>
-                  )}
-                />
-              )}
 
-              <View style={{ height: theme.spacing.xl }} />
+                <TextInput
+                  value={tagQuery}
+                  onChangeText={(text) => {
+                    const normalized = text.replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+                    setTagQuery(normalized);
+                  }}
+                  placeholder={t('learnings.detail.tagSearchPlaceholder')}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  containerStyle={{
+                    marginHorizontal: theme.spacing.md,
+                    marginBottom: theme.spacing.sm,
+                  }}
+                  style={{
+                    paddingHorizontal: theme.spacing.sm,
+                    paddingVertical: theme.spacing.xs,
+                    borderRadius: theme.radii.sm,
+                  }}
+                />
+
+                {tagActionLoading ? (
+                  <ActivityIndicator size="small" color={theme.colors.primary} style={{ paddingVertical: theme.spacing.lg }} />
+                ) : filteredTags.length === 0 && !showCreateRow ? (
+                  <Text
+                    variant="bodySm"
+                    color={theme.colors.textSecondary}
+                    style={{ padding: theme.spacing.md, textAlign: 'center' }}
+                  >
+                    {allTags.length === 0
+                      ? t('learnings.detail.noTagsAvailable')
+                      : t('learnings.detail.noMoreTagsToAdd')}
+                  </Text>
+                ) : (
+                  <FlatList
+                    data={filteredTags}
+                    keyExtractor={(item) => item.tagId}
+                    renderItem={({ item }) => (
+                      <TouchableOpacity
+                        onPress={() => handleAddTag(item)}
+                        style={{
+                          paddingHorizontal: theme.spacing.md,
+                          paddingVertical: 10, /* sm(8) + 2: modal row vertical padding */
+                          borderBottomWidth: 1,
+                          borderBottomColor: theme.colors.border,
+                        }}
+                      >
+                        <Text variant="bodySm">{item.displayName}</Text>
+                      </TouchableOpacity>
+                    )}
+                    ListFooterComponent={showCreateRow ? (
+                      <TouchableOpacity
+                        onPress={handleCreateTag}
+                        style={{
+                          paddingHorizontal: theme.spacing.md,
+                          paddingVertical: 10, /* sm(8) + 2: modal row vertical padding */
+                          borderBottomWidth: 1,
+                          borderBottomColor: theme.colors.border,
+                        }}
+                      >
+                        <Text variant="bodySm" color={theme.colors.primary}>
+                          {t('learnings.detail.tagCreateNew', { name: tagQuery })}
+                        </Text>
+                      </TouchableOpacity>
+                    ) : null}
+                  />
+                )}
+
+                <View style={{ height: theme.spacing.xl }} />
+              </View>
             </View>
-          </View>
+          </KeyboardAvoidingView>
         </TouchableOpacity>
       </Modal>
     </SafeAreaView>

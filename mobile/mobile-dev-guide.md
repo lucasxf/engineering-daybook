@@ -1,4 +1,4 @@
-# Emulator Setup
+# Mobile Dev Guide
 
 ## Table of Contents
 
@@ -253,6 +253,12 @@ eas build --platform android --profile production
 
 ```bash
 eas submit --platform android --profile production
+```
+
+**Build + submit in one step (recommended for production releases):**
+
+```bash
+eas build --platform android --profile production --auto-submit
 ```
 
 **Other EAS utilities:**

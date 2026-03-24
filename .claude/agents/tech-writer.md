@@ -158,21 +158,13 @@ export function usePoks() {
 
 ## Learning Routing — Where to Write Captured Learnings
 
-When delegated a set of pitfalls, conventions, or anti-patterns to document, use this hierarchy to pick the target file (**most specific wins**):
+When delegated a set of pitfalls, conventions, or anti-patterns to document:
 
-| Learning scope | Target file | Section |
-|----------------|-------------|---------|
-| Java / Spring / Maven | `backend/CLAUDE.md` | `## Known Pitfalls` |
-| TypeScript / Next.js / React | `web/CLAUDE.md` | extend `## Coding Conventions` |
-| Expo / React Native | `mobile/CLAUDE.md` | `## Known Pitfalls` |
-| Cross-cutting or architectural | Root `CLAUDE.md` | relevant section |
-| Reusable debugging insight beyond this project | `memory/MEMORY.md` or a topic file under `memory/` | relevant section |
+1. **Write the text** — craft concise, well-formatted entries: what failed/applies, why it matters, the correct pattern (1–3 sentences + code example where helpful). Include `(Added YYYY-MM-DD)` timestamp.
+2. **Invoke the `save-learning` skill** — pass the pre-written text and an optional stack hint (`backend` / `web` / `mobile`). The skill handles routing (stack-specific pitfalls → `{stack}/CLAUDE.md`; cross-cutting → `memory/MEMORY.md` Key Learnings) and cross-file deduplication.
+3. **Report** — confirm what file and section the skill wrote to, or that it was skipped as a duplicate.
 
-Rules:
-1. Check whether the learning already exists in the target file — do not duplicate
-2. Add new entries under the appropriate section heading
-3. Keep each entry concise: what failed/applies, why it matters, the correct pattern (1–3 sentences + code example where it aids clarity)
-4. Report which files were updated, or confirm no update was needed if all learnings were already documented
+**Do not write learnings directly** — always delegate to `save-learning` to keep placement consistent and prevent duplicates across the 5 CLAUDE.md files and MEMORY.md.
 
 ---
 
@@ -202,7 +194,7 @@ grep "Phase.*In Progress\|Phase.*🔄" README.md
 
 **If any of these diverge:**
 1. Treat `docs/ROADMAP.md` (`CURRENT_PHASE` comment) as the **single source of truth**
-2. Update CLAUDE.md "Current Focus" to match
+2. CLAUDE.md "Current Focus" is a one-liner pointer to `docs/ROADMAP.md` — do NOT expand it with milestone details. Update milestone status only in `docs/ROADMAP.phase-{N}.md`.
 3. Update README.md roadmap section to match
 4. Report what was out of sync and what was corrected
 

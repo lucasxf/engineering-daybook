@@ -35,6 +35,7 @@
     "plugins": [
       "expo-secure-store",
       "expo-localization",
+      ["expo-image-picker", { "microphonePermission": false }],
       "./plugins/withSecureStoreBackupRules",
       "./plugins/withCleanPermissions",
       "./plugins/withReleaseSigning",
