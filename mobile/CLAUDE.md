@@ -267,4 +267,6 @@ See `mobile/RELEASE_WORKFLOW.md` for the full step-by-step procedure.
 
 ---
 
-*Last updated: 2026-03-22 (session: feat/mobile-profile-picture — fix avatar photo picker on Android 13+: expo-image-picker plugin registration + Platform.OS permission guard)*
+- **`EXPO_PUBLIC_GOOGLE_*` env vars must be in `eas.json` — `.env.local` is not available on EAS cloud:** The `hasClientId` guard in `useGoogleAuth.ts` hides the Google Sign-In button when all three `EXPO_PUBLIC_GOOGLE_*` vars are absent. EAS cloud builds do not load `.env.local` or `.env.production.local` (both gitignored). If these vars are not in `eas.json`'s `env` block for the relevant profile, the button will silently disappear in every cloud-built APK. OAuth client IDs are public values — safe to commit to `eas.json`. (Added 2026-03-25)
+
+*Last updated: 2026-03-25 (session: develop — fix Google OAuth button missing in EAS cloud builds: add EXPO_PUBLIC_GOOGLE_* to eas.json preview+production profiles)*

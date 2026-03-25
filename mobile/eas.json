@@ -15,14 +15,18 @@
       "distribution": "internal",
       "cache": { "disabled": false },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://engineering-daybook-production.up.railway.app/api/v1"
+        "EXPO_PUBLIC_API_URL": "https://engineering-daybook-production.up.railway.app/api/v1",
+        "EXPO_PUBLIC_GOOGLE_CLIENT_ID": "521355221840-9b3hg8qmc2pi822438jqn47o5bgqnsmh.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "521355221840-s9ipi64mlojsp1aoqr6jkarbsm6vf7qg.apps.googleusercontent.com"
       }
     },
     "production": {
       "distribution": "store",
       "autoIncrement": true,
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://engineering-daybook-production.up.railway.app/api/v1"
+        "EXPO_PUBLIC_API_URL": "https://engineering-daybook-production.up.railway.app/api/v1",
+        "EXPO_PUBLIC_GOOGLE_CLIENT_ID": "521355221840-9b3hg8qmc2pi822438jqn47o5bgqnsmh.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "521355221840-s9ipi64mlojsp1aoqr6jkarbsm6vf7qg.apps.googleusercontent.com"
       }
     }
   },
