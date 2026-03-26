@@ -37,7 +37,7 @@ learnimo is a personal learning journal for everyone. Inspired by "The Pragmatic
 
 ### learnimo
 
-**learnimo** emerged from a cross-linguistic exploration of words for learning, memory, and knowledge — drawing from Portuguese, English, Swahili (Bantu), and Yoruba (which also inspired the opening quote above).
+**learnimo** emerged from a cross-linguistic exploration of words for learning, memory, and knowledge — drawing from Portuguese, English, Swahili (Bantu), Akan (which also inspired the opening proverb above), and Yoruba.
 
 The name carries three semantic layers:
 
