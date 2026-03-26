@@ -140,6 +140,30 @@ Exceptions: intentionally deferred components must have a documented note (in th
 
 If Jest exits non-zero due to coverage below 80% → **STOP.** Do not commit. Show the coverage summary and ask how to proceed.
 
+**Mobile version bump** — after lint/tests pass, check whether the session changes warrant a version bump:
+
+Classify the session changes:
+- **Bump required:** any `feat:`, `fix:`, or `refactor:` change in `mobile/` (new behaviour, bug fix, UI change, new screen, dependency upgrade); also any config change that affects runtime behaviour in shipped builds — `eas.json` env vars, `app.config.ts` changes, Expo config plugins in `mobile/plugins/`
+- **No bump:** `docs:`, `chore:`, `test:`, CLAUDE.md-only changes, or pure tooling/CI config that does not affect the shipped app (e.g. `jest.config.js`, `.eslintrc`, CI workflow files)
+- **When in doubt about a config change, treat it as Bump required.**
+
+If a bump is required, increment the **patch** version in `mobile/app.json`:
+```bash
+# Read current version, split, increment patch
+python3 -c "
+import json, pathlib
+p = pathlib.Path('mobile/app.json')
+d = json.loads(p.read_text())
+v = d['expo']['version'].split('.')
+v[2] = str(int(v[2]) + 1)
+d['expo']['version'] = '.'.join(v)
+p.write_text(json.dumps(d, indent=2) + '\n')
+print('Bumped to', d['expo']['version'])
+"
+```
+
+> **Why:** `eas build --auto-submit` only increments the versionCode (build number). The version string in `app.json` never changes unless bumped here. Users and the Play Store see the same "1.0.x" forever otherwise.
+
 If a layer was not touched this session, skip it entirely.
 
 **Output management — keep context clean:**

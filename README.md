@@ -10,8 +10,11 @@
 
 learnimo is a personal learning journal for everyone. Inspired by "The Pragmatic Programmer", where engineers in traditional industries maintained physical notebooks called engineering daybooks to record daily learnings, learnimo brings that practice into the digital age — with modern search, tagging, and (eventually) AI-powered insights.
 
-> "A tinta mais fraca constrói pontes mais fortes que a memória mais viva."
-> — Provérbio Yorubá (Nigéria)
+> *"Nea onnim no sua a, ohu."*
+> — Akan proverb (Ghana)
+>
+> *"He who does not know can know from learning."*
+> *"Aquele que não sabe, se aprender, saberá."*
 
 ---
 
@@ -30,9 +33,11 @@ learnimo is a personal learning journal for everyone. Inspired by "The Pragmatic
 
 ---
 
-## The Name
+## Names
 
-**learnimo** emerged from a cross-linguistic exploration of words for learning, memory, and knowledge — drawing from Portuguese, English, Swahili (Bantu), and Yoruba (which also inspired the opening quote above).
+### learnimo
+
+**learnimo** emerged from a cross-linguistic exploration of words for learning, memory, and knowledge — drawing from Portuguese, English, Swahili (Bantu), Akan (which also inspired the opening proverb above), and Yoruba.
 
 The name carries three semantic layers:
 
@@ -41,6 +46,15 @@ The name carries three semantic layers:
 - Say *learnimo* out loud and you can hear **ânimo** — Portuguese for energy, spirit, drive
 
 The runner-up names in that exploration were **daftari** (Swahili for "notebook", strong cultural identity) and **devimo** (developer-focused startup vibe). **learnimo** was chosen for its global reach and because it carries meaning in multiple languages without belonging to just one.
+
+### Onnim — the crow
+
+learnimo's mascot is a crow named **Onnim**.
+
+The name carries two layers:
+
+- **Akan root** — "onnim" opens the proverb *"Nea onnim no sua a, ohu"* (*"He who does not know can know from learning"*) — the same proverb that greets every visitor to the app. The mascot's name is the word for "does not know yet" — because every learner starts there.
+- **Norse echo** — Odin's two ravens are **Huginn** (thought) and **Muninn** (memory). Onnim joins that lineage: a crow who watches, collects, and carries knowledge across time.
 
 ---
 
@@ -58,37 +72,50 @@ The runner-up names in that exploration were **daftari** (Swahili for "notebook"
 
 ---
 
+## Architecture
+
+| Layer | Pattern | Key structure |
+|-------|---------|--------------|
+| **Backend** | Layered (n-tier) | `controller/` → `service/` → `repository/` → `domain/` (JPA entities). Infrastructure boundaries use interfaces (`EmbeddingService`, `StorageService`). |
+| **Web** | Next.js App Router + domain-grouped components | `app/[locale]/` routes, `components/{feature}/` folders, `lib/` API clients, `hooks/` data layer |
+| **Mobile** | Screen-Component-Hook + React Navigation | `screens/` → `components/` → `hooks/` → `lib/` (mirrors web). Imperative navigation (native-stack + bottom-tabs). |
+
+> For ADRs, data model, and security architecture, see [ARCHITECTURE.md](./docs/ARCHITECTURE.md).
+
+---
+
 ## Project Structure
 
 ```
 /engineering-daybook
-├── backend/                  # Java Spring Boot API
-├── web/                      # Next.js web application (main app — deployed to learnimo.net)
-├── mobile/                   # Expo mobile application
-│   ├── e2e/                  # Maestro E2E test flows
-│   └── store-assets/         # Play Store / App Store listing assets
-├── docs/                     # Project documentation
-│   ├── PROJECT_VISION.md
-│   ├── REQUIREMENTS.md
+├── .claude/                       # Claude Code automation
+│   ├── agents/                    # Specialized AI agents — see agents-readme.md
+│   ├── agents-readme.md           # Agent catalog (outside agents/ to avoid auto-loading)
+│   ├── commands/                  # Slash commands (/finish-session, /write-spec, etc.)
+│   ├── metrics/                   # Session usage stats and recommendations
+│   ├── scripts/                   # Automation scripts (coverage, metrics, registry)
+│   └── skills/                    # Reusable skill prompts (mobile-design-system, etc.)
+├── .github/workflows/             # CI/CD pipelines (ci, release-please, claude)
+├── backend/                       # Java Spring Boot API
+├── docs/                          # Project documentation
 │   ├── ARCHITECTURE.md
 │   ├── GLOSSARY.md
-│   ├── ROADMAP.md              # Phase index (source of truth for active phase)
-│   ├── ROADMAP.phase-{N}.md   # Per-phase details (0–8)
-│   └── specs/                  # Spec-Driven Development feature specs
-│       └── features/           # 26 feature specs (one per shipped milestone)
-├── .claude/                  # Claude Code automation
-│   ├── agents/               # Specialized AI agents (tech-writer, sous-chef, etc.)
-│   ├── commands/             # Slash commands (/finish-session, /write-spec, etc.)
-│   ├── skills/               # Reusable skill prompts (mobile-design-system, etc.)
-│   ├── scripts/              # Automation scripts (coverage, metrics, registry)
-│   └── metrics/              # Session usage stats and recommendations
-├── app/                      # Root-level Next.js v0 preview layout (globals.css, layout.tsx)
-├── components/               # Root-level v0 preview components (wordmark, forgot-password form)
-├── .github/workflows/        # CI/CD pipelines (ci, release-please, claude)
-├── docker-compose.yml        # Local development database (PostgreSQL + pgvector)
-├── CLAUDE.md                 # Claude Code context
-├── LICENSE                   # MIT License
-└── README.md                 # This file
+│   ├── PROJECT_VISION.md
+│   ├── REQUIREMENTS.md
+│   ├── ROADMAP.md                 # Phase index (source of truth for active phase)
+│   ├── ROADMAP.phase-{N}.md       # Per-phase details (0–8)
+│   └── specs/                     # Spec-Driven Development feature specs
+│       └── features/              # 26 feature specs (one per shipped milestone)
+├── mobile/                        # Expo mobile application
+│   ├── e2e/                       # Maestro E2E test flows
+│   └── store-assets/              # Play Store / App Store listing assets
+├── web/                           # Next.js web application (deployed to learnimo.net)
+├── CLAUDE.md                      # Claude Code context
+├── docker-compose.override.yml    # Local overrides (ports, volumes)
+├── docker-compose.yml             # Local development database (PostgreSQL + pgvector)
+├── LICENSE                        # MIT License
+├── release-please-config.json     # Release automation config
+└── README.md                      # This file
 ```
 
 ---
@@ -148,122 +175,21 @@ The mobile app requires `EXPO_PUBLIC_API_URL` for the same.
 
 ## Features
 
-### Implemented
-- **User Authentication**
-  - Email/password registration and login
-  - Google OAuth integration
-  - JWT-based session management with httpOnly cookies
-  - Secure password hashing with BCrypt
-  - Password reset via email
+- **Learning journal** — create, edit, search, and tag your learnings with Markdown support
+- **AI-assisted organization** — automatic tag suggestions and hybrid search (keyword + semantic via pgvector)
+- **Social learning** — follow learners, discover public learnings, re-learn from others
+- **Privacy controls** — 4-tier visibility (private, followers, colleagues, public) with anti-vanity design
+- **Cross-platform** — web (Next.js) and mobile (Expo/React Native), both with dark mode and i18n (EN/PT-BR)
 
-- **Learning Management**
-  - Create, read, update, and delete learnings
-  - Rich text content with Markdown support (web + mobile)
-  - Automatic and manual tagging — tag assignment at creation time (QuickEntry and /new page)
-  - AI-powered tag suggestions (approve/reject; generated from HuggingFace keyword extraction)
-  - Tag CRUD with display-name normalization; tag filtering on the feed
-  - Audit trail for all changes
-  - Tag-grouped view (alphabetical sections, untagged at bottom)
-  - Timeline view (month/year grouped, newest-first, locale-aware)
-  - Sort options: Newest, Oldest, Recently updated
-  - Hybrid search (keyword + semantic via pgvector cosine similarity)
-  - AI-powered embeddings via HuggingFace Inference API (async, non-blocking)
-  - Visibility controls — private by default; learners can make individual learnings public (irreversible); per-user default visibility preference
-
-- **Social & Discovery**
-  - Follow/unfollow learners; automatic colleague detection (mutual follow)
-  - 4-tier visibility: PRIVATE, FOLLOWERS_ONLY, COLLEAGUES_ONLY, PUBLIC
-  - Discovery feed — aggregates learnings and re-learnings from followed learners
-  - Learner search — Discover page to find learners by handle or name
-  - Re-Learning — share any public learning to your own feed with attribution; visibility cascade enforced (shared visibility ≤ original)
-  - Anti-vanity design — no public follower counts
-
-- **Learner Profiles**
-  - Public profile page at `/learners/{handle}` with avatar, display name, and bio
-  - Avatar upload with automatic resize to 200×200 JPEG (Supabase Storage, 2 MB limit, JPEG/PNG/WebP)
-  - Short bio editing; external links blocked by design
-  - Clickable handle and avatar thumbnail in navigation header
-  - Profile respects visibility settings
-
-- **Web Application**
-  - Responsive design with Tailwind CSS
-  - Internationalization (EN/PT-BR) with next-intl
-  - Dark mode / light mode / system theme toggle
-  - Protected routes and authentication flows
-  - Modern React patterns with TypeScript
-  - E2E tested with Playwright (auth redirect, login, create/edit/delete learnings)
-
-- **Mobile Application (Expo/React Native)**
-  - Auth: login, register, password reset, Google OAuth
-  - Learning feed with search (hybrid keyword + semantic)
-  - Create, edit, and delete learnings with Markdown rendering
-  - Visibility picker at creation; visibility badge and toggle on detail screen
-  - Discover screen — learner search and follow/unfollow
-  - Learner profile screen with avatar, bio, and follow status
-  - Inline profile editing on ProfileScreen — display name, bio, and avatar upload/remove (expo-image-picker)
-  - Dark mode / light mode / system theme
-  - Internationalization (EN/PT-BR)
+See [docs/specs/](./docs/specs/) for the full list of 26 shipped feature specs.
 
 ---
 
 ## Roadmap
 
-See [ROADMAP.md](./docs/ROADMAP.md) for the index of all phases.
+learnimo is currently in **Phase 1 (MVP)**, with work active across Phases 2, 3, 5, 6, and 8. The app is live at [learnimo.net](https://learnimo.net).
 
-### Phase 0: Foundation — ✅ Complete
-See [ROADMAP.phase-0.md](./docs/ROADMAP.phase-0.md)
-
-### Phase 1: MVP — 🔄 Active
-See [ROADMAP.phase-1.md](./docs/ROADMAP.phase-1.md)
-- [x] User authentication (email + password + Google OAuth + password reset)
-- [x] Learning CRUD (backend + web)
-- [x] Search (keyword, filters, sorting)
-- [x] Dark mode + i18n (EN/PT-BR)
-- [x] Deployed to production (learnimo.net · learnimo.com.br)
-- [x] Session persistence (httpOnly cookies)
-- [x] Inline quick-entry
-- [x] Visual polish (1.7.6) — standardized palette, animation tokens, shared UI components (Alert, Card, Textarea, Select), accessible custom dropdown, spacing fixes
-- [ ] Phase 1 exit criterion: 1+ week usage
-
-### Phase 2: Evolution — 🔄 Started
-See [ROADMAP.phase-2.md](./docs/ROADMAP.phase-2.md)
-- [x] POK editing, deletion, and audit trail
-- [x] Tagging system — full web UI done (TagSection, add/remove tags from view and edit pages, tag assignment at creation time via TagPicker, post-create redirect to tag UI, AI keyword-based tag suggestions with approve/reject)
-- [x] Visualization — tag-grouped view, timeline view (month/year), sort options (Newest/Oldest/Recently updated)
-- [ ] UX Delight — inspirational prompts, homepage personalization
-
-### Phase 3: AI & Mobile — 🔄 In Progress
-See [ROADMAP.phase-3.md](./docs/ROADMAP.phase-3.md)
-- [x] Semantic search — hybrid keyword + vector search via pgvector; embeddings from HuggingFace Inference API
-- [ ] AI Connections (related learnings)
-- [x] Mobile app (Expo/React Native) — auth, feed, create/edit/delete, dark mode, i18n EN/PT-BR
-- [ ] App Store Publishing (Android published to Play Store internal track; recurring crash-on-launch fixed via config plugins 2026-03-19; iOS pending)
-
-### Phase 4: Growth — ⏸️ Postponed
-See [ROADMAP.phase-4.md](./docs/ROADMAP.phase-4.md)
-
-### Phase 5: Privacy — 🔄 In Progress
-See [ROADMAP.phase-5.md](./docs/ROADMAP.phase-5.md)
-- [x] POK Visibility Controls — private by default, per-learning public toggle (irreversible), default visibility preference, access control enforcement, UI indicators on web and mobile
-- [x] Learner Profile Privacy — profileVisibility field, public learner profile page, settings page/screen, E2E tests
-
-### Phase 6: Social Capabilities — 🔄 In Progress
-See [ROADMAP.phase-6.md](./docs/ROADMAP.phase-6.md)
-- [x] Following & Colleagues — follow/unfollow, automatic colleague detection (mutual follow), FOLLOWERS_ONLY and COLLEAGUES_ONLY visibility tiers, private social counts (anti-vanity), RelationshipStatus on profiles, FollowButton component, 4-tier visibility selectors on Settings page
-- [x] Learner Profiles — avatar upload (Supabase Storage, Thumbnailator resize), bio and display name editing, public profile page, header avatar thumbnail + handle link, visibility enforcement, no public vanity metrics
-- [x] Share (Re-Learning) — share any public learning to your own feed with attribution to original author; visibility cascade enforced (shared visibility ≤ original); original going private removes downstream shares; Re-learn button on learner profiles for non-owner visitors; ReLearningModal component
-- [x] Discovery Feed — social feed aggregating learnings and re-learnings from followed learners (GET /api/v1/feed); Discover page with learner search by handle/name (GET /api/v1/learners/search); mobile social feed via useFeedData hook; 17 E2E tests
-- [ ] Classes & Study Groups
-- [ ] Community Principles & Content Moderation
-
-### Phase 7: Gamification — ⏸️ Postponed
-See [ROADMAP.phase-7.md](./docs/ROADMAP.phase-7.md)
-
-### Phase 8: Knowledge Enrichment — 🔄 In Progress
-See [ROADMAP.phase-8.md](./docs/ROADMAP.phase-8.md)
-- [x] Markdown Support — react-markdown + rehype-sanitize (web), react-native-markdown-display (mobile); renders in all views
-- [x] Tag Improvements — display_name column, TagService.normalise(), GET /api/v1/poks?tagId filter, TagFilter component wired into feed, mobile tag components updated
-- [ ] Knowledge Paths — planning and spec only (graph visualization, grouped by topic)
+See [ROADMAP.md](./docs/ROADMAP.md) for the full phase index and milestone details.
 
 ---
 
@@ -301,17 +227,7 @@ prompt-optimizer "I want to build feature X"
 
 ### Key Commands
 
-| Command | Purpose |
-|---------|---------|
-| `/start-session` | Load stack-specific context, orient on current branch + phase |
-| `/write-spec` | Draft a feature spec (delegates to specialist agents) |
-| `/review-spec` | Quality-gate the spec before implementation |
-| `/implement-spec` | TDD implementation from spec, one commit per task |
-| `/finish-session` | Build/lint/test gates, docs update, conventional commit |
-| `/create-pr` | Open PR via `gh` with auto-generated description |
-| `/review-pr` | Triage open PR — CI status, review comments, triage report |
-| `/fix-pr` | Implement approved items from triage report |
-| `/compile-metrics` | Aggregate session usage stats after merge |
+See [`.claude/commands/README.md`](./.claude/commands/README.md) for the full command reference.
 
 ### Key Skills
 
@@ -320,6 +236,10 @@ prompt-optimizer "I want to build feature X"
 | `prompt-optimizer` | Enhance a raw prompt before starting a session |
 | `mobile-design-system` | "Library at Dusk" design tokens for Expo/RN visual parity |
 | `frontend-design` | Production-grade frontend interface generation |
+
+### Agents
+
+See [`.claude/agents-readme.md`](./.claude/agents-readme.md) for the full agent catalog.
 
 ---
 
@@ -386,3 +306,5 @@ This project is licensed under the [MIT License](./LICENSE).
 | 0.8.0 | 2026-03-04 | Phase 5 — visibility controls (4-tier), learner profile privacy, access enforcement, E2E tests |
 | 0.9.0 | 2026-03-06 | Phase 8 — Markdown support (web + mobile), tag display names + normalization, TagFilter on feed |
 | 0.10.0 | 2026-03-08 | Phase 6 — following/colleagues, learner profiles + avatar, re-learning/shares, discovery feed, learner search, mobile social features |
+
+See [GitHub Releases](https://github.com/lucasxf/engineering-daybook/releases) for the full release history and changelogs.
