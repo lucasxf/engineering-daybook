@@ -143,8 +143,9 @@ If Jest exits non-zero due to coverage below 80% → **STOP.** Do not commit. Sh
 **Mobile version bump** — after lint/tests pass, check whether the session changes warrant a version bump:
 
 Classify the session changes:
-- **Bump required:** any `feat:`, `fix:`, or `refactor:` change in `mobile/` (new behaviour, bug fix, UI change, new screen, dependency upgrade)
-- **No bump:** `docs:`, `chore:`, `test:`, config-only, or CLAUDE.md-only changes
+- **Bump required:** any `feat:`, `fix:`, or `refactor:` change in `mobile/` (new behaviour, bug fix, UI change, new screen, dependency upgrade); also any config change that affects runtime behaviour in shipped builds — `eas.json` env vars, `app.config.ts` changes, Expo config plugins in `mobile/plugins/`
+- **No bump:** `docs:`, `chore:`, `test:`, CLAUDE.md-only changes, or pure tooling/CI config that does not affect the shipped app (e.g. `jest.config.js`, `.eslintrc`, CI workflow files)
+- **When in doubt about a config change, treat it as Bump required.**
 
 If a bump is required, increment the **patch** version in `mobile/app.json`:
 ```bash
