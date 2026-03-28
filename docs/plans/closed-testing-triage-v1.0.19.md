@@ -11,7 +11,7 @@ Closed testing review surfaced 9 issues (2 bugs, 7 features/UX) across the learn
 | Session | Items | Branch | Status | PR |
 |---------|-------|--------|--------|----|
 | S1 | #1 Tag creation bug | `fix/tag-creation-flow` | ✅ Done | PR #252 |
-| S2 | #2 Avatar + #5 Emojis | `fix/avatar-upload` | ✅ Done | #TBD |
+| S2 | #2 Avatar + #5 Emojis | `fix/avatar-upload` | ✅ Done | PR #253 |
 | S3 | #3+#4 Settings persistence | `feat/settings-persistence` | 🔲 Pending | — |
 | S4 | #3+#4 continued (if needed) | `feat/settings-persistence` | 🔲 Pending | — |
 | S5 | #6 Tag sort/collapse | `feat/tag-sort-collapse` | 🔲 Pending | — |
