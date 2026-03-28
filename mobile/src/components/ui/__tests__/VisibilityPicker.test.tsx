@@ -38,6 +38,11 @@ jest.mock('../Text', () => ({
   Text: (props: { children?: React.ReactNode }) => props.children,
 }));
 
+jest.mock('@expo/vector-icons', () => ({
+  Ionicons: (props: Record<string, unknown>) =>
+    require('react').createElement('Ionicons', props),
+}));
+
 // ---------------------------------------------------------------------------
 // Imports (after mocks)
 // ---------------------------------------------------------------------------
@@ -106,10 +111,10 @@ function findAllText(element: any): string[] {
 
 describe('VisibilityBadge', () => {
   const cases: Array<[PokVisibility, string, string]> = [
-    ['PRIVATE',         '🔒', 'learnings.visibility.private'],
-    ['FOLLOWERS_ONLY',  '👥', 'learnings.visibility.followersOnly'],
-    ['COLLEAGUES_ONLY', '🤝', 'learnings.visibility.colleaguesOnly'],
-    ['PUBLIC',          '🌐', 'learnings.visibility.public'],
+    ['PRIVATE',         'lock-closed',    'learnings.visibility.private'],
+    ['FOLLOWERS_ONLY',  'people-outline', 'learnings.visibility.followersOnly'],
+    ['COLLEAGUES_ONLY', 'people',         'learnings.visibility.colleaguesOnly'],
+    ['PUBLIC',          'globe-outline',  'learnings.visibility.public'],
   ];
 
   test.each(cases)('renders without errors for %s', (visibility) => {
@@ -117,13 +122,14 @@ describe('VisibilityBadge', () => {
     expect(result).toBeTruthy();
   });
 
-  test.each(cases)('shows correct icon for %s', (visibility, expectedIcon) => {
+  test.each(cases)('shows correct Ionicon for %s', (visibility, expectedIconName) => {
     const result = VisibilityBadge({ visibility });
-    const allText = findAllText(result);
-    expect(allText).toContain(expectedIcon);
+    const icons = findAllByType(result, 'Ionicons');
+    expect(icons.length).toBeGreaterThan(0);
+    expect(icons[0].props.name).toBe(expectedIconName);
   });
 
-  test.each(cases)('shows correct i18n key for %s', (visibility, _icon, expectedKey) => {
+  test.each(cases)('shows correct i18n key for %s', (visibility, _iconName, expectedKey) => {
     const result = VisibilityBadge({ visibility });
     const allText = findAllText(result);
     expect(allText).toContain(expectedKey);
