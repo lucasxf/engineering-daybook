@@ -571,6 +571,20 @@ Wave sequencing:
 3. Write `docs/specs/features/mobile-sort-options.md` (new spec)
 4. Run `/review-spec` on all 6 specs (mobile-profile-editing, mobile-4-tier-visibility, mobile-re-learning, mobile-tag-management, mobile-google-oauth, mobile-sort-options)
 
+### Milestone 1.8 — Closed Testing Fixes (2026-03-26)
+
+| Item | Status | Branch |
+|------|--------|--------|
+| Fix tag creation flow (create + attach + i18n) | 🔲 Planned | `fix/tag-creation-flow` |
+| Fix avatar upload on Android 13+ | ✅ Done | `fix/avatar-upload` |
+| Persist theme + locale settings (backend + contexts) | 🔲 Planned | `feat/settings-persistence` |
+| Profile save UX (feedback on setting changes) | 🔲 Planned | `feat/settings-persistence` |
+| Replace skin-tone emojis with neutral symbols | ✅ Done | `fix/avatar-upload` |
+| Tag sort by frequency + collapse/expand top 3 | 🔲 Planned | `feat/tag-sort-collapse` |
+| Social feed: include user's own recent learnings | 🔲 Planned | `feat/social-feed-own-poks` |
+| Auto-resizing + larger content textarea | 🔲 Planned | `feat/auto-resize-textarea` |
+| Test effectiveness: per-screen enforcement, flow tests, i18n smoke | 🔲 Planned | `chore/test-effectiveness` |
+
 ---
 
 ## Active / Pending
