@@ -202,6 +202,18 @@ See `mobile/RELEASE_WORKFLOW.md` for the full step-by-step procedure.
   }
   ```
 
+- **`findAllByType` tree traversal must handle array nodes from JSX `.map()` results:** When a component renders `{array.map(item => <View>...</View>)}`, React creates an array of elements as a child node. The standard traversal pattern `[el.props?.children].flat().forEach(walk)` handles array-typed `props.children`, but NOT array-typed nodes themselves — i.e., when `el` itself is an array rather than a React element. The `typeof el !== 'object'` guard passes for arrays (arrays are objects), so the traversal enters the array as if it were a React element, finds no `type`/`props`, and silently skips all children. Fix: add an early array check in `walk` before the element type check: `if (Array.isArray(node)) { node.forEach(walk); return; }`. Without this, any element that is a direct child of a `.map()` result is invisible to the traversal. (Added 2026-03-26)
+
+  ```ts
+  function walk(el: any) {
+    if (!el) return;
+    if (Array.isArray(el)) { el.forEach(walk); return; }  // handle .map() results
+    if (typeof el !== 'object') return;
+    if (el.type === type || (el.type as any)?.name === type) results.push(el);
+    [el.props?.children].flat().forEach(walk);
+  }
+  ```
+
 - **`jest.mock()` callCount for `useState` sequencing must live at module scope, not inside the factory closure:** When a factory closure manages a `callCount` variable internally, it persists across tests but cannot be reset from `beforeEach` — the variable is inaccessible from outside the closure. Fix: declare `let mockStateCallCount = 0` at module scope (the `mock` prefix satisfies Jest's hoisting exception for referenced variables). The factory closure then captures the module-scope variable, and `beforeEach` can reset it between tests. This pattern is required for any mock that sequences React `useState` calls differently per test (e.g., loading state on call 1, error state on call 2). (Added 2026-03-15)
 
   ```ts

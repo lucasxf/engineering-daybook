@@ -575,7 +575,7 @@ Wave sequencing:
 
 | Item | Status | Branch |
 |------|--------|--------|
-| Fix tag creation flow (create + attach + i18n) | 🔲 Planned | `fix/tag-creation-flow` |
+| Fix tag creation flow (create + attach + i18n) | ✅ Done | `fix/tag-creation-flow` |
 | Fix avatar upload on Android 13+ | ✅ Done | `fix/avatar-upload` |
 | Persist theme + locale settings (backend + contexts) | 🔲 Planned | `feat/settings-persistence` |
 | Profile save UX (feedback on setting changes) | 🔲 Planned | `feat/settings-persistence` |

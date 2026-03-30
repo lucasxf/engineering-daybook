@@ -37,6 +37,17 @@ const Image = ({ testID, accessibilityLabel, source, ...props }) => {
 
 const ActivityIndicator = () => React.createElement('span', null, 'loading');
 
+const TouchableOpacity = ({ children, onPress, disabled, accessibilityRole, accessibilityLabel, hitSlop, style, activeOpacity }) =>
+  React.createElement('TouchableOpacity', { onPress, disabled, 'aria-label': accessibilityLabel, style }, children);
+
+const FlatList = ({ data, renderItem, ListFooterComponent, ListHeaderComponent, keyExtractor, style }) =>
+  React.createElement(
+    'FlatList',
+    { style },
+    ...(data || []).map((item, index) => renderItem({ item, index, separators: {} })),
+    ListFooterComponent || null,
+  );
+
 const Modal = ({ children, visible }) =>
   visible ? React.createElement('div', { role: 'dialog' }, children) : null;
 
@@ -58,6 +69,8 @@ module.exports = {
   TextInput,
   Image,
   ActivityIndicator,
+  TouchableOpacity,
+  FlatList,
   Modal,
   Platform,
   Alert,

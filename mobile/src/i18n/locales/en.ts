@@ -118,7 +118,7 @@ export default {
       noTagsAvailable: 'Type a name to create your first tag',
       noMoreTagsToAdd: 'All your tags are already added',
       tagSearchPlaceholder: 'Search or create a tag…',
-      tagCreateNew: 'Create "{name}"',
+      tagCreateNew: 'Create "%{name}"',
       tagCreateError: 'Failed to create tag',
       tagListLoadErrorTitle: 'Could not load tags',
       tagListLoadErrorMessage: 'Failed to load your tags. Please try again.',

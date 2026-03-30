@@ -2,7 +2,7 @@
   "expo": {
     "name": "learnimo",
     "slug": "learnimo",
-    "version": "1.0.19",
+    "version": "1.0.20",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -31,11 +31,19 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": ["learnimo", "net.learnimo.app"],
+    "scheme": [
+      "learnimo",
+      "net.learnimo.app"
+    ],
     "plugins": [
       "expo-secure-store",
       "expo-localization",
-      ["expo-image-picker", { "microphonePermission": false }],
+      [
+        "expo-image-picker",
+        {
+          "microphonePermission": false
+        }
+      ],
       "./plugins/withSecureStoreBackupRules",
       "./plugins/withCleanPermissions",
       "./plugins/withReleaseSigning",

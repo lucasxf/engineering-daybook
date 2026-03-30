@@ -116,7 +116,7 @@ export default {
       noTagsAvailable: 'Digite um nome para criar sua primeira etiqueta',
       noMoreTagsToAdd: 'Todas as suas etiquetas já foram adicionadas',
       tagSearchPlaceholder: 'Buscar ou criar etiqueta…',
-      tagCreateNew: 'Criar "{name}"',
+      tagCreateNew: 'Criar "%{name}"',
       tagCreateError: 'Falha ao criar etiqueta',
       tagListLoadErrorTitle: 'Não foi possível carregar etiquetas',
       tagListLoadErrorMessage: 'Falha ao carregar suas etiquetas. Tente novamente.',
