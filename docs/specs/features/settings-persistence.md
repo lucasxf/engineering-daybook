@@ -1,8 +1,8 @@
 # Settings Persistence (Theme + Locale)
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-03-29
-> **Implemented:** _pending_
+> **Implemented:** 2026-03-31
 
 ---
 
@@ -252,8 +252,20 @@ The fix is minimal: the backend `User` table already has `locale` (VARCHAR 10) a
 
 ### Commits
 
+- `1f0613d` — feat(backend): expose theme and locale in settings and /auth/me endpoints
+- `8f71e8c` — feat(mobile): restore theme and locale from /auth/me on session init
+- `a97e2cf` — feat(mobile): auto-save theme and locale on ProfileScreen with feedback
+
 ### Architectural Decisions
+
+- **Callback prop pattern for context wiring** — `AuthProvider` accepts `onSettingsRestored` callback rather than importing `ThemeContext`/`I18nContext` directly, avoiding circular scope since `AppContent` lives inside both providers.
+- **Backend-only persistence (Option B)** — No `AsyncStorage` dependency; `theme` and `locale` are stored in the `users` table (columns already existed) and restored via the existing `/auth/me` call at zero extra cost.
+- **Locale normalization on mobile** — Backend stores `"EN"` (uppercase default); mobile normalizes with `startsWith('pt')` check to map to the `Locale` type (`'en'` | `'pt-BR'`).
 
 ### Deviations from Spec
 
+- `UserSettingsControllerTest` also required updating (8 constructor call-sites for `UpdateUserSettingsRequest` now need 2 extra `null` args for `theme` and `locale`) — not listed in spec's File Changes but was a necessary fix.
+
 ### Lessons Learned
+
+- **Java record expansion always breaks test constructors** — Adding fields to a DTO record requires updating every test that constructs it. Consider adding a builder or a convenience factory if the record has many optional fields.
