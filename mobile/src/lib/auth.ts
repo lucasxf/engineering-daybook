@@ -23,6 +23,10 @@ export interface AuthResponse {
   bio?: string;
   /** Present on /auth/me responses. */
   displayName?: string;
+  /** Present on /auth/me responses — persisted theme preference. */
+  theme?: string | null;
+  /** Present on /auth/me responses — persisted locale preference. */
+  locale?: string | null;
 }
 
 /** Backend response shape — includes tokens in body (RISK-1, mobile support). */

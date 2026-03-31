@@ -37,7 +37,12 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 // Provider
 // ---------------------------------------------------------------------------
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+interface AuthProviderProps {
+  children: React.ReactNode;
+  onSettingsRestored?: (theme: string | null, locale: string | null) => void;
+}
+
+export function AuthProvider({ children, onSettingsRestored }: AuthProviderProps) {
   const [status, setStatus] = useState<AuthStatus>('loading');
   const [user, setUserState] = useState<AuthResponse | null>(null);
 
@@ -64,6 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const me = await getMeApi();
         setUserState(me);
+        onSettingsRestored?.(me.theme ?? null, me.locale ?? null);
         setStatus('authenticated');
       } catch {
         // Access token invalid or expired and refresh failed (apiFetch handles refresh)
@@ -73,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     initSession();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps — intentionally runs once
 
   // ---------------------------------------------------------------------------
   // Auth failure listener (double-401 from any API call after session starts)
