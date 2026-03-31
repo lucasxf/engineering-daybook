@@ -1,19 +1,27 @@
 import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { PokVisibility } from '@/lib/pokApi';
 import { Text } from './Text';
 
+type IoniconName = React.ComponentProps<typeof Ionicons>['name'];
+
 // ---------------------------------------------------------------------------
 // Option definitions
 // ---------------------------------------------------------------------------
 
-const VISIBILITY_OPTIONS = [
-  { value: 'PRIVATE' as PokVisibility,         icon: '🔒', labelKey: 'learnings.visibility.private',       descKey: 'learnings.visibility.privateDesc' },
-  { value: 'COLLEAGUES_ONLY' as PokVisibility, icon: '🤝', labelKey: 'learnings.visibility.colleaguesOnly', descKey: 'learnings.visibility.colleaguesOnlyDesc' },
-  { value: 'FOLLOWERS_ONLY' as PokVisibility,  icon: '👥', labelKey: 'learnings.visibility.followersOnly',  descKey: 'learnings.visibility.followersOnlyDesc' },
-  { value: 'PUBLIC' as PokVisibility,          icon: '🌐', labelKey: 'learnings.visibility.public',         descKey: 'learnings.visibility.publicDesc' },
+const VISIBILITY_OPTIONS: Array<{
+  value: PokVisibility;
+  iconName: IoniconName;
+  labelKey: string;
+  descKey: string;
+}> = [
+  { value: 'PRIVATE',         iconName: 'lock-closed',    labelKey: 'learnings.visibility.private',       descKey: 'learnings.visibility.privateDesc' },
+  { value: 'COLLEAGUES_ONLY', iconName: 'people',         labelKey: 'learnings.visibility.colleaguesOnly', descKey: 'learnings.visibility.colleaguesOnlyDesc' },
+  { value: 'FOLLOWERS_ONLY',  iconName: 'people-outline', labelKey: 'learnings.visibility.followersOnly',  descKey: 'learnings.visibility.followersOnlyDesc' },
+  { value: 'PUBLIC',          iconName: 'globe-outline',  labelKey: 'learnings.visibility.public',         descKey: 'learnings.visibility.publicDesc' },
 ];
 
 const TIER_ORDER: PokVisibility[] = ['PRIVATE', 'COLLEAGUES_ONLY', 'FOLLOWERS_ONLY', 'PUBLIC'];
@@ -31,9 +39,9 @@ export function getDisabledValues(currentVisibility: PokVisibility): PokVisibili
 // VisibilityBadge
 // ---------------------------------------------------------------------------
 
-const ICON_MAP = Object.fromEntries(
-  VISIBILITY_OPTIONS.map((o) => [o.value, o.icon])
-) as Record<PokVisibility, string>;
+const ICON_NAME_MAP = Object.fromEntries(
+  VISIBILITY_OPTIONS.map((o) => [o.value, o.iconName])
+) as Record<PokVisibility, IoniconName>;
 
 const LABEL_KEY_MAP = Object.fromEntries(
   VISIBILITY_OPTIONS.map((o) => [o.value, o.labelKey])
@@ -52,7 +60,7 @@ export function VisibilityBadge({ visibility }: VisibilityBadgeProps) {
       accessibilityRole="text"
       style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs }}
     >
-      <Text variant="bodySm">{ICON_MAP[visibility]}</Text>
+      <Ionicons name={ICON_NAME_MAP[visibility]} size={14} color={theme.colors.textSecondary} />
       <Text variant="bodySm" style={{ color: theme.colors.textSecondary }}>
         {t(LABEL_KEY_MAP[visibility])}
       </Text>
@@ -112,7 +120,7 @@ export function VisibilityPicker({
                 }}
                 onPress={isDisabled ? undefined : () => onChange(opt.value)}
               >
-                <Text variant="bodySm">{opt.icon}</Text>
+                <Ionicons name={opt.iconName} size={16} color={theme.colors.textPrimary} />
               </TouchableOpacity>
             );
           })}
@@ -153,7 +161,7 @@ export function VisibilityPicker({
             onPress={isDisabled ? undefined : () => onChange(opt.value)}
           >
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm }}>
-              <Text variant="bodySm">{opt.icon}</Text>
+              <Ionicons name={opt.iconName} size={18} color={theme.colors.textPrimary} />
               <View style={{ flex: 1 }}>
                 <Text variant="label">{t(opt.labelKey)}</Text>
                 <Text variant="caption" style={{ color: theme.colors.textSecondary }}>
