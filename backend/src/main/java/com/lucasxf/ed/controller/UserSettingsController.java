@@ -83,6 +83,12 @@ public class UserSettingsController {
         if (request.displayName() != null) {
             userService.updateDisplayName(userId, request.displayName());
         }
+        if (request.theme() != null) {
+            userService.updateTheme(userId, request.theme());
+        }
+        if (request.locale() != null) {
+            userService.updateLocale(userId, request.locale());
+        }
         return ResponseEntity.noContent().build();
     }
 
