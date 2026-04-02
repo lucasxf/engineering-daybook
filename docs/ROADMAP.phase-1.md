@@ -582,7 +582,7 @@ Wave sequencing:
 | Replace skin-tone emojis with neutral symbols | ✅ Done | `fix/avatar-upload` |
 | Tag sort by frequency + collapse/expand top 3 | 🔲 Planned | `feat/tag-sort-collapse` |
 | Social feed: include user's own recent learnings | 🔲 Planned | `feat/social-feed-own-poks` |
-| Auto-resizing + larger content textarea | 🔲 Planned | `feat/auto-resize-textarea` |
+| Auto-resizing + larger content textarea | ✅ Done | `feat/auto-resize-textarea` |
 | Test effectiveness: per-screen enforcement, flow tests, i18n smoke | 🔲 Planned | `chore/test-effectiveness` |
 
 ---

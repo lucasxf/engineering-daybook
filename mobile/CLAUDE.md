@@ -291,4 +291,23 @@ See `mobile/RELEASE_WORKFLOW.md` for the full step-by-step procedure.
 
   This issue was triggered in `ProfileScreen.test.tsx` when `VisibilityPicker.tsx` was updated to use `Ionicons` icons instead of emoji literals. Any future component that adds an `@expo/vector-icons` import will require the same mock in every screen test file that transitively imports it. (Added 2026-03-28)
 
-*Last updated: 2026-03-28 (session: fix/avatar-upload — S2 closed-testing triage: avatar upload Android 13+ fix verified, skin-tone emojis replaced with Ionicons in VisibilityPicker)*
+- **Auto-resizing `TextInput` pattern — use `onContentSizeChange` with a `useState` height and explicit `minHeight`/`maxHeight`:** For multiline text inputs that should grow with content (e.g., `LearningForm` content field), track height in state and update it via the `onContentSizeChange` callback. Always clamp to a `minHeight` (so the field is usable when empty) and a `maxHeight` (so it does not consume the entire screen). Apply both bounds to the `style` prop.
+
+  ```ts
+  const [contentHeight, setContentHeight] = useState(200);
+
+  <TextInput
+    multiline
+    numberOfLines={10}
+    style={{ minHeight: 200, maxHeight: 400, height: contentHeight }}
+    onContentSizeChange={(e) =>
+      setContentHeight(Math.max(200, e.nativeEvent.contentSize.height))
+    }
+  />
+  ```
+
+  **Testing this pattern:** In component tests (node env, 3rd jest project), assert the `onContentSizeChange` prop exists on the content `TextInput`, invoke it with a synthetic event, and verify the resulting `height` style value equals the clamped result. Do NOT attempt to render with `jest-expo` for this — native content-size events are not fired in the test environment. (Added 2026-04-02)
+
+---
+
+*Last updated: 2026-04-02 (session: feat/auto-resize-textarea — S6 closed-testing triage: items #8+#9 auto-resize textarea + larger default size, 414 tests passing)*
