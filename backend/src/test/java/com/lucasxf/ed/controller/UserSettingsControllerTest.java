@@ -65,7 +65,7 @@ class UserSettingsControllerTest {
 
     @Test
     void updateSettings_withDefaultPokVisibility_returns204() throws Exception {
-        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(Pok.Visibility.PUBLIC, null, null, null);
+        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(Pok.Visibility.PUBLIC, null, null, null, null, null);
 
         mockMvc.perform(patch("/api/v1/users/me/settings")
                 .with(user(userId.toString()))
@@ -78,7 +78,7 @@ class UserSettingsControllerTest {
 
     @Test
     void updateSettings_withNullDefaultPokVisibility_skipsUpdate() throws Exception {
-        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(null, null, null, null);
+        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(null, null, null, null, null, null);
 
         mockMvc.perform(patch("/api/v1/users/me/settings")
                 .with(user(userId.toString()))
@@ -92,7 +92,7 @@ class UserSettingsControllerTest {
 
     @Test
     void updateSettings_withProfileVisibility_returns204() throws Exception {
-        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(null, User.ProfileVisibility.PUBLIC, null, null);
+        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(null, User.ProfileVisibility.PUBLIC, null, null, null, null);
 
         mockMvc.perform(patch("/api/v1/users/me/settings")
                 .with(user(userId.toString()))
@@ -107,7 +107,7 @@ class UserSettingsControllerTest {
     @Test
     void updateSettings_withBothFields_updatesBoth() throws Exception {
         UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(
-            Pok.Visibility.PUBLIC, User.ProfileVisibility.PRIVATE, null, null);
+            Pok.Visibility.PUBLIC, User.ProfileVisibility.PRIVATE, null, null, null, null);
 
         mockMvc.perform(patch("/api/v1/users/me/settings")
                 .with(user(userId.toString()))
@@ -124,7 +124,7 @@ class UserSettingsControllerTest {
         doThrow(new UserNotFoundException("User not found: " + userId))
             .when(userService).updateDefaultPokVisibility(eq(userId), any());
 
-        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(Pok.Visibility.PUBLIC, null, null, null);
+        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(Pok.Visibility.PUBLIC, null, null, null, null, null);
 
         mockMvc.perform(patch("/api/v1/users/me/settings")
                 .with(user(userId.toString()))
@@ -135,7 +135,7 @@ class UserSettingsControllerTest {
 
     @Test
     void updateSettings_unauthenticated_returns401() throws Exception {
-        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(Pok.Visibility.PUBLIC, null, null, null);
+        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(Pok.Visibility.PUBLIC, null, null, null, null, null);
 
         mockMvc.perform(patch("/api/v1/users/me/settings")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -145,7 +145,7 @@ class UserSettingsControllerTest {
 
     @Test
     void updateSettings_withBio_callsUpdateBio() throws Exception {
-        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(null, null, "I love learning!", null);
+        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(null, null, "I love learning!", null, null, null);
 
         mockMvc.perform(patch("/api/v1/users/me/settings")
                 .with(user(userId.toString()))
@@ -159,7 +159,7 @@ class UserSettingsControllerTest {
 
     @Test
     void updateSettings_withDisplayName_callsUpdateDisplayName() throws Exception {
-        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(null, null, null, "Alice Smith");
+        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(null, null, null, "Alice Smith", null, null);
 
         mockMvc.perform(patch("/api/v1/users/me/settings")
                 .with(user(userId.toString()))
@@ -176,7 +176,7 @@ class UserSettingsControllerTest {
         doThrow(new IllegalArgumentException("Bio must not contain URLs"))
             .when(userService).updateBio(eq(userId), any());
 
-        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(null, null, "Visit https://example.com", null);
+        UpdateUserSettingsRequest request = new UpdateUserSettingsRequest(null, null, "Visit https://example.com", null, null, null);
 
         mockMvc.perform(patch("/api/v1/users/me/settings")
                 .with(user(userId.toString()))

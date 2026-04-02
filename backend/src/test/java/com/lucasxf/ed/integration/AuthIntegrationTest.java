@@ -31,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -341,6 +342,50 @@ class AuthIntegrationTest {
                 .andExpect(jsonPath("$.refreshToken").doesNotExist())
                 .andExpect(cookie().exists("access_token"))
                 .andExpect(cookie().exists("refresh_token"));
+        }
+    }
+
+    // =====================================================================
+    // /me endpoint flows
+    // =====================================================================
+
+    @Nested
+    @DisplayName("/me endpoint")
+    class MeEndpointFlows {
+
+        @Test
+        @DisplayName("GET /auth/me should return theme and locale for authenticated user")
+        void me_shouldReturnThemeAndLocale() throws Exception {
+            assumeTrue(DockerClientFactory.instance().isDockerAvailable(),
+                "Docker not available, skipping integration test");
+
+            String suffix = UUID.randomUUID().toString().substring(0, 8);
+            String email = "me-" + suffix + "@example.com";
+            String handle = "meuser" + suffix;
+
+            // Register to get access_token cookie
+            var registerResult = mockMvc.perform(post("/api/v1/auth/register")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "email": "%s",
+                            "password": "Password1",
+                            "displayName": "Me User",
+                            "handle": "%s"
+                        }
+                        """.formatted(email, handle)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+            String accessToken = registerResult.getResponse().getCookie("access_token").getValue();
+
+            // Call /auth/me with the access_token cookie
+            mockMvc.perform(get("/api/v1/auth/me")
+                    .cookie(new Cookie("access_token", accessToken)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.handle").value(handle))
+                .andExpect(jsonPath("$.theme").value("dark"))
+                .andExpect(jsonPath("$.locale").value("EN"));
         }
     }
 

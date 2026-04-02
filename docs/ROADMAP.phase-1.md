@@ -577,12 +577,12 @@ Wave sequencing:
 |------|--------|--------|
 | Fix tag creation flow (create + attach + i18n) | ✅ Done | `fix/tag-creation-flow` |
 | Fix avatar upload on Android 13+ | ✅ Done | `fix/avatar-upload` |
-| Persist theme + locale settings (backend + contexts) | 🔲 Planned | `feat/settings-persistence` |
-| Profile save UX (feedback on setting changes) | 🔲 Planned | `feat/settings-persistence` |
+| Persist theme + locale settings (backend + contexts) | ✅ Done (feat/settings-persistence, PR #256) | `feat/settings-persistence` |
+| Profile save UX (feedback on setting changes) | ✅ Done (feat/settings-persistence, PR #256) | `feat/settings-persistence` |
 | Replace skin-tone emojis with neutral symbols | ✅ Done | `fix/avatar-upload` |
 | Tag sort by frequency + collapse/expand top 3 | ✅ Done | `feat/tag-sort-collapse` |
 | Social feed: include user's own recent learnings | 🔲 Planned | `feat/social-feed-own-poks` |
-| Auto-resizing + larger content textarea | 🔲 Planned | `feat/auto-resize-textarea` |
+| Auto-resizing + larger content textarea | ✅ Done | `feat/auto-resize-textarea` |
 | Test effectiveness: per-screen enforcement, flow tests, i18n smoke | 🔲 Planned | `chore/test-effectiveness` |
 
 ---
