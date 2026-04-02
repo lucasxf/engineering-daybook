@@ -210,6 +210,50 @@ class UserServiceTest {
         assertThat(captor.getValue().getAvatarUrl()).isNull();
     }
 
+    // ===== updateTheme =====
+
+    @Test
+    void updateTheme_validTheme_updatesAndSaves() {
+        User user = makeUser();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        userService.updateTheme(userId, "light");
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertThat(captor.getValue().getTheme()).isEqualTo("light");
+    }
+
+    @Test
+    void updateTheme_unknownUser_throwsUserNotFoundException() {
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.updateTheme(userId, "dark"))
+            .isInstanceOf(UserNotFoundException.class);
+    }
+
+    // ===== updateLocale =====
+
+    @Test
+    void updateLocale_validLocale_updatesAndSaves() {
+        User user = makeUser();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        userService.updateLocale(userId, "pt-BR");
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertThat(captor.getValue().getLocale()).isEqualTo("pt-BR");
+    }
+
+    @Test
+    void updateLocale_unknownUser_throwsUserNotFoundException() {
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> userService.updateLocale(userId, "EN"))
+            .isInstanceOf(UserNotFoundException.class);
+    }
+
     // ===== findByHandle =====
 
     @Test

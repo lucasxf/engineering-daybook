@@ -13,6 +13,8 @@ export interface UpdateUserSettingsPayload {
   profileVisibility?: ProfileVisibility;
   bio?: string;
   displayName?: string;
+  theme?: string;
+  locale?: string;
 }
 
 /**
