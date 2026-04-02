@@ -167,7 +167,9 @@ class TagServiceTest {
         // Given
         Tag tag = new Tag("java", "java");
         UserTag activeTag = new UserTag(userId, tag, "blue");
+        ReflectionTestUtils.setField(tag, "id", UUID.randomUUID());
         when(userTagRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(List.of(activeTag));
+        when(pokTagRepository.countPoksByTagForUser(userId)).thenReturn(List.<Object[]>of(new Object[]{tag.getId(), 5L}));
 
         // When
         List<TagResponse> result = tagService.getUserTags(userId);
@@ -176,12 +178,14 @@ class TagServiceTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).name()).isEqualTo("java");
         assertThat(result.get(0).displayName()).isEqualTo("java");
+        assertThat(result.get(0).pokCount()).isEqualTo(5);
     }
 
     @Test
     void getUserTags_withNoTags_shouldReturnEmptyList() {
         // Given
         when(userTagRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(List.of());
+        when(pokTagRepository.countPoksByTagForUser(userId)).thenReturn(List.of());
 
         // When
         List<TagResponse> result = tagService.getUserTags(userId);

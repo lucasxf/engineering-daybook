@@ -70,4 +70,18 @@ public interface PokTagRepository extends JpaRepository<PokTag, UUID> {
             @Param("oldTagId") UUID oldTagId,
             @Param("newTagId") UUID newTagId,
             @Param("pokIds") List<UUID> pokIds);
+
+    /**
+     * Counts how many non-deleted POKs each tag is assigned to for the given user.
+     * Returns rows of {@code [tagId, count]} for all tags that have at least one assignment.
+     *
+     * @param userId the user's ID
+     * @return list of {@code Object[]} where {@code [0]} is a {@link UUID} tagId
+     *         and {@code [1]} is a {@link Long} count
+     */
+    @Query("SELECT pt.tagId, COUNT(pt) FROM PokTag pt " +
+           "JOIN Pok p ON p.id = pt.pokId " +
+           "WHERE p.userId = :userId AND p.deletedAt IS NULL " +
+           "GROUP BY pt.tagId")
+    List<Object[]> countPoksByTagForUser(@Param("userId") UUID userId);
 }

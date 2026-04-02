@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -73,6 +74,7 @@ class PokServiceSemanticSearchTest {
         ReflectionTestUtils.setField(pok1, "id", UUID.randomUUID());
         ReflectionTestUtils.setField(pok2, "id", UUID.randomUUID());
         when(userTagRepository.findByUserIdAndDeletedAtIsNull(userId)).thenReturn(List.of());
+        lenient().when(pokTagRepository.countPoksByTagForUser(any())).thenReturn(List.of());
     }
 
     @Test

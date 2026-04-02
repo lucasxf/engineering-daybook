@@ -23,6 +23,7 @@ interface TestState {
   tagModalVisible: boolean;
   tagActionLoading: boolean;
   tagQuery: string;
+  tagsExpanded: boolean;
 }
 
 let mockTestState: TestState = {
@@ -32,12 +33,13 @@ let mockTestState: TestState = {
   tagModalVisible: false,
   tagActionLoading: false,
   tagQuery: '',
+  tagsExpanded: false,
 };
 
-// useState call order in LearningDetailScreen (12 calls):
+// useState call order in LearningDetailScreen (13 calls):
 // 1=pok  2=loading  3=editing  4=error  5=serverError  6=editVisibility
 // 7=reLearningModalVisible  8=hasRelearned  9=allTags  10=tagModalVisible
-// 11=tagActionLoading  12=tagQuery
+// 11=tagActionLoading  12=tagQuery  13=tagsExpanded
 jest.mock('react', () => {
   const actual = jest.requireActual('react');
   return {
@@ -51,6 +53,7 @@ jest.mock('react', () => {
         case 10: return [mockTestState.tagModalVisible, jest.fn()];
         case 11: return [mockTestState.tagActionLoading, mockSetTagActionLoading];
         case 12: return [mockTestState.tagQuery, jest.fn()];
+        case 13: return [mockTestState.tagsExpanded, jest.fn()];
         default: return [init, jest.fn()];
       }
     },
@@ -201,6 +204,7 @@ const existingTag = {
   displayName: 'Existing',
   color: '#ccc',
   createdAt: '2026-01-01T00:00:00Z',
+  pokCount: 5,
 };
 
 const mockPokWithTag = {
@@ -221,6 +225,7 @@ const newTag = {
   displayName: 'New Tag',
   color: '#aaa',
   createdAt: '2026-01-01T00:00:00Z',
+  pokCount: 1,
 };
 
 // ---------------------------------------------------------------------------
@@ -262,6 +267,7 @@ describe('LearningDetailScreen — tag creation flow', () => {
       tagModalVisible: false,
       tagActionLoading: false,
       tagQuery: '',
+      tagsExpanded: false,
     };
     // Re-wire hooks after clearAllMocks
     const reactMock = require('react') as Record<string, unknown>;
@@ -441,6 +447,137 @@ describe('LearningDetailScreen — tag creation flow', () => {
 
       expect(mockTagAssign).toHaveBeenCalledWith('pok-1', availableTag.tagId);
       expect(mockSetPok).toHaveBeenCalled();
+    });
+  });
+
+  describe('tag sort and collapse', () => {
+    const makeTag = (tagId: string, displayName: string, pokCount: number) => ({
+      tagId,
+      id: tagId,
+      name: displayName.toLowerCase(),
+      displayName,
+      color: '#ccc',
+      createdAt: '2026-01-01T00:00:00Z',
+      pokCount,
+    });
+
+    it('renders only 3 tags when there are more than 3 and not expanded', () => {
+      mockTestState.pok = {
+        ...mockPokWithTag,
+        tags: [
+          makeTag('t1', 'Alpha', 1),
+          makeTag('t2', 'Beta', 10),
+          makeTag('t3', 'Gamma', 5),
+          makeTag('t4', 'Delta', 3),
+        ],
+      };
+      mockTestState.tagsExpanded = false;
+
+      const result = LearningDetailScreen({} as never);
+      // Find all Text nodes whose children are tag displayNames (they're inside caption Text elements)
+      const allTexts = findAllByType(result, 'Text');
+      const tagLabels = allTexts
+        .filter(el => ['Alpha', 'Beta', 'Gamma', 'Delta'].includes(el.props.children as string))
+        .map(el => el.props.children as string);
+      expect(tagLabels).toHaveLength(3);
+    });
+
+    it('shows tags sorted by pokCount descending', () => {
+      mockTestState.pok = {
+        ...mockPokWithTag,
+        tags: [
+          makeTag('t1', 'Alpha', 1),
+          makeTag('t2', 'Beta', 10),
+          makeTag('t3', 'Gamma', 5),
+        ],
+      };
+
+      const result = LearningDetailScreen({} as never);
+      const allTexts = findAllByType(result, 'Text');
+      const tagLabels = allTexts
+        .filter(el => ['Alpha', 'Beta', 'Gamma'].includes(el.props.children as string))
+        .map(el => el.props.children as string);
+      expect(tagLabels).toEqual(['Beta', 'Gamma', 'Alpha']);
+    });
+
+    it('renders expand toggle when there are more than 3 tags', () => {
+      mockTestState.pok = {
+        ...mockPokWithTag,
+        tags: [
+          makeTag('t1', 'Alpha', 1),
+          makeTag('t2', 'Beta', 10),
+          makeTag('t3', 'Gamma', 5),
+          makeTag('t4', 'Delta', 3),
+        ],
+      };
+      mockTestState.tagsExpanded = false;
+
+      const result = LearningDetailScreen({} as never);
+      const allTexts = findAllByType(result, 'Text');
+      const showAllText = allTexts.find(el =>
+        typeof el.props.children === 'string' &&
+        (el.props.children as string).includes('showAllTags')
+      );
+      expect(showAllText).toBeDefined();
+    });
+
+    it('shows "show less" toggle when expanded', () => {
+      mockTestState.pok = {
+        ...mockPokWithTag,
+        tags: [
+          makeTag('t1', 'Alpha', 1),
+          makeTag('t2', 'Beta', 10),
+          makeTag('t3', 'Gamma', 5),
+          makeTag('t4', 'Delta', 3),
+        ],
+      };
+      mockTestState.tagsExpanded = true;
+
+      const result = LearningDetailScreen({} as never);
+      const allTexts = findAllByType(result, 'Text');
+      const showLessText = allTexts.find(el =>
+        el.props.children === 'learnings.detail.showLessTags'
+      );
+      expect(showLessText).toBeDefined();
+    });
+
+    it('renders all tags when expanded', () => {
+      mockTestState.pok = {
+        ...mockPokWithTag,
+        tags: [
+          makeTag('t1', 'Alpha', 1),
+          makeTag('t2', 'Beta', 10),
+          makeTag('t3', 'Gamma', 5),
+          makeTag('t4', 'Delta', 3),
+        ],
+      };
+      mockTestState.tagsExpanded = true;
+
+      const result = LearningDetailScreen({} as never);
+      const allTexts = findAllByType(result, 'Text');
+      const tagLabels = allTexts
+        .filter(el => ['Alpha', 'Beta', 'Gamma', 'Delta'].includes(el.props.children as string))
+        .map(el => el.props.children as string);
+      expect(tagLabels).toHaveLength(4);
+    });
+
+    it('does not render expand toggle when 3 or fewer tags', () => {
+      mockTestState.pok = {
+        ...mockPokWithTag,
+        tags: [
+          makeTag('t1', 'Alpha', 1),
+          makeTag('t2', 'Beta', 10),
+        ],
+      };
+
+      const result = LearningDetailScreen({} as never);
+      const allTexts = findAllByType(result, 'Text');
+      const toggleText = allTexts.find(el =>
+        typeof el.props.children === 'string' &&
+        ((el.props.children as string).includes('showAllTags') ||
+         (el.props.children as string).includes('showLessTags'))
+      );
+      expect(toggleText).toBeUndefined();
     });
   });
 });

@@ -3,9 +3,11 @@ package com.lucasxf.ed.service;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -121,8 +123,10 @@ public class TagService {
      */
     @Transactional(readOnly = true)
     public List<TagResponse> getUserTags(UUID userId) {
+        Map<UUID, Long> countMap = pokTagRepository.countPoksByTagForUser(userId).stream()
+                .collect(Collectors.toMap(row -> (UUID) row[0], row -> (Long) row[1]));
         return userTagRepository.findByUserIdAndDeletedAtIsNull(userId).stream()
-                .map(TagResponse::from)
+                .map(ut -> TagResponse.from(ut, countMap.getOrDefault(ut.getTag().getId(), 0L).intValue()))
                 .toList();
     }
 

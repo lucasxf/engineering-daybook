@@ -185,7 +185,8 @@ public class PokService {
         log.debug("Found {} POKs for user {}", poks.getTotalElements(), userId);
 
         List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
-        return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()));
+        Map<UUID, Long> countMap = buildCountMap(userId);
+        return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags, countMap), List.of()));
     }
 
     /**
@@ -205,6 +206,7 @@ public class PokService {
     @Transactional(readOnly = true)
     public Page<FeedItemResponse> getOwnFeed(UUID userId, int page, int size, String sortBy, String sortDirection) {
         List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
+        Map<UUID, Long> countMap = buildCountMap(userId);
 
         // Bounded fetch: load only enough rows to satisfy this page.
         // Fetching top (page+1)*size per source (sorted DESC) guarantees the merged
@@ -229,7 +231,7 @@ public class PokService {
         // Build feed items — owned POKs first
         List<FeedItemResponse> feedItems = new ArrayList<>();
         for (Pok pok : ownedPoks) {
-            feedItems.add(PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()));
+            feedItems.add(PokResponse.from(pok, buildTagResponses(pok.getId(), userTags, countMap), List.of()));
         }
 
         // Append re-learnings (batch-fetch originals to avoid N+1)
@@ -320,6 +322,7 @@ public class PokService {
             userId, keyword, searchMode, tagId, page, size);
 
         List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
+        Map<UUID, Long> countMap = buildCountMap(userId);
 
         // Tag filter takes precedence — bypass semantic search when a tag filter is active.
         // Date-range filters are supported alongside tagId via the combined repository query.
@@ -332,13 +335,13 @@ public class PokService {
             Pageable pageable = PageRequest.of(page, size, sort);
             Page<Pok> poks = pokRepository.findByUserIdAndTagId(userId, tagId,
                 createdFromInstant, createdToInstant, updatedFromInstant, updatedToInstant, pageable);
-            return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()));
+            return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags, countMap), List.of()));
         }
 
         boolean hasKeyword = keyword != null && !keyword.isBlank();
         if (hasKeyword && ("semantic".equals(searchMode) || "hybrid".equals(searchMode))) {
             try {
-                return searchWithSemantics(userId, keyword, searchMode, page, size, userTags);
+                return searchWithSemantics(userId, keyword, searchMode, page, size, userTags, countMap);
             } catch (EmbeddingUnavailableException e) {
                 log.warn("Embedding unavailable for search query — falling back to keyword search: {}", e.getMessage());
                 // fall through to keyword search below
@@ -346,7 +349,7 @@ public class PokService {
         }
 
         return keywordSearch(userId, keyword, sortBy, sortDirection, createdFrom, createdTo,
-            updatedFrom, updatedTo, page, size, userTags);
+            updatedFrom, updatedTo, page, size, userTags, countMap);
     }
 
     /**
@@ -354,7 +357,7 @@ public class PokService {
      */
     private Page<PokResponse> searchWithSemantics(
         UUID userId, String keyword, String searchMode,
-        int page, int size, List<UserTag> userTags
+        int page, int size, List<UserTag> userTags, Map<UUID, Long> countMap
     ) {
         String text = (keyword != null && !keyword.isBlank()) ? keyword : "";
         float[] queryEmbedding = embeddingService.embed(text);
@@ -372,7 +375,7 @@ public class PokService {
             List<Pok> merged = mergeSemanticsAndKeyword(semanticPoks, keywordPage.getContent(), size);
             return new PageImpl<>(
                 merged.stream()
-                    .map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()))
+                    .map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags, countMap), List.of()))
                     .toList(),
                 PageRequest.of(page, size),
                 keywordPage.getTotalElements()
@@ -386,7 +389,7 @@ public class PokService {
         List<Pok> pagePoks = semanticPoks.stream().limit(size).toList();
         return new PageImpl<>(
             pagePoks.stream()
-                .map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()))
+                .map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags, countMap), List.of()))
                 .toList(),
             PageRequest.of(page, size),
             approximateTotal
@@ -412,7 +415,7 @@ public class PokService {
         String sortBy, String sortDirection,
         String createdFrom, String createdTo,
         String updatedFrom, String updatedTo,
-        int page, int size, List<UserTag> userTags
+        int page, int size, List<UserTag> userTags, Map<UUID, Long> countMap
     ) {
         Instant createdFromInstant = parseInstant(createdFrom);
         Instant createdToInstant = parseInstant(createdTo);
@@ -426,7 +429,7 @@ public class PokService {
             updatedFromInstant, updatedToInstant, pageable);
 
         log.debug("Found {} POKs matching search criteria for user {}", poks.getTotalElements(), userId);
-        return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags), List.of()));
+        return poks.map(pok -> PokResponse.from(pok, buildTagResponses(pok.getId(), userTags, countMap), List.of()));
     }
 
     /**
@@ -654,9 +657,9 @@ public class PokService {
     }
 
     /**
-     * Builds the tag response list for a single POK, fetching the user's tags from the database.
-     * Use the overload that accepts a pre-fetched {@code userTags} list when processing multiple
-     * POKs in bulk to avoid N+1 queries.
+     * Builds the tag response list for a single POK, fetching the user's tags and counts
+     * from the database. Use the overload that accepts pre-fetched data when processing
+     * multiple POKs in bulk to avoid N+1 queries.
      *
      * @param pokId  the POK's ID
      * @param userId the owner's user ID (used to look up tags)
@@ -664,25 +667,38 @@ public class PokService {
      */
     private List<TagResponse> buildTagResponses(UUID pokId, UUID userId) {
         List<UserTag> userTags = userTagRepository.findByUserIdAndDeletedAtIsNull(userId);
-        return buildTagResponses(pokId, userTags);
+        Map<UUID, Long> countMap = buildCountMap(userId);
+        return buildTagResponses(pokId, userTags, countMap);
     }
 
     /**
-     * Builds the tag response list for a single POK from a pre-fetched list of the user's tags.
-     * Callers that process multiple POKs should fetch {@code userTags} once and pass it here
-     * to avoid issuing one query per POK (N+1 problem).
+     * Builds the tag response list for a single POK from pre-fetched user tags and usage counts.
+     * Callers that process multiple POKs should fetch {@code userTags} and {@code countMap} once
+     * and pass them here to avoid issuing one query per POK (N+1 problem).
      *
-     * @param pokId     the POK's ID
-     * @param userTags  the caller-supplied list of the user's active tags
+     * @param pokId    the POK's ID
+     * @param userTags the caller-supplied list of the user's active tags
+     * @param countMap tag ID → number of non-deleted POKs using that tag (for this user)
      * @return list of {@link TagResponse} for the POK's assigned tags
      */
-    private List<TagResponse> buildTagResponses(UUID pokId, List<UserTag> userTags) {
+    private List<TagResponse> buildTagResponses(UUID pokId, List<UserTag> userTags, Map<UUID, Long> countMap) {
         return pokTagRepository.findByPokId(pokId).stream()
                 .map(PokTag::getTagId)
                 .flatMap(tagId -> userTags.stream()
                         .filter(ut -> ut.getTag().getId() != null && ut.getTag().getId().equals(tagId)))
-                .map(TagResponse::from)
+                .map(ut -> TagResponse.from(ut, countMap.getOrDefault(ut.getTag().getId(), 0L).intValue()))
                 .toList();
+    }
+
+    /**
+     * Fetches tag usage counts for a user as a map from global tag ID to POK count.
+     *
+     * @param userId the user's ID
+     * @return map of tag ID → count of non-deleted POKs using that tag
+     */
+    private Map<UUID, Long> buildCountMap(UUID userId) {
+        return pokTagRepository.countPoksByTagForUser(userId).stream()
+                .collect(Collectors.toMap(row -> (UUID) row[0], row -> (Long) row[1]));
     }
 
     private List<TagSuggestionResponse> buildSuggestionResponses(UUID pokId) {

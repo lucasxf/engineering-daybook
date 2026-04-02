@@ -110,6 +110,7 @@ class PokServiceTest {
         otherUserId = UUID.randomUUID();
         currentUser = new User("alice@example.com", "hash", "Alice", "alice");
         lenient().when(userService.findById(userId)).thenReturn(currentUser);
+        lenient().when(pokTagRepository.countPoksByTagForUser(any())).thenReturn(List.of());
     }
 
     // ===== CREATE POK TESTS =====

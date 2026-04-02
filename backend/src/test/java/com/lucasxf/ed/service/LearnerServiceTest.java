@@ -287,6 +287,7 @@ class LearnerServiceTest {
             .thenReturn(Page.empty());
         when(userTagRepository.findByUserIdAndDeletedAtIsNull(aliceId)).thenReturn(List.of());
         when(pokTagRepository.findByPokId(any(UUID.class))).thenReturn(List.of());
+        when(pokTagRepository.countPoksByTagForUser(aliceId)).thenReturn(List.of());
 
         Page<FeedItemResponse> result = learnerService.getLearnerPoks("alice", bobId, 0, 20);
 
@@ -307,6 +308,7 @@ class LearnerServiceTest {
             .thenReturn(Page.empty());
         when(userTagRepository.findByUserIdAndDeletedAtIsNull(aliceId)).thenReturn(List.of());
         when(pokTagRepository.findByPokId(any(UUID.class))).thenReturn(List.of());
+        when(pokTagRepository.countPoksByTagForUser(aliceId)).thenReturn(List.of());
 
         Page<FeedItemResponse> result = learnerService.getLearnerPoks("alice", bobId, 0, 20);
 
