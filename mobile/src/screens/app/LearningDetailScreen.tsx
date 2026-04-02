@@ -55,6 +55,7 @@ export function LearningDetailScreen() {
   const [tagModalVisible, setTagModalVisible] = useState(false);
   const [tagActionLoading, setTagActionLoading] = useState(false);
   const [tagQuery, setTagQuery] = useState('');
+  const [tagsExpanded, setTagsExpanded] = useState(false);
 
   const loadPok = useCallback(async () => {
     setLoading(true);
@@ -291,54 +292,78 @@ export function LearningDetailScreen() {
         {/* Tags section */}
         <View style={{ gap: theme.spacing.xs }}>
           <Text variant="label">{t('learnings.detail.tags')}</Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
-            {pok.tags.map((tag) => (
-              <View
-                key={tag.tagId}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  backgroundColor: theme.colors.tagPillBg,
-                  borderRadius: theme.radii.full,
-                  paddingLeft: theme.spacing.sm,
-                  paddingRight: theme.spacing.xs,
-                  paddingVertical: 2, /* canonical tag pill vertical padding (matches LearningCard) */
-                  gap: theme.spacing.xs,
-                }}
-              >
-                <Text variant="caption" color={theme.colors.tagPillText}>{tag.displayName}</Text>
-                <TouchableOpacity
-                  accessibilityRole="button"
-                  accessibilityLabel={t('learnings.detail.removeTagAccessibilityLabel', { tagName: tag.displayName })}
-                  onPress={() => handleRemoveTag(tag)}
-                  disabled={tagActionLoading}
-                  hitSlop={{ top: 8, right: 8, bottom: 8, left: 4 }}
-                >
-                  <Text variant="caption" color={theme.colors.tagPillText}>✕</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
+          {(() => {
+            const TAG_COLLAPSE_LIMIT = 3;
+            const sortedTags = [...pok.tags].sort((a, b) => (b.pokCount ?? 0) - (a.pokCount ?? 0));
+            const visibleTags = tagsExpanded ? sortedTags : sortedTags.slice(0, TAG_COLLAPSE_LIMIT);
+            const hasOverflow = sortedTags.length > TAG_COLLAPSE_LIMIT;
+            return (
+              <>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.xs }}>
+                  {visibleTags.map((tag) => (
+                    <View
+                      key={tag.tagId}
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        backgroundColor: theme.colors.tagPillBg,
+                        borderRadius: theme.radii.full,
+                        paddingLeft: theme.spacing.sm,
+                        paddingRight: theme.spacing.xs,
+                        paddingVertical: 2, /* canonical tag pill vertical padding (matches LearningCard) */
+                        gap: theme.spacing.xs,
+                      }}
+                    >
+                      <Text variant="caption" color={theme.colors.tagPillText}>{tag.displayName}</Text>
+                      <TouchableOpacity
+                        accessibilityRole="button"
+                        accessibilityLabel={t('learnings.detail.removeTagAccessibilityLabel', { tagName: tag.displayName })}
+                        onPress={() => handleRemoveTag(tag)}
+                        disabled={tagActionLoading}
+                        hitSlop={{ top: 8, right: 8, bottom: 8, left: 4 }}
+                      >
+                        <Text variant="caption" color={theme.colors.tagPillText}>✕</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
 
-            {/* Add tag button */}
-            <TouchableOpacity
-              accessibilityRole="button"
-              onPress={openTagModal}
-              disabled={tagActionLoading}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                borderRadius: theme.radii.full,
-                paddingHorizontal: theme.spacing.md,
-                paddingVertical: theme.spacing.xs,
-                borderWidth: 1,
-                borderStyle: 'dashed',
-                borderColor: theme.colors.border,
-                gap: theme.spacing.xs,
-              }}
-            >
-              <Text variant="caption" color={theme.colors.textSecondary}>+ {t('learnings.detail.addTag')}</Text>
-            </TouchableOpacity>
-          </View>
+                  {/* Add tag button */}
+                  <TouchableOpacity
+                    accessibilityRole="button"
+                    onPress={openTagModal}
+                    disabled={tagActionLoading}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      borderRadius: theme.radii.full,
+                      paddingHorizontal: theme.spacing.md,
+                      paddingVertical: theme.spacing.xs,
+                      borderWidth: 1,
+                      borderStyle: 'dashed',
+                      borderColor: theme.colors.border,
+                      gap: theme.spacing.xs,
+                    }}
+                  >
+                    <Text variant="caption" color={theme.colors.textSecondary}>+ {t('learnings.detail.addTag')}</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Collapse / expand toggle */}
+                {hasOverflow && (
+                  <TouchableOpacity
+                    accessibilityRole="button"
+                    onPress={() => setTagsExpanded(prev => !prev)}
+                  >
+                    <Text variant="caption" color={theme.colors.primary}>
+                      {tagsExpanded
+                        ? t('learnings.detail.showLessTags')
+                        : t('learnings.detail.showAllTags', { count: String(sortedTags.length) })}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </>
+            );
+          })()}
         </View>
 
         <View style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.md }}>

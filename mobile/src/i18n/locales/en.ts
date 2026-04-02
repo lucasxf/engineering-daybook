@@ -123,6 +123,8 @@ export default {
       tagListLoadErrorTitle: 'Could not load tags',
       tagListLoadErrorMessage: 'Failed to load your tags. Please try again.',
       removeTagAccessibilityLabel: 'Remove tag %{tagName}',
+      showAllTags: 'Show all (%{count})',
+      showLessTags: 'Show less',
     },
     visibility: {
       private: 'Private',

@@ -121,6 +121,8 @@ export default {
       tagListLoadErrorTitle: 'Não foi possível carregar etiquetas',
       tagListLoadErrorMessage: 'Falha ao carregar suas etiquetas. Tente novamente.',
       removeTagAccessibilityLabel: 'Remover etiqueta %{tagName}',
+      showAllTags: 'Mostrar todas (%{count})',
+      showLessTags: 'Mostrar menos',
     },
     visibility: {
       private: 'Privado',
