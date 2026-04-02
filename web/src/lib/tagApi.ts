@@ -10,6 +10,7 @@ export interface Tag {
   displayName: string;
   color: string;
   createdAt: string;
+  pokCount: number;
 }
 
 /**
