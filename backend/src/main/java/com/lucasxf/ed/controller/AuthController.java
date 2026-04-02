@@ -149,7 +149,8 @@ public class AuthController {
         return ResponseEntity.ok(
             new AuthResponse(principal.handle(), principal.userId(), principal.email(),
                 user.getDefaultPokVisibility(), user.getProfileVisibility(),
-                user.getAvatarUrl(), user.getBio(), user.getDisplayName())
+                user.getAvatarUrl(), user.getBio(), user.getDisplayName(),
+                user.getTheme(), user.getLocale())
         );
     }
 

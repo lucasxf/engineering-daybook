@@ -15,4 +15,6 @@ public record UpdateUserSettingsRequest(
         Pok.Visibility defaultPokVisibility,
         User.ProfileVisibility profileVisibility,
         String bio,
-        String displayName) {}
+        String displayName,
+        String theme,
+        String locale) {}

@@ -291,4 +291,6 @@ See `mobile/RELEASE_WORKFLOW.md` for the full step-by-step procedure.
 
   This issue was triggered in `ProfileScreen.test.tsx` when `VisibilityPicker.tsx` was updated to use `Ionicons` icons instead of emoji literals. Any future component that adds an `@expo/vector-icons` import will require the same mock in every screen test file that transitively imports it. (Added 2026-03-28)
 
-*Last updated: 2026-03-28 (session: fix/avatar-upload — S2 closed-testing triage: avatar upload Android 13+ fix verified, skin-tone emojis replaced with Ionicons in VisibilityPicker)*
+- **`eslint-disable-line` comments referencing unconfigured rules cause "Definition for rule not found" errors:** ESLint 9 strict mode rejects disable comments for rules not present in the active config. The mobile ESLint config (`eslint.config.js`) uses only `@typescript-eslint` rules — `react-hooks/exhaustive-deps` is NOT configured. Any `// eslint-disable-line react-hooks/exhaustive-deps` comment will fail with an error. Fix: either (a) add `eslint-plugin-react-hooks` to the config, or (b) replace the disable comment with a plain comment explaining the intentional omission. The em-dash `—` in inline comments is also treated as part of the rule name, unlike the double-hyphen `--` which ESLint uses for descriptions. (Added 2026-04-02)
+
+*Last updated: 2026-04-02 (session: feat/settings-persistence — S3: settings persistence backend + mobile, ProfileScreen auto-save with feedback)*

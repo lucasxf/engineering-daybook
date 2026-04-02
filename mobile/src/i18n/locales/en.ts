@@ -185,6 +185,8 @@ export default {
     avatarPermissionDenied: 'Photo library access denied',
     saveSuccess: 'Saved',
     saveError: 'Failed to save. Please try again.',
+    themeSaved: 'Theme saved',
+    localeSaved: 'Language saved',
     logoutButton: 'Sign out',
     logoutConfirmTitle: 'Sign out?',
     logoutConfirmOk: 'Sign out',

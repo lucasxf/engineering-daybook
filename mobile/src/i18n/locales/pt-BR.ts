@@ -182,6 +182,8 @@ export default {
     avatarPermissionDenied: 'Acesso à biblioteca de fotos negado',
     saveSuccess: 'Salvo',
     saveError: 'Falha ao salvar. Tente novamente.',
+    themeSaved: 'Tema salvo',
+    localeSaved: 'Idioma salvo',
     logoutButton: 'Sair',
     logoutConfirmTitle: 'Sair?',
     logoutConfirmOk: 'Sair',

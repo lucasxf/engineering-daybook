@@ -44,6 +44,17 @@ export function ProfileScreen() {
   }, [user]);
 
   // ---------------------------------------------------------------------------
+  // Theme / locale auto-save state
+  // ---------------------------------------------------------------------------
+
+  const [isSavingTheme, setIsSavingTheme] = useState(false);
+  const [isSavingLocale, setIsSavingLocale] = useState(false);
+  const [themeSaveStatus, setThemeSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [localeSaveStatus, setLocaleSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const isSavingSettings = isSavingTheme || isSavingLocale;
+
+  // ---------------------------------------------------------------------------
   // Privacy / visibility state
   // ---------------------------------------------------------------------------
 
@@ -107,6 +118,44 @@ export function ProfileScreen() {
       setAvatarUploading(false);
     }
   }, [updateUser, t]);
+
+  // ---------------------------------------------------------------------------
+  // Theme / locale handlers
+  // ---------------------------------------------------------------------------
+
+  const handleThemeChange = useCallback(async (value: ColorSchemeOverride) => {
+    const prevOverride = override;
+    setOverride(value);
+    setIsSavingTheme(true);
+    setThemeSaveStatus('idle');
+    try {
+      await updateUserSettings({ theme: value });
+      setThemeSaveStatus('success');
+      setTimeout(() => setThemeSaveStatus('idle'), 2000);
+    } catch {
+      setOverride(prevOverride);
+      setThemeSaveStatus('error');
+    } finally {
+      setIsSavingTheme(false);
+    }
+  }, [override, setOverride]);
+
+  const handleLocaleChange = useCallback(async (value: Locale) => {
+    const prevLocale = locale;
+    setAppLocale(value);
+    setIsSavingLocale(true);
+    setLocaleSaveStatus('idle');
+    try {
+      await updateUserSettings({ locale: value });
+      setLocaleSaveStatus('success');
+      setTimeout(() => setLocaleSaveStatus('idle'), 2000);
+    } catch {
+      setAppLocale(prevLocale);
+      setLocaleSaveStatus('error');
+    } finally {
+      setIsSavingLocale(false);
+    }
+  }, [locale, setAppLocale]);
 
   // ---------------------------------------------------------------------------
   // Privacy handlers
@@ -245,11 +294,18 @@ export function ProfileScreen() {
                 key={opt.value}
                 label={opt.label}
                 variant={override === opt.value ? 'primary' : 'secondary'}
-                onPress={() => setOverride(opt.value)}
+                onPress={() => handleThemeChange(opt.value)}
+                disabled={isSavingSettings}
+                accessibilityState={{ busy: isSavingSettings }}
                 style={{ flex: 1 }}
               />
             ))}
           </View>
+          {themeSaveStatus !== 'idle' && (
+            <Text accessibilityLiveRegion="polite" variant="caption">
+              {themeSaveStatus === 'success' ? t('profile.themeSaved') : t('profile.saveError')}
+            </Text>
+          )}
         </Card>
 
         {/* Language */}
@@ -261,11 +317,18 @@ export function ProfileScreen() {
                 key={opt.value}
                 label={opt.label}
                 variant={locale === opt.value ? 'primary' : 'secondary'}
-                onPress={() => setAppLocale(opt.value)}
+                onPress={() => handleLocaleChange(opt.value)}
+                disabled={isSavingSettings}
+                accessibilityState={{ busy: isSavingSettings }}
                 style={{ flex: 1 }}
               />
             ))}
           </View>
+          {localeSaveStatus !== 'idle' && (
+            <Text accessibilityLiveRegion="polite" variant="caption">
+              {localeSaveStatus === 'success' ? t('profile.localeSaved') : t('profile.saveError')}
+            </Text>
+          )}
         </Card>
 
         {/* Privacy */}

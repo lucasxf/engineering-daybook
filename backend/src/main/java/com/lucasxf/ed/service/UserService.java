@@ -150,4 +150,32 @@ public class UserService {
         user.setAvatarUrl(avatarUrl);
         userRepository.save(user);
     }
+
+    /**
+     * Updates the theme preference for a user.
+     *
+     * @param userId the user's UUID
+     * @param theme  the new theme value (e.g. "light", "dark", "system")
+     * @throws UserNotFoundException if no user exists with that ID
+     */
+    @Transactional
+    public void updateTheme(UUID userId, String theme) {
+        User user = findById(userId);
+        user.setTheme(theme);
+        userRepository.save(user);
+    }
+
+    /**
+     * Updates the locale preference for a user.
+     *
+     * @param userId the user's UUID
+     * @param locale the new locale value (e.g. "EN", "pt-BR")
+     * @throws UserNotFoundException if no user exists with that ID
+     */
+    @Transactional
+    public void updateLocale(UUID userId, String locale) {
+        User user = findById(userId);
+        user.setLocale(locale);
+        userRepository.save(user);
+    }
 }
