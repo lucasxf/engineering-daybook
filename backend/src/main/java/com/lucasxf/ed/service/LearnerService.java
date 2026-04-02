@@ -210,13 +210,15 @@ public class LearnerService {
                 + pokShareRepository.countBySharedByUserIdAndVisibilityIn(target.getId(), visibleTiers);
         }
 
-        // Pre-fetch the owner's tags once to avoid N+1 queries across the page
+        // Pre-fetch the owner's tags and usage counts once to avoid N+1 queries across the page
         List<UserTag> ownerTags = userTagRepository.findByUserIdAndDeletedAtIsNull(target.getId());
+        Map<UUID, Long> countMap = pokTagRepository.countPoksByTagForUser(target.getId()).stream()
+            .collect(Collectors.toMap(row -> (UUID) row[0], row -> (Long) row[1]));
 
         // Build feed items — owned POKs
         List<FeedItemResponse> feedItems = new ArrayList<>();
         for (Pok pok : poks) {
-            feedItems.add(PokResponse.from(pok, buildTagResponses(pok.getId(), ownerTags), List.of()));
+            feedItems.add(PokResponse.from(pok, buildTagResponses(pok.getId(), ownerTags, countMap), List.of()));
         }
 
         // Append re-learnings (batch-fetch originals to avoid N+1)
@@ -331,18 +333,19 @@ public class LearnerService {
     }
 
     /**
-     * Builds the tag response list for a single POK from a pre-fetched list of the owner's tags.
+     * Builds the tag response list for a single POK from pre-fetched owner tags and usage counts.
      *
      * @param pokId     the POK's ID
      * @param ownerTags the pre-fetched active tags belonging to the POK owner
+     * @param countMap  tag ID → number of non-deleted POKs using that tag (for the owner)
      * @return list of {@link TagResponse} for the POK's assigned tags
      */
-    private List<TagResponse> buildTagResponses(UUID pokId, List<UserTag> ownerTags) {
+    private List<TagResponse> buildTagResponses(UUID pokId, List<UserTag> ownerTags, Map<UUID, Long> countMap) {
         return pokTagRepository.findByPokId(pokId).stream()
             .map(PokTag::getTagId)
             .flatMap(tagId -> ownerTags.stream()
                 .filter(ut -> ut.getTag().getId() != null && ut.getTag().getId().equals(tagId)))
-            .map(TagResponse::from)
+            .map(ut -> TagResponse.from(ut, countMap.getOrDefault(ut.getTag().getId(), 0L).intValue()))
             .toList();
     }
 }

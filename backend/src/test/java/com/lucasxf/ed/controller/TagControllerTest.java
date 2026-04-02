@@ -74,7 +74,7 @@ class TagControllerTest {
     @Test
     void listTags_shouldReturn200WithUserTags() throws Exception {
         // Given
-        TagResponse tag = new TagResponse(tagId, UUID.randomUUID(), "java", "java", "blue", Instant.now());
+        TagResponse tag = new TagResponse(tagId, UUID.randomUUID(), "java", "java", "blue", Instant.now(), 3);
         when(tagService.getUserTags(any())).thenReturn(List.of(tag));
 
         // When/Then
@@ -95,7 +95,7 @@ class TagControllerTest {
     void createTag_withValidRequest_shouldReturn201() throws Exception {
         // Given
         CreateTagRequest request = new CreateTagRequest("spring-boot");
-        TagResponse response = new TagResponse(tagId, UUID.randomUUID(), "spring-boot", "spring-boot", "blue", Instant.now());
+        TagResponse response = new TagResponse(tagId, UUID.randomUUID(), "spring-boot", "spring-boot", "blue", Instant.now(), 0);
         when(tagService.createOrReuse(any(), any())).thenReturn(response);
 
         // When/Then
@@ -126,7 +126,7 @@ class TagControllerTest {
     void renameTag_withValidRequest_shouldReturn200() throws Exception {
         // Given
         UpdateTagRequest request = new UpdateTagRequest("kubernetes");
-        TagResponse response = new TagResponse(tagId, UUID.randomUUID(), "kubernetes", "kubernetes", "purple", Instant.now());
+        TagResponse response = new TagResponse(tagId, UUID.randomUUID(), "kubernetes", "kubernetes", "purple", Instant.now(), 1);
         when(tagService.renameTag(eq(tagId), any(), any())).thenReturn(response);
 
         // When/Then
