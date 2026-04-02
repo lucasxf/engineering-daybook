@@ -591,6 +591,8 @@ Wave sequencing:
 
 ⏳ Pending: Author using app for 1+ week (Phase 1 exit criterion)
 
+Per-File Quality Gates — Claude Code Hook Architecture (2026-04-02): all 6 milestones complete ✅. Semgrep OSS gate (`security_scan.py`), `simple-import-sort` downgraded to `"warn"` in ESLint configs, automation registry synced. Plan: `docs/plans/quality-gates-hook-architecture.md`.
+
 Mobile design system migration progress (Wave 2): S2.1 ✅ S2.2 ✅ S2.3 ✅ — all Wave 2 screen migrations complete (feat/ds-auth-screens, feat/ds-feed-detail, feat/ds-profile-discover).
 
 Mobile parity execution plan progress: Wave 4 (4-tier visibility) ✅ done (feat/mobile-4-tier-visibility, 2026-03-17). Wave 7 Google OAuth ✅ done (feat/mobile-google-sign-in, 2026-03-19). Pre-work complete (2026-03-17): parity table corrected, 8 specs Approved. Next: Wave 3 (profile editing, feat/mobile-profile-editing) — required for Play Store submission.

@@ -11,6 +11,16 @@
             "async": true
           }
         ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \".claude/scripts/run-quality-gate.sh\"",
+            "timeout": 20
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -68,7 +78,12 @@
       "Bash(npm install *)",
       "Bash(npx expo *)",
 
-      "Bash(docker compose *)"
+      "Bash(docker compose *)",
+
+      "Bash(npx eslint *)",
+      "Bash(npx prettier *)",
+      "Bash(python3 .claude/scripts/quality-gate.py *)",
+      "Bash(python3 .claude/scripts/run_gate_bg.py *)"
     ]
   }
 }

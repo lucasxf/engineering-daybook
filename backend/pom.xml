@@ -20,6 +20,7 @@
 
     <properties>
         <java.version>21</java.version>
+        <checkstyle.version>10.21.4</checkstyle.version>
         <springdoc.version>3.0.2</springdoc.version>
         <testcontainers.version>1.21.4</testcontainers.version>
         <google-api-client.version>2.9.0</google-api-client.version>
@@ -192,6 +193,25 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.6.0</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${checkstyle.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <configLocation>config/checkstyle.xml</configLocation>
+                    <consoleOutput>true</consoleOutput>
+                    <failsOnError>true</failsOnError>
+                    <violationSeverity>warning</violationSeverity>
+                    <!-- No lifecycle binding — run on demand via: mvn checkstyle:check -->
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
