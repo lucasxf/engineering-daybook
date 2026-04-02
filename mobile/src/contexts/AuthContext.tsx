@@ -79,7 +79,7 @@ export function AuthProvider({ children, onSettingsRestored }: AuthProviderProps
     }
 
     initSession();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps — intentionally runs once
+  }, []); // runs once on mount — deps intentionally omitted
 
   // ---------------------------------------------------------------------------
   // Auth failure listener (double-401 from any API call after session starts)

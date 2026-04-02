@@ -12,8 +12,8 @@ Closed testing review surfaced 9 product issues (items #1–#9: 2 bugs, 7 featur
 |---------|-------|--------|--------|----|
 | S1 | #1 Tag creation bug | `fix/tag-creation-flow` | ✅ Done | #252 |
 | S2 | #2 Avatar + #5 Emojis | `fix/avatar-upload` | ✅ Done | #253 |
-| S3 | #3+#4 Settings persistence | `feat/settings-persistence` | 🔲 Pending | — |
-| S4 | #3+#4 continued (if needed) | `feat/settings-persistence` | 🔲 Pending | — |
+| S3 | #3+#4 Settings persistence | `feat/settings-persistence` | ✅ Done | — (pending) |
+| S4 | #3+#4 continued (if needed) | `feat/settings-persistence` | ✅ Done (not needed) | — (N/A) |
 | S5 | #6 Tag sort/collapse | `feat/tag-sort-collapse` | 🔲 Pending | — |
 | S6 | #8+#9 Auto-resize textarea | `feat/auto-resize-textarea` | 🔲 Pending | — |
 | S7 | #11 Test effectiveness | `chore/test-effectiveness` | 🔲 Pending | — |

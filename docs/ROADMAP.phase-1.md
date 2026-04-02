@@ -577,8 +577,8 @@ Wave sequencing:
 |------|--------|--------|
 | Fix tag creation flow (create + attach + i18n) | ✅ Done | `fix/tag-creation-flow` |
 | Fix avatar upload on Android 13+ | ✅ Done | `fix/avatar-upload` |
-| Persist theme + locale settings (backend + contexts) | 🔲 Planned | `feat/settings-persistence` |
-| Profile save UX (feedback on setting changes) | 🔲 Planned | `feat/settings-persistence` |
+| Persist theme + locale settings (backend + contexts) | ✅ Done (feat/settings-persistence, PR pending) | `feat/settings-persistence` |
+| Profile save UX (feedback on setting changes) | ✅ Done (feat/settings-persistence, PR pending) | `feat/settings-persistence` |
 | Replace skin-tone emojis with neutral symbols | ✅ Done | `fix/avatar-upload` |
 | Tag sort by frequency + collapse/expand top 3 | 🔲 Planned | `feat/tag-sort-collapse` |
 | Social feed: include user's own recent learnings | 🔲 Planned | `feat/social-feed-own-poks` |
