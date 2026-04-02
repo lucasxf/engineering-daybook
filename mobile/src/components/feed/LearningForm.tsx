@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,6 +22,7 @@ interface Props {
 export function LearningForm({ defaultValues, onSubmit, onCancel, submitLabel, serverError, scrollable = true }: Props) {
   const { theme } = useTheme();
   const { t } = useI18n();
+  const [contentHeight, setContentHeight] = useState(200);
 
   const {
     control,
@@ -70,9 +71,10 @@ export function LearningForm({ defaultValues, onSubmit, onCancel, submitLabel, s
             label={t('learnings.new.contentLabel')}
             placeholder={t('learnings.new.contentPlaceholder')}
             multiline
-            numberOfLines={8}
+            numberOfLines={10}
             textAlignVertical="top"
-            style={{ minHeight: 160 }}
+            style={{ minHeight: 200, height: contentHeight, maxHeight: 400 }}
+            onContentSizeChange={(e) => setContentHeight(Math.max(200, e.nativeEvent.contentSize.height))}
             value={value}
             onChangeText={onChange}
             onBlur={onBlur}

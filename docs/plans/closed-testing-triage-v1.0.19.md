@@ -15,7 +15,7 @@ Closed testing review surfaced 9 product issues (items #1–#9: 2 bugs, 7 featur
 | S3 | #3+#4 Settings persistence | `feat/settings-persistence` | ✅ Done | #256 |
 | S4 | #3+#4 continued (if needed) | `feat/settings-persistence` | ✅ Done (not needed) | — (N/A) |
 | S5 | #6 Tag sort/collapse | `feat/tag-sort-collapse` | 🔲 Pending | — |
-| S6 | #8+#9 Auto-resize textarea | `feat/auto-resize-textarea` | 🔲 Pending | — |
+| S6 | #8+#9 Auto-resize textarea | `feat/auto-resize-textarea` | ✅ Done | #257 |
 | S7 | #11 Test effectiveness | `chore/test-effectiveness` | 🔲 Pending | — |
 | S8 | #7 Social feed own POKs | `feat/social-feed-own-poks` | 🔲 Pending | — |
 
