@@ -32,6 +32,8 @@ import { VisibilityPicker, VisibilityBadge, getDisabledValues } from '@/componen
 
 type RouteProps = RouteProp<AppStackParamList, 'LearningDetail'>;
 
+const TAG_COLLAPSE_LIMIT = 3;
+
 export function LearningDetailScreen() {
   const { theme } = useTheme();
   const { t } = useI18n();
@@ -293,7 +295,6 @@ export function LearningDetailScreen() {
         <View style={{ gap: theme.spacing.xs }}>
           <Text variant="label">{t('learnings.detail.tags')}</Text>
           {(() => {
-            const TAG_COLLAPSE_LIMIT = 3;
             const sortedTags = [...pok.tags].sort((a, b) => (b.pokCount ?? 0) - (a.pokCount ?? 0));
             const visibleTags = tagsExpanded ? sortedTags : sortedTags.slice(0, TAG_COLLAPSE_LIMIT);
             const hasOverflow = sortedTags.length > TAG_COLLAPSE_LIMIT;

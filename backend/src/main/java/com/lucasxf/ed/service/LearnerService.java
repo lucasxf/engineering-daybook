@@ -210,10 +210,14 @@ public class LearnerService {
                 + pokShareRepository.countBySharedByUserIdAndVisibilityIn(target.getId(), visibleTiers);
         }
 
-        // Pre-fetch the owner's tags and usage counts once to avoid N+1 queries across the page
+        // Pre-fetch the owner's tags and usage counts once to avoid N+1 queries across the page.
+        // Non-owner path uses an empty countMap: pokCount leaks the size of private/restricted
+        // activity that the viewer cannot see, so frequency sorting is suppressed for non-owners.
         List<UserTag> ownerTags = userTagRepository.findByUserIdAndDeletedAtIsNull(target.getId());
-        Map<UUID, Long> countMap = pokTagRepository.countPoksByTagForUser(target.getId()).stream()
-            .collect(Collectors.toMap(row -> (UUID) row[0], row -> (Long) row[1]));
+        Map<UUID, Long> countMap = isOwner
+            ? pokTagRepository.countPoksByTagForUser(target.getId()).stream()
+                .collect(Collectors.toMap(row -> (UUID) row[0], row -> (Long) row[1]))
+            : Map.of();
 
         // Build feed items — owned POKs
         List<FeedItemResponse> feedItems = new ArrayList<>();
