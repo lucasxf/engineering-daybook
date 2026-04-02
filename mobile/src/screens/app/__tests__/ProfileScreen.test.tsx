@@ -81,6 +81,10 @@ jest.mock('@/components/ui/TextInput', () => ({
   TextInput: (props: Record<string, unknown>) => require('react').createElement('TextInput', props),
 }));
 
+jest.mock('@expo/vector-icons', () => ({
+  Ionicons: (props: Record<string, unknown>) => require('react').createElement('Ionicons', props),
+}));
+
 jest.mock('@/components/ui/AvatarPicker', () => ({
   AvatarPicker: (props: Record<string, unknown>) => require('react').createElement('AvatarPicker', props),
 }));

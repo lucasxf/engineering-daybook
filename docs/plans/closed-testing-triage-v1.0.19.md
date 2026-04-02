@@ -2,7 +2,7 @@
 
 ## Context
 
-Closed testing review surfaced 9 issues (2 bugs, 7 features/UX) across the learnimo Android app. This plan triages all issues, sequences implementation, and identifies which require SDD vs direct fixes.
+Closed testing review surfaced 9 product issues (items #1–#9: 2 bugs, 7 features/UX) across the learnimo Android app, plus 2 follow-on/process items (#10 notifications, #11 test effectiveness). This plan triages all 11 items, sequences implementation, and identifies which require SDD vs direct fixes.
 
 ---
 
@@ -11,7 +11,7 @@ Closed testing review surfaced 9 issues (2 bugs, 7 features/UX) across the learn
 | Session | Items | Branch | Status | PR |
 |---------|-------|--------|--------|----|
 | S1 | #1 Tag creation bug | `fix/tag-creation-flow` | ✅ Done | #252 |
-| S2 | #2 Avatar + #5 Emojis | `fix/avatar-upload`, `chore/neutral-emojis` | 🔲 Pending | — |
+| S2 | #2 Avatar + #5 Emojis | `fix/avatar-upload` | ✅ Done | #253 |
 | S3 | #3+#4 Settings persistence | `feat/settings-persistence` | 🔲 Pending | — |
 | S4 | #3+#4 continued (if needed) | `feat/settings-persistence` | 🔲 Pending | — |
 | S5 | #6 Tag sort/collapse | `feat/tag-sort-collapse` | 🔲 Pending | — |
@@ -150,14 +150,14 @@ Rationale:
 
 **The real problem isn't coverage quantity — it's test quality.**
 
-Mobile has 80% line coverage and every bug in this triage shipped on mobile. The 80% threshold passed because well-tested utility files (`tokenStore`, `api.ts`, `stripMarkdown`, hooks) mask zero-coverage screens. Coverage measures lines executed, not behaviors verified.
+Mobile enforces an 80% global line-coverage threshold in Jest, and every bug in this triage shipped on mobile. The 80% threshold passed because well-tested utility files (`tokenStore`, `api.ts`, `stripMarkdown`, hooks) mask zero-coverage screens. Coverage measures lines executed, not behaviors verified.
 
 **What failed for each bug:**
 
 | Bug | Coverage status | Why it shipped |
 |-----|----------------|----------------|
 | Tag creation (3 sub-bugs) | `LearningDetailScreen` has **0% coverage** — no test file exists | Global 80% hides it because `lib/` and `hooks/` are heavily tested |
-| Avatar upload | `AvatarPicker.test.tsx` exists, coverage passes | Tests mock `expo-image-picker` but never test the **Android 13+ permission path** — only the happy path is covered |
+| Avatar upload | `AvatarPicker.test.tsx` exists, coverage passes | The Android skip-permission path is covered (`it('skips permission check on Android and launches picker directly')`), but the **upload→ProfileScreen integration** (image picked → upload API called → avatar state updated) is not tested end-to-end |
 | Settings persistence | `ProfileScreen.test.tsx` exists, coverage passes | Tests verify UI rendering and existing save handlers, but **theme/locale have no save logic to test** — the gap is in the code, not just the tests |
 
 **Root causes:**
@@ -261,11 +261,12 @@ The web 50% threshold should still be raised — but as a byproduct of writing b
 4. **Add error discrimination:** In `handleCreateTag` catch block, distinguish create-failure from assign-failure to show appropriate message
 5. **Add test:** Create `LearningDetailScreen.test.tsx` with tests for create-tag-and-assign happy path and failure paths
 
-### #2 — `fix/avatar-upload` (hedy)
-1. **Check Android 13+ permission path:** `AvatarPicker.tsx` calls `requestMediaLibraryPermissionsAsync()` — on Android 13+ without `READ_MEDIA_IMAGES` in manifest, this returns `denied` and aborts. Memory already documents this exact bug.
-2. **Fix:** Gate permission request behind `Platform.OS === 'ios'`. Android 13+ Photo Picker needs no permissions.
-3. **Verify `expo-image-picker` plugin registration:** Check `app.json` for `["expo-image-picker", { "microphonePermission": false }]`
-4. **Test on emulator:** Confirm avatar upload works on Android 13+ emulator after fix
+### #2 — `fix/avatar-upload` (hedy) ✅ Done — PR #253
+
+1. ~~**Check Android 13+ permission path:** `AvatarPicker.tsx` calls `requestMediaLibraryPermissionsAsync()` — on Android 13+ without `READ_MEDIA_IMAGES` in manifest, this returns `denied` and aborts.~~ → **Already implemented:** `AvatarPicker.tsx` gates `requestMediaLibraryPermissionsAsync()` behind `Platform.OS === 'ios'`; Android uses Photo Picker without requesting media permissions.
+2. ~~**Fix:** Gate permission request behind `Platform.OS === 'ios'`. Android 13+ Photo Picker needs no permissions.~~ → **Already landed** in `AvatarPicker.tsx`. `AvatarPicker.test.tsx` covers the Android skip-permission path.
+3. ~~**Verify `expo-image-picker` plugin registration:** Check `app.json` for `["expo-image-picker", { "microphonePermission": false }]`~~ → **Done:** plugin registered in `app.json` with `microphonePermission: false`.
+4. **Remaining investigation:** If avatar upload is still broken after the above, trace the upload→persistence flow: `AvatarPicker` → upload request → API response → `ProfileScreen` state update. Confirm (a) image is uploaded, (b) backend returns new avatar URL, (c) UI state is updated and persists after app restart.
 
 ### #5 — `chore/neutral-emojis` (pixl)
 1. **Audit:** `VisibilityPicker.tsx` uses 🔒🤝👥🌐; `FeedScreen.tsx` uses 🔍; `LearningDetailScreen.tsx` uses 🔒

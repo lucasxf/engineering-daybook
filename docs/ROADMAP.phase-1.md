@@ -576,10 +576,10 @@ Wave sequencing:
 | Item | Status | Branch |
 |------|--------|--------|
 | Fix tag creation flow (create + attach + i18n) | ✅ Done | `fix/tag-creation-flow` |
-| Fix avatar upload on Android 13+ | 🔲 Planned | `fix/avatar-upload` |
+| Fix avatar upload on Android 13+ | ✅ Done | `fix/avatar-upload` |
 | Persist theme + locale settings (backend + contexts) | 🔲 Planned | `feat/settings-persistence` |
 | Profile save UX (feedback on setting changes) | 🔲 Planned | `feat/settings-persistence` |
-| Replace skin-tone emojis with neutral symbols | 🔲 Planned | `chore/neutral-emojis` |
+| Replace skin-tone emojis with neutral symbols | ✅ Done | `fix/avatar-upload` |
 | Tag sort by frequency + collapse/expand top 3 | 🔲 Planned | `feat/tag-sort-collapse` |
 | Social feed: include user's own recent learnings | 🔲 Planned | `feat/social-feed-own-poks` |
 | Auto-resizing + larger content textarea | 🔲 Planned | `feat/auto-resize-textarea` |
