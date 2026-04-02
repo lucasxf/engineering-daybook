@@ -202,6 +202,18 @@ See `mobile/RELEASE_WORKFLOW.md` for the full step-by-step procedure.
   }
   ```
 
+- **`findAllByType` tree traversal must handle array nodes from JSX `.map()` results:** When a component renders `{array.map(item => <View>...</View>)}`, React creates an array of elements as a child node. The standard traversal pattern `[el.props?.children].flat().forEach(walk)` handles array-typed `props.children`, but NOT array-typed nodes themselves — i.e., when `el` itself is an array rather than a React element. The `typeof el !== 'object'` guard passes for arrays (arrays are objects), so the traversal enters the array as if it were a React element, finds no `type`/`props`, and silently skips all children. Fix: add an early array check in `walk` before the element type check: `if (Array.isArray(node)) { node.forEach(walk); return; }`. Without this, any element that is a direct child of a `.map()` result is invisible to the traversal. (Added 2026-03-26)
+
+  ```ts
+  function walk(el: any) {
+    if (!el) return;
+    if (Array.isArray(el)) { el.forEach(walk); return; }  // handle .map() results
+    if (typeof el !== 'object') return;
+    if (el.type === type || (el.type as any)?.name === type) results.push(el);
+    [el.props?.children].flat().forEach(walk);
+  }
+  ```
+
 - **`jest.mock()` callCount for `useState` sequencing must live at module scope, not inside the factory closure:** When a factory closure manages a `callCount` variable internally, it persists across tests but cannot be reset from `beforeEach` — the variable is inaccessible from outside the closure. Fix: declare `let mockStateCallCount = 0` at module scope (the `mock` prefix satisfies Jest's hoisting exception for referenced variables). The factory closure then captures the module-scope variable, and `beforeEach` can reset it between tests. This pattern is required for any mock that sequences React `useState` calls differently per test (e.g., loading state on call 1, error state on call 2). (Added 2026-03-15)
 
   ```ts
@@ -269,4 +281,14 @@ See `mobile/RELEASE_WORKFLOW.md` for the full step-by-step procedure.
 
 - **`EXPO_PUBLIC_GOOGLE_*` env vars must be in `eas.json` — `.env.local` is not available on EAS cloud:** The `hasClientId` guard in `useGoogleAuth.ts` hides the Google Sign-In button when the required platform-specific `EXPO_PUBLIC_GOOGLE_*` client ID for the current platform is missing (e.g., `EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID` on Android, `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` on web). EAS cloud builds do not load `.env.local` or `.env.production.local` (both gitignored). If these vars are not in `eas.json`'s `env` block for the relevant profile, the button will silently disappear in every cloud-built APK. OAuth client IDs are public values — safe to commit to `eas.json`. (Added 2026-03-25)
 
-*Last updated: 2026-03-25 (session: develop — fix Google OAuth button missing in EAS cloud builds: add EXPO_PUBLIC_GOOGLE_* to eas.json preview+production profiles)*
+- **Any screen test in the `screens` jest project (node env) that indirectly imports `@expo/vector-icons` MUST mock the package:** `@expo/vector-icons` uses ES module syntax (`import` statements) that cannot run in the Node test environment. When a screen test imports a screen that imports a component that uses `Ionicons` (or any icon from `@expo/vector-icons`), the test will fail with a parse/transform error unless the package is mocked. Add the following to the screen test file:
+
+  ```ts
+  jest.mock('@expo/vector-icons', () => ({
+    Ionicons: (props: any) => require('react').createElement('Ionicons', props),
+  }));
+  ```
+
+  This issue was triggered in `ProfileScreen.test.tsx` when `VisibilityPicker.tsx` was updated to use `Ionicons` icons instead of emoji literals. Any future component that adds an `@expo/vector-icons` import will require the same mock in every screen test file that transitively imports it. (Added 2026-03-28)
+
+*Last updated: 2026-03-28 (session: fix/avatar-upload — S2 closed-testing triage: avatar upload Android 13+ fix verified, skin-tone emojis replaced with Ionicons in VisibilityPicker)*

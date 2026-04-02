@@ -173,7 +173,13 @@ export function LearningDetailScreen() {
     if (!pok || !tagQuery.trim()) return;
     setTagActionLoading(true);
     try {
-      const newTag = await tagApi.create({ name: tagQuery });
+      // Step 1: create — show a create-specific error if this fails
+      const newTag = await tagApi.create({ name: tagQuery }).catch(() => {
+        Alert.alert(t('learnings.detail.tagCreateError'));
+        return null;
+      });
+      if (!newTag) return;
+      // Step 2: assign — the tag now exists; show an assign-specific error if this fails
       await tagApi.assign(pok.id, newTag.tagId);
       setPok((prev) => prev
         ? { ...prev, tags: [...prev.tags, newTag] }
@@ -181,7 +187,7 @@ export function LearningDetailScreen() {
       );
       closeTagModal();
     } catch {
-      Alert.alert(t('learnings.detail.tagCreateError'));
+      Alert.alert(t('learnings.detail.tagAddError'));
     } finally {
       setTagActionLoading(false);
     }
