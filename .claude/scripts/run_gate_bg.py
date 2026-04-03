@@ -3,7 +3,7 @@
 
 Usage: python3 run_gate_bg.py <module> <class> <rel_path> <repo_root>
 
-Writes findings to .claude/quality-gate-reports/<timestamp>-<filename>.md
+Writes findings to .claude/quality-gate-reports/<timestamp>-<filename>.json
 """
 
 from __future__ import annotations
