@@ -583,7 +583,7 @@ Wave sequencing:
 | Tag sort by frequency + collapse/expand top 3 | ✅ Done | `feat/tag-sort-collapse` |
 | Social feed: include user's own recent learnings | ✅ Done | `feat/social-feed-own-poks` |
 | Auto-resizing + larger content textarea | ✅ Done | `feat/auto-resize-textarea` |
-| Test effectiveness: per-screen enforcement, flow tests, i18n smoke | 🔲 Planned | `chore/test-effectiveness` |
+| Test effectiveness: per-screen enforcement, flow tests, i18n smoke | ✅ Done | `chore/test-effectiveness` |
 
 ---
 
