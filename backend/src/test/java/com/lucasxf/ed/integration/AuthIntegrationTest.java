@@ -384,8 +384,8 @@ class AuthIntegrationTest {
                     .cookie(new Cookie("access_token", accessToken)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.handle").value(handle))
-                .andExpect(jsonPath("$.theme").value("dark"))
-                .andExpect(jsonPath("$.locale").value("EN"));
+                .andExpect(jsonPath("$.theme").doesNotExist())
+                .andExpect(jsonPath("$.locale").doesNotExist());
         }
     }
 

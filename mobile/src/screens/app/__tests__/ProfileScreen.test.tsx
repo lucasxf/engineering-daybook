@@ -17,6 +17,7 @@ jest.mock('react', () => {
     useEffect: jest.fn(),
     useCallback: (fn: unknown) => fn,
     useMemo: (fn: () => unknown) => fn(),
+    useRef: (init: unknown) => ({ current: init }),
   };
 });
 
