@@ -99,7 +99,15 @@ cd mobile && npm test -- --no-coverage --selectProjects lib
 cd mobile && npm run test:coverage
 ```
 
-Coverage threshold: **80% lines** (configured in `jest.config.js`).
+Coverage threshold: **80% lines** (global) + **50% screens** + **60% components** (configured in `jest.config.js`). Per-directory thresholds prevent high-coverage `lib/` files from masking untested screens.
+
+**Testing Conventions:**
+
+- **Screen test requirement:** Every `*Screen.tsx` file in `src/screens/` must have a matching `__tests__/<Name>.test.tsx`. Enforced by `scripts/check-screen-tests.sh` which runs in CI before `npm run test:coverage`.
+
+- **Multi-step flow test pattern:** Any screen with sequential API calls (e.g. create → assign, upload → update) must have tests covering: (1) happy path — all calls succeed, (2) partial failure — first call succeeds, second fails — verify rollback/error UX, (3) full failure — first call fails — verify no side effects. See `LearningDetailScreen.test.tsx` for reference.
+
+- **Platform-conditional test pattern:** Any code guarded by `Platform.OS` must have test variants for each relevant platform. Use `jest.spyOn(require('react-native'), 'Platform', 'get').mockReturnValue({ OS: 'android', ... })` or override `Platform.OS` in the react-native mock before calling the component.
 
 ---
 

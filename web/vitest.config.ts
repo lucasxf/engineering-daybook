@@ -13,7 +13,7 @@ export default defineConfig({
       provider: 'v8',
       include: ['src/**/*.{ts,tsx}'],
       exclude: ['src/**/*.test.*', 'src/**/*.spec.*', 'src/test/**'],
-      thresholds: { lines: 50 }, // current baseline: ~54%; target 80% — raise as coverage improves
+      thresholds: { lines: 60 }, // raised from 50; baseline ~54%; target 80% — raise as coverage improves
     },
   },
   resolve: {
