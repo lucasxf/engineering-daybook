@@ -84,6 +84,7 @@ export default {
       emptyHint: 'Follow learners to see their updates here.',
       relearning: 're-learned by',
       by: 'by',
+      you: 'You',
       loadError: 'Failed to load feed',
       discover: 'Discover learners',
       findLearners: 'Find Learners',

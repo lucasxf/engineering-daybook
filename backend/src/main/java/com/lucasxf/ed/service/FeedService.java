@@ -30,11 +30,19 @@ import static java.util.Objects.requireNonNull;
  * to merge owned learnings and re-learnings from all followed learners in a single database
  * round-trip. Visibility filtering is enforced at the SQL level (NFR3).
  *
+ * <p>The feed includes:
+ * <ul>
+ *   <li>{@code PUBLIC}, {@code FOLLOWERS_ONLY}, and (when mutual) {@code COLLEAGUES_ONLY}
+ *       learnings from followed learners</li>
+ *   <li>The requesting user's {@value #SELF_POK_LIMIT} most recent own learnings (all visibility
+ *       tiers — the owner always sees their own content)</li>
+ * </ul>
+ *
  * <p>The feed excludes:
  * <ul>
- *   <li>The requesting user's own learnings (FR10)</li>
  *   <li>{@code PRIVATE} learnings from any followed learner (FR2)</li>
  *   <li>{@code COLLEAGUES_ONLY} learnings when the viewer is not a colleague (FR2, AC-4)</li>
+ *   <li>Soft-deleted learnings ({@code deleted_at IS NOT NULL})</li>
  * </ul>
  *
  * @author Lucas Xavier Ferreira
@@ -43,10 +51,19 @@ import static java.util.Objects.requireNonNull;
 @Service
 public class FeedService {
 
+    /** Maximum number of the requesting user's own learnings included in every feed page. */
+    public static final int SELF_POK_LIMIT = 5;
+
     /**
-     * UNION ALL query that merges owned POKs and re-learnings from all followed learners.
+     * UNION ALL query that merges:
+     * <ol>
+     *   <li>Owned POKs from followed learners</li>
+     *   <li>Re-learnings from followed learners</li>
+     *   <li>The requester's own {@value #SELF_POK_LIMIT} most recent POKs</li>
+     * </ol>
      *
-     * <p>Named parameters: {@code :requesterId} (UUID), {@code :size} (int), {@code :offset} (long).
+     * <p>Named parameters: {@code :requesterId} (UUID), {@code :selfLimit} (int),
+     * {@code :size} (int), {@code :offset} (long).
      */
     static final String FEED_QUERY = """
             SELECT
@@ -120,14 +137,48 @@ public class FeedService {
                                   WHERE fb.follower_id = ps.shared_by_user_id
                                     AND fb.followed_id = :requesterId)))
 
+            UNION ALL
+
+            -- Requester's own most recent learnings (all visibility tiers — owner always sees own content)
+            SELECT * FROM (
+                SELECT
+                    'owned' AS item_type,
+                    p.id                   AS id,
+                    p.created_at           AS sort_ts,
+                    p.title                AS title,
+                    p.content              AS content,
+                    p.visibility::text     AS visibility,
+                    p.created_at           AS item_created_at,
+                    p.updated_at           AS item_updated_at,
+                    p.user_id              AS author_user_id,
+                    u.handle               AS author_handle,
+                    u.display_name         AS author_display_name,
+                    u.avatar_url           AS author_avatar_url,
+                    CAST(NULL AS uuid)     AS original_pok_id,
+                    CAST(NULL AS uuid)     AS original_pok_user_id,
+                    NULL::text             AS original_pok_visibility,
+                    NULL::timestamptz      AS original_pok_created_at,
+                    NULL::timestamptz      AS original_pok_updated_at,
+                    NULL::text             AS share_note,
+                    NULL::text             AS original_author_handle,
+                    NULL::text             AS original_author_display_name,
+                    NULL::text             AS original_author_avatar_url
+                FROM poks p
+                JOIN users u ON u.id = p.user_id
+                WHERE p.deleted_at IS NULL
+                  AND p.user_id = :requesterId
+                ORDER BY p.created_at DESC
+                LIMIT :selfLimit
+            ) AS self_poks
+
             ORDER BY sort_ts DESC
             LIMIT :size OFFSET :offset
             """;
 
     /**
-     * Count query wrapping the same UNION ALL without LIMIT/OFFSET.
+     * Count query wrapping the same UNION ALL without the outer LIMIT/OFFSET.
      *
-     * <p>Named parameters: {@code :requesterId} (UUID).
+     * <p>Named parameters: {@code :requesterId} (UUID), {@code :selfLimit} (int).
      */
     static final String COUNT_QUERY = """
             SELECT COUNT(*) FROM (
@@ -154,6 +205,15 @@ public class FeedService {
                           AND EXISTS (SELECT 1 FROM follows fb
                                       WHERE fb.follower_id = ps.shared_by_user_id
                                         AND fb.followed_id = :requesterId)))
+                UNION ALL
+                SELECT p.id
+                FROM (
+                    SELECT id FROM poks
+                    WHERE deleted_at IS NULL
+                      AND user_id = :requesterId
+                    ORDER BY created_at DESC
+                    LIMIT :selfLimit
+                ) AS p
             ) AS feed
             """;
 
@@ -168,7 +228,8 @@ public class FeedService {
      *
      * <p>The feed contains {@code PUBLIC}, {@code FOLLOWERS_ONLY}, and (when the requester is
      * a colleague) {@code COLLEAGUES_ONLY} learnings and re-learnings from all learners the
-     * requester follows. The requester's own learnings are excluded.
+     * requester follows, plus the requester's own {@value #SELF_POK_LIMIT} most recent learnings
+     * (all visibility tiers).
      *
      * @param requesterId the ID of the authenticated user requesting the feed
      * @param page        zero-based page index
@@ -178,7 +239,9 @@ public class FeedService {
     public Page<FeedItemResponse> getDiscoveryFeed(UUID requesterId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
-        MapSqlParameterSource countParams = new MapSqlParameterSource("requesterId", requesterId);
+        MapSqlParameterSource countParams = new MapSqlParameterSource()
+            .addValue("requesterId", requesterId)
+            .addValue("selfLimit", SELF_POK_LIMIT);
         Long rawCount = namedParameterJdbcTemplate.queryForObject(COUNT_QUERY, countParams, Long.class);
         long total = rawCount != null ? rawCount : 0L;
 
@@ -188,6 +251,7 @@ public class FeedService {
 
         MapSqlParameterSource itemParams = new MapSqlParameterSource()
             .addValue("requesterId", requesterId)
+            .addValue("selfLimit", SELF_POK_LIMIT)
             .addValue("size", size)
             .addValue("offset", pageable.getOffset());
 
