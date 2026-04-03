@@ -79,6 +79,9 @@ describe('i18n %{...} interpolation (pt-BR)', () => {
     it(`${key} resolves placeholder with i18n.t()`, () => {
       const result = i18n.t(key, scope);
       expect(result).not.toMatch(/%\{/);
+      for (const value of Object.values(scope)) {
+        expect(result).toContain(value);
+      }
     });
   }
 });
