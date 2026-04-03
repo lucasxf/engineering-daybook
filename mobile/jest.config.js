@@ -5,7 +5,7 @@ module.exports = {
     {
       displayName: 'lib',
       testEnvironment: 'node',
-      testRegex: 'src/(lib|hooks)/__tests__/.*\\.test\\.ts$',
+      testRegex: 'src/(lib|hooks|i18n)/__tests__/.*\\.test\\.ts$',
       transform: {
         '^.+\\.[jt]sx?$': ['babel-jest', { configFile: './babel.config.js' }],
       },
@@ -85,6 +85,15 @@ module.exports = {
   coverageThreshold: {
     global: {
       lines: 80,
+    },
+    // Per-directory thresholds prevent high-coverage lib files from masking
+    // untested screens/components. Thresholds start conservative and should
+    // be raised incrementally as coverage improves. Target: 80% for all.
+    './src/screens/': {
+      lines: 50, // target 80% — raise as gap-closing tests are added
+    },
+    './src/components/': {
+      lines: 60, // target 80% — raise as coverage improves
     },
   },
 };
