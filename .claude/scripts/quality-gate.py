@@ -17,7 +17,7 @@ import os
 import subprocess
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError, as_completed
 from pathlib import Path
 
 # Ensure the gates package is importable regardless of cwd
@@ -89,7 +89,7 @@ def run_parallel(fast_gates: list[Gate], rel_path: str, repo_root: str) -> list[
                         severity="warning",
                         message=f"Gate '{gate.name}' failed: {exc}",
                     ))
-        except TimeoutError:
+        except FuturesTimeoutError:
             # Some gates didn't finish in time — return whatever we have
             pass
     return findings

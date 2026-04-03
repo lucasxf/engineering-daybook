@@ -25,7 +25,7 @@ The fix is minimal: the backend `User` table already has `locale` (VARCHAR 10) a
 - [ ] **FR1:** When an authenticated user changes the theme (light / dark / system) on the Profile screen, the app auto-saves the new value via `PATCH /users/me/settings` without requiring a separate Save action. `mobile`
 - [ ] **FR2:** When an authenticated user changes the locale (EN / PT-BR) on the Profile screen, the app auto-saves the new value via `PATCH /users/me/settings` without requiring a separate Save action. `mobile`
 - [ ] **FR3:** On session initialisation, the app restores the user's saved theme and locale from the `/auth/me` response and applies them before the first screen renders. `mobile`
-- [ ] **FR4:** A first-time user with no saved preferences receives theme `system` (follows OS setting) and locale derived from the device locale (EN if device locale is not PT-BR, otherwise PT-BR). `mobile`
+- [ ] **FR4:** A first-time user's `theme` and `locale` are `null` in the `/auth/me` response (DB columns have no default); the mobile client treats `null` as "unset" and falls through to system/device defaults — system theme (tracks OS appearance) and locale derived from the device locale. `mobile` `backend`
 - [ ] **FR5:** After an auto-save completes (success or failure), the Profile screen displays a brief, non-blocking visual confirmation in the active locale. `mobile`
 - [ ] **FR6:** If the `PATCH /users/me/settings` request fails, the UI reverts the picker to the previous value and shows an error message; the locally active setting is not permanently changed. `mobile`
 - [ ] **FR7:** Theme and locale pickers are disabled while a save is in flight, preventing concurrent conflicting requests. `mobile`

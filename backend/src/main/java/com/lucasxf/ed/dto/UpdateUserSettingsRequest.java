@@ -2,6 +2,7 @@ package com.lucasxf.ed.dto;
 
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.User;
+import jakarta.validation.constraints.Size;
 
 /**
  * Request body for {@code PATCH /api/v1/users/me/settings}.
@@ -16,5 +17,5 @@ public record UpdateUserSettingsRequest(
         User.ProfileVisibility profileVisibility,
         String bio,
         String displayName,
-        String theme,
-        String locale) {}
+        @Size(max = 10) String theme,
+        @Size(max = 10) String locale) {}

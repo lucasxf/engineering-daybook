@@ -39,11 +39,11 @@ public class User {
     @Column(nullable = false, unique = true, length = 30)
     private String handle;
 
-    @Column(nullable = false, length = 10)
-    private String locale = "EN";
+    @Column(length = 10)
+    private String locale;
 
-    @Column(nullable = false, length = 10)
-    private String theme = "dark";
+    @Column(length = 10)
+    private String theme;
 
     @Column(name = "auth_provider", nullable = false, length = 20)
     private String authProvider = "local";

@@ -1,6 +1,7 @@
 package com.lucasxf.ed.service;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -23,6 +24,9 @@ import static java.util.Objects.requireNonNull;
  */
 @Service
 public class UserService {
+
+    private static final Set<String> VALID_THEMES = Set.of("light", "dark", "system");
+    private static final Set<String> VALID_LOCALES = Set.of("en", "EN", "pt-BR");
 
     private final UserRepository userRepository;
 
@@ -160,6 +164,9 @@ public class UserService {
      */
     @Transactional
     public void updateTheme(UUID userId, String theme) {
+        if (!VALID_THEMES.contains(theme)) {
+            throw new IllegalArgumentException("Invalid theme: " + theme);
+        }
         User user = findById(userId);
         user.setTheme(theme);
         userRepository.save(user);
@@ -174,6 +181,9 @@ public class UserService {
      */
     @Transactional
     public void updateLocale(UUID userId, String locale) {
+        if (!VALID_LOCALES.contains(locale)) {
+            throw new IllegalArgumentException("Invalid locale: " + locale);
+        }
         User user = findById(userId);
         user.setLocale(locale);
         userRepository.save(user);
