@@ -308,7 +308,7 @@ export function ProfileScreen() {
                 variant={override === opt.value ? 'primary' : 'secondary'}
                 onPress={() => handleThemeChange(opt.value)}
                 disabled={isSavingSettings}
-                accessibilityState={{ busy: isSavingSettings }}
+                accessibilityState={{ disabled: isSavingSettings, busy: isSavingSettings }}
                 style={{ flex: 1 }}
               />
             ))}
@@ -331,7 +331,7 @@ export function ProfileScreen() {
                 variant={locale === opt.value ? 'primary' : 'secondary'}
                 onPress={() => handleLocaleChange(opt.value)}
                 disabled={isSavingSettings}
-                accessibilityState={{ busy: isSavingSettings }}
+                accessibilityState={{ disabled: isSavingSettings, busy: isSavingSettings }}
                 style={{ flex: 1 }}
               />
             ))}

@@ -354,8 +354,8 @@ class AuthIntegrationTest {
     class MeEndpointFlows {
 
         @Test
-        @DisplayName("GET /auth/me should return theme and locale for authenticated user")
-        void me_shouldReturnThemeAndLocale() throws Exception {
+        @DisplayName("GET /auth/me should omit theme and locale for a first-time user (null columns, @JsonInclude NON_NULL)")
+        void me_shouldOmitThemeAndLocaleForFirstTimeUser() throws Exception {
             assumeTrue(DockerClientFactory.instance().isDockerAvailable(),
                 "Docker not available, skipping integration test");
 

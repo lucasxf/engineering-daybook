@@ -56,7 +56,7 @@ The fix is minimal: the backend `User` table already has `locale` (VARCHAR 10) a
 - `mobile/src/contexts/I18nContext.tsx` — accept initial locale from user object
 - `mobile/src/screens/app/ProfileScreen.tsx` — wire auto-save + feedback for theme/locale
 
-**No Flyway migration needed:** `User.locale` (VARCHAR 10, default `'EN'`) and `User.theme` (VARCHAR 10, default `'dark'`) columns already exist.
+**Flyway migration required:** `V22__make_theme_locale_nullable.sql` drops the `NOT NULL` defaults from `User.locale` and `User.theme` so both columns accept `null` for first-time users (FR4). The columns already exist from a prior migration; no new columns are added.
 
 **Out of Scope:**
 - Web app settings persistence (separate concern, different auth architecture)
