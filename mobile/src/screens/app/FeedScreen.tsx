@@ -169,32 +169,49 @@ function SocialContent({ onPokPress }: { onPokPress: (pok: Pok) => void }) {
       );
     }
 
-    // Owned feed item — author attribution row is tappable
+    // Owned feed item — author attribution row
     const authorHandle = item.authorHandle ?? '';
     const authorName = item.authorDisplayName ?? `@${authorHandle}`;
+    const isSelf = !!user?.handle && authorHandle === user.handle;
 
     return (
       <View>
         {authorHandle ? (
-          <Pressable
-            onPress={() => handleAuthorPress(authorHandle)}
-            accessibilityRole="button"
-            accessibilityLabel={authorName}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingHorizontal: theme.spacing.xs,
-              paddingBottom: theme.spacing.xs,
-              gap: theme.spacing.xs,
-            }}
-          >
-            <Text variant="caption" color={theme.colors.textSecondary}>
-              {authorName}
-            </Text>
-            <Text variant="caption" color={theme.colors.textSecondary}>
-              @{authorHandle}
-            </Text>
-          </Pressable>
+          isSelf ? (
+            // Own item — non-tappable "You" label (profile accessible via Profile tab)
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: theme.spacing.xs,
+                paddingBottom: theme.spacing.xs,
+              }}
+            >
+              <Text variant="caption" color={theme.colors.textSecondary}>
+                {t('learnings.socialFeed.you')}
+              </Text>
+            </View>
+          ) : (
+            <Pressable
+              onPress={() => handleAuthorPress(authorHandle)}
+              accessibilityRole="button"
+              accessibilityLabel={authorName}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: theme.spacing.xs,
+                paddingBottom: theme.spacing.xs,
+                gap: theme.spacing.xs,
+              }}
+            >
+              <Text variant="caption" color={theme.colors.textSecondary}>
+                {authorName}
+              </Text>
+              <Text variant="caption" color={theme.colors.textSecondary}>
+                @{authorHandle}
+              </Text>
+            </Pressable>
+          )
         ) : null}
         <LearningCard pok={item} onPress={onPokPress} />
       </View>

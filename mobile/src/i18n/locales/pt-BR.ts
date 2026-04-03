@@ -82,6 +82,7 @@ export default {
       emptyHint: 'Siga outros aprendizes para ver as atualizações deles aqui.',
       relearning: 're-aprendido por',
       by: 'por',
+      you: 'Você',
       loadError: 'Falha ao carregar o feed',
       discover: 'Descobrir aprendizes',
       findLearners: 'Encontrar Aprendizes',
