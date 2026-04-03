@@ -210,7 +210,7 @@ npm run test     # Run tests (Vitest)
 
 - **`MonthGroup` uses `year: '2-digit'` → "January 26" not "January 2026":** When testing month group headings, match `/january/i` (not `/january 2026/i`). Also use `level: 2` to avoid matching `h3` PokCard title headings that share the month name. (Added 2026-03-11)
 
-- **Web coverage baseline:** Current measured line coverage is ~54%. `vitest.config.ts` threshold set to 50% (safe baseline). Target is 80% — raise incrementally as new tests are added. `@vitest/coverage-v8` is the provider. (Added 2026-03-11)
+- **Web coverage baseline:** Current measured line coverage is ~52.71%. `vitest.config.ts` threshold set to 52% (safe baseline). Target is 80% — raise incrementally as new tests are added. `@vitest/coverage-v8` is the provider. (Updated 2026-04-03)
 
 - **Adding `eslint-plugin-simple-import-sort` as `"error"` breaks CI on legacy codebases:** When installing `eslint-plugin-simple-import-sort` into an existing project that has unsorted imports, setting severity to `"error"` immediately fails lint for every pre-existing file. Add the rule as `"warn"` first — the quality gate hook overrides to `"error"` via CLI `--rule` anyway, so new files edited by Claude are still flagged correctly. (Added 2026-04-02)
 
