@@ -322,7 +322,7 @@ class FeedIntegrationTest {
     @DisplayName("Self: deleted own POKs are excluded from feed")
     void getFeed_deletedOwnPoksExcluded() throws Exception {
         Pok deletedPok = pokRepository.save(new Pok(alice.getId(), "Deleted POK", "Content", Pok.Visibility.PUBLIC));
-        deletedPok.delete();
+        deletedPok.softDelete();
         pokRepository.save(deletedPok);
 
         pokRepository.save(new Pok(alice.getId(), "Active POK", "Content", Pok.Visibility.PUBLIC));

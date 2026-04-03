@@ -52,7 +52,7 @@ import static java.util.Objects.requireNonNull;
 public class FeedService {
 
     /** Maximum number of the requesting user's own learnings included in every feed page. */
-    static final int SELF_POK_LIMIT = 5;
+    public static final int SELF_POK_LIMIT = 5;
 
     /**
      * UNION ALL query that merges:
