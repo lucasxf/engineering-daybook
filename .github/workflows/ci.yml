@@ -168,5 +168,8 @@ jobs:
       - name: Type Check
         run: npm run typecheck --if-present
 
+      - name: Screen Test Audit
+        run: bash scripts/check-screen-tests.sh
+
       - name: Unit Tests
         run: npm run test:coverage

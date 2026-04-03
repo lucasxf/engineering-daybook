@@ -51,8 +51,9 @@ mobile/
     │   ├── validations.ts     # Shared zod schemas (login, register, pok, etc.)
     │   └── __tests__/         # Unit tests (node env, no RN setup needed)
     ├── hooks/
-    │   ├── useDebounce.ts     # 300ms debounce for search input
-    │   ├── useFeedData.ts     # Paginated feed with refresh + infinite scroll
+    │   ├── useDebounce.ts        # 300ms debounce for search input
+    │   ├── useFeedData.ts        # Paginated personal feed with refresh + infinite scroll
+    │   ├── useSocialFeedData.ts  # Paginated social feed (own + followed learners)
     │   └── __tests__/
     ├── components/
     │   ├── ui/                # Text, Button, TextInput, Card, ErrorMessage, Avatar, AvatarPicker
@@ -99,7 +100,15 @@ cd mobile && npm test -- --no-coverage --selectProjects lib
 cd mobile && npm run test:coverage
 ```
 
-Coverage threshold: **80% lines** (configured in `jest.config.js`).
+Coverage threshold: **80% lines** (global) + **50% screens** + **60% components** (configured in `jest.config.js`). Per-directory thresholds prevent high-coverage `lib/` files from masking untested screens.
+
+**Testing Conventions:**
+
+- **Screen test requirement:** Every `*Screen.tsx` file in `src/screens/` must have a matching `__tests__/<Name>.test.tsx`. Enforced by `scripts/check-screen-tests.sh` which runs in CI before `npm run test:coverage`.
+
+- **Multi-step flow test pattern:** Any screen with sequential API calls (e.g. create → assign, upload → update) must have tests covering: (1) happy path — all calls succeed, (2) partial failure — first call succeeds, second fails — verify rollback/error UX, (3) full failure — first call fails — verify no side effects. See `LearningDetailScreen.test.tsx` for reference.
+
+- **Platform-conditional test pattern:** Any code guarded by `Platform.OS` must have test variants for each relevant platform. Use `jest.spyOn(require('react-native'), 'Platform', 'get').mockReturnValue({ OS: 'android', ... })` or override `Platform.OS` in the react-native mock before calling the component.
 
 ---
 
@@ -314,4 +323,4 @@ See `mobile/RELEASE_WORKFLOW.md` for the full step-by-step procedure.
 
 - **Adding `eslint-plugin-simple-import-sort` as `"error"` breaks CI on legacy codebases:** When installing `eslint-plugin-simple-import-sort` into an existing project that has unsorted imports, setting severity to `"error"` immediately fails lint for every pre-existing file. Add the rule as `"warn"` first — the quality gate hook overrides to `"error"` via CLI `--rule` anyway, so new files edited by Claude are still flagged correctly. (Added 2026-04-02)
 
-*Last updated: 2026-04-02 (session: develop — Per-File Quality Gates hook architecture: all 6 milestones complete; simple-import-sort pitfall documented)*
+*Last updated: 2026-04-03 (session: feat/social-feed-own-poks — social feed own-POKs UX: "You" label, useSocialFeedData hook added to project structure map)*
