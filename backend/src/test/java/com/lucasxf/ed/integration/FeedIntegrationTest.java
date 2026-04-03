@@ -31,7 +31,11 @@ import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import com.lucasxf.ed.service.FeedService;
+
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -52,7 +56,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *   <li>AC-7/8 — Empty feed returns 200 with empty content</li>
  *   <li>AC-9 — Pagination (totalElements, totalPages)</li>
  *   <li>AC-10 — Unauthenticated access returns 401</li>
- *   <li>FR10 — Own learnings excluded</li>
+ *   <li>Self — User's own 5 most recent learnings appear in feed (all visibility tiers)</li>
+ *   <li>Self — Self-POK cap (SELF_POK_LIMIT) and no pagination duplicates</li>
  * </ul>
  *
  * <p>Requires Docker. Skipped if Docker is not available.
@@ -183,21 +188,25 @@ class FeedIntegrationTest {
     // ===== AC-1: Public learnings from followed learners =====
 
     @Test
-    @DisplayName("AC-1: Feed shows PUBLIC learnings from followed learners, excludes own")
-    void getFeed_showsPublicLearningsFromFollowedLearners() throws Exception {
+    @DisplayName("AC-1: Feed shows PUBLIC learnings from followed learners and own learnings; excludes non-followed")
+    void getFeed_showsPublicLearningsFromFollowedLearnersAndSelf() throws Exception {
         pokRepository.save(new Pok(bob.getId(), "Bob's Learning 1", "Content 1", Pok.Visibility.PUBLIC));
         pokRepository.save(new Pok(bob.getId(), "Bob's Learning 2", "Content 2", Pok.Visibility.PUBLIC));
-        // alice's own learning — must NOT appear
+        // alice's own learning — appears via self branch
         pokRepository.save(new Pok(alice.getId(), "Alice's own", "Own content", Pok.Visibility.PUBLIC));
         // carol's learning — alice doesn't follow carol, must NOT appear
         pokRepository.save(new Pok(carol.getId(), "Carol's Learning", "Carol content", Pok.Visibility.PUBLIC));
 
         mockMvc.perform(get("/api/v1/feed").cookie(jwtFor(alice)))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.content", hasSize(2)))
-            .andExpect(jsonPath("$.totalElements").value(2))
-            .andExpect(jsonPath("$.content[0].authorHandle").value(bob.getHandle()))
-            .andExpect(jsonPath("$.content[0].type").value("owned"));
+            .andExpect(jsonPath("$.content", hasSize(3)))
+            .andExpect(jsonPath("$.totalElements").value(3))
+            // bob's content appears
+            .andExpect(jsonPath("$.content[*].authorHandle", hasItem(bob.getHandle())))
+            // alice's own content appears
+            .andExpect(jsonPath("$.content[*].authorHandle", hasItem(alice.getHandle())))
+            // carol's content does NOT appear
+            .andExpect(jsonPath("$.content[*].authorHandle", not(hasItem(carol.getHandle()))));
     }
 
     // ===== AC-2: FOLLOWERS_ONLY visible to follower =====
@@ -265,18 +274,85 @@ class FeedIntegrationTest {
             .andExpect(jsonPath("$.content").isEmpty());
     }
 
-    // ===== FR10: Own learnings excluded =====
+    // ===== Self-learnings: user's own recent POKs appear in feed =====
 
     @Test
-    @DisplayName("FR10: alice's own learnings never appear in her feed")
-    void getFeed_ownLearningsExcluded() throws Exception {
+    @DisplayName("Self: alice's own learnings appear in her feed alongside followed users' content")
+    void getFeed_ownLearningsAppearInFeed() throws Exception {
         pokRepository.save(new Pok(alice.getId(), "Alice's Public", "My content", Pok.Visibility.PUBLIC));
         pokRepository.save(new Pok(bob.getId(), "Bob's Public", "Bob content", Pok.Visibility.PUBLIC));
 
         mockMvc.perform(get("/api/v1/feed").cookie(jwtFor(alice)))
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content", hasSize(2)))
+            .andExpect(jsonPath("$.totalElements").value(2))
+            .andExpect(jsonPath("$.content[*].authorHandle", hasItem(alice.getHandle())))
+            .andExpect(jsonPath("$.content[*].authorHandle", hasItem(bob.getHandle())));
+    }
+
+    @Test
+    @DisplayName("Self: own learnings appear regardless of visibility tier")
+    void getFeed_ownLearningsAllVisibilityTiers() throws Exception {
+        pokRepository.save(new Pok(alice.getId(), "Alice Private", "Secret", Pok.Visibility.PRIVATE));
+        pokRepository.save(new Pok(alice.getId(), "Alice Followers Only", "Content", Pok.Visibility.FOLLOWERS_ONLY));
+        pokRepository.save(new Pok(alice.getId(), "Alice Public", "Content", Pok.Visibility.PUBLIC));
+
+        mockMvc.perform(get("/api/v1/feed").cookie(jwtFor(alice)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content", hasSize(3)))
+            .andExpect(jsonPath("$.totalElements").value(3));
+    }
+
+    @Test
+    @DisplayName("Self: capped at SELF_POK_LIMIT most recent; older own POKs excluded")
+    void getFeed_selfPoksCapAtLimit() throws Exception {
+        // Create SELF_POK_LIMIT + 1 own POKs — only the 5 most recent should appear
+        int overLimit = FeedService.SELF_POK_LIMIT + 1;
+        for (int i = 0; i < overLimit; i++) {
+            pokRepository.save(new Pok(alice.getId(), "Alice POK " + i, "Content", Pok.Visibility.PUBLIC));
+        }
+
+        mockMvc.perform(get("/api/v1/feed").cookie(jwtFor(alice)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content", hasSize(FeedService.SELF_POK_LIMIT)))
+            .andExpect(jsonPath("$.totalElements").value(FeedService.SELF_POK_LIMIT));
+    }
+
+    @Test
+    @DisplayName("Self: deleted own POKs are excluded from feed")
+    void getFeed_deletedOwnPoksExcluded() throws Exception {
+        Pok deletedPok = pokRepository.save(new Pok(alice.getId(), "Deleted POK", "Content", Pok.Visibility.PUBLIC));
+        deletedPok.delete();
+        pokRepository.save(deletedPok);
+
+        pokRepository.save(new Pok(alice.getId(), "Active POK", "Content", Pok.Visibility.PUBLIC));
+
+        mockMvc.perform(get("/api/v1/feed").cookie(jwtFor(alice)))
+            .andExpect(status().isOk())
             .andExpect(jsonPath("$.content", hasSize(1)))
-            .andExpect(jsonPath("$.content[0].authorHandle").value(bob.getHandle()));
+            .andExpect(jsonPath("$.content[0].title").value("Active POK"));
+    }
+
+    @Test
+    @DisplayName("Self: own POKs do not duplicate across pages")
+    void getFeed_selfPoksNoDuplicateAcrossPages() throws Exception {
+        // 5 own POKs + 25 bob POKs = 30 total; page size 20 → 2 pages, no overlap
+        for (int i = 0; i < FeedService.SELF_POK_LIMIT; i++) {
+            pokRepository.save(new Pok(alice.getId(), "Alice POK " + i, "Content", Pok.Visibility.PUBLIC));
+        }
+        for (int i = 0; i < 25; i++) {
+            pokRepository.save(new Pok(bob.getId(), "Bob POK " + i, "Content", Pok.Visibility.PUBLIC));
+        }
+
+        mockMvc.perform(get("/api/v1/feed?page=0&size=20").cookie(jwtFor(alice)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content", hasSize(20)))
+            .andExpect(jsonPath("$.totalElements").value(30));
+
+        mockMvc.perform(get("/api/v1/feed?page=1&size=20").cookie(jwtFor(alice)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content", hasSize(10)))
+            .andExpect(jsonPath("$.totalElements").value(30));
     }
 
     // ===== AC-6: Re-learning appears in feed =====
