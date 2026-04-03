@@ -51,8 +51,9 @@ mobile/
     │   ├── validations.ts     # Shared zod schemas (login, register, pok, etc.)
     │   └── __tests__/         # Unit tests (node env, no RN setup needed)
     ├── hooks/
-    │   ├── useDebounce.ts     # 300ms debounce for search input
-    │   ├── useFeedData.ts     # Paginated feed with refresh + infinite scroll
+    │   ├── useDebounce.ts        # 300ms debounce for search input
+    │   ├── useFeedData.ts        # Paginated personal feed with refresh + infinite scroll
+    │   ├── useSocialFeedData.ts  # Paginated social feed (own + followed learners)
     │   └── __tests__/
     ├── components/
     │   ├── ui/                # Text, Button, TextInput, Card, ErrorMessage, Avatar, AvatarPicker
@@ -320,4 +321,4 @@ See `mobile/RELEASE_WORKFLOW.md` for the full step-by-step procedure.
 
 - **Adding `eslint-plugin-simple-import-sort` as `"error"` breaks CI on legacy codebases:** When installing `eslint-plugin-simple-import-sort` into an existing project that has unsorted imports, setting severity to `"error"` immediately fails lint for every pre-existing file. Add the rule as `"warn"` first — the quality gate hook overrides to `"error"` via CLI `--rule` anyway, so new files edited by Claude are still flagged correctly. (Added 2026-04-02)
 
-*Last updated: 2026-04-02 (session: develop — Per-File Quality Gates hook architecture: all 6 milestones complete; simple-import-sort pitfall documented)*
+*Last updated: 2026-04-03 (session: feat/social-feed-own-poks — social feed own-POKs UX: "You" label, useSocialFeedData hook added to project structure map)*

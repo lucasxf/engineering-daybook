@@ -17,7 +17,7 @@ Closed testing review surfaced 9 product issues (items #1–#9: 2 bugs, 7 featur
 | S5 | #6 Tag sort/collapse | `feat/tag-sort-collapse` | ✅ Done | — |
 | S6 | #8+#9 Auto-resize textarea | `feat/auto-resize-textarea` | ✅ Done | #257 |
 | S7 | #11 Test effectiveness | `chore/test-effectiveness` | ✅ Done | lucasxf/engineering-daybook#261 |
-| S8 | #7 Social feed own POKs | `feat/social-feed-own-poks` | 🔲 Pending | — |
+| S8 | #7 Social feed own POKs | `feat/social-feed-own-poks` | ✅ Done | — |
 
 ### Execution Workflow (per session)
 

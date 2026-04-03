@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -51,6 +51,16 @@ export function ProfileScreen() {
   const [isSavingLocale, setIsSavingLocale] = useState(false);
   const [themeSaveStatus, setThemeSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [localeSaveStatus, setLocaleSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const themeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const localeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (themeTimerRef.current) clearTimeout(themeTimerRef.current);
+      if (localeTimerRef.current) clearTimeout(localeTimerRef.current);
+    };
+  }, []);
 
   const isSavingSettings = isSavingTheme || isSavingLocale;
 
@@ -131,7 +141,8 @@ export function ProfileScreen() {
     try {
       await updateUserSettings({ theme: value });
       setThemeSaveStatus('success');
-      setTimeout(() => setThemeSaveStatus('idle'), 2000);
+      if (themeTimerRef.current) clearTimeout(themeTimerRef.current);
+      themeTimerRef.current = setTimeout(() => setThemeSaveStatus('idle'), 2000);
     } catch {
       setOverride(prevOverride);
       setThemeSaveStatus('error');
@@ -148,7 +159,8 @@ export function ProfileScreen() {
     try {
       await updateUserSettings({ locale: value });
       setLocaleSaveStatus('success');
-      setTimeout(() => setLocaleSaveStatus('idle'), 2000);
+      if (localeTimerRef.current) clearTimeout(localeTimerRef.current);
+      localeTimerRef.current = setTimeout(() => setLocaleSaveStatus('idle'), 2000);
     } catch {
       setAppLocale(prevLocale);
       setLocaleSaveStatus('error');
