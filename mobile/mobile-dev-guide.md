@@ -26,7 +26,7 @@ Install and configure these **once** before following any steps below:
 | Java 21 + Maven | `mvn -v` |
 | Node.js 20+ and npm | `node -v` |
 | Docker Desktop | `docker info` |
-| EAS CLI | `npx eas whoami` |
+| EAS CLI (global: `npm install -g eas-cli`) | `eas whoami` |
 
 ---
 
@@ -148,7 +148,7 @@ bash seed-demo-data.sh
 
 ```bash
 cd mobile
-npx eas credentials --platform android
+eas credentials --platform android
 # → select "Keystore" → "Download existing keystore"
 # Saves to mobile/@lucasxf__learnimo.jks and prints alias + passwords.
 ```
@@ -157,7 +157,7 @@ npx eas credentials --platform android
 
 ```bash
 cp mobile/.env.signing.example mobile/.env.signing
-# Fill in the values printed by `npx eas credentials` above.
+# Fill in the values printed by `eas credentials` above.
 # .env.signing is gitignored — never commit it.
 ```
 
@@ -182,7 +182,7 @@ Output: `android/app/build/outputs/bundle/release/app-release.aab`
 If you've lost the keystore password, alias, or key password:
 
 ```bash
-npx eas credentials --platform android
+eas credentials --platform android
 # → select "Keystore" → "Download existing keystore"
 # The CLI re-downloads the .jks file and prints the alias + both passwords.
 # Copy those values into mobile/.env.signing.
@@ -223,19 +223,19 @@ cd mobile/android
 
 ### Option B — EAS Cloud Build (recommended)
 
-> `npx eas build --local` is not supported on Windows. Use EAS cloud builds.
+> `eas build --local` is not supported on Windows. Use EAS cloud builds.
 
 **Preview APK** (smoke-test gate — always run before a production submit):
 
 ```bash
 cd mobile
-npx eas build --platform android --profile preview
+eas build --platform android --profile preview
 ```
 
 Install on emulator when done:
 
 ```bash
-npx eas build:run --platform android --profile preview
+eas build:run --platform android --profile preview
 # or: download APK from expo.dev → Builds, drag onto emulator
 # or: adb install /path/to/downloaded.apk
 ```
@@ -249,28 +249,28 @@ npx eas build:run --platform android --profile preview
 **Production AAB:**
 
 ```bash
-npx eas build --platform android --profile production
+eas build --platform android --profile production
 ```
 
 **Submit to Play Store internal track:**
 
 ```bash
-npx eas submit --platform android --profile production
+eas submit --platform android --profile production
 ```
 
 **Build + submit in one step (recommended for production releases):**
 
 ```bash
-npx eas build --platform android --profile production --auto-submit
+eas build --platform android --profile production --auto-submit
 ```
 
 **Other EAS utilities:**
 
 ```bash
-npx eas build:list                          # view recent builds + status
-npx eas build:cancel <build-id>             # cancel a queued or running build
-npx eas whoami                              # confirm you're logged in to the right account
-npx eas credentials --platform android      # manage keystores and signing credentials
+eas build:list                          # view recent builds + status
+eas build:cancel <build-id>             # cancel a queued or running build
+eas whoami                              # confirm you're logged in to the right account
+eas credentials --platform android      # manage keystores and signing credentials
 ```
 
 ---
@@ -294,7 +294,7 @@ EAS manages signing credentials automatically. On the first build it will prompt
 
 ```bash
 cd mobile
-npx eas build --platform ios --profile production
+eas build --platform ios --profile production
 ```
 
 EAS will:
@@ -305,7 +305,7 @@ EAS will:
 #### Submit to TestFlight
 
 ```bash
-npx eas submit --platform ios --profile production
+eas submit --platform ios --profile production
 ```
 
 This uploads the `.ipa` to App Store Connect. Go to appstoreconnect.apple.com → TestFlight to add internal testers.
@@ -313,7 +313,7 @@ This uploads the `.ipa` to App Store Connect. Go to appstoreconnect.apple.com �
 #### Build + submit in one step
 
 ```bash
-npx eas build --platform ios --profile production --auto-submit
+eas build --platform ios --profile production --auto-submit
 ```
 
 #### Smoke-test checklist (TestFlight build — do before App Review submission)
@@ -332,7 +332,7 @@ After TestFlight validation, go to App Store Connect → your app → App Store 
 #### Credentials management
 
 ```bash
-npx eas credentials --platform ios      # view, download, or rotate certificates and profiles
+eas credentials --platform ios      # view, download, or rotate certificates and profiles
 ```
 
 ---
