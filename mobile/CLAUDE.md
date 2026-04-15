@@ -323,4 +323,6 @@ See `mobile/RELEASE_WORKFLOW.md` for the full step-by-step procedure.
 
 - **Adding `eslint-plugin-simple-import-sort` as `"error"` breaks CI on legacy codebases:** When installing `eslint-plugin-simple-import-sort` into an existing project that has unsorted imports, setting severity to `"error"` immediately fails lint for every pre-existing file. Add the rule as `"warn"` first — the quality gate hook overrides to `"error"` via CLI `--rule` anyway, so new files edited by Claude are still flagged correctly. (Added 2026-04-02)
 
-*Last updated: 2026-04-03 (session: feat/social-feed-own-poks — social feed own-POKs UX: "You" label, useSocialFeedData hook added to project structure map)*
+- **`expo-image-picker@55.0.5+` breaks iOS EAS builds under Xcode < 26:** `MediaHandler.swift` calls `PHAsset.contentType` / `PHAssetResource.contentType` inside an `#available(iOS 26.0, *)` block. Swift type-checks both branches of `#available` against the active SDK — so this fails to compile against `iPhoneOS18.5.sdk` (EAS Xcode 16.x). Every version `55.0.5` through `55.0.18` (and likely beyond) contains the broken code. Fix: pin `expo-image-picker` to exactly `55.0.4` (no `~`) in `package.json`. Do not upgrade until EAS offers an Xcode 26 build image. Android builds are unaffected (bug is in iOS-only Swift). (Added 2026-04-15)
+
+*Last updated: 2026-04-15 (session: develop — iOS App Store submission: EAS config, Google OAuth, expo-image-picker iOS 26 regression fix)*
