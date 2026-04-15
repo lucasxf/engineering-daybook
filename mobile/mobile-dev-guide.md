@@ -6,6 +6,9 @@
 2. [Quick Resume](#quick-resume)
 3. [Full Setup](#full-setup)
 4. [Release Builds](#release-builds)
+   - [Android — Local AAB via Gradle](#option-a--local-aab-via-gradle-windows-no-eas)
+   - [Android — EAS Cloud Build](#option-b--eas-cloud-build-recommended)
+   - [iOS — EAS Cloud Build](#option-c--ios-eas-cloud-build-only-option-on-windows)
 5. [Dev Utilities](#dev-utilities)
 6. [Troubleshooting](#troubleshooting)
 
@@ -23,7 +26,7 @@ Install and configure these **once** before following any steps below:
 | Java 21 + Maven | `mvn -v` |
 | Node.js 20+ and npm | `node -v` |
 | Docker Desktop | `docker info` |
-| EAS CLI | `eas whoami` |
+| EAS CLI | `npx eas whoami` |
 
 ---
 
@@ -145,7 +148,7 @@ bash seed-demo-data.sh
 
 ```bash
 cd mobile
-eas credentials --platform android
+npx eas credentials --platform android
 # → select "Keystore" → "Download existing keystore"
 # Saves to mobile/@lucasxf__learnimo.jks and prints alias + passwords.
 ```
@@ -154,7 +157,7 @@ eas credentials --platform android
 
 ```bash
 cp mobile/.env.signing.example mobile/.env.signing
-# Fill in the values printed by `eas credentials` above.
+# Fill in the values printed by `npx eas credentials` above.
 # .env.signing is gitignored — never commit it.
 ```
 
@@ -179,7 +182,7 @@ Output: `android/app/build/outputs/bundle/release/app-release.aab`
 If you've lost the keystore password, alias, or key password:
 
 ```bash
-eas credentials --platform android
+npx eas credentials --platform android
 # → select "Keystore" → "Download existing keystore"
 # The CLI re-downloads the .jks file and prints the alias + both passwords.
 # Copy those values into mobile/.env.signing.
@@ -220,19 +223,19 @@ cd mobile/android
 
 ### Option B — EAS Cloud Build (recommended)
 
-> `eas build --local` is not supported on Windows. Use EAS cloud builds.
+> `npx eas build --local` is not supported on Windows. Use EAS cloud builds.
 
 **Preview APK** (smoke-test gate — always run before a production submit):
 
 ```bash
 cd mobile
-eas build --platform android --profile preview
+npx eas build --platform android --profile preview
 ```
 
 Install on emulator when done:
 
 ```bash
-eas build:run --platform android --profile preview
+npx eas build:run --platform android --profile preview
 # or: download APK from expo.dev → Builds, drag onto emulator
 # or: adb install /path/to/downloaded.apk
 ```
@@ -246,28 +249,90 @@ eas build:run --platform android --profile preview
 **Production AAB:**
 
 ```bash
-eas build --platform android --profile production
+npx eas build --platform android --profile production
 ```
 
 **Submit to Play Store internal track:**
 
 ```bash
-eas submit --platform android --profile production
+npx eas submit --platform android --profile production
 ```
 
 **Build + submit in one step (recommended for production releases):**
 
 ```bash
-eas build --platform android --profile production --auto-submit
+npx eas build --platform android --profile production --auto-submit
 ```
 
 **Other EAS utilities:**
 
 ```bash
-eas build:list                          # view recent builds + status
-eas build:cancel <build-id>             # cancel a queued or running build
-eas whoami                              # confirm you're logged in to the right account
-eas credentials --platform android      # manage keystores and signing credentials
+npx eas build:list                          # view recent builds + status
+npx eas build:cancel <build-id>             # cancel a queued or running build
+npx eas whoami                              # confirm you're logged in to the right account
+npx eas credentials --platform android      # manage keystores and signing credentials
+```
+
+---
+
+---
+
+### Option C — iOS EAS Cloud Build (only option on Windows)
+
+> iOS compilation requires macOS. EAS builds on Expo's macOS infrastructure — no Mac required locally.
+
+#### First-time setup (do once)
+
+**Prerequisites:**
+- Apple Developer Program enrollment ($99/year) at developer.apple.com
+- App record created in App Store Connect (bundle ID: `net.learnimo.app`)
+- `eas.json` `submit.production.ios` filled with your `appleId`, `ascAppId`, `appleTeamId`
+
+EAS manages signing credentials automatically. On the first build it will prompt for your Apple ID password and create a distribution certificate + provisioning profile stored in Expo's credential storage.
+
+#### Build
+
+```bash
+cd mobile
+npx eas build --platform ios --profile production
+```
+
+EAS will:
+1. Prompt for Apple ID + password (first run only)
+2. Create/reuse a distribution certificate and App Store provisioning profile
+3. Build a signed `.ipa` on Expo's macOS servers (~15–20 min)
+
+#### Submit to TestFlight
+
+```bash
+npx eas submit --platform ios --profile production
+```
+
+This uploads the `.ipa` to App Store Connect. Go to appstoreconnect.apple.com → TestFlight to add internal testers.
+
+#### Build + submit in one step
+
+```bash
+npx eas build --platform ios --profile production --auto-submit
+```
+
+#### Smoke-test checklist (TestFlight build — do before App Review submission)
+
+- [ ] App installs and launches from home screen
+- [ ] Splash screen + Onnim icon appear
+- [ ] Login screen loads within ~2 seconds
+- [ ] Google Sign-In button is visible and completes sign-in
+- [ ] Cold start works: kill app → relaunch → same result
+- [ ] Feed loads, new learning can be saved
+
+#### Submit for App Review
+
+After TestFlight validation, go to App Store Connect → your app → App Store tab → submit for review.
+
+#### Credentials management
+
+```bash
+npx eas credentials --platform ios      # view, download, or rotate certificates and profiles
 ```
 
 ---

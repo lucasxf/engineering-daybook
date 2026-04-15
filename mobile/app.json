@@ -16,7 +16,17 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "net.learnimo.app"
+      "bundleIdentifier": "net.learnimo.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.googleusercontent.apps.521355221840-s4tc8mclp0j9qjdvka4ahaen496lbb5r"
+            ]
+          }
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {
