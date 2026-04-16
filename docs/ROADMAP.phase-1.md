@@ -599,6 +599,8 @@ Mobile parity execution plan progress: Wave 4 (4-tier visibility) ✅ done (feat
 
 Milestone 3.4 (App Store Publishing): Play Store internal track updated to versionCode 11 (1.0.1) on 2026-03-19. Crash-on-launch permanently fixed via 4 Expo config plugins. `react` pinned to 19.0.0 to resolve JS crash from renderer version mismatch. Local signing workflow documented. Google OAuth for mobile still pending before production track promotion.
 
+iOS App Store submission (2026-04-16): build 1.0.21/build 7 submitted via `eas submit`. Apple accepted the binary with warning ITMS-90725 — built with iOS 18.5 SDK (Xcode 16.x); **starting 2026-04-28 all submissions must use iOS 26 SDK (Xcode 26)**. Current build is valid for this review cycle. Action required before 2026-04-28: (1) monitor https://expo.dev/changelog for EAS Xcode 26 image announcement; (2) when available, unpin `expo-image-picker` from `55.0.4` (pinned because 55.0.5+ breaks iOS builds under Xcode < 26 — see `mobile/CLAUDE.md` pitfall); (3) add `"image": "<eas-xcode-26-image-name>"` to the `production` profile in `eas.json`; (4) rebuild and resubmit.
+
 ---
 
 ## MVP Exit Criteria
