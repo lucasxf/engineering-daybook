@@ -9,7 +9,7 @@ schema_version = "1.0.0"
 updated_by = "compile-metrics"
 
 # Agent Usage Metrics
-churn_baseline_commit = "ba6935b134325688bac7f766f249dd21cd83838b"
+churn_baseline_commit = "52dc451a43d864257cb630dd4ca3470102f98f2b"
 [agent_usage.Explore]
 invocations = 113
 last_used = "2026-04-13T23:31:34Z"
@@ -213,6 +213,8 @@ milestones_completed = ["6.1", "6.3", "6.4", "8.2"]
 
 ["6.1", "6.3", "6.4", "8.2"]
 
+["6.1", "6.3", "6.4", "8.2"]
+
 
 # DORA Performance Dimension — ADR-008
 [dora_metrics]
@@ -224,6 +226,14 @@ measurement_window_start = "2026-02-19"
 measurement_window_end = "2026-04-16"
 measurement_weeks = 8
 [loc_churn]
+[[loc_churn.periods]]
+period = "2026-W16"
+lines_added = 0
+lines_deleted = 0
+net = 0
+baseline_commit = "ba6935b1"
+head_commit = "52dc451a"
+
 [[loc_churn.periods]]
 period = "2026-W16"
 lines_added = 3702
