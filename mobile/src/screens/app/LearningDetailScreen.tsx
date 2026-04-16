@@ -159,7 +159,7 @@ export function LearningDetailScreen() {
     if (!pok) return;
     setTagActionLoading(true);
     try {
-      await tagApi.assign(pok.id, tag.tagId);
+      await tagApi.assign(pok.id, tag.id);
       setPok((prev) => prev
         ? { ...prev, tags: [...prev.tags, tag] }
         : prev
@@ -183,7 +183,7 @@ export function LearningDetailScreen() {
       });
       if (!newTag) return;
       // Step 2: assign — the tag now exists; show an assign-specific error if this fails
-      await tagApi.assign(pok.id, newTag.tagId);
+      await tagApi.assign(pok.id, newTag.id);
       setPok((prev) => prev
         ? { ...prev, tags: [...prev.tags, newTag] }
         : prev
@@ -200,9 +200,9 @@ export function LearningDetailScreen() {
     if (!pok) return;
     setTagActionLoading(true);
     try {
-      await tagApi.remove(pok.id, tag.tagId);
+      await tagApi.remove(pok.id, tag.id);
       setPok((prev) => prev
-        ? { ...prev, tags: prev.tags.filter((existing) => existing.tagId !== tag.tagId) }
+        ? { ...prev, tags: prev.tags.filter((existing) => existing.id !== tag.id) }
         : prev
       );
     } catch {

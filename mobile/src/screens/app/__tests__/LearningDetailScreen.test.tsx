@@ -323,7 +323,7 @@ describe('LearningDetailScreen — tag creation flow', () => {
       const result = LearningDetailScreen({} as never);
       const removeBtn = findRemoveBtn(result);
       await (removeBtn.props.onPress as () => Promise<void>)();
-      expect(mockTagRemove).toHaveBeenCalledWith('pok-1', existingTag.tagId);
+      expect(mockTagRemove).toHaveBeenCalledWith('pok-1', existingTag.id);
     });
 
     it('shows tagRemoveError alert on remove failure', async () => {
@@ -352,7 +352,7 @@ describe('LearningDetailScreen — tag creation flow', () => {
       await (footer!.props.onPress as () => Promise<void>)();
 
       expect(mockTagCreate).toHaveBeenCalledWith({ name: 'new-tag' });
-      expect(mockTagAssign).toHaveBeenCalledWith('pok-1', newTag.tagId);
+      expect(mockTagAssign).toHaveBeenCalledWith('pok-1', newTag.id);
     });
 
     it('calls setPok to add the new tag to the pok after success', async () => {
@@ -445,7 +445,7 @@ describe('LearningDetailScreen — tag creation flow', () => {
       const row = renderItem({ item: availableTag });
       await (row.props.onPress as () => Promise<void>)();
 
-      expect(mockTagAssign).toHaveBeenCalledWith('pok-1', availableTag.tagId);
+      expect(mockTagAssign).toHaveBeenCalledWith('pok-1', availableTag.id);
       expect(mockSetPok).toHaveBeenCalled();
     });
   });
@@ -453,7 +453,7 @@ describe('LearningDetailScreen — tag creation flow', () => {
   describe('tag sort and collapse', () => {
     const makeTag = (tagId: string, displayName: string, pokCount: number) => ({
       tagId,
-      id: tagId,
+      id: `sub-${tagId}`,
       name: displayName.toLowerCase(),
       displayName,
       color: '#ccc',

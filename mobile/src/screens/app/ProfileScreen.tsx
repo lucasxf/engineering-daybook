@@ -134,6 +134,7 @@ export function ProfileScreen() {
   // ---------------------------------------------------------------------------
 
   const handleThemeChange = useCallback(async (value: ColorSchemeOverride) => {
+    if (themeTimerRef.current) clearTimeout(themeTimerRef.current);
     const prevOverride = override;
     setOverride(value);
     setIsSavingTheme(true);
@@ -152,6 +153,7 @@ export function ProfileScreen() {
   }, [override, setOverride]);
 
   const handleLocaleChange = useCallback(async (value: Locale) => {
+    if (localeTimerRef.current) clearTimeout(localeTimerRef.current);
     const prevLocale = locale;
     setAppLocale(value);
     setIsSavingLocale(true);
