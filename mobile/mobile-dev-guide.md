@@ -277,6 +277,38 @@ eas credentials --platform android      # manage keystores and signing credentia
 
 ---
 
+### Option D — iOS Simulator Build for App Store Screenshots (Appetize.io)
+
+> Use when you need to capture App Store screenshots without a Mac or physical iOS device.
+
+#### Build
+
+```bash
+cd mobile
+eas build --platform ios --profile simulator
+```
+
+EAS builds a `.app` bundle (not a `.ipa`) on Expo's macOS servers using the production backend URL. No signing credentials required — simulator builds are unsigned.
+
+#### Capture screenshots
+
+1. Download the `.app` file from the build detail page on [expo.dev](https://expo.dev) → Builds.
+2. Upload it at [appetize.io](https://appetize.io) — free tier (100 min/month is enough for screenshots).
+3. Select the device: **iPhone 16 Pro Max** for the 6.9" slot (required), or **iPad Pro 13"** for the iPad slot.
+4. Use the in-browser screenshot button or your OS screenshot tool.
+
+#### Required screenshot resolutions
+
+| Slot | Device | Resolution | Required? |
+|------|--------|------------|-----------|
+| iPhone 6.9" | iPhone 16 Pro Max | 1320 × 2868 px | Yes |
+| iPhone 6.7" | iPhone 16 Plus | 1290 × 2796 px | Recommended |
+| iPad 13" | iPad Pro M4 | 2064 × 2752 px | Yes (if submitting iPad support) |
+
+Upload screenshots in App Store Connect → your app → App Store tab → iPhone/iPad Screenshots.
+
+---
+
 ### Option C — iOS EAS Cloud Build (only option on Windows)
 
 > iOS compilation requires macOS. EAS builds on Expo's macOS infrastructure — no Mac required locally.
