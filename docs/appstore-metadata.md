@@ -18,35 +18,29 @@ Registre o que aprendeu hoje. Organize com tags. Encontre qualquer coisa com bus
 *(máx. 4.000 chars)*
 
 ```
-O learnimo é o seu diário de aprendizado pessoal — simples, sem distrações, e sempre com você.
+O learnimo é o seu diário de aprendizado pessoal - simples, sem distrações, e sempre com você.
 
 Você aprende coisas novas o tempo todo. Mas quanto disso você realmente guarda? O learnimo existe para que nenhum aprendizado se perca.
 
-──────────────────────────
 COMO FUNCIONA
-──────────────────────────
 
-• Registre qualquer aprendizado em segundos — uma frase, um parágrafo, um insight do dia.
-• Organize com tags — sugeridas automaticamente ou criadas por você.
-• Encontre o que procura com busca semântica: o learnimo entende o significado, não só as palavras exatas.
-• Acompanhe sua jornada de aprendizado em ordem cronológica — tudo o que você aprendeu, em um só lugar.
+- Registre qualquer aprendizado em segundos - uma frase, um parágrafo, um insight do dia.
+- Organize com tags - sugeridas automaticamente ou criadas por você.
+- Encontre o que procura com busca semântica: o learnimo entende o significado, não só as palavras exatas.
+- Acompanhe sua jornada de aprendizado em ordem cronológica - tudo o que você aprendeu, em um só lugar.
 
-──────────────────────────
 POR QUE O LEARNIMO
-──────────────────────────
 
-Ferramentas como Notion, Evernote e OneNote fazem de tudo — e acabam virando uma bagunça. O learnimo faz uma coisa só, bem feita: guarda o que você aprendeu e entrega quando você precisa.
+Ferramentas como Notion, Evernote e OneNote fazem de tudo - e acabam virando uma bagunça. O learnimo faz uma coisa só, bem feita: guarda o que você aprendeu e entrega quando você precisa.
 
-E ao contrário de apps com IA generativa, o learnimo nunca altera o que você escreveu. O que você registra é exatamente o que fica — imutável e confiável.
+E ao contrário de apps com IA generativa, o learnimo nunca altera o que você escreveu. O que você registra é exatamente o que fica - imutável e confiável.
 
-──────────────────────────
 PARA QUEM É
-──────────────────────────
 
-• Profissionais que acumulam conhecimento no dia a dia
-• Estudantes que querem reter e recuperar o que estudam
-• Leitores que querem lembrar e conectar ideias de livros e artigos
-• Qualquer pessoa curiosa que aprende continuamente
+- Profissionais que acumulam conhecimento no dia a dia
+- Estudantes que querem reter e recuperar o que estudam
+- Leitores que querem lembrar e conectar ideias de livros e artigos
+- Qualquer pessoa curiosa que aprende continuamente
 
 Disponível na web e no app. Seus aprendizados, sempre com você.
 ```
