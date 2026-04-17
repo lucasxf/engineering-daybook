@@ -16,7 +16,7 @@ import { TextInput } from '@/components/ui/TextInput';
 
 export type TagPickerModalProps = {
   visible: boolean;
-  /** UserTag subscription IDs (Tag.id) already attached — excluded from available list. */
+  /** Global tag IDs (Tag.tagId) already attached — excluded from available list. */
   selectedTagIds: string[];
   onClose: () => void;
   onSelect: (tag: Tag) => void;
