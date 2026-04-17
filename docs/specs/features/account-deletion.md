@@ -1,6 +1,6 @@
 # Account Deletion
 
-> **Status:** Draft
+> **Status:** Approved
 > **Created:** 2026-04-17
 > **Implemented:** _pending_
 
@@ -29,7 +29,7 @@ Apple rejected the learnimo iOS app (v1.0, build 28) on 2026-04-17 under **Guide
   Cascade hard-delete in this order: PokShare (by user + by POK) → Follow (both directions) → PokTag (per POK) → PokAuditLog (per POK) → Pok → UserTag → RefreshToken → avatar blob → anonymize User row. Single `@Transactional(rollbackFor = Exception.class)` — all-or-nothing.
 
 - [ ] **FR3 — User anonymization** *(Must Have)*
-  Private helper called by `deleteAccount`. Nulls PII: `name`, `bio`, `avatarUrl`, `passwordHash`. Rewrites `email` → `deleted-{id}@deleted.learnimo.net`; `handle` → `deleted_{id}` (underscored UUID). Sets `deletedAt = Instant.now()`.
+  Private helper called by `deleteAccount`. Nulls PII: `name`, `bio`, `avatarUrl`, `passwordHash`. Rewrites `email` → `deleted-{id}@deleted.learnimo.net`; `handle` → `deleted_{id}` where `{id}` is the UUID with hyphens replaced by underscores (e.g. `deleted_c1b5e3f5_1234_5678_abcd_ef1234567890`). Sets `deletedAt = Instant.now()`.
 
 - [ ] **FR4 — Flyway migration V23** *(Must Have)*
   Add `users.deleted_at TIMESTAMPTZ`. Drop `idx_users_email` and `idx_users_handle`. Recreate both as partial unique indices `WHERE deleted_at IS NULL`. Extend `handle` column to `VARCHAR(64)` (anonymized handle embeds a UUID, exceeds current VARCHAR(30)).
@@ -41,7 +41,7 @@ Apple rejected the learnimo iOS app (v1.0, build 28) on 2026-04-17 under **Guide
   Destructive button (`variant="danger"`, `fullWidth`) below the Logout button. Pressing it starts the two-step confirmation (FR7).
 
 - [ ] **FR7 — Mobile: Two-step confirmation flow** *(Must Have)*
-  Step 1 — `Alert.alert` warning (Cancel | Continue). Step 2 — `DeleteAccountModal`: typed-handle text input; confirm button disabled until input exactly matches `user.handle`; on confirm calls `deleteAccountApi()`.
+  Step 1 — `Alert.alert` warning (Cancel | Continue). Step 2 — `DeleteAccountModal`: typed-handle text input; confirm button disabled until input exactly matches `user.handle` (case-sensitive, strict string equality `===`); on confirm calls `deleteAccountApi()`. The modal displays the user's exact handle so they know what to type.
 
 - [ ] **FR8 — Mobile: i18n keys `profile.deleteAccount.*`** *(Must Have)*
   Both `mobile/src/i18n/locales/en.ts` and `pt-BR.ts`. Keys: `button`, `warningTitle`, `warningMessage`, `warningCancel`, `warningOk`, `modalTitle`, `modalDescription`, `modalWarning`, `confirmLabel`, `confirmPlaceholder`, `confirmMismatch`, `deleting`, `confirm`, `cancel`, `error`.
@@ -86,7 +86,7 @@ Apple rejected the learnimo iOS app (v1.0, build 28) on 2026-04-17 under **Guide
 
 **Integration Points:**
 - `UserSettingsController` — adds `DELETE /me` alongside existing `PATCH /settings`, `POST /avatar`, `DELETE /avatar`
-- `AvatarService.delete(userId)` calls back into `UserService.updateAvatarUrl()` — **circular dependency risk**: in `deleteAccount()`, call `storageService.delete(userId)` directly instead of routing through `AvatarService`, since `avatarUrl` will be nulled in `anonymizeUser()` anyway.
+- `AvatarService.delete(userId)` calls back into `UserService.updateAvatarUrl()` — **circular dependency risk**: in `deleteAccount()`, call `storageService.delete(userId)` directly instead of routing through `AvatarService`, since `avatarUrl` will be nulled in `anonymizeUser()` anyway. `StorageService.delete()` must be safe to call when no blob exists (no-op / does not throw); verify this contract before implementation and add a guard or catch if the implementation throws on a missing blob.
 - `feat/sign-in-with-apple` will also modify `UserService` — known merge conflict; resolve on whichever branch lands second.
 
 **Out of Scope:**
@@ -321,7 +321,7 @@ Apple rejected the learnimo iOS app (v1.0, build 28) on 2026-04-17 under **Guide
 - `backend/src/main/java/com/lucasxf/ed/repository/PokShareRepository.java` — add `deleteBySharedByUserId(UUID)`, `deleteByOriginalPokIdIn(List<UUID>)`
 - `backend/src/test/java/com/lucasxf/ed/service/UserServiceTest.java` — add deletion unit tests
 - `backend/src/test/java/com/lucasxf/ed/controller/UserSettingsControllerTest.java` — add DELETE /me tests
-- `backend/src/test/java/com/lucasxf/ed/integration/AccountDeletionIntegrationTest.java` — new integration test class
+- `backend/src/test/java/com/lucasxf/ed/integration/AccountDeletionIntegrationTest.java` — **new** integration test class
 - `mobile/src/screens/app/ProfileScreen.tsx` — add state, handlers, modal, delete button
 - `mobile/src/lib/userApi.ts` — add `deleteAccountApi()`
 - `mobile/src/i18n/locales/en.ts` — add `profile.deleteAccount.*` keys
