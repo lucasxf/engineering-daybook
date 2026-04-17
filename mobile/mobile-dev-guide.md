@@ -367,6 +367,15 @@ After TestFlight validation, go to App Store Connect → your app → App Store 
 eas credentials --platform ios      # view, download, or rotate certificates and profiles
 ```
 
+#### Build + submit both platforms in one step
+
+```bash
+cd mobile
+eas build --platform all --profile production --auto-submit
+```
+
+`autoIncrement: true` in `eas.json` handles version/build number bumping automatically — no manual edits needed.
+
 ---
 
 ### Maestro E2E Flows
