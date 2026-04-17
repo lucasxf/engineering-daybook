@@ -371,6 +371,7 @@ eas credentials --platform ios      # view, download, or rotate certificates and
 
 ```bash
 cd mobile
+export EXPO_APPLE_ID=your@apple.id
 eas build --platform all --profile production --auto-submit
 ```
 
