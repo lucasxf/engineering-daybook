@@ -200,6 +200,23 @@ export default {
       saveSuccess: 'Configurações salvas',
       saveError: 'Falha ao salvar. Tente novamente.',
     },
+    deleteAccount: {
+      button: 'Deletar Conta',
+      warningTitle: 'Deletar Conta?',
+      warningMessage: 'Isso vai deletar permanentemente sua conta e todos os seus aprendizados. Esta ação não pode ser desfeita.',
+      warningCancel: 'Cancelar',
+      warningOk: 'Continuar',
+      modalTitle: 'Deletar Conta',
+      modalDescription: 'Digite seu nome de usuário (@handle) para confirmar a exclusão. Esta ação é permanente e não pode ser desfeita.',
+      modalWarning: 'Esta ação não pode ser desfeita. Uma vez deletada, sua conta e todos os seus aprendizados serão removidos permanentemente.',
+      confirmLabel: 'Digite seu nome de usuário para confirmar',
+      confirmPlaceholder: '@handle',
+      confirmMismatch: 'Nome de usuário não corresponde. Verifique e tente novamente.',
+      deleting: 'Deletando…',
+      confirm: 'Deletar Conta',
+      cancel: 'Cancelar',
+      error: 'Falha ao deletar conta. Tente novamente.',
+    },
   },
 
   // Learner Profile screen

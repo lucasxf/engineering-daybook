@@ -203,6 +203,23 @@ export default {
       saveSuccess: 'Settings saved',
       saveError: 'Failed to save. Please try again.',
     },
+    deleteAccount: {
+      button: 'Delete Account',
+      warningTitle: 'Delete Account?',
+      warningMessage: 'This will permanently delete your account and all your learnings. This action cannot be undone.',
+      warningCancel: 'Cancel',
+      warningOk: 'Continue',
+      modalTitle: 'Delete Account',
+      modalDescription: 'Type your username (@handle) to confirm deletion. This action is permanent and cannot be undone.',
+      modalWarning: 'This action cannot be undone. Once deleted, your account and all your learnings will be permanently removed.',
+      confirmLabel: 'Type your username to confirm',
+      confirmPlaceholder: '@handle',
+      confirmMismatch: 'Username does not match. Please check and try again.',
+      deleting: 'Deleting…',
+      confirm: 'Delete Account',
+      cancel: 'Cancel',
+      error: 'Failed to delete account. Please try again.',
+    },
   },
 
   // Learner Profile screen
