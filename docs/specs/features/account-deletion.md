@@ -1,6 +1,6 @@
 # Account Deletion
 
-> **Status:** Approved
+> **Status:** In Progress
 > **Created:** 2026-04-17
 > **Implemented:** _pending_
 
