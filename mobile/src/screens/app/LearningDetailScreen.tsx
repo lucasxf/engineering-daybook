@@ -1,14 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
-  FlatList,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
+  ActivityIndicator,
   ScrollView,
   TouchableOpacity,
   View,
-  ActivityIndicator,
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -18,6 +14,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { ReLearningModal } from '@/components/relearnings/ReLearningModal';
+import { TagPickerModal } from '@/components/tags/TagPickerModal';
 import { pokApi, type Pok, type PokVisibility } from '@/lib/pokApi';
 import { tagApi, type Tag } from '@/lib/tagApi';
 import { ApiRequestError } from '@/lib/api';
@@ -25,7 +22,6 @@ import type { PokFormData } from '@/lib/validations';
 import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
-import { TextInput } from '@/components/ui/TextInput';
 import { LearningForm } from '@/components/feed/LearningForm';
 import { MarkdownContent } from '@/components/ui/MarkdownContent';
 import { VisibilityPicker, VisibilityBadge, getDisabledValues } from '@/components/ui/VisibilityPicker';
@@ -56,7 +52,7 @@ export function LearningDetailScreen() {
   const [allTags, setAllTags] = useState<Tag[]>([]);
   const [tagModalVisible, setTagModalVisible] = useState(false);
   const [tagActionLoading, setTagActionLoading] = useState(false);
-  const [tagQuery, setTagQuery] = useState('');
+  const [tagListLoading, setTagListLoading] = useState(false);
   const [tagsExpanded, setTagsExpanded] = useState(false);
 
   const loadPok = useCallback(async () => {
@@ -74,6 +70,25 @@ export function LearningDetailScreen() {
   }, [pokId, t]);
 
   useEffect(() => { loadPok(); }, [loadPok]);
+
+  // Prefetch tag list after POK loads (once, cached in allTags state)
+  useEffect(() => {
+    if (!pok || allTags.length > 0) return;
+    setTagListLoading(true);
+    tagApi.list()
+      .then(setAllTags)
+      .catch(() => {})
+      .finally(() => setTagListLoading(false));
+  }, [pok]);
+
+  async function refreshTagList() {
+    try {
+      const tags = await tagApi.list();
+      setAllTags(tags);
+    } catch {
+      // best effort
+    }
+  }
 
   async function handleUpdate(data: PokFormData) {
     if (!pok) return;
@@ -135,24 +150,25 @@ export function LearningDetailScreen() {
 
   function closeTagModal() {
     setTagModalVisible(false);
-    setTagQuery('');
   }
 
-  async function openTagModal() {
-    try {
-      const tags = await tagApi.list();
-      setAllTags(tags);
-      setTagModalVisible(true);
-    } catch {
-      Alert.alert(
-        t('learnings.detail.tagListLoadErrorTitle'),
-        t('learnings.detail.tagListLoadErrorMessage'),
-        [
-          { text: t('common.retry'), onPress: openTagModal },
-          { text: t('common.cancel'), style: 'cancel' },
-        ]
-      );
-    }
+  function openTagModal() {
+    setTagModalVisible(true);
+    if (allTags.length > 0) return; // already cached from prefetch
+    setTagListLoading(true);
+    tagApi.list()
+      .then(setAllTags)
+      .catch(() => {
+        Alert.alert(
+          t('learnings.detail.tagListLoadErrorTitle'),
+          t('learnings.detail.tagListLoadErrorMessage'),
+          [
+            { text: t('common.retry'), onPress: openTagModal },
+            { text: t('common.cancel'), style: 'cancel' },
+          ]
+        );
+      })
+      .finally(() => setTagListLoading(false));
   }
 
   async function handleAddTag(tag: Tag) {
@@ -167,30 +183,33 @@ export function LearningDetailScreen() {
       closeTagModal();
     } catch {
       Alert.alert(t('learnings.detail.tagAddError'));
+      loadPok(); // reconcile UI with server truth
     } finally {
       setTagActionLoading(false);
     }
   }
 
-  async function handleCreateTag() {
-    if (!pok || !tagQuery.trim()) return;
+  async function handleCreateTag(name: string) {
+    if (!pok || !name.trim()) return;
     setTagActionLoading(true);
     try {
       // Step 1: create — show a create-specific error if this fails
-      const newTag = await tagApi.create({ name: tagQuery }).catch(() => {
+      const newTag = await tagApi.create({ name }).catch(() => {
         Alert.alert(t('learnings.detail.tagCreateError'));
         return null;
       });
       if (!newTag) return;
-      // Step 2: assign — the tag now exists; show an assign-specific error if this fails
+      // Step 2: assign — tag now exists; show an assign-specific error if this fails
       await tagApi.assign(pok.id, newTag.id);
       setPok((prev) => prev
         ? { ...prev, tags: [...prev.tags, newTag] }
         : prev
       );
       closeTagModal();
+      refreshTagList(); // update pokCount in background
     } catch {
       Alert.alert(t('learnings.detail.tagAddError'));
+      loadPok(); // reconcile UI with server truth
     } finally {
       setTagActionLoading(false);
     }
@@ -205,6 +224,7 @@ export function LearningDetailScreen() {
         ? { ...prev, tags: prev.tags.filter((existing) => existing.id !== tag.id) }
         : prev
       );
+      refreshTagList(); // update pokCount in background
     } catch {
       Alert.alert(t('learnings.detail.tagRemoveError'));
     } finally {
@@ -265,22 +285,6 @@ export function LearningDetailScreen() {
       </SafeAreaView>
     );
   }
-
-  const assignedTagIds = new Set(pok.tags.map((t) => t.tagId));
-  const availableTags = allTags.filter((tag) => !assignedTagIds.has(tag.tagId));
-  const filteredTags = tagQuery
-    ? availableTags.filter((tag) =>
-        tag.displayName.toLowerCase().includes(tagQuery.toLowerCase()) ||
-        tag.name.toLowerCase().includes(tagQuery.toLowerCase())
-      )
-    : availableTags;
-  const showCreateRow =
-    tagQuery.length > 0 &&
-    !allTags.some(
-      (tag) =>
-        tag.name.toLowerCase() === tagQuery.toLowerCase() ||
-        tag.displayName.toLowerCase() === tagQuery.toLowerCase()
-    );
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -411,104 +415,16 @@ export function LearningDetailScreen() {
       )}
 
       {/* Tag picker modal */}
-      <Modal
+      <TagPickerModal
         visible={tagModalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={closeTagModal}
-      >
-        <TouchableOpacity
-          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }}
-          activeOpacity={1}
-          onPress={closeTagModal}
-        >
-          <View style={{ flex: 1 }} />
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-            <View onStartShouldSetResponder={() => true}>
-              <View style={{
-                backgroundColor: theme.colors.background,
-                borderTopLeftRadius: theme.radii.lg,
-                borderTopRightRadius: theme.radii.lg,
-                paddingTop: theme.spacing.md,
-                maxHeight: 400,
-              }}>
-                <Text variant="label" style={{ paddingHorizontal: theme.spacing.md, paddingBottom: theme.spacing.sm }}>
-                  {t('learnings.detail.addTagTitle')}
-                </Text>
-
-                <TextInput
-                  value={tagQuery}
-                  onChangeText={(text) => {
-                    const normalized = text.replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
-                    setTagQuery(normalized);
-                  }}
-                  placeholder={t('learnings.detail.tagSearchPlaceholder')}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  containerStyle={{
-                    marginHorizontal: theme.spacing.md,
-                    marginBottom: theme.spacing.sm,
-                  }}
-                  style={{
-                    paddingHorizontal: theme.spacing.sm,
-                    paddingVertical: theme.spacing.xs,
-                    borderRadius: theme.radii.sm,
-                  }}
-                />
-
-                {tagActionLoading ? (
-                  <ActivityIndicator size="small" color={theme.colors.primary} style={{ paddingVertical: theme.spacing.lg }} />
-                ) : filteredTags.length === 0 && !showCreateRow ? (
-                  <Text
-                    variant="bodySm"
-                    color={theme.colors.textSecondary}
-                    style={{ padding: theme.spacing.md, textAlign: 'center' }}
-                  >
-                    {allTags.length === 0
-                      ? t('learnings.detail.noTagsAvailable')
-                      : t('learnings.detail.noMoreTagsToAdd')}
-                  </Text>
-                ) : (
-                  <FlatList
-                    data={filteredTags}
-                    keyExtractor={(item) => item.tagId}
-                    renderItem={({ item }) => (
-                      <TouchableOpacity
-                        onPress={() => handleAddTag(item)}
-                        style={{
-                          paddingHorizontal: theme.spacing.md,
-                          paddingVertical: 10, /* sm(8) + 2: modal row vertical padding */
-                          borderBottomWidth: 1,
-                          borderBottomColor: theme.colors.border,
-                        }}
-                      >
-                        <Text variant="bodySm">{item.displayName}</Text>
-                      </TouchableOpacity>
-                    )}
-                    ListFooterComponent={showCreateRow ? (
-                      <TouchableOpacity
-                        onPress={handleCreateTag}
-                        style={{
-                          paddingHorizontal: theme.spacing.md,
-                          paddingVertical: 10, /* sm(8) + 2: modal row vertical padding */
-                          borderBottomWidth: 1,
-                          borderBottomColor: theme.colors.border,
-                        }}
-                      >
-                        <Text variant="bodySm" color={theme.colors.primary}>
-                          {t('learnings.detail.tagCreateNew', { name: tagQuery })}
-                        </Text>
-                      </TouchableOpacity>
-                    ) : null}
-                  />
-                )}
-
-                <View style={{ height: theme.spacing.xl }} />
-              </View>
-            </View>
-          </KeyboardAvoidingView>
-        </TouchableOpacity>
-      </Modal>
+        selectedTagIds={pok.tags.map((tag) => tag.tagId)}
+        onClose={closeTagModal}
+        onSelect={handleAddTag}
+        onCreate={handleCreateTag}
+        allTags={allTags}
+        listLoading={tagListLoading}
+        actionLoading={tagActionLoading}
+      />
     </SafeAreaView>
   );
 }

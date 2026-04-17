@@ -22,7 +22,7 @@ interface TestState {
   allTags: unknown[];
   tagModalVisible: boolean;
   tagActionLoading: boolean;
-  tagQuery: string;
+  tagListLoading: boolean;
   tagsExpanded: boolean;
 }
 
@@ -32,14 +32,14 @@ let mockTestState: TestState = {
   allTags: [],
   tagModalVisible: false,
   tagActionLoading: false,
-  tagQuery: '',
+  tagListLoading: false,
   tagsExpanded: false,
 };
 
 // useState call order in LearningDetailScreen (13 calls):
 // 1=pok  2=loading  3=editing  4=error  5=serverError  6=editVisibility
 // 7=reLearningModalVisible  8=hasRelearned  9=allTags  10=tagModalVisible
-// 11=tagActionLoading  12=tagQuery  13=tagsExpanded
+// 11=tagActionLoading  12=tagListLoading  13=tagsExpanded
 jest.mock('react', () => {
   const actual = jest.requireActual('react');
   return {
@@ -52,7 +52,7 @@ jest.mock('react', () => {
         case 9: return [mockTestState.allTags, jest.fn()];
         case 10: return [mockTestState.tagModalVisible, jest.fn()];
         case 11: return [mockTestState.tagActionLoading, mockSetTagActionLoading];
-        case 12: return [mockTestState.tagQuery, jest.fn()];
+        case 12: return [mockTestState.tagListLoading, jest.fn()];
         case 13: return [mockTestState.tagsExpanded, jest.fn()];
         default: return [init, jest.fn()];
       }
@@ -111,6 +111,7 @@ const mockTagCreate = jest.fn();
 const mockTagAssign = jest.fn();
 const mockTagRemove = jest.fn();
 const mockTagList = jest.fn();
+const mockPokLoadById = jest.fn();
 
 jest.mock('@/lib/tagApi', () => ({
   tagApi: {
@@ -126,7 +127,7 @@ jest.mock('@/lib/tagApi', () => ({
 
 jest.mock('@/lib/pokApi', () => ({
   pokApi: {
-    getById: jest.fn(),
+    getById: (...args: unknown[]) => mockPokLoadById(...args),
     update: jest.fn(),
     delete: jest.fn(),
     create: jest.fn(),
@@ -156,11 +157,6 @@ jest.mock('@/components/ui/ErrorMessage', () => ({
     require('react').createElement('ErrorMessage', props),
 }));
 
-jest.mock('@/components/ui/TextInput', () => ({
-  TextInput: (props: Record<string, unknown>) =>
-    require('react').createElement('TextInput', props),
-}));
-
 jest.mock('@/components/feed/LearningForm', () => ({
   LearningForm: (props: Record<string, unknown>) =>
     require('react').createElement('LearningForm', props),
@@ -182,6 +178,11 @@ jest.mock('@/components/ui/VisibilityPicker', () => ({
 jest.mock('@/components/relearnings/ReLearningModal', () => ({
   ReLearningModal: (props: Record<string, unknown>) =>
     require('react').createElement('ReLearningModal', props),
+}));
+
+jest.mock('@/components/tags/TagPickerModal', () => ({
+  TagPickerModal: (props: Record<string, unknown>) =>
+    require('react').createElement('TagPickerModal', props),
 }));
 
 // ---------------------------------------------------------------------------
@@ -237,9 +238,9 @@ type AnyEl = { type: unknown; props: Record<string, unknown> };
 function findAllByType(element: unknown, type: string): AnyEl[] {
   const results: AnyEl[] = [];
   function walk(node: unknown) {
-    if (!node || typeof node !== 'object') return;
-    // Traverse arrays from JSX .map() results
+    if (!node) return;
     if (Array.isArray(node)) { node.forEach(walk); return; }
+    if (typeof node !== 'object') return;
     const el = node as AnyEl;
     if (el.type === type || (el.type as { name?: string })?.name === type) {
       results.push(el);
@@ -250,6 +251,13 @@ function findAllByType(element: unknown, type: string): AnyEl[] {
   }
   walk(element);
   return results;
+}
+
+/** Find the TagPickerModal element in the render tree. */
+function findTagPickerModal(result: unknown): AnyEl {
+  const modals = findAllByType(result, 'TagPickerModal');
+  expect(modals.length).toBe(1);
+  return modals[0];
 }
 
 // ---------------------------------------------------------------------------
@@ -266,7 +274,7 @@ describe('LearningDetailScreen — tag creation flow', () => {
       allTags: [],
       tagModalVisible: false,
       tagActionLoading: false,
-      tagQuery: '',
+      tagListLoading: false,
       tagsExpanded: false,
     };
     // Re-wire hooks after clearAllMocks
@@ -290,10 +298,11 @@ describe('LearningDetailScreen — tag creation flow', () => {
     it('renders "Add tag" button', () => {
       const result = LearningDetailScreen({} as never);
       const texts = findAllByType(result, 'Text');
-      const addTagText = texts.find((el) =>
-        typeof el.props.children === 'string' &&
-        (el.props.children as string).includes('learnings.detail.addTag')
-      );
+      const addTagText = texts.find((el) => {
+        const c = el.props.children;
+        if (Array.isArray(c)) return c.some((item) => typeof item === 'string' && item.includes('learnings.detail.addTag'));
+        return typeof c === 'string' && c.includes('learnings.detail.addTag');
+      });
       expect(addTagText).toBeDefined();
     });
 
@@ -304,12 +313,26 @@ describe('LearningDetailScreen — tag creation flow', () => {
       const spinners = findAllByType(result, 'ActivityIndicator');
       expect(spinners.length).toBeGreaterThan(0);
     });
+
+    it('renders TagPickerModal with selectedTagIds from pok.tags', () => {
+      const result = LearningDetailScreen({} as never);
+      const modal = findTagPickerModal(result);
+      expect(modal.props.selectedTagIds).toEqual([existingTag.tagId]);
+    });
+
+    it('passes listLoading and actionLoading to TagPickerModal', () => {
+      mockTestState.tagListLoading = true;
+      mockTestState.tagActionLoading = true;
+      const result = LearningDetailScreen({} as never);
+      const modal = findTagPickerModal(result);
+      expect(modal.props.listLoading).toBe(true);
+      expect(modal.props.actionLoading).toBe(true);
+    });
   });
 
   describe('handleRemoveTag', () => {
     function findRemoveBtn(result: unknown): AnyEl {
       const touchables = findAllByType(result, 'TouchableOpacity');
-      // The remove button has accessibilityLabel set to removeTagAccessibilityLabel
       const btn = touchables.find((el) =>
         typeof el.props.accessibilityLabel === 'string' &&
         (el.props.accessibilityLabel as string).includes('removeTagAccessibilityLabel')
@@ -318,12 +341,14 @@ describe('LearningDetailScreen — tag creation flow', () => {
       return btn!;
     }
 
-    it('calls tagApi.remove with pokId and tagId', async () => {
+    it('calls tagApi.remove with pokId and subscription id (tag.id, not tag.tagId)', async () => {
       mockTagRemove.mockResolvedValue(undefined);
       const result = LearningDetailScreen({} as never);
       const removeBtn = findRemoveBtn(result);
       await (removeBtn.props.onPress as () => Promise<void>)();
+      // Subscription id is existingTag.id ('utag-1'), NOT existingTag.tagId ('tag-existing')
       expect(mockTagRemove).toHaveBeenCalledWith('pok-1', existingTag.id);
+      expect(mockTagRemove).not.toHaveBeenCalledWith('pok-1', existingTag.tagId);
     });
 
     it('shows tagRemoveError alert on remove failure', async () => {
@@ -335,118 +360,122 @@ describe('LearningDetailScreen — tag creation flow', () => {
     });
   });
 
-  describe('handleCreateTag — happy path', () => {
-    it('calls tagApi.create then tagApi.assign on success', async () => {
+  describe('handleCreateTag — via TagPickerModal.onCreate prop', () => {
+    it('calls tagApi.create then tagApi.assign with subscription id (newTag.id)', async () => {
       mockTagCreate.mockResolvedValue(newTag);
       mockTagAssign.mockResolvedValue(undefined);
-      mockTestState.tagModalVisible = true;
-      mockTestState.tagQuery = 'new-tag';
-      mockTestState.allTags = [];
 
       const result = LearningDetailScreen({} as never);
-      // Find the "Create" row in the FlatList ListFooterComponent
-      const flatLists = findAllByType(result, 'FlatList');
-      expect(flatLists.length).toBe(1);
-      const footer = flatLists[0].props.ListFooterComponent as AnyEl | null;
-      expect(footer).toBeTruthy();
-      await (footer!.props.onPress as () => Promise<void>)();
+      const modal = findTagPickerModal(result);
+      const onCreate = modal.props.onCreate as (name: string) => Promise<void>;
+
+      await onCreate('new-tag');
 
       expect(mockTagCreate).toHaveBeenCalledWith({ name: 'new-tag' });
+      // Must use newTag.id (subscription), not newTag.tagId (global)
       expect(mockTagAssign).toHaveBeenCalledWith('pok-1', newTag.id);
+      expect(mockTagAssign).not.toHaveBeenCalledWith('pok-1', newTag.tagId);
     });
 
-    it('calls setPok to add the new tag to the pok after success', async () => {
+    it('calls setPok to add the new tag on success', async () => {
       mockTagCreate.mockResolvedValue(newTag);
       mockTagAssign.mockResolvedValue(undefined);
-      mockTestState.tagModalVisible = true;
-      mockTestState.tagQuery = 'new-tag';
 
       const result = LearningDetailScreen({} as never);
-      const flatLists = findAllByType(result, 'FlatList');
-      const footer = flatLists[0].props.ListFooterComponent as AnyEl;
-      await (footer.props.onPress as () => Promise<void>)();
+      const modal = findTagPickerModal(result);
+      await (modal.props.onCreate as (name: string) => Promise<void>)('new-tag');
 
       expect(mockSetPok).toHaveBeenCalled();
       const updater = mockSetPok.mock.calls[0][0] as (prev: typeof mockPokWithTag) => typeof mockPokWithTag;
       const updated = updater(mockPokWithTag);
       expect(updated.tags).toContain(newTag);
     });
-  });
 
-  describe('handleCreateTag — create fails', () => {
-    it('shows tagCreateError alert and does NOT call assign', async () => {
+    it('shows tagCreateError alert and does NOT call assign when create fails', async () => {
       mockTagCreate.mockRejectedValue(new Error('server error'));
-      mockTestState.tagModalVisible = true;
-      mockTestState.tagQuery = 'new-tag';
 
       const result = LearningDetailScreen({} as never);
-      const flatLists = findAllByType(result, 'FlatList');
-      const footer = flatLists[0].props.ListFooterComponent as AnyEl;
-      await (footer.props.onPress as () => Promise<void>)();
+      const modal = findTagPickerModal(result);
+      await (modal.props.onCreate as (name: string) => Promise<void>)('new-tag');
 
       expect(mockAlert).toHaveBeenCalledWith('learnings.detail.tagCreateError');
       expect(mockTagAssign).not.toHaveBeenCalled();
     });
-  });
 
-  describe('handleCreateTag — assign fails after create succeeds', () => {
-    it('shows tagAddError (not tagCreateError) when only assign fails', async () => {
+    it('shows tagAddError (not tagCreateError) and calls loadPok when only assign fails', async () => {
       mockTagCreate.mockResolvedValue(newTag);
       mockTagAssign.mockRejectedValue(new Error('assign error'));
-      mockTestState.tagModalVisible = true;
-      mockTestState.tagQuery = 'new-tag';
+      mockPokLoadById.mockResolvedValue(mockPokWithTag);
 
       const result = LearningDetailScreen({} as never);
-      const flatLists = findAllByType(result, 'FlatList');
-      const footer = flatLists[0].props.ListFooterComponent as AnyEl;
-      await (footer.props.onPress as () => Promise<void>)();
+      const modal = findTagPickerModal(result);
+      await (modal.props.onCreate as (name: string) => Promise<void>)('new-tag');
 
-      expect(mockTagCreate).toHaveBeenCalled();
-      expect(mockTagAssign).toHaveBeenCalled();
       expect(mockAlert).toHaveBeenCalledWith('learnings.detail.tagAddError');
       expect(mockAlert).not.toHaveBeenCalledWith('learnings.detail.tagCreateError');
+      // Reconcile: loadPok must be called to re-fetch true server state
+      expect(mockPokLoadById).toHaveBeenCalledWith('pok-1');
     });
 
-    it('does NOT call setPok when assign fails', async () => {
+    it('does NOT call setPok with updater function (no tag appended) when assign fails', async () => {
       mockTagCreate.mockResolvedValue(newTag);
       mockTagAssign.mockRejectedValue(new Error('assign error'));
-      mockTestState.tagModalVisible = true;
-      mockTestState.tagQuery = 'new-tag';
+      mockPokLoadById.mockResolvedValue(mockPokWithTag);
 
       const result = LearningDetailScreen({} as never);
-      const flatLists = findAllByType(result, 'FlatList');
-      const footer = flatLists[0].props.ListFooterComponent as AnyEl;
-      await (footer.props.onPress as () => Promise<void>)();
+      const modal = findTagPickerModal(result);
+      await (modal.props.onCreate as (name: string) => Promise<void>)('new-tag');
 
-      expect(mockSetPok).not.toHaveBeenCalled();
+      // loadPok reconcile may call setPok(value) directly — that is expected.
+      // What must NOT happen: setPok called with a function updater (the one that appends newTag).
+      expect(mockSetPok).not.toHaveBeenCalledWith(expect.any(Function));
     });
   });
 
-  describe('handleAddTag', () => {
-    it('calls tagApi.assign and updates pok state on success', async () => {
-      const availableTag = {
-        tagId: 'tag-another',
-        id: 'utag-2',
-        name: 'another',
-        displayName: 'Another',
-        color: '#bbb',
-        createdAt: '2026-01-01T00:00:00Z',
-      };
+  describe('handleAddTag — via TagPickerModal.onSelect prop', () => {
+    const availableTag = {
+      tagId: 'tag-another',
+      id: 'utag-2',
+      name: 'another',
+      displayName: 'Another',
+      color: '#bbb',
+      createdAt: '2026-01-01T00:00:00Z',
+      pokCount: 2,
+    };
+
+    it('calls tagApi.assign with subscription id (tag.id, not tag.tagId)', async () => {
       mockTagAssign.mockResolvedValue(undefined);
-      mockTestState.tagModalVisible = true;
-      mockTestState.allTags = [availableTag];
 
       const result = LearningDetailScreen({} as never);
-      const flatLists = findAllByType(result, 'FlatList');
-      const dataItem = flatLists[0].props.data as unknown[];
-      expect(dataItem).toHaveLength(1); // availableTag only (existingTag already assigned)
+      const modal = findTagPickerModal(result);
+      const onSelect = modal.props.onSelect as (tag: typeof availableTag) => Promise<void>;
 
-      const renderItem = flatLists[0].props.renderItem as (arg: { item: unknown }) => AnyEl;
-      const row = renderItem({ item: availableTag });
-      await (row.props.onPress as () => Promise<void>)();
+      await onSelect(availableTag);
 
       expect(mockTagAssign).toHaveBeenCalledWith('pok-1', availableTag.id);
+      expect(mockTagAssign).not.toHaveBeenCalledWith('pok-1', availableTag.tagId);
+    });
+
+    it('calls setPok to append tag on success', async () => {
+      mockTagAssign.mockResolvedValue(undefined);
+
+      const result = LearningDetailScreen({} as never);
+      const modal = findTagPickerModal(result);
+      await (modal.props.onSelect as (tag: typeof availableTag) => Promise<void>)(availableTag);
+
       expect(mockSetPok).toHaveBeenCalled();
+    });
+
+    it('shows tagAddError and calls loadPok on assign failure', async () => {
+      mockTagAssign.mockRejectedValue(new Error('network'));
+      mockPokLoadById.mockResolvedValue(mockPokWithTag);
+
+      const result = LearningDetailScreen({} as never);
+      const modal = findTagPickerModal(result);
+      await (modal.props.onSelect as (tag: typeof availableTag) => Promise<void>)(availableTag);
+
+      expect(mockAlert).toHaveBeenCalledWith('learnings.detail.tagAddError');
+      expect(mockPokLoadById).toHaveBeenCalledWith('pok-1');
     });
   });
 
@@ -474,7 +503,6 @@ describe('LearningDetailScreen — tag creation flow', () => {
       mockTestState.tagsExpanded = false;
 
       const result = LearningDetailScreen({} as never);
-      // Find all Text nodes whose children are tag displayNames (they're inside caption Text elements)
       const allTexts = findAllByType(result, 'Text');
       const tagLabels = allTexts
         .filter(el => ['Alpha', 'Beta', 'Gamma', 'Delta'].includes(el.props.children as string))
