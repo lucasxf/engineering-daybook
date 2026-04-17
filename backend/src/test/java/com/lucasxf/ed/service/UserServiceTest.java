@@ -232,6 +232,13 @@ class UserServiceTest {
             .isInstanceOf(UserNotFoundException.class);
     }
 
+    @Test
+    void updateTheme_unknownTheme_throwsIllegalArgumentException() {
+        assertThatThrownBy(() -> userService.updateTheme(userId, "rainbow"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Theme must be one of");
+    }
+
     // ===== updateLocale =====
 
     @Test
@@ -252,6 +259,13 @@ class UserServiceTest {
 
         assertThatThrownBy(() -> userService.updateLocale(userId, "EN"))
             .isInstanceOf(UserNotFoundException.class);
+    }
+
+    @Test
+    void updateLocale_unknownLocale_throwsIllegalArgumentException() {
+        assertThatThrownBy(() -> userService.updateLocale(userId, "fr-FR"))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Locale must be one of");
     }
 
     // ===== findByHandle =====

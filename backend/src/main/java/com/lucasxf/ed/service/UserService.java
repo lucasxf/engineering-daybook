@@ -165,7 +165,7 @@ public class UserService {
     @Transactional
     public void updateTheme(UUID userId, String theme) {
         if (!VALID_THEMES.contains(theme)) {
-            throw new IllegalArgumentException("Invalid theme: " + theme);
+            throw new IllegalArgumentException("Theme must be one of: light, dark, system");
         }
         User user = findById(userId);
         user.setTheme(theme);
@@ -182,7 +182,7 @@ public class UserService {
     @Transactional
     public void updateLocale(UUID userId, String locale) {
         if (!VALID_LOCALES.contains(locale)) {
-            throw new IllegalArgumentException("Invalid locale: " + locale);
+            throw new IllegalArgumentException("Locale must be one of: EN, pt-BR");
         }
         User user = findById(userId);
         user.setLocale(locale);
