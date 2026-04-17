@@ -2,6 +2,7 @@
 
 > **Status:** Approved
 > **Created:** 2026-04-17
+> **Reviewed:** 2026-04-17
 > **Implemented:** _pending_
 
 ---
@@ -34,7 +35,7 @@ This spec covers the full implementation: backend identity-token verification, n
 - [ ] **FR7** *(Must Have)* — If the provided email already belongs to a `local` or `google` account, respond 409 Conflict with a user-readable message.
 - [ ] **FR8** *(Must Have)* — On iOS, the `AppleSignInButton` is shown above the Google Sign-In button on both `LoginScreen` and `RegisterScreen`, using Apple's mandatory native `AppleAuthenticationButton` component.
 - [ ] **FR9** *(Must Have)* — On Android (and any non-iOS platform), the `AppleSignInButton` renders `null` — no button, no divider, no error.
-- [ ] **FR10** *(Must Have)* — `ChooseHandleScreen` handles Apple signup completion (passing `appleSub` and `email` from the temp token) alongside the existing Google path — no screen UI changes required.
+- [ ] **FR10** *(Must Have)* — `ChooseHandleScreen` handles Apple signup completion alongside the existing Google path with no UI changes. `AuthStackParamList` for `ChooseHandle` gains a `provider: 'google' | 'apple'` param; both `useGoogleAuth` and `useAppleAuth` pass it on navigation; `ChooseHandleScreen` uses it to call either `completeGoogleSignupApi` or `completeAppleSignupApi`.
 - [ ] **FR11** *(Must Have)* — i18n keys for Apple sign-in labels in both `en.ts` and `pt-BR.ts`.
 - [ ] **FR12** *(Should Have)* — The privacy policy page (`web/src/app/[locale]/privacy/page.tsx`) gains a paragraph describing what data Sign in with Apple shares with learnimo and how it is used.
 
@@ -65,7 +66,7 @@ This spec covers the full implementation: backend identity-token verification, n
 - `User` entity — add `apple_sub` field.
 - `UserRepository` — add `findByAppleSub(String)` and `existsByAppleSub(String)`.
 - Mobile `auth.ts` — add `appleLoginApi` and `completeAppleSignupApi` mirroring the Google pair.
-- Mobile `AuthStack.tsx` / `ChooseHandleScreen.tsx` — the temp token flow already handles Google; Apple uses identical params (`tempToken`, `email`) — no screen changes needed.
+- Mobile `AuthStack.tsx` / `ChooseHandleScreen.tsx` — `AuthStackParamList['ChooseHandle']` gains `provider: 'google' | 'apple'`. Both `useGoogleAuth` and `useAppleAuth` pass this param when navigating to `ChooseHandleScreen`. The screen reads `route.params.provider` and calls `completeGoogleSignupApi` or `completeAppleSignupApi` accordingly. No UI changes — the param is invisible to the user.
 
 **Apple Developer Console prerequisites (user-driven, before on-device verification):**
 - Sign in with Apple capability enabled on App ID `net.learnimo.app`.
@@ -188,7 +189,7 @@ This spec covers the full implementation: backend identity-token verification, n
 
 ### Screen: ChooseHandleScreen (no changes)
 
-**Purpose:** Unchanged — already accepts `{ tempToken, email }` params from Google. Apple uses the same params; no screen modification needed.
+**Purpose:** Accepts `{ tempToken, email, provider }` params. `provider: 'google' | 'apple'` is new — added to `AuthStackParamList['ChooseHandle']`. The screen uses it to route the completion call: `provider === 'apple'` → `completeAppleSignupApi`; otherwise → `completeGoogleSignupApi`. No UI change — the routing is invisible to the user.
 
 ---
 
@@ -252,6 +253,7 @@ userRepository.findByAppleSub(userInfo.sub())
 - `AppleSignInButton.test.tsx` — renders on iOS, returns null on Android.
 - `LoginScreen.test.tsx` — Apple button present on iOS, absent on Android.
 - `RegisterScreen.test.tsx` — same.
+- `ChooseHandleScreen.test.tsx` — `provider='apple'` calls `completeAppleSignupApi`; `provider='google'` calls `completeGoogleSignupApi`.
 
 ### File Changes
 
@@ -284,12 +286,15 @@ userRepository.findByAppleSub(userInfo.sub())
 - `mobile/package.json`
 - `mobile/app.json`
 - `mobile/src/lib/auth.ts`
+- `mobile/src/navigation/AuthStack.tsx`
 - `mobile/src/screens/auth/LoginScreen.tsx`
 - `mobile/src/screens/auth/RegisterScreen.tsx`
+- `mobile/src/screens/auth/ChooseHandleScreen.tsx`
 - `mobile/src/i18n/locales/en.ts`
 - `mobile/src/i18n/locales/pt-BR.ts`
 - `mobile/src/screens/auth/__tests__/LoginScreen.test.tsx`
 - `mobile/src/screens/auth/__tests__/RegisterScreen.test.tsx`
+- `mobile/src/screens/auth/__tests__/ChooseHandleScreen.test.tsx`
 
 **Modified (web):**
 - `web/src/app/[locale]/privacy/page.tsx`
@@ -368,16 +373,19 @@ CREATE UNIQUE INDEX users_apple_sub_unique
 - **Commit:** `feat(mobile): add appleLoginApi, useAppleAuth hook, and i18n keys`
 - **Stack:** mobile
 
-### Task 7: Mobile — AppleSignInButton + LoginScreen + RegisterScreen wiring + tests
+### Task 7: Mobile — AppleSignInButton + LoginScreen + RegisterScreen + ChooseHandleScreen wiring + tests
 - **Files:**
+  - `mobile/src/navigation/AuthStack.tsx`
   - `mobile/src/components/auth/AppleSignInButton.tsx`
   - `mobile/src/components/auth/__tests__/AppleSignInButton.test.tsx`
   - `mobile/src/screens/auth/LoginScreen.tsx`
   - `mobile/src/screens/auth/RegisterScreen.tsx`
+  - `mobile/src/screens/auth/ChooseHandleScreen.tsx`
   - `mobile/src/screens/auth/__tests__/LoginScreen.test.tsx`
   - `mobile/src/screens/auth/__tests__/RegisterScreen.test.tsx`
+  - `mobile/src/screens/auth/__tests__/ChooseHandleScreen.test.tsx`
 - **Depends on:** Task 6
-- **Commit:** `feat(mobile): add AppleSignInButton and wire into LoginScreen + RegisterScreen`
+- **Commit:** `feat(mobile): add AppleSignInButton, wire auth screens, add provider routing in ChooseHandleScreen`
 - **Stack:** mobile
 
 ### Task 8: Privacy policy update
