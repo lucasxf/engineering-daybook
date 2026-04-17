@@ -30,8 +30,8 @@ class TsImports(Gate):
                 ["npx", "eslint",
                  "--format", "json",
                  "--no-error-on-unmatched-pattern",
-                 "--rule", "simple-import-sort/imports: error",
-                 "--rule", "simple-import-sort/exports: error",
+                 "--rule", "simple-import-sort/imports:error",
+                 "--rule", "simple-import-sort/exports:error",
                  abs_path],
                 capture_output=True, text=True, timeout=8,
                 cwd=cwd, shell=False,
@@ -40,8 +40,8 @@ class TsImports(Gate):
             try:
                 result = subprocess.run(
                     f'npx eslint --format json --no-error-on-unmatched-pattern '
-                    f'--rule "simple-import-sort/imports: error" '
-                    f'--rule "simple-import-sort/exports: error" '
+                    f'--rule "simple-import-sort/imports:error" '
+                    f'--rule "simple-import-sort/exports:error" '
                     f'"{abs_path}"',
                     capture_output=True, text=True, timeout=8,
                     cwd=cwd, shell=True,
