@@ -13,6 +13,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
+import org.hibernate.annotations.Where;
+
 /**
  * User entity representing an authenticated application user.
  *
@@ -21,6 +23,7 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name = "users")
+@Where(clause = "deleted_at IS NULL")
 public class User {
 
     @Id
@@ -67,6 +70,9 @@ public class User {
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt = Instant.now();
+
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
 
     protected User() {
         // JPA requires a no-arg constructor
@@ -174,6 +180,14 @@ public class User {
 
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public Instant getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(Instant deletedAt) {
+        this.deletedAt = deletedAt;
     }
 
     /**
