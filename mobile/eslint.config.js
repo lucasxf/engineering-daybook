@@ -3,6 +3,7 @@
 // @typescript-eslint recommended rules directly instead.
 const tseslint = require('@typescript-eslint/eslint-plugin');
 const tsparser = require('@typescript-eslint/parser');
+const simpleImportSort = require('eslint-plugin-simple-import-sort');
 
 module.exports = [
   {
@@ -17,11 +18,14 @@ module.exports = [
     },
     plugins: {
       '@typescript-eslint': tseslint,
+      'simple-import-sort': simpleImportSort,
     },
     rules: {
       ...tseslint.configs.recommended.rules,
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'warn',
+      'simple-import-sort/imports': 'warn',
+      'simple-import-sort/exports': 'warn',
     },
   },
   {

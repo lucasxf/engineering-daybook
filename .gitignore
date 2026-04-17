@@ -242,6 +242,16 @@ prompts/optimized/
 .claude/reviews/
 .claude/worktrees/
 .claude/metrics/sessions/
+.claude/quality-gate-reports/
+
+# Python bytecode cache
+**/__pycache__/
+
+# Mobile store assets (local, not for version control)
+mobile/store-assets/
+
+# Prompts subfolder for AI-generated/session content
+prompts/claude-ai/
 
 # Root-level build/test artifacts (backend/target/ already covered above)
 /target/

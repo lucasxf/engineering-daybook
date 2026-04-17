@@ -30,6 +30,7 @@ export interface CreatePokDto {
   title?: string | null;
   content: string;
   visibility?: PokVisibility;
+  tagIds?: string[];
 }
 
 export interface UpdatePokDto {

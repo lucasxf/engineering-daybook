@@ -247,6 +247,111 @@ class TagIntegrationTest {
                 .andExpect(jsonPath("$.tags[0].name").value("integration"));
     }
 
+    // ===== AC: Subscription ID vs global tag ID — root cause of mobile "Failed to add tag" bug =====
+
+    @Test
+    @DisplayName("assign tag — 204 with UserTag subscription ID (id field)")
+    void assignTag_withSubscriptionId_shouldReturn204() throws Exception {
+        assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not available");
+
+        Cookie token = registerAndLogin();
+
+        MvcResult tagResult = mockMvc.perform(post("/api/v1/tags")
+                        .cookie(token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\": \"subscription-id-test\"}"))
+                .andExpect(status().isCreated())
+                .andReturn();
+        String subscriptionId = objectMapper.readTree(tagResult.getResponse().getContentAsString())
+                .get("id").asText(); // UserTag.id — the subscription ID
+
+        MvcResult pokResult = mockMvc.perform(post("/api/v1/poks")
+                        .cookie(token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\": \"Contract test\", \"content\": \"Content\"}"))
+                .andExpect(status().isCreated())
+                .andReturn();
+        String pokId = objectMapper.readTree(pokResult.getResponse().getContentAsString())
+                .get("id").asText();
+
+        mockMvc.perform(post("/api/v1/poks/" + pokId + "/tags/" + subscriptionId)
+                        .cookie(token))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("assign tag — 404 when passing global Tag.id (tagId field) instead of UserTag subscription ID")
+    void assignTag_withGlobalTagId_shouldReturn404() throws Exception {
+        assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not available");
+
+        Cookie token = registerAndLogin();
+
+        MvcResult tagResult = mockMvc.perform(post("/api/v1/tags")
+                        .cookie(token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\": \"global-id-test\"}"))
+                .andExpect(status().isCreated())
+                .andReturn();
+        // tagId is the global Tag pool ID — NOT the UserTag subscription ID
+        String globalTagId = objectMapper.readTree(tagResult.getResponse().getContentAsString())
+                .get("tagId").asText();
+
+        MvcResult pokResult = mockMvc.perform(post("/api/v1/poks")
+                        .cookie(token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\": \"Contract test\", \"content\": \"Content\"}"))
+                .andExpect(status().isCreated())
+                .andReturn();
+        String pokId = objectMapper.readTree(pokResult.getResponse().getContentAsString())
+                .get("id").asText();
+
+        // Passing the global Tag.id (tagId) instead of UserTag.id must return 404
+        mockMvc.perform(post("/api/v1/poks/" + pokId + "/tags/" + globalTagId)
+                        .cookie(token))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("assign tag — idempotent: assigning same tag twice returns 204 both times")
+    void assignTag_twice_shouldBeIdempotent() throws Exception {
+        assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not available");
+
+        Cookie token = registerAndLogin();
+
+        MvcResult tagResult = mockMvc.perform(post("/api/v1/tags")
+                        .cookie(token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\": \"idempotent-tag\"}"))
+                .andExpect(status().isCreated())
+                .andReturn();
+        String subscriptionId = objectMapper.readTree(tagResult.getResponse().getContentAsString())
+                .get("id").asText();
+
+        MvcResult pokResult = mockMvc.perform(post("/api/v1/poks")
+                        .cookie(token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\": \"Idempotency test\", \"content\": \"Content\"}"))
+                .andExpect(status().isCreated())
+                .andReturn();
+        String pokId = objectMapper.readTree(pokResult.getResponse().getContentAsString())
+                .get("id").asText();
+
+        // First assign — 204
+        mockMvc.perform(post("/api/v1/poks/" + pokId + "/tags/" + subscriptionId)
+                        .cookie(token))
+                .andExpect(status().isNoContent());
+
+        // Second assign (duplicate) — must also return 204, not 409 or 500
+        mockMvc.perform(post("/api/v1/poks/" + pokId + "/tags/" + subscriptionId)
+                        .cookie(token))
+                .andExpect(status().isNoContent());
+
+        // Tag appears exactly once in the POK
+        mockMvc.perform(get("/api/v1/poks/" + pokId).cookie(token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.tags.length()").value(1));
+    }
+
     // ===== AC23: Remove tag from POK =====
 
     @Test

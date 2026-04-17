@@ -6,6 +6,9 @@
 2. [Quick Resume](#quick-resume)
 3. [Full Setup](#full-setup)
 4. [Release Builds](#release-builds)
+   - [Android — Local AAB via Gradle](#option-a--local-aab-via-gradle-windows-no-eas)
+   - [Android — EAS Cloud Build](#option-b--eas-cloud-build-recommended)
+   - [iOS — EAS Cloud Build](#option-c--ios-eas-cloud-build-only-option-on-windows)
 5. [Dev Utilities](#dev-utilities)
 6. [Troubleshooting](#troubleshooting)
 
@@ -23,7 +26,7 @@ Install and configure these **once** before following any steps below:
 | Java 21 + Maven | `mvn -v` |
 | Node.js 20+ and npm | `node -v` |
 | Docker Desktop | `docker info` |
-| EAS CLI | `eas whoami` |
+| EAS CLI (global: `npm install -g eas-cli`) | `eas whoami` |
 
 ---
 
@@ -269,6 +272,110 @@ eas build:cancel <build-id>             # cancel a queued or running build
 eas whoami                              # confirm you're logged in to the right account
 eas credentials --platform android      # manage keystores and signing credentials
 ```
+
+---
+
+---
+
+### Option D — iOS Simulator Build for App Store Screenshots (Appetize.io)
+
+> Use when you need to capture App Store screenshots without a Mac or physical iOS device.
+
+#### Build
+
+```bash
+cd mobile
+eas build --platform ios --profile simulator
+```
+
+EAS builds a `.app` bundle (not a `.ipa`) on Expo's macOS servers using the production backend URL. No signing credentials required — simulator builds are unsigned.
+
+#### Capture screenshots
+
+1. Download the `.app` file from the build detail page on [expo.dev](https://expo.dev) → Builds.
+2. Upload it at [appetize.io](https://appetize.io) — free tier (100 min/month is enough for screenshots).
+3. Select the device: **iPhone 16 Pro Max** for the 6.9" slot (required), or **iPad Pro 13"** for the iPad slot.
+4. Use the in-browser screenshot button or your OS screenshot tool.
+
+#### Required screenshot resolutions
+
+| Slot | Device | Resolution | Required? |
+|------|--------|------------|-----------|
+| iPhone 6.9" | iPhone 16 Pro Max | 1320 × 2868 px | Yes |
+| iPhone 6.7" | iPhone 16 Plus | 1290 × 2796 px | Recommended |
+| iPad 13" | iPad Pro M4 | 2064 × 2752 px | Yes (if submitting iPad support) |
+
+Upload screenshots in App Store Connect → your app → App Store tab → iPhone/iPad Screenshots.
+
+---
+
+### Option C — iOS EAS Cloud Build (only option on Windows)
+
+> iOS compilation requires macOS. EAS builds on Expo's macOS infrastructure — no Mac required locally.
+
+#### First-time setup (do once)
+
+**Prerequisites:**
+- Apple Developer Program enrollment ($99/year) at developer.apple.com
+- App record created in App Store Connect (bundle ID: `net.learnimo.app`)
+- `eas.json` `submit.production.ios` filled with your `appleId`, `ascAppId`, `appleTeamId`
+
+EAS manages signing credentials automatically. On the first build it will prompt for your Apple ID password and create a distribution certificate + provisioning profile stored in Expo's credential storage.
+
+#### Build
+
+```bash
+cd mobile
+eas build --platform ios --profile production
+```
+
+EAS will:
+1. Prompt for Apple ID + password (first run only)
+2. Create/reuse a distribution certificate and App Store provisioning profile
+3. Build a signed `.ipa` on Expo's macOS servers (~15–20 min)
+
+#### Submit to TestFlight
+
+```bash
+eas submit --platform ios --profile production
+```
+
+This uploads the `.ipa` to App Store Connect. Go to appstoreconnect.apple.com → TestFlight to add internal testers.
+
+#### Build + submit in one step
+
+```bash
+eas build --platform ios --profile production --auto-submit
+```
+
+#### Smoke-test checklist (TestFlight build — do before App Review submission)
+
+- [ ] App installs and launches from home screen
+- [ ] Splash screen + Onnim icon appear
+- [ ] Login screen loads within ~2 seconds
+- [ ] Google Sign-In button is visible and completes sign-in
+- [ ] Cold start works: kill app → relaunch → same result
+- [ ] Feed loads, new learning can be saved
+
+#### Submit for App Review
+
+After TestFlight validation, go to App Store Connect → your app → App Store tab → submit for review.
+
+#### Credentials management
+
+```bash
+eas credentials --platform ios      # view, download, or rotate certificates and profiles
+```
+
+#### Build + submit both platforms in one step
+
+```bash
+cd mobile
+export EXPO_APPLE_ID=your@apple.id
+eas build --platform all --profile production --auto-submit
+```
+
+`autoIncrement: true` in `eas.json` handles version/build number bumping automatically — no manual edits needed.
 
 ---
 

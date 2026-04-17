@@ -110,6 +110,7 @@ class FeedServiceTest {
         SqlParameterSource params = paramsCaptor.getValue();
         assertThat(params.getValue("size")).isEqualTo(20);
         assertThat(params.getValue("offset")).isEqualTo(0L);
+        assertThat(params.getValue("selfLimit")).isEqualTo(FeedService.SELF_POK_LIMIT);
     }
 
     @Test
@@ -208,7 +209,9 @@ class FeedServiceTest {
             .query(anyString(), itemParamsCaptor.capture(), any(RowMapper.class));
 
         assertThat(countParamsCaptor.getValue().getValue("requesterId")).isEqualTo(requesterId);
+        assertThat(countParamsCaptor.getValue().getValue("selfLimit")).isEqualTo(FeedService.SELF_POK_LIMIT);
         assertThat(itemParamsCaptor.getValue().getValue("requesterId")).isEqualTo(requesterId);
+        assertThat(itemParamsCaptor.getValue().getValue("selfLimit")).isEqualTo(FeedService.SELF_POK_LIMIT);
     }
 
     // ===== HELPER =====

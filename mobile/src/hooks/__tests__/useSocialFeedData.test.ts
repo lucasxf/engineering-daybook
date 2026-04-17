@@ -127,6 +127,21 @@ describe('useSocialFeedData — pagination state machine', () => {
     expect(result).toBeNull();
   });
 
+  it('stores self-authored owned items correctly in feed content', async () => {
+    // Self-POKs arrive as type 'owned' with the user's own handle — hook stores them verbatim
+    const selfItem = makeOwnedItem('self-1');
+    // authorHandle matches what the current user would have (alice in this test setup)
+    const page = makeFeedPage(0, 1, [selfItem]);
+    (getFeed as jest.Mock).mockResolvedValueOnce(page);
+
+    const data = await getFeed({ page: 0, size: 20 });
+    const items = (data as FeedPage).content;
+
+    expect(items).toHaveLength(1);
+    expect(items[0].type).toBe('owned');
+    expect((items[0] as typeof selfItem).authorHandle).toBe('alice');
+  });
+
   it('handles shared (re-learning) items in feed', async () => {
     const sharedItem = {
       type: 'shared' as const,

@@ -2,17 +2,22 @@ import Constants from 'expo-constants';
 import { apiFetch } from './api';
 import { tokenStore } from './tokenStore';
 import type { PokVisibility, ProfileVisibility } from './auth';
+import type { Locale } from '@/i18n/i18n';
 import { ApiRequestError } from './api';
 
 const API_BASE_URL: string =
   (Constants.expoConfig?.extra?.apiUrl as string | undefined) ??
   'http://localhost:8080/api/v1';
 
+type ColorSchemeOverride = 'light' | 'dark' | 'system';
+
 export interface UpdateUserSettingsPayload {
   defaultPokVisibility?: PokVisibility;
   profileVisibility?: ProfileVisibility;
   bio?: string;
   displayName?: string;
+  theme?: ColorSchemeOverride;
+  locale?: Locale;
 }
 
 /**

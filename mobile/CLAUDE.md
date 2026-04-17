@@ -51,8 +51,9 @@ mobile/
     │   ├── validations.ts     # Shared zod schemas (login, register, pok, etc.)
     │   └── __tests__/         # Unit tests (node env, no RN setup needed)
     ├── hooks/
-    │   ├── useDebounce.ts     # 300ms debounce for search input
-    │   ├── useFeedData.ts     # Paginated feed with refresh + infinite scroll
+    │   ├── useDebounce.ts        # 300ms debounce for search input
+    │   ├── useFeedData.ts        # Paginated personal feed with refresh + infinite scroll
+    │   ├── useSocialFeedData.ts  # Paginated social feed (own + followed learners)
     │   └── __tests__/
     ├── components/
     │   ├── ui/                # Text, Button, TextInput, Card, ErrorMessage, Avatar, AvatarPicker
@@ -99,7 +100,15 @@ cd mobile && npm test -- --no-coverage --selectProjects lib
 cd mobile && npm run test:coverage
 ```
 
-Coverage threshold: **80% lines** (configured in `jest.config.js`).
+Coverage threshold: **80% lines** (global) + **50% screens** + **60% components** (configured in `jest.config.js`). Per-directory thresholds prevent high-coverage `lib/` files from masking untested screens.
+
+**Testing Conventions:**
+
+- **Screen test requirement:** Every `*Screen.tsx` file in `src/screens/` must have a matching `__tests__/<Name>.test.tsx`. Enforced by `scripts/check-screen-tests.sh` which runs in CI before `npm run test:coverage`.
+
+- **Multi-step flow test pattern:** Any screen with sequential API calls (e.g. create → assign, upload → update) must have tests covering: (1) happy path — all calls succeed, (2) partial failure — first call succeeds, second fails — verify rollback/error UX, (3) full failure — first call fails — verify no side effects. See `LearningDetailScreen.test.tsx` for reference.
+
+- **Platform-conditional test pattern:** Any code guarded by `Platform.OS` must have test variants for each relevant platform. Use `jest.spyOn(require('react-native'), 'Platform', 'get').mockReturnValue({ OS: 'android', ... })` or override `Platform.OS` in the react-native mock before calling the component.
 
 ---
 
@@ -291,4 +300,31 @@ See `mobile/RELEASE_WORKFLOW.md` for the full step-by-step procedure.
 
   This issue was triggered in `ProfileScreen.test.tsx` when `VisibilityPicker.tsx` was updated to use `Ionicons` icons instead of emoji literals. Any future component that adds an `@expo/vector-icons` import will require the same mock in every screen test file that transitively imports it. (Added 2026-03-28)
 
-*Last updated: 2026-03-28 (session: fix/avatar-upload — S2 closed-testing triage: avatar upload Android 13+ fix verified, skin-tone emojis replaced with Ionicons in VisibilityPicker)*
+- **Auto-resizing `TextInput` pattern — use `onContentSizeChange` with a `useState` height and explicit `minHeight`/`maxHeight`:** For multiline text inputs that should grow with content (e.g., `LearningForm` content field), track height in state and update it via the `onContentSizeChange` callback. Always clamp to a `minHeight` (so the field is usable when empty) and a `maxHeight` (so it does not consume the entire screen). Apply both bounds to the `style` prop.
+
+  ```ts
+  const [contentHeight, setContentHeight] = useState(200);
+
+  <TextInput
+    multiline
+    numberOfLines={10}
+    style={{ minHeight: 200, maxHeight: 400, height: contentHeight }}
+    onContentSizeChange={(e) =>
+      setContentHeight(Math.max(200, e.nativeEvent.contentSize.height))
+    }
+  />
+  ```
+
+  **Testing this pattern:** In component tests (node env, 3rd jest project), assert the `onContentSizeChange` prop exists on the content `TextInput`, invoke it with a synthetic event, and verify the resulting `height` style value equals the clamped result. Do NOT attempt to render with `jest-expo` for this — native content-size events are not fired in the test environment. (Added 2026-04-02)
+
+- **`eslint-disable-line` comments referencing unconfigured rules cause "Definition for rule not found" errors:** ESLint 9 strict mode rejects disable comments for rules not present in the active config. The mobile ESLint config (`eslint.config.js`) uses only `@typescript-eslint` rules — `react-hooks/exhaustive-deps` is NOT configured. Any `// eslint-disable-line react-hooks/exhaustive-deps` comment will fail with an error. Fix: either (a) add `eslint-plugin-react-hooks` to the config, or (b) replace the disable comment with a plain comment explaining the intentional omission. The em-dash `—` in inline comments is also treated as part of the rule name, unlike the double-hyphen `--` which ESLint uses for descriptions. (Added 2026-04-02)
+
+- **Plain-function-call component tests: every React hook used by the component MUST have a stub in `jest.mock('react', ...)`:** When a test calls a component as a plain function (`ProfileScreen(props)`) instead of rendering it through React fiber, the `jest.mock('react', ...)` factory must include stubs for ALL hooks the component uses. Adding a new hook (e.g. `useRef`) to the component without adding a matching stub causes an "Invalid hook call" error because the real hook runs outside fiber. Required stub: `useRef: (init) => ({ current: init })`. Any future hook addition to a component tested this way requires a matching entry in the mock factory. (Added 2026-04-03)
+
+- **Adding `eslint-plugin-simple-import-sort` as `"error"` breaks CI on legacy codebases:** When installing `eslint-plugin-simple-import-sort` into an existing project that has unsorted imports, setting severity to `"error"` immediately fails lint for every pre-existing file. Add the rule as `"warn"` first — the quality gate hook overrides to `"error"` via CLI `--rule` anyway, so new files edited by Claude are still flagged correctly. (Added 2026-04-02)
+
+- **`expo-image-picker@55.0.5+` breaks iOS EAS builds under Xcode < 26:** `MediaHandler.swift` calls `PHAsset.contentType` / `PHAssetResource.contentType` inside an `#available(iOS 26.0, *)` block. Swift type-checks both branches of `#available` against the active SDK — so this fails to compile against `iPhoneOS18.5.sdk` (EAS Xcode 16.x). Every version `55.0.5` through `55.0.18` (and likely beyond) contains the broken code. Fix: pin `expo-image-picker` to exactly `55.0.4` (no `~`) in `package.json`. Do not upgrade until EAS offers an Xcode 26 build image. Android builds are unaffected (bug is in iOS-only Swift). (Added 2026-04-15)
+
+- **Never commit personal account identifiers (Apple ID, developer emails) to any git-tracked file:** The `appleId` field in `eas.json submit.production.ios` must always use an env var reference (`"$EXPO_APPLE_ID"`), never a hardcoded email address. The same rule applies to `app.json`, `app.config.ts`, and any other version-controlled settings file. Supply the value at runtime via `export EXPO_APPLE_ID=your@apple.id` before running `eas build` or `eas submit`. EAS will also prompt interactively if the var is unset. Hardcoding personal identifiers in committed files is a privacy/security violation — PR #258 was opened to remediate a prior instance of this. (Added 2026-04-17)
+
+*Last updated: 2026-04-17 (session: develop — tag flow bugs, backend integration tests, combined EAS build+submit command)*

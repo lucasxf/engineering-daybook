@@ -54,9 +54,9 @@ export function LearningCard({ pok, onPress }: Props) {
 
         {pok.tags.length > 0 && (
           <View style={{ flexDirection: 'row', gap: spacing.xs, flexWrap: 'wrap', justifyContent: 'flex-end', flex: 1, marginLeft: spacing.sm }}>
-            {pok.tags.slice(0, 3).map((tag) => (
+            {[...pok.tags].sort((a, b) => (b.pokCount ?? 0) - (a.pokCount ?? 0)).slice(0, 3).map((tag) => (
               <View
-                key={tag.id}
+                key={tag.tagId}
                 style={{
                   backgroundColor: colors.tagPillBg,
                   borderRadius: theme.radii.full,

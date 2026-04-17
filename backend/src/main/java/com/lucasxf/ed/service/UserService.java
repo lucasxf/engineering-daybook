@@ -1,6 +1,7 @@
 package com.lucasxf.ed.service;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -23,6 +24,9 @@ import static java.util.Objects.requireNonNull;
  */
 @Service
 public class UserService {
+
+    private static final Set<String> VALID_THEMES = Set.of("light", "dark", "system");
+    private static final Set<String> VALID_LOCALES = Set.of("en", "EN", "pt-BR");
 
     private final UserRepository userRepository;
 
@@ -148,6 +152,40 @@ public class UserService {
     public void updateAvatarUrl(UUID userId, String avatarUrl) {
         User user = findById(userId);
         user.setAvatarUrl(avatarUrl);
+        userRepository.save(user);
+    }
+
+    /**
+     * Updates the theme preference for a user.
+     *
+     * @param userId the user's UUID
+     * @param theme  the new theme value (e.g. "light", "dark", "system")
+     * @throws UserNotFoundException if no user exists with that ID
+     */
+    @Transactional
+    public void updateTheme(UUID userId, String theme) {
+        if (!VALID_THEMES.contains(theme)) {
+            throw new IllegalArgumentException("Theme must be one of: light, dark, system");
+        }
+        User user = findById(userId);
+        user.setTheme(theme);
+        userRepository.save(user);
+    }
+
+    /**
+     * Updates the locale preference for a user.
+     *
+     * @param userId the user's UUID
+     * @param locale the new locale value (e.g. "EN", "pt-BR")
+     * @throws UserNotFoundException if no user exists with that ID
+     */
+    @Transactional
+    public void updateLocale(UUID userId, String locale) {
+        if (!VALID_LOCALES.contains(locale)) {
+            throw new IllegalArgumentException("Locale must be one of: EN, pt-BR");
+        }
+        User user = findById(userId);
+        user.setLocale(locale);
         userRepository.save(user);
     }
 }

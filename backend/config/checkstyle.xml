@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!--
+  Checkstyle configuration for learnimo backend.
+  Conventions (from CLAUDE.md):
+    - 4-space indentation, no tabs
+    - 100-character line limit
+    - Import order: java → jakarta → org.springframework → com.lucasxf → static
+    - No unused or redundant imports
+-->
+<module name="Checker">
+    <property name="severity" value="error"/>
+    <property name="fileExtensions" value="java"/>
+
+    <!-- No tab characters anywhere in source files -->
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true"/>
+    </module>
+
+    <!-- Line length is a file-level check — must be under Checker, not TreeWalker -->
+    <module name="LineLength">
+        <property name="max" value="100"/>
+        <!-- Allow long lines in Javadoc, annotations, and import statements -->
+        <property name="ignorePattern" value="^ *\* *[^ ]+$|^import "/>
+    </module>
+
+    <module name="TreeWalker">
+
+        <!-- ── Imports ──────────────────────────────────────────────────── -->
+        <module name="UnusedImports">
+            <property name="processJavadoc" value="false"/>
+        </module>
+        <module name="RedundantImport"/>
+        <module name="ImportOrder">
+            <!-- Groups: java/javax | jakarta | org.springframework | com.lucasxf | static -->
+            <property name="groups" value="java,javax,jakarta,org.springframework,com.lucasxf"/>
+            <property name="ordered" value="true"/>
+            <property name="separated" value="true"/>
+            <!-- Static imports at bottom (per CLAUDE.md convention) -->
+            <property name="option" value="bottom"/>
+            <property name="sortStaticImportsAlphabetically" value="true"/>
+        </module>
+        <module name="AvoidStarImport"/>
+
+        <!-- ── Braces ──────────────────────────────────────────────────── -->
+        <module name="NeedBraces"/>
+        <module name="LeftCurly"/>
+        <module name="RightCurly"/>
+
+        <!-- ── Naming conventions ──────────────────────────────────────── -->
+        <module name="TypeName"/>
+        <module name="ConstantName"/>
+        <module name="LocalVariableName"/>
+        <module name="MemberName"/>
+        <module name="MethodName"/>
+        <module name="PackageName"/>
+        <module name="ParameterName"/>
+        <module name="StaticVariableName"/>
+
+        <!-- ── Empty blocks ────────────────────────────────────────────── -->
+        <module name="EmptyBlock">
+            <property name="option" value="text"/>
+        </module>
+        <module name="EmptyCatchBlock">
+            <property name="exceptionVariableName" value="ignored|expected"/>
+        </module>
+
+        <!-- ── Miscellaneous ────────────────────────────────────────────── -->
+        <module name="UpperEll"/>
+        <module name="ArrayTypeStyle"/>
+        <module name="MultipleVariableDeclarations"/>
+
+    </module>
+</module>

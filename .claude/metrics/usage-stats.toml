@@ -2,33 +2,33 @@
 # Compiled by /compile-metrics, analyzed by automation-sentinel agent
 
 [metadata]
-timestamp = "2026-03-20T21:41:27Z"
+timestamp = "2026-04-16T11:16:28Z"
 commit_sha = ""
 branch = "develop"
 schema_version = "1.0.0"
 updated_by = "compile-metrics"
 
 # Agent Usage Metrics
-churn_baseline_commit = "4149e9fd9413676344dc4f6e431c795f23f5b8db"
+churn_baseline_commit = "52dc451a43d864257cb630dd4ca3470102f98f2b"
 [agent_usage.Explore]
-invocations = 104
-last_used = "2026-03-20T16:23:15Z"
+invocations = 113
+last_used = "2026-04-13T23:31:34Z"
 
 [agent_usage.Plan]
 invocations = 14
 last_used = "2026-03-19T19:23:15Z"
 
 [agent_usage.general-purpose]
-invocations = 75
-last_used = "2026-03-17T09:41:41Z"
+invocations = 76
+last_used = "2026-04-03T14:40:34Z"
 
 [agent_usage.automation-sentinel]
 invocations = 8
 last_used = "2026-03-19T20:09:39Z"
 
 [agent_usage.hedy]
-invocations = 2
-last_used = "2026-03-13T17:14:23Z"
+invocations = 3
+last_used = "2026-03-26T18:33:16Z"
 
 [agent_usage.imhotep]
 invocations = 0
@@ -47,8 +47,8 @@ invocations = 0
 last_used = ""
 
 [agent_usage.sous-chef]
-invocations = 1
-last_used = "2026-03-12T08:13:45Z"
+invocations = 3
+last_used = "2026-04-02T18:14:01Z"
 
 [agent_usage.steward]
 invocations = 1
@@ -68,8 +68,8 @@ last_used = "2026-03-15T11:17:23Z"
 
 # Command Usage Metrics
 [command_usage.compile-metrics]
-invocations = 19
-last_used = "2026-03-20T21:40:25Z"
+invocations = 20
+last_used = "2026-04-16T11:15:37Z"
 
 [command_usage.create-pr]
 invocations = 32
@@ -80,12 +80,12 @@ invocations = 1
 last_used = "2026-03-06T18:44:46Z"
 
 [command_usage.finish-session]
-invocations = 65
-last_used = "2026-03-20T21:18:36Z"
+invocations = 66
+last_used = "2026-04-02T19:03:39Z"
 
 [command_usage.fix-pr]
-invocations = 21
-last_used = "2026-03-19T19:18:07Z"
+invocations = 24
+last_used = "2026-04-03T17:54:51Z"
 
 [command_usage.fix-spec]
 invocations = 6
@@ -100,20 +100,20 @@ invocations = 6
 last_used = "2026-03-08T09:44:25Z"
 
 [command_usage.review-pr]
-invocations = 26
-last_used = "2026-03-19T19:08:18Z"
+invocations = 30
+last_used = "2026-04-03T17:07:36Z"
 
 [command_usage.save-response]
 invocations = 6
 last_used = "2026-03-16T21:09:23Z"
 
 [command_usage.start-session]
-invocations = 43
-last_used = "2026-03-20T16:14:05Z"
+invocations = 55
+last_used = "2026-04-02T18:00:16Z"
 
 [command_usage.productivity-report]
-invocations = 0
-last_used = ""
+invocations = 1
+last_used = "2026-03-20T21:58:17Z"
 
 [command_usage.write-spec]
 invocations = 9
@@ -158,8 +158,8 @@ last_used = ""
 
 
 [agent_usage.claude-code-guide]
-invocations = 3
-last_used = "2026-03-17T11:38:08Z"
+invocations = 5
+last_used = "2026-04-02T18:09:27Z"
 
 
 [command_usage.mobile-design-system]
@@ -167,34 +167,34 @@ invocations = 1
 last_used = "2026-03-15T11:52:45Z"
 
 [productivity]
-current_total_locs = 64918
-current_production_locs = 27915
-current_test_locs = 37003
-test_ratio_percent = 132.6
+current_total_locs = 69399
+current_production_locs = 28485
+current_test_locs = 40914
+test_ratio_percent = 143.6
 total_locs_added = 0
 total_locs_deleted = 0
 net_locs = 0
 
 # PR Review Quality Metrics
 [pr_review_quality]
-total_prs_triaged = 19
-total_comments_triaged = 109
-accepted = 70
-rejected = 3
-deferred = 11
+total_prs_triaged = 26
+total_comments_triaged = 143
+accepted = 80
+rejected = 13
+deferred = 20
 questions = 1
-informational = 24
+informational = 29
 
 # Spec Pipeline Health
 # NOTE: approved = 0 is EXPECTED — /review-spec was created AFTER all 19 implemented specs were written.
 # There was no bypass. Future specs should go through /review-spec before /implement-spec.
 [spec_pipeline]
-total_specs = 28
+total_specs = 29
 draft = 0
 planned = 1
 approved = 2
 in_progress = 2
-implemented = 23
+implemented = 24
 
 # Health Metrics
 
@@ -211,17 +211,37 @@ dcs_completed = 37
 weighted_dcs = 35.2
 milestones_completed = ["6.1", "6.3", "6.4", "8.2"]
 
+["6.1", "6.3", "6.4", "8.2"]
+
+["6.1", "6.3", "6.4", "8.2"]
+
 
 # DORA Performance Dimension — ADR-008
 [dora_metrics]
-deployment_frequency_weekly = 0.25
-lead_time_median_hours = 313.2
-change_failure_rate = 0.035
+deployment_frequency_weekly = 0.38
+lead_time_median_hours = 0.0
+change_failure_rate = 0.000
 mttr_hours = 0.0
-measurement_window_start = "2026-01-23"
-measurement_window_end = "2026-03-20"
+measurement_window_start = "2026-02-19"
+measurement_window_end = "2026-04-16"
 measurement_weeks = 8
 [loc_churn]
+[[loc_churn.periods]]
+period = "2026-W16"
+lines_added = 0
+lines_deleted = 0
+net = 0
+baseline_commit = "ba6935b1"
+head_commit = "52dc451a"
+
+[[loc_churn.periods]]
+period = "2026-W16"
+lines_added = 3702
+lines_deleted = 278
+net = 3424
+baseline_commit = "4149e9fd"
+head_commit = "ba6935b1"
+
 [[loc_churn.periods]]
 period = "2026-W12"
 lines_added = 0

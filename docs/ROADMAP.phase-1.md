@@ -577,13 +577,13 @@ Wave sequencing:
 |------|--------|--------|
 | Fix tag creation flow (create + attach + i18n) | ✅ Done | `fix/tag-creation-flow` |
 | Fix avatar upload on Android 13+ | ✅ Done | `fix/avatar-upload` |
-| Persist theme + locale settings (backend + contexts) | 🔲 Planned | `feat/settings-persistence` |
-| Profile save UX (feedback on setting changes) | 🔲 Planned | `feat/settings-persistence` |
+| Persist theme + locale settings (backend + contexts) | ✅ Done (feat/settings-persistence, PR #256) | `feat/settings-persistence` |
+| Profile save UX (feedback on setting changes) | ✅ Done (feat/settings-persistence, PR #256) | `feat/settings-persistence` |
 | Replace skin-tone emojis with neutral symbols | ✅ Done | `fix/avatar-upload` |
-| Tag sort by frequency + collapse/expand top 3 | 🔲 Planned | `feat/tag-sort-collapse` |
-| Social feed: include user's own recent learnings | 🔲 Planned | `feat/social-feed-own-poks` |
-| Auto-resizing + larger content textarea | 🔲 Planned | `feat/auto-resize-textarea` |
-| Test effectiveness: per-screen enforcement, flow tests, i18n smoke | 🔲 Planned | `chore/test-effectiveness` |
+| Tag sort by frequency + collapse/expand top 3 | ✅ Done | `feat/tag-sort-collapse` |
+| Social feed: include user's own recent learnings | ✅ Done | `feat/social-feed-own-poks` |
+| Auto-resizing + larger content textarea | ✅ Done | `feat/auto-resize-textarea` |
+| Test effectiveness: per-screen enforcement, flow tests, i18n smoke | ✅ Done | `chore/test-effectiveness` |
 
 ---
 
@@ -591,11 +591,15 @@ Wave sequencing:
 
 ⏳ Pending: Author using app for 1+ week (Phase 1 exit criterion)
 
+Per-File Quality Gates — Claude Code Hook Architecture (2026-04-02): all 6 milestones complete ✅. Semgrep OSS gate (`security_scan.py`), `simple-import-sort` downgraded to `"warn"` in ESLint configs, automation registry synced. Plan: `docs/plans/quality-gates-hook-architecture.md`.
+
 Mobile design system migration progress (Wave 2): S2.1 ✅ S2.2 ✅ S2.3 ✅ — all Wave 2 screen migrations complete (feat/ds-auth-screens, feat/ds-feed-detail, feat/ds-profile-discover).
 
 Mobile parity execution plan progress: Wave 4 (4-tier visibility) ✅ done (feat/mobile-4-tier-visibility, 2026-03-17). Wave 7 Google OAuth ✅ done (feat/mobile-google-sign-in, 2026-03-19). Pre-work complete (2026-03-17): parity table corrected, 8 specs Approved. Next: Wave 3 (profile editing, feat/mobile-profile-editing) — required for Play Store submission.
 
 Milestone 3.4 (App Store Publishing): Play Store internal track updated to versionCode 11 (1.0.1) on 2026-03-19. Crash-on-launch permanently fixed via 4 Expo config plugins. `react` pinned to 19.0.0 to resolve JS crash from renderer version mismatch. Local signing workflow documented. Google OAuth for mobile still pending before production track promotion.
+
+iOS App Store submission (2026-04-16): build 1.0.21/build 7 submitted via `eas submit`. Apple accepted the binary with warning ITMS-90725 — built with iOS 18.5 SDK (Xcode 16.x); **starting 2026-04-28 all submissions must use iOS 26 SDK (Xcode 26)**. Current build is valid for this review cycle. Action required before 2026-04-28: (1) monitor https://expo.dev/changelog for EAS Xcode 26 image announcement; (2) when available, unpin `expo-image-picker` from `55.0.4` (pinned because 55.0.5+ breaks iOS builds under Xcode < 26 — see `mobile/CLAUDE.md` pitfall); (3) add `"image": "<eas-xcode-26-image-name>"` to the `production` profile in `eas.json`; (4) rebuild and resubmit.
 
 ---
 
