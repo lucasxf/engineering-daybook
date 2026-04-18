@@ -451,5 +451,44 @@
     "follow": "Seguir",
     "following": "Seguindo",
     "editProfile": "Editar perfil"
+  },
+  "support": {
+    "title": "Suporte",
+    "intro": "Tem alguma dúvida ou precisa de ajuda? Veja as perguntas frequentes abaixo ou entre em contato diretamente — será um prazer ajudar.",
+    "contact": {
+      "heading": "Fale Conosco",
+      "body": "Para assuntos não cobertos aqui, envie um e-mail para",
+      "emailLabel": "support@learnimo.net"
+    },
+    "faq": {
+      "heading": "Perguntas Frequentes",
+      "deleteAccount": {
+        "q": "Como excluo minha conta?",
+        "a": "A exclusão de conta estará disponível em breve. Enquanto isso, envie um e-mail para support@learnimo.net e excluiremos sua conta e todos os dados associados em até 48 horas."
+      },
+      "changeHandle": {
+        "q": "Posso alterar meu nome de usuário?",
+        "a": "Sim. Acesse Configurações → Perfil e digite um novo nome de usuário. Os nomes devem ser únicos e podem conter apenas letras minúsculas, números e hífens."
+      },
+      "dataPrivacy": {
+        "q": "Como meus dados são usados?",
+        "a": "Seus aprendizados são privados por padrão e nunca vendidos a terceiros. Usamos seus dados apenas para fornecer e melhorar o serviço.",
+        "policyLink": "Leia nossa Política de Privacidade"
+      },
+      "themeLanguage": {
+        "q": "Como altero o tema ou o idioma?",
+        "a": "Acesse Configurações → Aparência para alternar entre os modos claro e escuro. Para mudar o idioma, acesse Configurações → Idioma."
+      },
+      "reportBug": {
+        "q": "Como reporto um bug?",
+        "a": "Encontrou algo errado? Abra uma issue no nosso repositório no GitHub descrevendo o que aconteceu, os passos para reproduzir e seu dispositivo ou navegador.",
+        "linkLabel": "Abrir uma issue no GitHub"
+      }
+    },
+    "backLink": "← Voltar ao learnimo"
+  },
+  "footer": {
+    "privacy": "Política de Privacidade",
+    "support": "Suporte"
   }
 }

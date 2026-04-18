@@ -9,6 +9,10 @@ describe('useDebounce', () => {
     vi.clearAllTimers();
   });
 
+  afterAll(() => {
+    vi.useRealTimers();
+  });
+
   it('should return initial value immediately', () => {
     const { result } = renderHook(() => useDebounce('initial', 300));
 
