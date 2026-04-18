@@ -17,8 +17,11 @@ import { TextInput } from '@/components/ui/TextInput';
 import { Text } from '@/components/ui/Text';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
+import { AppleSignInButton } from '@/components/auth/AppleSignInButton';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import type { GoogleAuthSuccess } from '@/hooks/useGoogleAuth';
+import { useAppleAuth } from '@/hooks/useAppleAuth';
+import type { AppleAuthSuccess } from '@/hooks/useAppleAuth';
 
 type Nav = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
 
@@ -33,14 +36,28 @@ export function LoginScreen() {
     if (result.type === 'existing') {
       setUser(result.user);
     } else {
-      nav.navigate('ChooseHandle', { tempToken: result.tempToken, email: result.email });
+      nav.navigate('ChooseHandle', { tempToken: result.tempToken, email: result.email, provider: 'google' });
     }
   };
-  const { loading: googleLoading, handlePress, disabled: googleDisabled } =
+  const { loading: googleLoading, handlePress: googleHandlePress, disabled: googleDisabled } =
     useGoogleAuth(handleGoogleSuccess, (msg) => setServerError(t(msg)));
   const handleGoogleSignIn = async () => {
     setServerError(null);
-    await handlePress();
+    await googleHandlePress();
+  };
+
+  const handleAppleSuccess = (result: AppleAuthSuccess) => {
+    if (result.type === 'existing') {
+      setUser(result.user);
+    } else {
+      nav.navigate('ChooseHandle', { tempToken: result.tempToken, email: result.email, provider: 'apple' });
+    }
+  };
+  const { loading: appleLoading, handlePress: appleHandlePress } =
+    useAppleAuth(handleAppleSuccess, (msg) => setServerError(t(msg)));
+  const handleAppleSignIn = async () => {
+    setServerError(null);
+    await appleHandlePress();
   };
 
   const {
@@ -133,6 +150,11 @@ export function LoginScreen() {
             label={t('auth.login.forgotPassword')}
             variant="ghost"
             onPress={() => nav.navigate('ForgotPassword')}
+          />
+
+          <AppleSignInButton
+            loading={appleLoading}
+            onPress={handleAppleSignIn}
           />
 
           <GoogleSignInButton

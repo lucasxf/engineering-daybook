@@ -27,16 +27,19 @@ jest.mock('@/contexts/AuthContext', () => ({
   useAuth: () => ({ setUser: mockSetUser }),
 }));
 
+let mockRouteParams: Record<string, unknown> = { tempToken: 'google-temp-token-abc' };
 jest.mock('@react-navigation/native', () => ({
   useNavigation: () => ({ navigate: jest.fn() }),
-  useRoute: () => ({ params: { tempToken: 'google-temp-token-abc' } }),
+  useRoute: () => ({ params: mockRouteParams }),
 }));
 
 jest.mock('@react-navigation/native-stack', () => ({}));
 
 const mockCompleteGoogleSignupApi = jest.fn();
+const mockCompleteAppleSignupApi = jest.fn();
 jest.mock('@/lib/auth', () => ({
   completeGoogleSignupApi: (...args: unknown[]) => mockCompleteGoogleSignupApi(...args),
+  completeAppleSignupApi: (...args: unknown[]) => mockCompleteAppleSignupApi(...args),
 }));
 
 jest.mock('@/lib/api', () => ({
@@ -95,6 +98,7 @@ import type { ReactEl } from './test-utils';
 describe('ChooseHandleScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockRouteParams = { tempToken: 'google-temp-token-abc' };
     mockHandleSubmit.mockImplementation((onSubmit) =>
       jest.fn(() => onSubmit({ handle: 'johndoe', displayName: 'John Doe' }))
     );
@@ -185,5 +189,76 @@ describe('ChooseHandleScreen', () => {
     // ChooseHandle has only one button (submit) — no back/ghost button
     expect(buttons.length).toBe(1);
     expect(buttons[0].props.fullWidth).toBe(true);
+  });
+
+  // ---------------------------------------------------------------------------
+  // Provider routing tests
+  // ---------------------------------------------------------------------------
+
+  it('calls completeGoogleSignupApi when provider is "google"', async () => {
+    mockRouteParams = { tempToken: 'google-temp-token-abc', provider: 'google' };
+    const user = { id: '3', email: 'google@example.com' };
+    mockCompleteGoogleSignupApi.mockResolvedValue(user);
+
+    const result = ChooseHandleScreen({} as never);
+    const buttons = findAllByType(result, 'Button');
+    const submitBtn = buttons.find((b) => b.props.fullWidth === true);
+
+    await (submitBtn?.props.onPress as () => Promise<void>)();
+
+    expect(mockCompleteGoogleSignupApi).toHaveBeenCalledWith({
+      tempToken: 'google-temp-token-abc',
+      handle: 'johndoe',
+      displayName: 'John Doe',
+    });
+    expect(mockCompleteAppleSignupApi).not.toHaveBeenCalled();
+  });
+
+  it('calls completeAppleSignupApi when provider is "apple"', async () => {
+    mockRouteParams = { tempToken: 'apple-temp-token-xyz', provider: 'apple' };
+    const user = { id: '4', email: 'apple@privaterelay.apple.com' };
+    mockCompleteAppleSignupApi.mockResolvedValue(user);
+
+    const result = ChooseHandleScreen({} as never);
+    const buttons = findAllByType(result, 'Button');
+    const submitBtn = buttons.find((b) => b.props.fullWidth === true);
+
+    await (submitBtn?.props.onPress as () => Promise<void>)();
+
+    expect(mockCompleteAppleSignupApi).toHaveBeenCalledWith({
+      tempToken: 'apple-temp-token-xyz',
+      handle: 'johndoe',
+      displayName: 'John Doe',
+    });
+    expect(mockCompleteGoogleSignupApi).not.toHaveBeenCalled();
+  });
+
+  it('defaults to completeGoogleSignupApi when provider is absent (backwards compat)', async () => {
+    mockRouteParams = { tempToken: 'google-temp-token-abc' };
+    const user = { id: '3', email: 'google@example.com' };
+    mockCompleteGoogleSignupApi.mockResolvedValue(user);
+
+    const result = ChooseHandleScreen({} as never);
+    const buttons = findAllByType(result, 'Button');
+    const submitBtn = buttons.find((b) => b.props.fullWidth === true);
+
+    await (submitBtn?.props.onPress as () => Promise<void>)();
+
+    expect(mockCompleteGoogleSignupApi).toHaveBeenCalled();
+    expect(mockCompleteAppleSignupApi).not.toHaveBeenCalled();
+  });
+
+  it('calls setUser after successful Apple signup completion', async () => {
+    mockRouteParams = { tempToken: 'apple-temp-token-xyz', provider: 'apple' };
+    const user = { id: '4', email: 'apple@privaterelay.apple.com' };
+    mockCompleteAppleSignupApi.mockResolvedValue(user);
+
+    const result = ChooseHandleScreen({} as never);
+    const buttons = findAllByType(result, 'Button');
+    const submitBtn = buttons.find((b) => b.props.fullWidth === true);
+
+    await (submitBtn?.props.onPress as () => Promise<void>)();
+
+    expect(mockSetUser).toHaveBeenCalledWith(user);
   });
 });
