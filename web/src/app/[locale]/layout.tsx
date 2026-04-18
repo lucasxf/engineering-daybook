@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages, setRequestLocale } from 'next-intl/server';
+import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
+import Link from 'next/link';
 import { locales, type Locale } from '@/lib/i18n';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { LanguageToggle } from '@/components/ui/LanguageToggle';
@@ -28,6 +29,7 @@ export default async function LocaleLayout({
 
   setRequestLocale(locale);
   const messages = await getMessages();
+  const ft = await getTranslations({ locale, namespace: 'footer' });
 
   return (
     <NextIntlClientProvider messages={messages}>
@@ -46,6 +48,16 @@ export default async function LocaleLayout({
           </div>
         </header>
         <main className="container mx-auto px-4 py-8">{children}</main>
+        <footer className="border-t border-border bg-background py-6">
+          <div className="container mx-auto flex justify-center gap-6 px-4 text-sm text-slate-500 dark:text-slate-400">
+            <Link href={`/${locale}/privacy` as never} className="hover:text-slate-700 dark:hover:text-slate-200">
+              {ft('privacy')}
+            </Link>
+            <Link href={`/${locale}/support` as never} className="hover:text-slate-700 dark:hover:text-slate-200">
+              {ft('support')}
+            </Link>
+          </div>
+        </footer>
       </div>
     </NextIntlClientProvider>
   );
