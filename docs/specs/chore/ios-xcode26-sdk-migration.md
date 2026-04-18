@@ -1,9 +1,9 @@
 # iOS 26 SDK / Xcode 26 Build-Chain Migration
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Reviewed:** 2026-04-17
 > **Created:** 2026-04-17
-> **Implemented:** _pending_
+> **Implemented:** 2026-04-18
 
 ---
 
@@ -200,14 +200,18 @@ Verification steps (manual, post-implementation):
 > _This section is filled AFTER implementation._
 
 ### Commits
-- _pending_
+- `7c852ba` — `chore(mobile): unpin expo-image-picker, adopt Xcode 26 EAS build image`
+- `f343fce` — `docs(mobile): record expo-image-picker Xcode 26 migration resolution`
 
 ### Architectural Decisions
 
 _None — configuration-only change._
 
 ### Deviations from Spec
-- _pending_
+- **`mobile/ios/` not regenerated locally:** The spec called for running `expo prebuild --clean` and committing the regenerated `mobile/ios/`. This step was skipped because (a) `mobile/ios/` was not tracked in this branch, and (b) `expo prebuild --clean` cannot generate iOS project files on Windows. EAS cloud build runs on macOS with Xcode 26 and handles iOS project generation automatically. No impact on the EAS build outcome.
+- **`expo-image-picker` resolved to `55.0.18`** (not a lower `55.0.5`): the `~55.0.5` range resolved to the latest patch at install time. This is correct and expected behavior.
 
 ### Lessons Learned
-- _pending_
+- `expo prebuild --clean --platform ios` on Windows clears the `ios/` directory but cannot regenerate it — the iOS project generation requires macOS (Expo CLI prints "Skipping generating the iOS native project files. Run npx expo prebuild again from macOS or Linux"). For branches that commit `mobile/ios/`, this step must be done on macOS or delegated to the EAS cloud build.
+- EAS image name source of truth: use the [EAS build reference docs](https://docs.expo.dev/build-reference/infrastructure/) (`macos-sequoia-15.6-xcode-26.2` = `latest`/`sdk-55` as of 2026-04-18). The changelog entry confirmed Xcode 26 beta support but did not list image names.
+- EAS image tag `sdk-55` is a convenience label only — the image works with any Expo SDK version. Build environment (Xcode) and JS runtime (Expo SDK npm package) are independent.
