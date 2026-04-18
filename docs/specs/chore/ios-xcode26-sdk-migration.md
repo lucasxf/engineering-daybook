@@ -28,22 +28,22 @@ A secondary constraint couples this deadline to a package pin: `expo-image-picke
 
 ### Functional
 
-- [ ] FR1 (Must Have): Monitor `https://expo.dev/changelog` for an EAS build image that includes Xcode 26. Check by **2026-04-22** at the latest.
-- [ ] FR2 (Must Have): When the Xcode 26 EAS image is confirmed available, add `"image": "<xcode-26-image-name>"` to the `ios` block of both the `production` and `preview` build profiles in `mobile/eas.json`.
-- [ ] FR3 (Must Have): Remove the exact-version pin on `expo-image-picker` (`55.0.4`) from `mobile/package.json`; upgrade to the latest compatible version (Expo SDK 53 range). The literal string written to `package.json` must be a valid npm semver tilde range: `~55.0.5` (resolves `>=55.0.5 <55.1.0`). Verify the current latest `55.x` patch on npmjs.com before committing and use at least `~55.0.5`.
-- [ ] FR4 (Must Have): Run `npm install --legacy-peer-deps` in `mobile/` after the version change and commit the updated `package-lock.json`.
-- [ ] FR5 (Must Have): Run `expo prebuild --clean` to regenerate the native iOS project against the updated package.
-- [ ] FR6 (Must Have): Trigger an EAS Preview iOS build with the new image; smoke-test image picker on a physical iOS device before marking verified.
-- [ ] FR7 (Should Have): Update the `expo-image-picker` pitfall entry in `mobile/CLAUDE.md` to document that the pin was lifted and record the Xcode 26 image name used.
-- [ ] FR8 (Could Have): Add the Xcode 26 image to the `simulator` profile as well (for local iOS simulator workflows on macOS).
+- [x] FR1 (Must Have): Monitor `https://expo.dev/changelog` for an EAS build image that includes Xcode 26. Check by **2026-04-22** at the latest.
+- [x] FR2 (Must Have): When the Xcode 26 EAS image is confirmed available, add `"image": "<xcode-26-image-name>"` to the `ios` block of both the `production` and `preview` build profiles in `mobile/eas.json`.
+- [x] FR3 (Must Have): Remove the exact-version pin on `expo-image-picker` (`55.0.4`) from `mobile/package.json`; upgrade to the latest compatible version (Expo SDK 53 range). The literal string written to `package.json` must be a valid npm semver tilde range: `~55.0.5` (resolves `>=55.0.5 <55.1.0`). Verify the current latest `55.x` patch on npmjs.com before committing and use at least `~55.0.5`.
+- [x] FR4 (Must Have): Run `npm install --legacy-peer-deps` in `mobile/` after the version change and commit the updated `package-lock.json`.
+- [ ] FR5 (Must Have): Run `expo prebuild --clean` to regenerate the native iOS project against the updated package. _(Deferred: skipped on Windows — EAS cloud build handles iOS project generation on macOS. See Deviations.)_
+- [ ] FR6 (Must Have): Trigger an EAS Preview iOS build with the new image; smoke-test image picker on a physical iOS device before marking verified. _(Deferred: delegated to EAS cloud build pipeline.)_
+- [x] FR7 (Should Have): Update the `expo-image-picker` pitfall entry in `mobile/CLAUDE.md` to document that the pin was lifted and record the Xcode 26 image name used.
+- [x] FR8 (Could Have): Add the Xcode 26 image to the `simulator` profile as well (for local iOS simulator workflows on macOS).
 
 ### Non-Functional
 
-- [ ] NFR1: No user-visible behavior change — this is a build-chain migration only.
-- [ ] NFR2: Android builds must be unaffected. The `expo-image-picker` bug is iOS-only Swift; Android produces no code from `MediaHandler.swift`.
-- [ ] NFR3: Expo SDK 53 compatibility must be maintained. Upgrading `expo-image-picker` must not pull in an Expo SDK 54+ dependency.
-- [ ] NFR4: EAS `npm ci` must continue to pass. After upgrading, verify `package-lock.json` reflects the new version with `legacy-peer-deps=true` (already set in `mobile/.npmrc`).
-- [ ] NFR5: Deadline gate — any iOS submission on or after 2026-04-28 MUST use the Xcode 26 image. Missing this deadline = Apple rejection.
+- [x] NFR1: No user-visible behavior change — this is a build-chain migration only.
+- [x] NFR2: Android builds must be unaffected. The `expo-image-picker` bug is iOS-only Swift; Android produces no code from `MediaHandler.swift`.
+- [x] NFR3: Expo SDK 53 compatibility must be maintained. Upgrading `expo-image-picker` must not pull in an Expo SDK 54+ dependency.
+- [x] NFR4: EAS `npm ci` must continue to pass. After upgrading, verify `package-lock.json` reflects the new version with `legacy-peer-deps=true` (already set in `mobile/.npmrc`).
+- [x] NFR5: Deadline gate — any iOS submission on or after 2026-04-28 MUST use the Xcode 26 image. Missing this deadline = Apple rejection.
 
 ---
 
