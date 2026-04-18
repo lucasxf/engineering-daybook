@@ -604,6 +604,8 @@ Milestone 3.4 (App Store Publishing): Play Store internal track updated to versi
 
 Apple rejection remediation — Spec B (support page): `/en/support` and `/pt-BR/support` pages implemented on `feat/support-page` (2026-04-18). Site-wide footer with Privacy + Support links added to locale layout. App Store Connect Support URL updated to `https://learnimo.net/en/support` in `docs/appstore-metadata.md`. 7 Playwright E2E tests covering AC1–AC7. Pre-existing timer leak in `useDebounce.test.ts` fixed (faker timer bleed into `PokForm.test.tsx`). PR pending for merge to develop → main.
 
+Account deletion (Apple Guideline 5.1.1v): implemented 2026-04-18 on `feat/account-deletion`. Full-stack: `DELETE /api/v1/users/me` (idempotent, 204), transactional cascade delete, user anonymization (`@SQLRestriction` hides deleted users), `DeleteAccountModal` with typed-handle confirmation, two-step alert flow in ProfileScreen. PR pending → `develop`. Remaining: physical-device screen recording required for App Store Connect review notes before resubmission.
+
 ---
 
 ## MVP Exit Criteria

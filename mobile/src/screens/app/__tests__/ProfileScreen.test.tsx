@@ -59,10 +59,12 @@ jest.mock('@/contexts/AuthContext', () => ({
 const mockUpdateUserSettings = jest.fn();
 const mockUploadAvatar = jest.fn();
 const mockDeleteAvatar = jest.fn();
+const mockDeleteAccountApi = jest.fn();
 jest.mock('@/lib/userApi', () => ({
   updateUserSettings: (...args: unknown[]) => mockUpdateUserSettings(...args),
   uploadAvatar: (...args: unknown[]) => mockUploadAvatar(...args),
   deleteAvatar: (...args: unknown[]) => mockDeleteAvatar(...args),
+  deleteAccountApi: (...args: unknown[]) => mockDeleteAccountApi(...args),
 }));
 
 jest.mock('@/components/ui/Button', () => ({
@@ -91,6 +93,16 @@ jest.mock('@/components/ui/AvatarPicker', () => ({
 }));
 
 jest.mock('@react-navigation/native-stack', () => ({}));
+
+jest.mock('@/components/account/DeleteAccountModal', () => ({
+  DeleteAccountModal: (props: Record<string, unknown>) =>
+    require('react').createElement('DeleteAccountModal', props),
+}));
+
+const mockTokenStoreClear = jest.fn();
+jest.mock('@/lib/tokenStore', () => ({
+  tokenStore: { clear: (...args: unknown[]) => mockTokenStoreClear(...args) },
+}));
 
 // ---------------------------------------------------------------------------
 // Import under test (after mocks)
@@ -331,5 +343,76 @@ describe('ProfileScreen — theme/locale auto-save', () => {
     const systemBtn = findButton(result, 'profile.themeOptions.system');
     // isSavingSettings starts false (both isSavingTheme and isSavingLocale are false)
     expect(systemBtn?.props.disabled).toBe(false);
+  });
+});
+
+describe('ProfileScreen — account deletion', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+    // Re-mock hooks cleared by resetAllMocks
+    (require('react') as Record<string, unknown>).useEffect = jest.fn();
+    (require('react') as Record<string, unknown>).useCallback = (fn: unknown) => fn;
+    (require('react') as Record<string, unknown>).useMemo = (fn: () => unknown) => fn();
+    (require('react') as Record<string, unknown>).useState = (init: unknown) => [init, jest.fn()];
+  });
+
+  it('renders Delete Account button below Logout button', () => {
+    const result = ProfileScreen({} as never);
+    const logoutBtn = findButton(result, 'profile.logoutButton');
+    const deleteBtn = findButton(result, 'profile.deleteAccount.button');
+    expect(logoutBtn).toBeDefined();
+    expect(deleteBtn).toBeDefined();
+  });
+
+  it('pressing Delete Account button fires Alert.alert with warning title', () => {
+    const result = ProfileScreen({} as never);
+    const deleteBtn = findButton(result, 'profile.deleteAccount.button');
+    (deleteBtn?.props.onPress as () => void)();
+    expect(mockAlert).toHaveBeenCalledWith(
+      'profile.deleteAccount.warningTitle',
+      'profile.deleteAccount.warningMessage',
+      expect.any(Array)
+    );
+  });
+
+  it('Cancel button on warning alert does not open the modal', () => {
+    const mockSetState = jest.fn();
+    (require('react') as Record<string, unknown>).useState = (init: unknown) => [init, mockSetState];
+    const result = ProfileScreen({} as never);
+    const deleteBtn = findButton(result, 'profile.deleteAccount.button');
+    (deleteBtn?.props.onPress as () => void)();
+
+    // Extract alert buttons from the Alert.alert call
+    const alertArgs = (mockAlert as jest.Mock).mock.calls[0];
+    const alertButtons = alertArgs[2] as Array<{ text: string; style?: string; onPress?: () => void }>;
+    const cancelButton = alertButtons.find((b) => b.style === 'cancel');
+    cancelButton?.onPress?.();
+
+    // setShowDeleteModal(true) should NOT have been called
+    expect(mockSetState).not.toHaveBeenCalledWith(true);
+  });
+
+  it('Continue (destructive) button on warning alert has an onPress handler', () => {
+    // Note: asserting on the setState setter is unreliable in plain-function-call style
+    // because Babel captures named imports at module load time. We verify instead that
+    // the destructive button exists and has an onPress, confirming modal integration.
+    const result = ProfileScreen({} as never);
+    const deleteBtn = findButton(result, 'profile.deleteAccount.button');
+    (deleteBtn?.props.onPress as () => void)();
+
+    const alertArgs = (mockAlert as jest.Mock).mock.calls[0];
+    const alertButtons = alertArgs[2] as Array<{ text: string; style?: string; onPress?: () => void }>;
+    const destructiveButton = alertButtons.find((b) => b.style === 'destructive');
+    expect(destructiveButton).toBeDefined();
+    expect(typeof destructiveButton?.onPress).toBe('function');
+  });
+
+  it('onDeleted callback clears token store and calls logout', () => {
+    const result = ProfileScreen({} as never);
+    const modal = findAllByType(result, 'DeleteAccountModal')[0];
+    const onDeleted = modal?.props?.onDeleted as () => void;
+    onDeleted();
+    expect(mockTokenStoreClear).toHaveBeenCalled();
+    expect(mockLogout).toHaveBeenCalled();
   });
 });

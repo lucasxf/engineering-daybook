@@ -221,4 +221,34 @@ class UserSettingsControllerTest {
         mockMvc.perform(delete("/api/v1/users/me/avatar"))
             .andExpect(status().isUnauthorized());
     }
+
+    // ===== DELETE /me (account deletion) =====
+
+    @Test
+    void deleteAccount_authenticated_returns204() throws Exception {
+        mockMvc.perform(delete("/api/v1/users/me")
+                .with(user(userId.toString())))
+            .andExpect(status().isNoContent());
+
+        verify(userService).deleteAccount(userId);
+    }
+
+    @Test
+    void deleteAccount_unauthenticated_returns401() throws Exception {
+        mockMvc.perform(delete("/api/v1/users/me"))
+            .andExpect(status().isUnauthorized());
+
+        verify(userService, never()).deleteAccount(any());
+    }
+
+    @Test
+    void deleteAccount_passesCorrectUserIdFromJwt() throws Exception {
+        UUID specificId = UUID.randomUUID();
+
+        mockMvc.perform(delete("/api/v1/users/me")
+                .with(user(specificId.toString())))
+            .andExpect(status().isNoContent());
+
+        verify(userService).deleteAccount(specificId);
+    }
 }

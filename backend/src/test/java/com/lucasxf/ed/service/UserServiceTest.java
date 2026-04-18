@@ -1,22 +1,35 @@
 package com.lucasxf.ed.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.exception.UserNotFoundException;
+import com.lucasxf.ed.repository.FollowRepository;
+import com.lucasxf.ed.repository.PokAuditLogRepository;
+import com.lucasxf.ed.repository.PokRepository;
+import com.lucasxf.ed.repository.PokShareRepository;
+import com.lucasxf.ed.repository.PokTagRepository;
+import com.lucasxf.ed.repository.RefreshTokenRepository;
 import com.lucasxf.ed.repository.UserRepository;
+import com.lucasxf.ed.repository.UserTagRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,6 +38,30 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PokRepository pokRepository;
+
+    @Mock
+    private PokTagRepository pokTagRepository;
+
+    @Mock
+    private PokAuditLogRepository pokAuditLogRepository;
+
+    @Mock
+    private PokShareRepository pokShareRepository;
+
+    @Mock
+    private FollowRepository followRepository;
+
+    @Mock
+    private UserTagRepository userTagRepository;
+
+    @Mock
+    private RefreshTokenRepository refreshTokenRepository;
+
+    @Mock
+    private StorageService storageService;
 
     @InjectMocks
     private UserService userService;
@@ -287,5 +324,95 @@ class UserServiceTest {
         Optional<User> result = userService.findByHandle("ghost");
 
         assertThat(result).isEmpty();
+    }
+
+    // ===== deleteAccount =====
+
+    private User makeUserWithId() {
+        User user = makeUser();
+        ReflectionTestUtils.setField(user, "id", userId);
+        return user;
+    }
+
+    @Test
+    void deleteAccount_callsCascadeInCorrectOrder() {
+        User user = makeUserWithId();
+        List<UUID> pokIds = List.of(UUID.randomUUID(), UUID.randomUUID());
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(pokRepository.findIdsByUserId(userId)).thenReturn(pokIds);
+
+        userService.deleteAccount(userId);
+
+        InOrder order = inOrder(
+            pokShareRepository,
+            followRepository,
+            pokTagRepository,
+            pokAuditLogRepository,
+            pokRepository,
+            userTagRepository,
+            refreshTokenRepository,
+            storageService,
+            userRepository);
+
+        order.verify(pokShareRepository).deleteAllBySharedByUserId(userId);
+        order.verify(pokShareRepository).deleteByOriginalPokIdIn(pokIds);
+        order.verify(followRepository).deleteAllByFollowerId(userId);
+        order.verify(followRepository).deleteAllByFollowedId(userId);
+        order.verify(pokTagRepository).deleteByPokIdIn(pokIds);
+        order.verify(pokAuditLogRepository).deleteByPokIdIn(pokIds);
+        order.verify(pokRepository).deleteAllByUserId(userId);
+        order.verify(userTagRepository).deleteAllByUserId(userId);
+        order.verify(refreshTokenRepository).deleteAllByUserId(userId);
+        order.verify(storageService).delete(userId);
+        order.verify(userRepository).save(user);
+    }
+
+    @Test
+    void deleteAccount_anonymizesUserFields() {
+        User user = makeUserWithId();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(pokRepository.findIdsByUserId(userId)).thenReturn(List.of());
+
+        userService.deleteAccount(userId);
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        User saved = captor.getValue();
+
+        assertThat(saved.getEmail()).startsWith("deleted-").endsWith("@deleted.learnimo.net");
+        assertThat(saved.getHandle()).startsWith("deleted_");
+        assertThat(saved.getDisplayName()).isEqualTo("[deleted]");
+        assertThat(saved.getBio()).isNull();
+        assertThat(saved.getAvatarUrl()).isNull();
+        assertThat(saved.getPasswordHash()).isNull();
+        assertThat(saved.getDeletedAt()).isNotNull();
+    }
+
+    @Test
+    void deleteAccount_idempotent_whenUserAlreadyDeleted_noCascadeCalls() {
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        userService.deleteAccount(userId);
+
+        verify(pokRepository, never()).findIdsByUserId(userId);
+        verify(pokShareRepository, never()).deleteAllBySharedByUserId(userId);
+        verify(followRepository, never()).deleteAllByFollowerId(userId);
+        verify(userTagRepository, never()).deleteAllByUserId(userId);
+        verify(refreshTokenRepository, never()).deleteAllByUserId(userId);
+        verify(storageService, never()).delete(userId);
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void deleteAccount_propagatesExceptionFromCascadeStep() {
+        User user = makeUserWithId();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(pokRepository.findIdsByUserId(userId)).thenReturn(List.of());
+        org.mockito.Mockito.doThrow(new RuntimeException("DB error"))
+            .when(userTagRepository).deleteAllByUserId(userId);
+
+        assertThatThrownBy(() -> userService.deleteAccount(userId))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("DB error");
     }
 }

@@ -13,6 +13,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
+import org.hibernate.annotations.SQLRestriction;
+
 /**
  * User entity representing an authenticated application user.
  *
@@ -21,6 +23,7 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name = "users")
+@SQLRestriction("deleted_at IS NULL")
 public class User {
 
     @Id
@@ -36,7 +39,7 @@ public class User {
     @Column(name = "display_name", nullable = false, length = 100)
     private String displayName;
 
-    @Column(nullable = false, unique = true, length = 30)
+    @Column(nullable = false, length = 64)
     private String handle;
 
     @Column(length = 10)
@@ -71,6 +74,9 @@ public class User {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt = Instant.now();
 
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
+
     protected User() {
         // JPA requires a no-arg constructor
     }
@@ -95,6 +101,10 @@ public class User {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getPasswordHash() {
         return passwordHash;
     }
@@ -113,6 +123,10 @@ public class User {
 
     public String getHandle() {
         return handle;
+    }
+
+    public void setHandle(String handle) {
+        this.handle = handle;
     }
 
     public String getLocale() {
@@ -185,6 +199,14 @@ public class User {
 
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public Instant getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(Instant deletedAt) {
+        this.deletedAt = deletedAt;
     }
 
     /**

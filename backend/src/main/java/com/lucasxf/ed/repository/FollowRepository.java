@@ -68,4 +68,8 @@ public interface FollowRepository extends JpaRepository<Follow, FollowId> {
             WHERE f1.followerId = :userId
             """)
     long countColleagues(@Param("userId") UUID userId);
+
+    void deleteAllByFollowerId(UUID followerId);
+
+    void deleteAllByFollowedId(UUID followedId);
 }

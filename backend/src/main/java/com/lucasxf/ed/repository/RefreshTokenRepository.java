@@ -27,4 +27,6 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
     @Modifying
     @Query("DELETE FROM RefreshToken r WHERE r.revokedAt IS NOT NULL AND r.revokedAt < :before")
     void deleteRevokedBefore(Instant before);
+
+    void deleteAllByUserId(UUID userId);
 }

@@ -1,5 +1,7 @@
 package com.lucasxf.ed.service;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -12,7 +14,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.User;
 import com.lucasxf.ed.exception.UserNotFoundException;
+import com.lucasxf.ed.repository.FollowRepository;
+import com.lucasxf.ed.repository.PokAuditLogRepository;
+import com.lucasxf.ed.repository.PokRepository;
+import com.lucasxf.ed.repository.PokShareRepository;
+import com.lucasxf.ed.repository.PokTagRepository;
+import com.lucasxf.ed.repository.RefreshTokenRepository;
 import com.lucasxf.ed.repository.UserRepository;
+import com.lucasxf.ed.repository.UserTagRepository;
 
 import static java.util.Objects.requireNonNull;
 
@@ -29,9 +38,34 @@ public class UserService {
     private static final Set<String> VALID_LOCALES = Set.of("en", "EN", "pt-BR");
 
     private final UserRepository userRepository;
+    private final PokRepository pokRepository;
+    private final PokTagRepository pokTagRepository;
+    private final PokAuditLogRepository pokAuditLogRepository;
+    private final PokShareRepository pokShareRepository;
+    private final FollowRepository followRepository;
+    private final UserTagRepository userTagRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final StorageService storageService;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(
+            UserRepository userRepository,
+            PokRepository pokRepository,
+            PokTagRepository pokTagRepository,
+            PokAuditLogRepository pokAuditLogRepository,
+            PokShareRepository pokShareRepository,
+            FollowRepository followRepository,
+            UserTagRepository userTagRepository,
+            RefreshTokenRepository refreshTokenRepository,
+            StorageService storageService) {
         this.userRepository = requireNonNull(userRepository);
+        this.pokRepository = requireNonNull(pokRepository);
+        this.pokTagRepository = requireNonNull(pokTagRepository);
+        this.pokAuditLogRepository = requireNonNull(pokAuditLogRepository);
+        this.pokShareRepository = requireNonNull(pokShareRepository);
+        this.followRepository = requireNonNull(followRepository);
+        this.userTagRepository = requireNonNull(userTagRepository);
+        this.refreshTokenRepository = requireNonNull(refreshTokenRepository);
+        this.storageService = requireNonNull(storageService);
     }
 
     /**
@@ -186,6 +220,89 @@ public class UserService {
         }
         User user = findById(userId);
         user.setLocale(locale);
+        userRepository.save(user);
+    }
+
+    /**
+     * Permanently deletes the authenticated user's account.
+     *
+     * <p>Cascade-deletes all associated data in a safe order, removes the avatar
+     * blob from storage, then anonymises the user row (soft-delete via {@code deleted_at}).
+     *
+     * <p>Idempotent: if the user has already been deleted (or never existed),
+     * the method returns immediately without error.
+     *
+     * @param userId the UUID of the user to delete
+     */
+    @Transactional
+    public void deleteAccount(UUID userId) {
+        Optional<User> maybeUser = userRepository.findById(userId);
+        if (maybeUser.isEmpty()) {
+            return;
+        }
+        User user = maybeUser.get();
+
+        // Collect POK IDs before deleting (needed for per-POK cascade steps)
+        List<UUID> pokIds = pokRepository.findIdsByUserId(userId);
+
+        // 1. PokShare by user
+        pokShareRepository.deleteAllBySharedByUserId(userId);
+
+        // 2. PokShare by POK
+        if (!pokIds.isEmpty()) {
+            pokShareRepository.deleteByOriginalPokIdIn(pokIds);
+        }
+
+        // 3. Follow (both directions)
+        followRepository.deleteAllByFollowerId(userId);
+        followRepository.deleteAllByFollowedId(userId);
+
+        // 4. PokTag per POK
+        if (!pokIds.isEmpty()) {
+            pokTagRepository.deleteByPokIdIn(pokIds);
+        }
+
+        // 5. PokAuditLog per POK
+        if (!pokIds.isEmpty()) {
+            pokAuditLogRepository.deleteByPokIdIn(pokIds);
+        }
+
+        // 6. POKs
+        pokRepository.deleteAllByUserId(userId);
+
+        // 7. UserTag
+        userTagRepository.deleteAllByUserId(userId);
+
+        // 8. RefreshToken
+        refreshTokenRepository.deleteAllByUserId(userId);
+
+        // 9. Avatar blob (no-op when absent).
+        // Intentionally runs before the DB commit in step 10: if the commit fails the user row is
+        // never anonymised, so the deleted avatar blob is unreachable (the user can't log in to
+        // notice). The reverse order would risk the row being committed while the blob survives.
+        storageService.delete(userId);
+
+        // 10. Anonymise and soft-delete the user row (DB commit happens here)
+        anonymizeUser(user);
+    }
+
+    /**
+     * Anonymises a user row in preparation for soft-deletion.
+     *
+     * <p>Replaces all personally-identifying fields with opaque placeholders and
+     * sets {@code deleted_at} to the current instant.
+     *
+     * @param user the user entity to anonymise
+     */
+    private void anonymizeUser(User user) {
+        String id = user.getId().toString();
+        user.setEmail("deleted-" + id + "@deleted.learnimo.net");
+        user.setHandle("deleted_" + id.replace("-", "_"));
+        user.setDisplayName("[deleted]");
+        user.setBio(null);
+        user.setAvatarUrl(null);
+        user.setPasswordHash(null);
+        user.setDeletedAt(Instant.now());
         userRepository.save(user);
     }
 }

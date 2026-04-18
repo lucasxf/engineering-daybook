@@ -8,6 +8,9 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.PokShare;
@@ -97,4 +100,22 @@ public interface PokShareRepository extends JpaRepository<PokShare, UUID> {
      */
     long countBySharedByUserIdAndVisibilityIn(
         UUID sharedByUserId, Collection<Pok.Visibility> visibilities);
+
+    /**
+     * Deletes all shares created by the given user.
+     * Used during account deletion to remove all re-learnings by the user.
+     *
+     * @param sharedByUserId the sharer's user ID
+     */
+    void deleteAllBySharedByUserId(UUID sharedByUserId);
+
+    /**
+     * Deletes all shares referencing any of the given original POK IDs.
+     * Used during account deletion to remove shares of the user's own POKs.
+     *
+     * @param pokIds the original POK IDs whose shares should be deleted
+     */
+    @Modifying
+    @Query("DELETE FROM PokShare ps WHERE ps.originalPokId IN :pokIds")
+    void deleteByOriginalPokIdIn(@Param("pokIds") List<UUID> pokIds);
 }
