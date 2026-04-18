@@ -70,6 +70,24 @@ export interface CompleteGoogleSignupPayload {
   displayName: string;
 }
 
+export interface AppleLoginResponse {
+  requiresHandle: boolean;
+  tempToken: string | null;
+  handle: string | null;
+  userId: string | null;
+  email: string | null;
+  /** Present when requiresHandle=false — store in SecureStore. */
+  accessToken: string | null;
+  /** Present when requiresHandle=false — store in SecureStore. */
+  refreshToken: string | null;
+}
+
+export interface CompleteAppleSignupPayload {
+  tempToken: string;
+  handle: string;
+  displayName: string;
+}
+
 // ---------------------------------------------------------------------------
 // Internal helper
 // ---------------------------------------------------------------------------
@@ -141,6 +159,31 @@ export async function completeGoogleSignupApi(
   payload: CompleteGoogleSignupPayload
 ): Promise<AuthResponse> {
   const data = await apiPublicFetch<BackendAuthResponse>('/auth/mobile/google/complete', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  return storeTokensAndReturn(data);
+}
+
+export async function appleLoginApi(identityToken: string): Promise<AppleLoginResponse> {
+  const data = await apiPublicFetch<AppleLoginResponse>('/auth/mobile/apple', {
+    method: 'POST',
+    body: JSON.stringify({ identityToken }),
+  });
+
+  // Existing user path — store tokens immediately
+  if (!data.requiresHandle && data.accessToken && data.refreshToken) {
+    await tokenStore.setAccessToken(data.accessToken);
+    await tokenStore.setRefreshToken(data.refreshToken);
+  }
+
+  return data;
+}
+
+export async function completeAppleSignupApi(
+  payload: CompleteAppleSignupPayload
+): Promise<AuthResponse> {
+  const data = await apiPublicFetch<BackendAuthResponse>('/auth/mobile/apple/complete', {
     method: 'POST',
     body: JSON.stringify(payload),
   });

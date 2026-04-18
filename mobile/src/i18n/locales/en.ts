@@ -13,6 +13,7 @@ export default {
       signUp: 'Sign up',
       orContinueWith: 'Or continue with',
       googleButton: 'Continue with Google',
+      appleButton: 'Sign in with Apple',
     },
     register: {
       title: 'Create account',
@@ -67,6 +68,7 @@ export default {
       loginFailed: 'Invalid email or password',
       registerFailed: 'Could not create account. Please try again.',
       googleFailed: 'Google sign-in failed. Please try again.',
+      appleFailed: 'Sign in with Apple failed. Try again.',
     },
   },
 
