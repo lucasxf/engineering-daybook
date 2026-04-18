@@ -63,4 +63,6 @@ public interface UserTagRepository extends JpaRepository<UserTag, UUID> {
      */
     @Query("SELECT DISTINCT ut.userId FROM UserTag ut WHERE ut.deletedAt IS NULL")
     List<UUID> findDistinctUserIdsWithActiveTags();
+
+    void deleteAllByUserId(UUID userId);
 }
