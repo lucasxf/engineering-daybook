@@ -46,6 +46,7 @@
       "net.learnimo.app"
     ],
     "plugins": [
+      "expo-apple-authentication",
       "expo-secure-store",
       "expo-localization",
       [

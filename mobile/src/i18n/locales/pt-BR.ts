@@ -12,6 +12,7 @@ export default {
       signUp: 'Cadastre-se',
       orContinueWith: 'Ou continue com',
       googleButton: 'Continuar com Google',
+      appleButton: 'Entrar com Apple',
     },
     register: {
       title: 'Criar conta',
@@ -66,6 +67,7 @@ export default {
       loginFailed: 'E-mail ou senha inválidos',
       registerFailed: 'Não foi possível criar a conta. Tente novamente.',
       googleFailed: 'Falha no login com Google. Tente novamente.',
+      appleFailed: 'Falha ao entrar com Apple. Tente novamente.',
     },
   },
 

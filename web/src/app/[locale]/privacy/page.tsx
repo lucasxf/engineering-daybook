@@ -152,6 +152,32 @@ function PrivacyEn({ t }: { t: TFn }) {
         <p>No advertising SDKs, analytics tools, or crash reporting services are embedded in the app.</p>
       </Section>
 
+      <Section title={t('sections.signInWithApple')}>
+        <p>
+          If you choose to sign in with Apple, Apple shares the following data with learnimo:
+        </p>
+        <ul className="ml-4 list-disc space-y-1">
+          <li>
+            <strong>Name</strong> (first sign-in only) — used to pre-fill your display name.
+          </li>
+          <li>
+            <strong>Email or private relay address</strong> — used to create and identify your
+            account, and for account recovery. Apple&apos;s private relay address
+            (e.g.&nbsp;<em>abc123@privaterelay.appleid.com</em>) functions like a real email for
+            all account purposes; learnimo cannot see your real Apple ID email when you use this
+            option.
+          </li>
+          <li>
+            <strong>Stable user identifier</strong> — a unique, persistent ID provided by Apple
+            that lets learnimo recognise your account across sign-ins without storing your Apple ID.
+          </li>
+        </ul>
+        <p>
+          learnimo uses this data solely to create and identify your account. It is not shared with
+          any third party.
+        </p>
+      </Section>
+
       <Section title={t('sections.yourRights')}>
         <ul className="ml-4 list-disc space-y-1">
           <li>
@@ -319,6 +345,35 @@ function PrivacyPtBR({ t }: { t: TFn }) {
         <p>
           Nenhum SDK de publicidade, ferramenta de análise ou serviço de relatório de falhas está
           integrado ao aplicativo.
+        </p>
+      </Section>
+
+      <Section title={t('sections.signInWithApple')}>
+        <p>
+          Se você optar por entrar com o Apple, a Apple compartilha os seguintes dados com o
+          learnimo:
+        </p>
+        <ul className="ml-4 list-disc space-y-1">
+          <li>
+            <strong>Nome</strong> (somente no primeiro login) — usado para preencher seu nome de
+            exibição.
+          </li>
+          <li>
+            <strong>E-mail ou endereço de retransmissão privada</strong> — usado para criar e
+            identificar sua conta e para recuperação de acesso. O endereço de retransmissão privada
+            da Apple (ex.:&nbsp;<em>abc123@privaterelay.appleid.com</em>) funciona como um e-mail
+            real para todos os fins de conta; o learnimo não tem acesso ao seu e-mail real do Apple
+            ID quando você usa essa opção.
+          </li>
+          <li>
+            <strong>Identificador de usuário estável</strong> — um ID único e persistente fornecido
+            pela Apple que permite ao learnimo reconhecer sua conta entre logins sem armazenar seu
+            Apple ID.
+          </li>
+        </ul>
+        <p>
+          O learnimo usa esses dados exclusivamente para criar e identificar sua conta. Eles não são
+          compartilhados com terceiros.
         </p>
       </Section>
 

@@ -6,7 +6,7 @@ export type AuthStackParamList = {
   Login: undefined;
   Register: undefined;
   ForgotPassword: undefined;
-  ChooseHandle: { tempToken: string; email: string };
+  ChooseHandle: { tempToken: string; email: string; provider?: 'google' | 'apple' };
 };
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();

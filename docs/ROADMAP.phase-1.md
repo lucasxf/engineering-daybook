@@ -19,6 +19,7 @@
 | 1.1.3 | Google OAuth login | ✅ Backend + Web (PR #20) |
 | 1.1.4 | JWT session management | ✅ Backend (PR #15) + Web (PR #17) |
 | 1.1.5 | Password reset flow | ✅ Implemented (2026-02-21) |
+| 1.1.6 | Sign in with Apple (mobile) | ✅ Backend + Mobile (feat/sign-in-with-apple, 2026-04-18) |
 
 ### Milestone 1.2: POK CRUD ✅
 

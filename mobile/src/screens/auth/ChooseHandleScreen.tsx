@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/contexts/I18nContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { completeGoogleSignupApi } from '@/lib/auth';
+import { completeGoogleSignupApi, completeAppleSignupApi } from '@/lib/auth';
 import { ApiRequestError } from '@/lib/api';
 import { chooseHandleSchema, ChooseHandleFormData } from '@/lib/validations';
 import type { AuthStackParamList } from '@/navigation/AuthStack';
@@ -23,7 +23,7 @@ export function ChooseHandleScreen() {
   const { t } = useI18n();
   const { setUser } = useAuth();
   const route = useRoute<RouteProps>();
-  const { tempToken } = route.params;
+  const { tempToken, provider = 'google' } = route.params;
   const [serverError, setServerError] = useState<string | null>(null);
 
   const {
@@ -38,7 +38,9 @@ export function ChooseHandleScreen() {
   async function onSubmit(data: ChooseHandleFormData) {
     setServerError(null);
     try {
-      const user = await completeGoogleSignupApi({
+      const completeSignupApi =
+        provider === 'apple' ? completeAppleSignupApi : completeGoogleSignupApi;
+      const user = await completeSignupApi({
         tempToken,
         handle: data.handle,
         displayName: data.displayName,
