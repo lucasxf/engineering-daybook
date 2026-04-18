@@ -601,6 +601,8 @@ Milestone 3.4 (App Store Publishing): Play Store internal track updated to versi
 
 iOS App Store submission (2026-04-16): build 1.0.21/build 7 submitted via `eas submit`. Apple accepted the binary with warning ITMS-90725 — built with iOS 18.5 SDK (Xcode 16.x); **starting 2026-04-28 all submissions must use iOS 26 SDK (Xcode 26)**. Current build is valid for this review cycle. Action required before 2026-04-28: (1) monitor https://expo.dev/changelog for EAS Xcode 26 image announcement; (2) when available, unpin `expo-image-picker` from `55.0.4` (pinned because 55.0.5+ breaks iOS builds under Xcode < 26 — see `mobile/CLAUDE.md` pitfall); (3) add `"image": "<eas-xcode-26-image-name>"` to the `production` profile in `eas.json`; (4) rebuild and resubmit.
 
+Apple rejection remediation — Spec B (support page): `/en/support` and `/pt-BR/support` pages implemented on `feat/support-page` (2026-04-18). Site-wide footer with Privacy + Support links added to locale layout. App Store Connect Support URL updated to `https://learnimo.net/en/support` in `docs/appstore-metadata.md`. 7 Playwright E2E tests covering AC1–AC7. Pre-existing timer leak in `useDebounce.test.ts` fixed (faker timer bleed into `PokForm.test.tsx`). PR pending for merge to develop → main.
+
 ---
 
 ## MVP Exit Criteria
