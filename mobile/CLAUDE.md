@@ -328,4 +328,6 @@ See `mobile/RELEASE_WORKFLOW.md` for the full step-by-step procedure.
 
 - **Never commit personal account identifiers (Apple ID, developer emails) to any git-tracked file:** The `appleId` field in `eas.json submit.production.ios` must always use an env var reference (`"$EXPO_APPLE_ID"`), never a hardcoded email address. The same rule applies to `app.json`, `app.config.ts`, and any other version-controlled settings file. Supply the value at runtime via `export EXPO_APPLE_ID=your@apple.id` before running `eas build` or `eas submit`. EAS will also prompt interactively if the var is unset. Hardcoding personal identifiers in committed files is a privacy/security violation — PR #258 was opened to remediate a prior instance of this. (Added 2026-04-17)
 
-*Last updated: 2026-04-17 (session: develop — tag flow bugs, backend integration tests, combined EAS build+submit command)*
+- **`expo prebuild --clean` on Windows cannot regenerate `mobile/ios/`:** The iOS project generation requires macOS. Running `expo prebuild --clean --platform ios` on Windows will CLEAR the `ios/` directory but then fail to regenerate it, printing "Skipping generating the iOS native project files. Run npx expo prebuild again from macOS or Linux." This step must be performed on macOS or left to EAS cloud builds (which run on macOS). If the worktree does not track `ios/`, this is a no-op issue. (Added 2026-04-18)
+
+*Last updated: 2026-04-18 (session: chore/ios-xcode26-sdk-migration — iOS 26 SDK / Xcode 26 build-chain migration)*
