@@ -16,6 +16,7 @@ import com.lucasxf.ed.exception.InvalidTokenException;
 import com.lucasxf.ed.exception.ResourceConflictException;
 import com.lucasxf.ed.repository.RefreshTokenRepository;
 import com.lucasxf.ed.repository.UserRepository;
+import com.lucasxf.ed.service.AppleIdentityTokenVerifier.AppleUserInfo;
 import com.lucasxf.ed.service.GoogleTokenVerifierService.GoogleUserInfo;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,17 +40,20 @@ public class AuthService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final GoogleTokenVerifierService googleTokenVerifier;
+    private final AppleIdentityTokenVerifier appleIdentityTokenVerifier;
 
     public AuthService(UserRepository userRepository,
                        RefreshTokenRepository refreshTokenRepository,
                        JwtService jwtService,
                        PasswordEncoder passwordEncoder,
-                       GoogleTokenVerifierService googleTokenVerifier) {
+                       GoogleTokenVerifierService googleTokenVerifier,
+                       AppleIdentityTokenVerifier appleIdentityTokenVerifier) {
         this.userRepository = requireNonNull(userRepository);
         this.refreshTokenRepository = requireNonNull(refreshTokenRepository);
         this.jwtService = requireNonNull(jwtService);
         this.passwordEncoder = requireNonNull(passwordEncoder);
         this.googleTokenVerifier = requireNonNull(googleTokenVerifier);
+        this.appleIdentityTokenVerifier = requireNonNull(appleIdentityTokenVerifier);
     }
 
     /**
@@ -189,6 +193,72 @@ public class AuthService {
         userRepository.save(user);
 
         log.info("Google OAuth user created: handle={}, email={}", handle, email);
+        return issueTokens(user);
+    }
+
+    /**
+     * Authenticates a user with an Apple identity token.
+     *
+     * <p>Looks up the user first by Apple sub (stable ID), then by email as a fallback
+     * for accounts that existed before Apple sign-in was added.
+     *
+     * <p>If the user exists with {@code auth_provider=apple}, issues JWT tokens.
+     * If the user is new, returns a temp token for handle selection.
+     * If the email belongs to a non-Apple account (local or google), returns 409 Conflict.
+     *
+     * @throws ResourceConflictException if the email is already registered with a different provider
+     */
+    @Transactional
+    public AppleLoginResult appleLogin(String identityToken) {
+        AppleUserInfo userInfo = appleIdentityTokenVerifier.verify(identityToken);
+        String sub = userInfo.sub();
+        String rawEmail = userInfo.email();
+        String normalizedEmail = rawEmail != null ? rawEmail.toLowerCase(Locale.ROOT) : null;
+
+        User user = userRepository.findByAppleSub(sub)
+            .orElseGet(() -> normalizedEmail != null
+                ? userRepository.findByEmail(normalizedEmail).orElse(null)
+                : null);
+
+        if (user != null) {
+            if (!"apple".equals(user.getAuthProvider())) {
+                log.warn("Apple OAuth email conflict with {} account: email={}", user.getAuthProvider(),
+                    normalizedEmail);
+                throw new ResourceConflictException(
+                    "This email is already registered with a different sign-in method. "
+                        + "Please sign in using your original method.");
+            }
+            log.info("Apple OAuth login: handle={}", user.getHandle());
+            return new AppleLoginResult.ExistingUser(issueTokens(user));
+        }
+
+        log.info("Apple OAuth new user: sub={}", sub);
+        String tempToken = jwtService.generateAppleTempToken(sub, normalizedEmail);
+        return new AppleLoginResult.NewUser(tempToken, normalizedEmail);
+    }
+
+    /**
+     * Completes registration for a new Sign in with Apple user by creating their account.
+     *
+     * @throws InvalidTokenException if the temp token is invalid or expired
+     * @throws ResourceConflictException if the handle is already taken
+     */
+    @Transactional
+    public AuthResult completeAppleSignup(String tempToken, String handle, String displayName) {
+        Claims claims = jwtService.parseAppleTempToken(tempToken);
+
+        if (userRepository.existsByHandle(handle)) {
+            throw new ResourceConflictException("Handle already taken");
+        }
+
+        String email = claims.get("email", String.class);
+        String appleSub = claims.get("appleSub", String.class);
+        var user = new User(email, null, displayName, handle);
+        user.setAuthProvider("apple");
+        user.setAppleSub(appleSub);
+        userRepository.save(user);
+
+        log.info("Apple OAuth user created: handle={}, sub={}", handle, appleSub);
         return issueTokens(user);
     }
 

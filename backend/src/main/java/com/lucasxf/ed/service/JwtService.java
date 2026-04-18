@@ -37,6 +37,7 @@ import static java.util.Objects.requireNonNull;
 public class JwtService {
 
     private static final String GOOGLE_SIGNUP_TOKEN_TYPE = "google_signup";
+    private static final String APPLE_SIGNUP_TOKEN_TYPE = "apple_signup";
     private static final String INVALID_TEMP_TOKEN_MESSAGE = "Invalid or expired temp token";
 
     private final SecretKey signingKey;
@@ -148,6 +149,45 @@ public class JwtService {
             Claims claims = parseClaims(token);
             String type = claims.get("type", String.class);
             if (!GOOGLE_SIGNUP_TOKEN_TYPE.equals(type)) {
+                throw new InvalidTokenException(INVALID_TEMP_TOKEN_MESSAGE);
+            }
+            return claims;
+        } catch (JwtException e) {
+            throw new InvalidTokenException(INVALID_TEMP_TOKEN_MESSAGE, e);
+        }
+    }
+
+    /**
+     * Generates a short-lived temp token for two-step Sign in with Apple signup.
+     * Contains Apple user claims and a {@code type=apple_signup} marker.
+     * Expires after 5 minutes.
+     *
+     * @param appleSub the stable Apple user ID (subject)
+     * @param email    the user's email (may be null if Apple private relay was declined)
+     */
+    public String generateAppleTempToken(String appleSub, String email) {
+        Instant now = Instant.now();
+        return Jwts.builder()
+            .claim("type", APPLE_SIGNUP_TOKEN_TYPE)
+            .claim("appleSub", appleSub)
+            .claim("email", email)
+            .issuedAt(Date.from(now))
+            .expiration(Date.from(now.plus(Duration.ofMinutes(5))))
+            .signWith(signingKey)
+            .compact();
+    }
+
+    /**
+     * Parses and validates a temp token issued for Sign in with Apple signup.
+     *
+     * @return the token claims containing appleSub and email
+     * @throws InvalidTokenException if the token is invalid, expired, or not an apple temp token
+     */
+    public Claims parseAppleTempToken(String token) {
+        try {
+            Claims claims = parseClaims(token);
+            String type = claims.get("type", String.class);
+            if (!APPLE_SIGNUP_TOKEN_TYPE.equals(type)) {
                 throw new InvalidTokenException(INVALID_TEMP_TOKEN_MESSAGE);
             }
             return claims;
