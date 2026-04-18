@@ -59,7 +59,7 @@ aprendizado,diário,conhecimento,estudo,notas,learning,journal,tags,busca,memór
 ## URL de Suporte
 
 ```
-https://github.com/lucasxf/engineering-daybook/issues
+https://learnimo.net/en/support
 ```
 
 ---

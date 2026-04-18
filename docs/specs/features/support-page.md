@@ -1,6 +1,6 @@
 # Support Page
 
-> **Status:** Approved
+> **Status:** In Progress
 > **Created:** 2026-04-17
 > **Reviewed:** 2026-04-18
 > **Implemented:** _pending_
