@@ -13,7 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 /**
  * User entity representing an authenticated application user.
@@ -23,7 +23,7 @@ import org.hibernate.annotations.Where;
  */
 @Entity
 @Table(name = "users")
-@Where(clause = "deleted_at IS NULL")
+@SQLRestriction("deleted_at IS NULL")
 public class User {
 
     @Id
@@ -98,6 +98,10 @@ public class User {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getPasswordHash() {
         return passwordHash;
     }
@@ -116,6 +120,10 @@ public class User {
 
     public String getHandle() {
         return handle;
+    }
+
+    public void setHandle(String handle) {
+        this.handle = handle;
     }
 
     public String getLocale() {
