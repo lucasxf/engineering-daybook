@@ -6,6 +6,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import javax.sql.DataSource;
+
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.PokAuditLog;
 import com.lucasxf.ed.domain.PokTag;
@@ -125,6 +127,9 @@ class AccountDeletionIntegrationTest {
     @Autowired
     private JwtService jwtService;
 
+    @Autowired
+    private DataSource dataSource;
+
     private User alice;
     private String aliceHandle;
     private String aliceEmail;
@@ -182,11 +187,22 @@ class AccountDeletionIntegrationTest {
         assertThat(pokAuditLogRepository.findAll()).isEmpty();
         assertThat(userTagRepository.findAll()).isEmpty();
 
-        // Assert: user row is anonymised (findById bypasses @SQLRestriction via native query workaround —
-        // we use JPA's findAll and filter since findById also applies the restriction)
+        // Assert: user row is hidden from normal JPA queries (@SQLRestriction filters deleted rows)
         List<User> allUsers = userRepository.findAll();
-        // @SQLRestriction hides deleted users — row is gone from normal JPA queries
         assertThat(allUsers).isEmpty();
+
+        // Assert: the underlying DB row has been anonymised (bypass @SQLRestriction via native query)
+        try (Connection conn = dataSource.getConnection();
+             var stmt = conn.prepareStatement(
+                     "SELECT email, display_name, deleted_at FROM users WHERE id = ?")) {
+            stmt.setObject(1, aliceId);
+            try (var rs = stmt.executeQuery()) {
+                assertThat(rs.next()).isTrue();
+                assertThat(rs.getString("email")).startsWith("deleted-");
+                assertThat(rs.getString("display_name")).isEqualTo("[deleted]");
+                assertThat(rs.getTimestamp("deleted_at")).isNotNull();
+            }
+        }
     }
 
     // ===== AC2 — Idempotency: second call is a no-op =====

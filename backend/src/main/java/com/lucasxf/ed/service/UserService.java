@@ -234,7 +234,7 @@ public class UserService {
      *
      * @param userId the UUID of the user to delete
      */
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional
     public void deleteAccount(UUID userId) {
         Optional<User> maybeUser = userRepository.findById(userId);
         if (maybeUser.isEmpty()) {
@@ -276,10 +276,13 @@ public class UserService {
         // 8. RefreshToken
         refreshTokenRepository.deleteAllByUserId(userId);
 
-        // 9. Avatar blob (no-op when absent)
+        // 9. Avatar blob (no-op when absent).
+        // Intentionally runs before the DB commit in step 10: if the commit fails the user row is
+        // never anonymised, so the deleted avatar blob is unreachable (the user can't log in to
+        // notice). The reverse order would risk the row being committed while the blob survives.
         storageService.delete(userId);
 
-        // 10. Anonymise and soft-delete the user row
+        // 10. Anonymise and soft-delete the user row (DB commit happens here)
         anonymizeUser(user);
     }
 

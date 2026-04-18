@@ -73,6 +73,6 @@ export function deleteAvatar(): Promise<void> {
 /**
  * Permanently deletes the authenticated user's account and all associated data.
  */
-export async function deleteAccountApi(): Promise<void> {
+export function deleteAccountApi(): Promise<void> {
   return apiFetch<void>('/users/me', { method: 'DELETE' });
 }

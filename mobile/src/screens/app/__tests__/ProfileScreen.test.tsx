@@ -406,4 +406,13 @@ describe('ProfileScreen — account deletion', () => {
     expect(destructiveButton).toBeDefined();
     expect(typeof destructiveButton?.onPress).toBe('function');
   });
+
+  it('onDeleted callback clears token store and calls logout', () => {
+    const result = ProfileScreen({} as never);
+    const modal = findAllByType(result, 'DeleteAccountModal')[0];
+    const onDeleted = modal?.props?.onDeleted as () => void;
+    onDeleted();
+    expect(mockTokenStoreClear).toHaveBeenCalled();
+    expect(mockLogout).toHaveBeenCalled();
+  });
 });
