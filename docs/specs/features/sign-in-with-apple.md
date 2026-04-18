@@ -1,9 +1,9 @@
 # Sign in with Apple
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-04-17
 > **Reviewed:** 2026-04-17
-> **Implemented:** _pending_
+> **Implemented:** 2026-04-18
 
 ---
 
@@ -417,13 +417,25 @@ CREATE UNIQUE INDEX users_apple_sub_unique
 > _This section is filled AFTER implementation._
 
 ### Commits
-_pending_
+- `0153320` feat(backend): add apple_sub column to users (V23 migration)
+- `8194f99` feat(backend): add Apple identity token verifier with JWK cache
+- `2bf56d7` feat(backend): add appleLogin and completeAppleSignup to AuthService
+- `f012678` feat(backend): add POST /auth/mobile/apple and /apple/complete endpoints
+- `d2f7f1b` feat(mobile): install expo-apple-authentication and register plugin
+- `d87c583` feat(mobile): add appleLoginApi, useAppleAuth hook, and i18n keys
+- `5d63d08` feat(mobile): add AppleSignInButton, wire auth screens, add provider routing in ChooseHandleScreen
+- `079cc43` docs(web): add Sign in with Apple data-handling section to privacy policy
 
 ### Architectural Decisions
-_pending_
+- **No new library dependencies on the backend.** Used `java.security` (`KeyFactory`, `RSAPublicKeySpec`) + JJWT 0.12.6 (already present) for RS256 token verification. Avoids version conflicts and keeps the dependency graph clean.
+- **Separate `generateAppleTempToken` / `parseAppleTempToken` in JwtService** rather than reusing the Google temp-token methods. Apple tokens use a different claim key (`appleSub` vs `googleSub`) and `type=apple_signup` marker, which makes them non-interchangeable at the type level and prevents confusion in the service layer.
+- **Partial unique index for `apple_sub`** (WHERE apple_sub IS NOT NULL) instead of a plain UNIQUE constraint. This allows multiple NULL values (users not yet linked to Apple) while enforcing uniqueness for non-null values. Standard Postgres pattern.
+- **`AppleSignInButton` returns `null` on non-iOS rather than hiding via style.** This is the correct approach per Apple's HIG — no invisible placeholder, no layout gap.
 
 ### Deviations from Spec
-_pending_
+- **`expo-apple-authentication` version pinned to `~55.0.0`** (not `~2.3.4` as initially drafted). The `2.x` semver range doesn't exist in the published package; SDK 53 requires the `55.x` range. Corrected during Task 6 implementation.
+- **`AppleLoginResponse` implemented as a record with factory methods** (`existingUser(tokens)`, `newUser(tempToken, email)`) rather than a plain class. Matches the existing `GoogleLoginResponse` pattern and reduces boilerplate.
 
 ### Lessons Learned
-_pending_
+- Apple identity tokens are standard JWTs signed with RS256 — the same JJWT parser used for our own tokens handles them cleanly once you have the RSAPublicKey from the JWK set. No Apple-specific SDK needed on the backend.
+- `expo-apple-authentication` semver follows Expo SDK major version (55.x for SDK 53), not its own semver progression. Always check Expo's package registry for the correct version range when adding new Expo packages.
