@@ -99,7 +99,7 @@ function SupportContent() {
                   href="https://github.com/lucasxf/engineering-daybook/issues/new"
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={`${t('faq.reportBug.linkLabel')} (opens in new tab)`}
+                  aria-label={t('faq.reportBug.linkAriaLabel')}
                   className="text-primary-600 hover:underline dark:text-primary-400"
                 >
                   {t('faq.reportBug.linkLabel')}

@@ -202,7 +202,7 @@ _Manual gate — verified in CI build logs, not in Playwright suite._
 | `support.faq.deleteAccount.q` | How do I delete my account? | Como excluo minha conta? |
 | `support.faq.deleteAccount.a` | Account deletion is coming soon. In the meantime, email support@learnimo.net and we will delete your account and all associated data within 48 hours. | A exclusão de conta estará disponível em breve. Enquanto isso, envie um e-mail para support@learnimo.net e excluiremos sua conta e todos os dados associados em até 48 horas. |
 | `support.faq.changeHandle.q` | Can I change my handle? | Posso alterar meu nome de usuário? |
-| `support.faq.changeHandle.a` | Yes. Go to Settings → Profile and type a new handle. Handles must be unique and can only contain letters, numbers, and underscores. | Sim. Acesse Configurações → Perfil e digite um novo nome de usuário. Os nomes devem ser únicos e podem conter apenas letras, números e underscores. |
+| `support.faq.changeHandle.a` | Yes. Go to Settings → Profile and type a new handle. Handles must be unique and can only contain lowercase letters, numbers, and hyphens. | Sim. Acesse Configurações → Perfil e digite um novo nome de usuário. Os nomes devem ser únicos e podem conter apenas letras minúsculas, números e hífens. |
 | `support.faq.dataPrivacy.q` | How is my data used? | Como meus dados são usados? |
 | `support.faq.dataPrivacy.a` | Your learnings are private by default and never sold to third parties. We use your data only to provide and improve the service. | Seus aprendizados são privados por padrão e nunca vendidos a terceiros. Usamos seus dados apenas para fornecer e melhorar o serviço. |
 | `support.faq.dataPrivacy.policyLink` | Read our Privacy Policy | Leia nossa Política de Privacidade |

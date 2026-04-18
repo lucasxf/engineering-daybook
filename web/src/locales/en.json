@@ -482,7 +482,8 @@
       "reportBug": {
         "q": "How do I report a bug?",
         "a": "Found something broken? Open an issue on our GitHub repository and describe what happened, the steps to reproduce it, and your device or browser.",
-        "linkLabel": "Open a GitHub issue"
+        "linkLabel": "Open a GitHub issue",
+        "linkAriaLabel": "Open a GitHub issue (opens in new tab)"
       }
     },
     "backLink": "← Back to learnimo"

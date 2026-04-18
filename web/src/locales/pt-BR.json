@@ -482,7 +482,8 @@
       "reportBug": {
         "q": "Como reporto um bug?",
         "a": "Encontrou algo errado? Abra uma issue no nosso repositório no GitHub descrevendo o que aconteceu, os passos para reproduzir e seu dispositivo ou navegador.",
-        "linkLabel": "Abrir uma issue no GitHub"
+        "linkLabel": "Abrir uma issue no GitHub",
+        "linkAriaLabel": "Abrir uma issue no GitHub (abre em nova aba)"
       }
     },
     "backLink": "← Voltar ao learnimo"
