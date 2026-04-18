@@ -31,11 +31,9 @@ const mockSignInAsync = jest.fn();
 
 jest.mock('expo-apple-authentication', () => ({
   __esModule: true,
-  default: {
-    signInAsync: (...args: unknown[]) => mockSignInAsync(...args),
-    AppleAuthenticationScope: { FULL_NAME: 0, EMAIL: 1 },
-    AppleAuthenticationError: { CANCELED: 'ERR_REQUEST_CANCELED' },
-  },
+  signInAsync: (...args: unknown[]) => mockSignInAsync(...args),
+  AppleAuthenticationScope: { FULL_NAME: 0, EMAIL: 1 },
+  AppleAuthenticationError: { CANCELED: 'ERR_REQUEST_CANCELED' },
 }));
 
 // ---------------------------------------------------------------------------

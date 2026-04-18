@@ -159,10 +159,11 @@ class AuthMobileControllerAppleTest {
                         }
                         """))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.requiresHandle").value(false))
                 .andExpect(jsonPath("$.handle").value("bobsmith"))
+                .andExpect(jsonPath("$.email").value("bob@example.com"))
                 .andExpect(jsonPath("$.accessToken").value("access-token"))
-                .andExpect(jsonPath("$.refreshToken").value("refresh-token"));
+                .andExpect(jsonPath("$.refreshToken").value("refresh-token"))
+                .andExpect(jsonPath("$.requiresHandle").doesNotExist());
         }
 
         @Test

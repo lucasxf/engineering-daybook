@@ -53,7 +53,7 @@ public record AppleLoginResponse(
      */
     public static AppleLoginResponse existingUser(AuthResult authResult) {
         return new AppleLoginResponse(
-            false, null, null,
+            false, null, authResult.email(),
             authResult.handle(), authResult.userId(),
             authResult.accessToken(), authResult.refreshToken());
     }

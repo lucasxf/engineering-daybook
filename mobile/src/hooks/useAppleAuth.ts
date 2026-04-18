@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import AppleAuthentication from 'expo-apple-authentication';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { appleLoginApi } from '@/lib/auth';
 import type { AuthResponse } from '@/lib/auth';
 
@@ -9,7 +9,7 @@ import type { AuthResponse } from '@/lib/auth';
 
 export type AppleAuthSuccess =
   | { type: 'existing'; user: AuthResponse }
-  | { type: 'new'; tempToken: string; email: string };
+  | { type: 'new'; tempToken: string; email: string | null };
 
 export interface UseAppleAuthReturn {
   loading: boolean;
@@ -52,7 +52,7 @@ export function useAppleAuth(
           onSuccess({
             type: 'new',
             tempToken: result.tempToken!,
-            email: result.email!,
+            email: result.email ?? null,
           });
         } else {
           // Existing user — tokens already stored by appleLoginApi

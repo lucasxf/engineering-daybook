@@ -154,10 +154,13 @@ public class AuthMobileController {
     @ApiResponse(responseCode = "400", description = "Invalid handle format")
     @ApiResponse(responseCode = "401", description = "Temp token expired")
     @ApiResponse(responseCode = "409", description = "Handle already taken")
-    public ResponseEntity<AppleLoginResponse> completeAppleSignup(
+    public ResponseEntity<AuthResponse> completeAppleSignup(
         @Valid @RequestBody CompleteAppleSignupRequest request) {
-        AuthResult tokens = authService.completeAppleSignup(
+        AuthResult result = authService.completeAppleSignup(
             request.tempToken(), request.handle(), request.displayName());
-        return ResponseEntity.ok(AppleLoginResponse.existingUser(tokens));
+        return ResponseEntity.ok(new AuthResponse(
+            result.handle(), result.userId(), result.email(),
+            result.accessToken(), result.refreshToken(),
+            result.defaultPokVisibility(), result.profileVisibility()));
     }
 }
