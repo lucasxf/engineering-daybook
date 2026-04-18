@@ -398,10 +398,11 @@ class AuthIntegrationTest {
                         }
                         """.formatted(tempToken, handle)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.requiresHandle").value(false))
                 .andExpect(jsonPath("$.handle").value(handle))
+                .andExpect(jsonPath("$.email").value(email))
                 .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.refreshToken").isNotEmpty());
+                .andExpect(jsonPath("$.refreshToken").isNotEmpty())
+                .andExpect(jsonPath("$.requiresHandle").doesNotExist());
 
             assertThat(userRepository.findByEmail(email))
                 .isPresent()
