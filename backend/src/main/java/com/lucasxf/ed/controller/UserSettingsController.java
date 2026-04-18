@@ -121,6 +121,29 @@ public class UserSettingsController {
     }
 
     /**
+     * Permanently deletes the authenticated user's account and all associated data.
+     *
+     * <p>Idempotent: a second call on an already-deleted account also returns 204.
+     *
+     * @param authentication the authenticated user
+     * @return 204 No Content
+     */
+    @DeleteMapping("/me")
+    @Operation(
+        summary = "Delete account",
+        description = "Permanently deletes the authenticated user's account and all associated data. Idempotent.",
+        responses = {
+            @ApiResponse(responseCode = "204", description = "Account deleted"),
+            @ApiResponse(responseCode = "401", description = "Not authenticated")
+        }
+    )
+    public ResponseEntity<Void> deleteAccount(Authentication authentication) {
+        UUID userId = UUID.fromString(authentication.getName());
+        userService.deleteAccount(userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
      * Deletes the authenticated user's avatar.
      *
      * @param authentication the authenticated user

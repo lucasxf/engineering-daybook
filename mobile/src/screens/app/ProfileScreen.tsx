@@ -15,6 +15,8 @@ import type { ProfileVisibility } from '@/lib/auth';
 import { TextInput } from '@/components/ui/TextInput';
 import { AvatarPicker } from '@/components/ui/AvatarPicker';
 import type { Locale } from '@/i18n/i18n';
+import { DeleteAccountModal } from '@/components/account/DeleteAccountModal';
+import { tokenStore } from '@/lib/tokenStore';
 
 type ColorSchemeOverride = 'light' | 'dark' | 'system';
 
@@ -221,6 +223,27 @@ export function ProfileScreen() {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // Account deletion state + handler
+  // ---------------------------------------------------------------------------
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  function handleDeletePress() {
+    Alert.alert(
+      t('profile.deleteAccount.warningTitle'),
+      t('profile.deleteAccount.warningMessage'),
+      [
+        { text: t('profile.deleteAccount.warningCancel'), style: 'cancel' },
+        {
+          text: t('profile.deleteAccount.warningOk'),
+          style: 'destructive',
+          onPress: () => setShowDeleteModal(true),
+        },
+      ]
+    );
+  }
+
   const themeOptions: Array<{ value: ColorSchemeOverride; label: string }> = [
     { value: 'system', label: t('profile.themeOptions.system') },
     { value: 'light', label: t('profile.themeOptions.light') },
@@ -374,6 +397,20 @@ export function ProfileScreen() {
           variant="danger"
           onPress={handleLogout}
           fullWidth
+        />
+
+        <Button
+          label={t('profile.deleteAccount.button')}
+          variant="danger"
+          onPress={handleDeletePress}
+          fullWidth
+        />
+
+        <DeleteAccountModal
+          visible={showDeleteModal}
+          userHandle={user?.handle ?? ''}
+          onCancel={() => setShowDeleteModal(false)}
+          onDeleted={() => { tokenStore.clear(); logout(); }}
         />
       </ScrollView>
     </SafeAreaView>

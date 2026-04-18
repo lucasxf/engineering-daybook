@@ -115,10 +115,21 @@ Generated with [Claude Code](https://claude.com/claude-code)
 Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
 ```
 
-## 5. Create Pull Request with GitHub CLI
+## 5. Push Branch (if not already on remote) and Create Pull Request
 
+**Check whether the branch exists on the remote before pushing:**
 ```bash
-gh pr create \
+GH="/c/Program Files/GitHub CLI/gh.exe"
+if git ls-remote --exit-code origin "$CURRENT_BRANCH" > /dev/null 2>&1; then
+  echo "Branch already on remote — skipping push"
+else
+  git push -u origin "$CURRENT_BRANCH"
+fi
+```
+
+**Create the PR:**
+```bash
+"$GH" pr create \
   --base "$BASE_BRANCH" \
   --head "$CURRENT_BRANCH" \
   --title "$PR_TITLE" \
@@ -127,7 +138,7 @@ gh pr create \
 
 **Capture PR URL:**
 ```bash
-PR_URL=$(gh pr view --json url --jq .url)
+PR_URL=$("$GH" pr view --json url --jq .url)
 echo "Pull Request created: $PR_URL"
 ```
 

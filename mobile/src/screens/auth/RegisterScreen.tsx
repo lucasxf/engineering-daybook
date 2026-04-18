@@ -1,24 +1,28 @@
-import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import React, { useState } from 'react';
+import { Controller,useForm } from 'react-hook-form';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useI18n } from '@/contexts/I18nContext';
-import { useAuth } from '@/contexts/AuthContext';
-import { registerApi } from '@/lib/auth';
-import { ApiRequestError } from '@/lib/api';
-import { registerSchema, RegisterFormData } from '@/lib/validations';
-import type { AuthStackParamList } from '@/navigation/AuthStack';
-import { Button } from '@/components/ui/Button';
-import { TextInput } from '@/components/ui/TextInput';
-import { Text } from '@/components/ui/Text';
-import { ErrorMessage } from '@/components/ui/ErrorMessage';
+
+import { AppleSignInButton } from '@/components/auth/AppleSignInButton';
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
-import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+import { Button } from '@/components/ui/Button';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { Text } from '@/components/ui/Text';
+import { TextInput } from '@/components/ui/TextInput';
+import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import type { AppleAuthSuccess } from '@/hooks/useAppleAuth';
+import { useAppleAuth } from '@/hooks/useAppleAuth';
 import type { GoogleAuthSuccess } from '@/hooks/useGoogleAuth';
+import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+import { ApiRequestError } from '@/lib/api';
+import { registerApi } from '@/lib/auth';
+import { RegisterFormData,registerSchema } from '@/lib/validations';
+import type { AuthStackParamList } from '@/navigation/AuthStack';
 
 type Nav = NativeStackNavigationProp<AuthStackParamList, 'Register'>;
 
@@ -33,14 +37,28 @@ export function RegisterScreen() {
     if (result.type === 'existing') {
       setUser(result.user);
     } else {
-      nav.navigate('ChooseHandle', { tempToken: result.tempToken, email: result.email });
+      nav.navigate('ChooseHandle', { tempToken: result.tempToken, email: result.email, provider: 'google' });
     }
   };
-  const { loading: googleLoading, handlePress, disabled: googleDisabled } =
+  const { loading: googleLoading, handlePress: googleHandlePress, disabled: googleDisabled } =
     useGoogleAuth(handleGoogleSuccess, (msg) => setServerError(t(msg)));
   const handleGoogleSignIn = async () => {
     setServerError(null);
-    await handlePress();
+    await googleHandlePress();
+  };
+
+  const handleAppleSuccess = (result: AppleAuthSuccess) => {
+    if (result.type === 'existing') {
+      setUser(result.user);
+    } else {
+      nav.navigate('ChooseHandle', { tempToken: result.tempToken, email: result.email, provider: 'apple' });
+    }
+  };
+  const { loading: appleLoading, handlePress: appleHandlePress } =
+    useAppleAuth(handleAppleSuccess, (msg) => setServerError(t(msg)));
+  const handleAppleSignIn = async () => {
+    setServerError(null);
+    await appleHandlePress();
   };
 
   const {
@@ -181,6 +199,11 @@ export function RegisterScreen() {
             onPress={handleSubmit(onSubmit)}
             loading={isSubmitting}
             fullWidth
+          />
+
+          <AppleSignInButton
+            loading={appleLoading}
+            onPress={handleAppleSignIn}
           />
 
           <GoogleSignInButton

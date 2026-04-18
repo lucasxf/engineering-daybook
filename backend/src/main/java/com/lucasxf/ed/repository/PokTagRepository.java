@@ -84,4 +84,14 @@ public interface PokTagRepository extends JpaRepository<PokTag, UUID> {
            "WHERE p.userId = :userId AND p.deletedAt IS NULL " +
            "GROUP BY pt.tagId")
     List<Object[]> countPoksByTagForUser(@Param("userId") UUID userId);
+
+    /**
+     * Deletes all tag assignments for the given POK IDs.
+     * Used during account deletion to remove all POK–tag associations.
+     *
+     * @param pokIds the IDs of POKs whose tag assignments should be deleted
+     */
+    @Modifying
+    @Query("DELETE FROM PokTag pt WHERE pt.pokId IN :pokIds")
+    void deleteByPokIdIn(@Param("pokIds") List<UUID> pokIds);
 }

@@ -124,6 +124,8 @@ public interface PokRepository extends JpaRepository<Pok, UUID> {
      * @param offset         number of results to skip (for pagination)
      * @return list of active POKs ordered by cosine similarity (closest first)
      */
+    void deleteAllByUserId(UUID userId);
+
     @Query(nativeQuery = true,
            value = "SELECT * FROM poks " +
                    "WHERE user_id = :userId AND deleted_at IS NULL AND embedding IS NOT NULL " +

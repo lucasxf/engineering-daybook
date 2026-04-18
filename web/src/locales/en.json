@@ -391,6 +391,7 @@
       "howWeUse": "How we use your data",
       "storage": "Data storage",
       "thirdParties": "Third-party services",
+      "signInWithApple": "Sign in with Apple",
       "yourRights": "Your rights",
       "contact": "Contact"
     }
@@ -451,5 +452,45 @@
     "follow": "Follow",
     "following": "Following",
     "editProfile": "Edit profile"
+  },
+  "support": {
+    "title": "Support",
+    "intro": "Have a question or need help? Browse the FAQs below or reach out directly — we're happy to help.",
+    "contact": {
+      "heading": "Contact Us",
+      "body": "For anything not covered here, email us at",
+      "emailLabel": "support@learnimo.net"
+    },
+    "faq": {
+      "heading": "Frequently Asked Questions",
+      "deleteAccount": {
+        "q": "How do I delete my account?",
+        "a": "Account deletion is coming soon. In the meantime, email support@learnimo.net and we will delete your account and all associated data within 48 hours."
+      },
+      "changeHandle": {
+        "q": "Can I change my handle?",
+        "a": "Yes. Go to Settings → Profile and type a new handle. Handles must be unique and can only contain lowercase letters, numbers, and hyphens."
+      },
+      "dataPrivacy": {
+        "q": "How is my data used?",
+        "a": "Your learnings are private by default and never sold to third parties. We use your data only to provide and improve the service.",
+        "policyLink": "Read our Privacy Policy"
+      },
+      "themeLanguage": {
+        "q": "How do I change the theme or language?",
+        "a": "Open Settings → Appearance to switch between light and dark mode. To change the language, open Settings → Language."
+      },
+      "reportBug": {
+        "q": "How do I report a bug?",
+        "a": "Found something broken? Open an issue on our GitHub repository and describe what happened, the steps to reproduce it, and your device or browser.",
+        "linkLabel": "Open a GitHub issue",
+        "linkAriaLabel": "Open a GitHub issue (opens in new tab)"
+      }
+    },
+    "backLink": "← Back to learnimo"
+  },
+  "footer": {
+    "privacy": "Privacy Policy",
+    "support": "Support"
   }
 }

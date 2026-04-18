@@ -27,6 +27,10 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByHandle(String handle);
 
+    Optional<User> findByAppleSub(String appleSub);
+
+    boolean existsByAppleSub(String appleSub);
+
     /**
      * Searches for learners with {@code PUBLIC} profile visibility whose handle or display name
      * contains the given query string (case-insensitive, substring match).

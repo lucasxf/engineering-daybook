@@ -69,3 +69,10 @@ export async function uploadAvatar(
 export function deleteAvatar(): Promise<void> {
   return apiFetch<void>('/users/me/avatar', { method: 'DELETE' });
 }
+
+/**
+ * Permanently deletes the authenticated user's account and all associated data.
+ */
+export function deleteAccountApi(): Promise<void> {
+  return apiFetch<void>('/users/me', { method: 'DELETE' });
+}

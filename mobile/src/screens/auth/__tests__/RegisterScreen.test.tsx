@@ -98,6 +98,16 @@ jest.mock('@/components/auth/GoogleSignInButton', () => ({
   GoogleSignInButton: (props: Record<string, unknown>) => require('react').createElement('GoogleSignInButton', props),
 }));
 
+const mockAppleHandlePress = jest.fn();
+const mockUseAppleAuth = jest.fn(() => ({ loading: false, handlePress: mockAppleHandlePress }));
+jest.mock('@/hooks/useAppleAuth', () => ({
+  useAppleAuth: (...args: unknown[]) => mockUseAppleAuth(...args),
+}));
+
+jest.mock('@/components/auth/AppleSignInButton', () => ({
+  AppleSignInButton: (props: Record<string, unknown>) => require('react').createElement('AppleSignInButton', props),
+}));
+
 // ---------------------------------------------------------------------------
 // Import under test (after mocks)
 // ---------------------------------------------------------------------------
@@ -125,6 +135,7 @@ describe('RegisterScreen', () => {
       )
     );
     mockUseGoogleAuth.mockImplementation(() => ({ loading: false, handlePress: mockHandlePress, disabled: false }));
+    mockUseAppleAuth.mockImplementation(() => ({ loading: false, handlePress: mockAppleHandlePress }));
   });
 
   it('returns a valid React element', () => {
@@ -258,5 +269,37 @@ describe('RegisterScreen', () => {
     const googleBtns = findAllByType(result, 'GoogleSignInButton');
     await (googleBtns[0].props.onPress as () => Promise<void>)();
     expect(mockHandlePress).toHaveBeenCalled();
+  });
+
+  // ---------------------------------------------------------------------------
+  // Apple Sign-In tests
+  // ---------------------------------------------------------------------------
+
+  it('renders AppleSignInButton', () => {
+    const result = RegisterScreen({} as never);
+    const appleBtns = findAllByType(result, 'AppleSignInButton');
+    expect(appleBtns.length).toBeGreaterThan(0);
+  });
+
+  it('passes loading=false to AppleSignInButton by default', () => {
+    mockUseAppleAuth.mockReturnValue({ loading: false, handlePress: mockAppleHandlePress });
+    const result = RegisterScreen({} as never);
+    const appleBtns = findAllByType(result, 'AppleSignInButton');
+    expect(appleBtns[0].props.loading).toBe(false);
+  });
+
+  it('passes loading=true to AppleSignInButton when apple auth is loading', () => {
+    mockUseAppleAuth.mockReturnValue({ loading: true, handlePress: mockAppleHandlePress });
+    const result = RegisterScreen({} as never);
+    const appleBtns = findAllByType(result, 'AppleSignInButton');
+    expect(appleBtns[0].props.loading).toBe(true);
+  });
+
+  it('tapping AppleSignInButton calls handlePress from useAppleAuth', async () => {
+    mockAppleHandlePress.mockResolvedValue(undefined);
+    const result = RegisterScreen({} as never);
+    const appleBtns = findAllByType(result, 'AppleSignInButton');
+    await (appleBtns[0].props.onPress as () => Promise<void>)();
+    expect(mockAppleHandlePress).toHaveBeenCalled();
   });
 });

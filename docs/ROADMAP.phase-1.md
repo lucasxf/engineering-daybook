@@ -19,6 +19,7 @@
 | 1.1.3 | Google OAuth login | ✅ Backend + Web (PR #20) |
 | 1.1.4 | JWT session management | ✅ Backend (PR #15) + Web (PR #17) |
 | 1.1.5 | Password reset flow | ✅ Implemented (2026-02-21) |
+| 1.1.6 | Sign in with Apple (mobile) | ✅ Backend + Mobile (feat/sign-in-with-apple, 2026-04-18) |
 
 ### Milestone 1.2: POK CRUD ✅
 
@@ -599,7 +600,11 @@ Mobile parity execution plan progress: Wave 4 (4-tier visibility) ✅ done (feat
 
 Milestone 3.4 (App Store Publishing): Play Store internal track updated to versionCode 11 (1.0.1) on 2026-03-19. Crash-on-launch permanently fixed via 4 Expo config plugins. `react` pinned to 19.0.0 to resolve JS crash from renderer version mismatch. Local signing workflow documented. Google OAuth for mobile still pending before production track promotion.
 
-iOS App Store submission (2026-04-16): build 1.0.21/build 7 submitted via `eas submit`. Apple accepted the binary with warning ITMS-90725 — built with iOS 18.5 SDK (Xcode 16.x); **starting 2026-04-28 all submissions must use iOS 26 SDK (Xcode 26)**. Current build is valid for this review cycle. Action required before 2026-04-28: (1) monitor https://expo.dev/changelog for EAS Xcode 26 image announcement; (2) when available, unpin `expo-image-picker` from `55.0.4` (pinned because 55.0.5+ breaks iOS builds under Xcode < 26 — see `mobile/CLAUDE.md` pitfall); (3) add `"image": "<eas-xcode-26-image-name>"` to the `production` profile in `eas.json`; (4) rebuild and resubmit.
+✅ iOS App Store submission (2026-04-16): build 1.0.21/build 7 submitted via `eas submit`. Apple accepted the binary with warning ITMS-90725 — built with iOS 18.5 SDK (Xcode 16.x); starting 2026-04-28 all submissions must use iOS 26 SDK (Xcode 26). **Resolved 2026-04-18 (chore/ios-xcode26-sdk-migration):** EAS image `macos-sequoia-15.6-xcode-26.2` adopted in all build profiles (`production`, `preview`, `simulator`); `expo-image-picker` unpinned to `~55.0.5` (now `55.0.18`); app version bumped to `1.0.22`. All 148 tests pass. Next submission will use iOS 26 SDK and satisfy the ITMS-90725 requirement.
+
+Apple rejection remediation — Spec B (support page): `/en/support` and `/pt-BR/support` pages implemented on `feat/support-page` (2026-04-18). Site-wide footer with Privacy + Support links added to locale layout. App Store Connect Support URL updated to `https://learnimo.net/en/support` in `docs/appstore-metadata.md`. 7 Playwright E2E tests covering AC1–AC7. Pre-existing timer leak in `useDebounce.test.ts` fixed (faker timer bleed into `PokForm.test.tsx`). PR pending for merge to develop → main.
+
+Account deletion (Apple Guideline 5.1.1v): implemented 2026-04-18 on `feat/account-deletion`. Full-stack: `DELETE /api/v1/users/me` (idempotent, 204), transactional cascade delete, user anonymization (`@SQLRestriction` hides deleted users), `DeleteAccountModal` with typed-handle confirmation, two-step alert flow in ProfileScreen. PR pending → `develop`. Remaining: physical-device screen recording required for App Store Connect review notes before resubmission.
 
 ---
 

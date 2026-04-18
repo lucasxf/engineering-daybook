@@ -11,13 +11,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.lucasxf.ed.dto.AppleLoginRequest;
+import com.lucasxf.ed.dto.AppleLoginResponse;
 import com.lucasxf.ed.dto.AuthResponse;
+import com.lucasxf.ed.dto.CompleteAppleSignupRequest;
 import com.lucasxf.ed.dto.CompleteGoogleSignupRequest;
 import com.lucasxf.ed.dto.GoogleLoginRequest;
 import com.lucasxf.ed.dto.GoogleLoginResponse;
 import com.lucasxf.ed.dto.LoginRequest;
 import com.lucasxf.ed.dto.RefreshRequest;
 import com.lucasxf.ed.dto.RegisterRequest;
+import com.lucasxf.ed.service.AppleLoginResult;
 import com.lucasxf.ed.service.AuthResult;
 import com.lucasxf.ed.service.AuthService;
 import com.lucasxf.ed.service.GoogleLoginResult;
@@ -120,6 +124,39 @@ public class AuthMobileController {
     public ResponseEntity<AuthResponse> completeGoogleSignup(
         @Valid @RequestBody CompleteGoogleSignupRequest request) {
         AuthResult result = authService.completeGoogleSignup(
+            request.tempToken(), request.handle(), request.displayName());
+        return ResponseEntity.ok(new AuthResponse(
+            result.handle(), result.userId(), result.email(),
+            result.accessToken(), result.refreshToken(),
+            result.defaultPokVisibility(), result.profileVisibility()));
+    }
+
+    @PostMapping("/apple")
+    @Operation(summary = "Log in with Apple (mobile)",
+        description = "Verifies an Apple identity token. Returns tokens in the JSON body for existing "
+            + "users, or a temp token and email for new users who need to choose a handle.")
+    @ApiResponse(responseCode = "200", description = "Token verified — see requiresHandle field")
+    @ApiResponse(responseCode = "401", description = "Invalid or expired Apple identity token")
+    @ApiResponse(responseCode = "409", description = "Email already registered with another provider")
+    public ResponseEntity<AppleLoginResponse> appleLogin(@Valid @RequestBody AppleLoginRequest request) {
+        AppleLoginResult result = authService.appleLogin(request.identityToken());
+        return switch (result) {
+            case AppleLoginResult.ExistingUser eu -> ResponseEntity.ok(AppleLoginResponse.existingUser(eu.authResult()));
+            case AppleLoginResult.NewUser nu -> ResponseEntity.ok(AppleLoginResponse.newUser(nu.tempToken(), nu.email()));
+        };
+    }
+
+    @PostMapping("/apple/complete")
+    @Operation(summary = "Complete Sign in with Apple registration (mobile)",
+        description = "Creates a new user account for an Apple OAuth user with their chosen handle. "
+            + "Returns tokens in the JSON body — no cookies set.")
+    @ApiResponse(responseCode = "200", description = "Registration complete, tokens issued")
+    @ApiResponse(responseCode = "400", description = "Invalid handle format")
+    @ApiResponse(responseCode = "401", description = "Temp token expired")
+    @ApiResponse(responseCode = "409", description = "Handle already taken")
+    public ResponseEntity<AuthResponse> completeAppleSignup(
+        @Valid @RequestBody CompleteAppleSignupRequest request) {
+        AuthResult result = authService.completeAppleSignup(
             request.tempToken(), request.handle(), request.displayName());
         return ResponseEntity.ok(new AuthResponse(
             result.handle(), result.userId(), result.email(),

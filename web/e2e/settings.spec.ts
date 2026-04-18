@@ -12,7 +12,7 @@ test.describe('Settings page', () => {
 
     await page.goto('/en/settings');
 
-    await expect(page.getByText('Privacy')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Privacy' })).toBeVisible();
     await expect(page.getByLabel(/profile visibility/i)).toBeVisible();
     await expect(page.getByText('Default learning visibility').first()).toBeVisible();
   });

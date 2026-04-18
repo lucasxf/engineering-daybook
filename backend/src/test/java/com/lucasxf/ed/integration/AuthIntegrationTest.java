@@ -2,6 +2,8 @@ package com.lucasxf.ed.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lucasxf.ed.repository.UserRepository;
+import com.lucasxf.ed.service.AppleIdentityTokenVerifier;
+import com.lucasxf.ed.service.AppleIdentityTokenVerifier.AppleUserInfo;
 import com.lucasxf.ed.service.GoogleTokenVerifierService;
 import com.lucasxf.ed.service.GoogleTokenVerifierService.GoogleUserInfo;
 import org.junit.jupiter.api.AfterAll;
@@ -102,6 +104,9 @@ class AuthIntegrationTest {
 
     @MockitoBean
     private GoogleTokenVerifierService googleTokenVerifier;
+
+    @MockitoBean
+    private AppleIdentityTokenVerifier appleIdentityTokenVerifier;
 
     // =====================================================================
     // Email / password flows
@@ -342,6 +347,175 @@ class AuthIntegrationTest {
                 .andExpect(jsonPath("$.refreshToken").doesNotExist())
                 .andExpect(cookie().exists("access_token"))
                 .andExpect(cookie().exists("refresh_token"));
+        }
+    }
+
+    // =====================================================================
+    // Sign in with Apple flows
+    // =====================================================================
+
+    @Nested
+    @DisplayName("Sign in with Apple flows")
+    class AppleAuth {
+
+        @Test
+        @DisplayName("new Apple user end-to-end: /apple → requiresHandle=true → /apple/complete → tokens, user in DB")
+        void appleSignup_shouldPersistUserInDb() throws Exception {
+            assumeTrue(DockerClientFactory.instance().isDockerAvailable(),
+                "Docker not available, skipping integration test");
+
+            String suffix = UUID.randomUUID().toString().substring(0, 8);
+            String email = "apple-" + suffix + "@privaterelay.appleid.com";
+            String appleSub = "apple-sub-" + suffix;
+            String handle = "apple" + suffix;
+            String identityToken = "apple-id-token-" + suffix;
+
+            when(appleIdentityTokenVerifier.verify(identityToken))
+                .thenReturn(new AppleUserInfo(appleSub, email));
+
+            // Step 1: new user — should receive a temp token and email for handle selection
+            String step1Body = mockMvc.perform(post("/api/v1/auth/mobile/apple")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        { "identityToken": "%s" }
+                        """.formatted(identityToken)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.requiresHandle").value(true))
+                .andExpect(jsonPath("$.tempToken").isNotEmpty())
+                .andExpect(jsonPath("$.email").value(email))
+                .andReturn().getResponse().getContentAsString();
+
+            String tempToken = extractField(step1Body, "tempToken");
+
+            // Step 2: complete sign-up — should create user and return tokens in body (mobile endpoint)
+            mockMvc.perform(post("/api/v1/auth/mobile/apple/complete")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "tempToken": "%s",
+                            "handle": "%s",
+                            "displayName": "Apple User"
+                        }
+                        """.formatted(tempToken, handle)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.handle").value(handle))
+                .andExpect(jsonPath("$.email").value(email))
+                .andExpect(jsonPath("$.accessToken").isNotEmpty())
+                .andExpect(jsonPath("$.refreshToken").isNotEmpty())
+                .andExpect(jsonPath("$.requiresHandle").doesNotExist());
+
+            assertThat(userRepository.findByEmail(email))
+                .isPresent()
+                .hasValueSatisfying(user -> {
+                    assertThat(user.getHandle()).isEqualTo(handle);
+                    assertThat(user.getAuthProvider()).isEqualTo("apple");
+                    assertThat(user.getPasswordHash()).isNull();
+                });
+        }
+
+        @Test
+        @DisplayName("returning Apple user should receive full tokens without handle selection")
+        void appleLogin_shouldReturnTokensForExistingUser() throws Exception {
+            assumeTrue(DockerClientFactory.instance().isDockerAvailable(),
+                "Docker not available, skipping integration test");
+
+            String suffix = UUID.randomUUID().toString().substring(0, 8);
+            String email = "apple2-" + suffix + "@privaterelay.appleid.com";
+            String appleSub = "apple-sub2-" + suffix;
+            String handle = "apple2" + suffix;
+
+            // Set up: create the user via sign-up flow
+            String setupToken = "apple-setup-token-" + suffix;
+            when(appleIdentityTokenVerifier.verify(setupToken))
+                .thenReturn(new AppleUserInfo(appleSub, email));
+
+            String setupBody = mockMvc.perform(post("/api/v1/auth/mobile/apple")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        { "identityToken": "%s" }
+                        """.formatted(setupToken)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+            String tempToken = extractField(setupBody, "tempToken");
+
+            mockMvc.perform(post("/api/v1/auth/mobile/apple/complete")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "tempToken": "%s",
+                            "handle": "%s",
+                            "displayName": "Apple User 2"
+                        }
+                        """.formatted(tempToken, handle)))
+                .andExpect(status().isOk());
+
+            // Now login as returning user — should get full tokens, no handle required
+            String loginToken = "apple-login-token-" + suffix;
+            when(appleIdentityTokenVerifier.verify(loginToken))
+                .thenReturn(new AppleUserInfo(appleSub, email));
+
+            mockMvc.perform(post("/api/v1/auth/mobile/apple")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        { "identityToken": "%s" }
+                        """.formatted(loginToken)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.requiresHandle").value(false))
+                .andExpect(jsonPath("$.handle").value(handle))
+                .andExpect(jsonPath("$.accessToken").isNotEmpty())
+                .andExpect(jsonPath("$.refreshToken").isNotEmpty());
+        }
+
+        @Test
+        @DisplayName("Apple login with email already registered via Google should return 409")
+        void appleLogin_conflictWithGoogleAccount() throws Exception {
+            assumeTrue(DockerClientFactory.instance().isDockerAvailable(),
+                "Docker not available, skipping integration test");
+
+            String suffix = UUID.randomUUID().toString().substring(0, 8);
+            String email = "conflict-" + suffix + "@gmail.com";
+            String googleSub = "google-sub-" + suffix;
+            String appleSub = "apple-sub-" + suffix;
+            String handle = "conflict" + suffix;
+
+            // Set up: create a Google user with this email
+            String googleSetupToken = "google-setup-" + suffix;
+            when(googleTokenVerifier.verify(googleSetupToken))
+                .thenReturn(new GoogleUserInfo(googleSub, email, "Conflict User"));
+
+            String googleSetupBody = mockMvc.perform(post("/api/v1/auth/google")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        { "idToken": "%s" }
+                        """.formatted(googleSetupToken)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+            String tempToken = extractField(googleSetupBody, "tempToken");
+
+            mockMvc.perform(post("/api/v1/auth/google/complete")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        {
+                            "tempToken": "%s",
+                            "handle": "%s",
+                            "displayName": "Conflict User"
+                        }
+                        """.formatted(tempToken, handle)))
+                .andExpect(status().isOk());
+
+            // Now attempt Apple login with the same email — should get 409
+            String appleToken = "apple-conflict-" + suffix;
+            when(appleIdentityTokenVerifier.verify(appleToken))
+                .thenReturn(new AppleUserInfo(appleSub, email));
+
+            mockMvc.perform(post("/api/v1/auth/mobile/apple")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                        { "identityToken": "%s" }
+                        """.formatted(appleToken)))
+                .andExpect(status().isConflict());
         }
     }
 

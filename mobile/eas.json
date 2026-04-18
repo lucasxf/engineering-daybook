@@ -13,16 +13,19 @@
     },
     "preview": {
       "distribution": "internal",
+      "ios": { "image": "macos-sequoia-15.6-xcode-26.2" },
       "cache": { "disabled": false },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://engineering-daybook-production.up.railway.app/api/v1",
         "EXPO_PUBLIC_GOOGLE_CLIENT_ID": "521355221840-9b3hg8qmc2pi822438jqn47o5bgqnsmh.apps.googleusercontent.com",
-        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "521355221840-s9ipi64mlojsp1aoqr6jkarbsm6vf7qg.apps.googleusercontent.com"
+        "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "521355221840-s9ipi64mlojsp1aoqr6jkarbsm6vf7qg.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "521355221840-s4tc8mclp0j9qjdvka4ahaen496lbb5r.apps.googleusercontent.com"
       }
     },
     "simulator": {
       "ios": {
-        "simulator": true
+        "simulator": true,
+        "image": "macos-sequoia-15.6-xcode-26.2"
       },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://engineering-daybook-production.up.railway.app/api/v1",
@@ -33,6 +36,7 @@
     "production": {
       "distribution": "store",
       "autoIncrement": true,
+      "ios": { "image": "macos-sequoia-15.6-xcode-26.2" },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://engineering-daybook-production.up.railway.app/api/v1",
         "EXPO_PUBLIC_GOOGLE_CLIENT_ID": "521355221840-9b3hg8qmc2pi822438jqn47o5bgqnsmh.apps.googleusercontent.com",
