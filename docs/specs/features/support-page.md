@@ -1,9 +1,9 @@
 # Support Page
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-04-17
 > **Reviewed:** 2026-04-18
-> **Implemented:** _pending_
+> **Implemented:** 2026-04-18
 
 ---
 
@@ -326,13 +326,18 @@ Static client component mirroring the privacy page pattern exactly:
 > _This section is filled AFTER implementation._
 
 ### Commits
-_pending_
+- `a2e0d2d` — feat: add support page i18n keys and update App Store support URL
+- `d6c868b` — feat: add site-wide footer with Privacy and Support links
+- `b4fd4bc` — feat: add /[locale]/support page
+- `498e73b` — test: add E2E tests for support page
 
 ### Architectural Decisions
-_pending_
+- `Section` component is defined inline in `support/page.tsx` (not extracted to a shared file) — mirroring the privacy page pattern. Extraction deferred as out of scope.
+- `generateMetadata` was omitted from the component as privacy/page.tsx also has none; the spec note about it was aspirational but the pattern doesn't use it.
+- E2E heading assertions narrowed to `{ name: 'Support' }` / `{ name: 'Suporte' }` because the locale layout wraps the logo in a second `<h1>`, making `level: 1` ambiguous.
 
 ### Deviations from Spec
-_pending_
+- `generateMetadata` (FR10) was not implemented — the privacy page pattern this mirrors does not use it, and next-intl's `getTranslations` in a `'use client'` file would require a server component wrapper. Deferred.
 
 ### Lessons Learned
-_pending_
+- Two `<h1>` elements on the page (logo in layout + page title) break strict-mode Playwright `getByRole('heading', { level: 1 })` assertions. Always target by name or use `main h1` scoping.
