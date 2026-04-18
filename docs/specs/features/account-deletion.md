@@ -1,8 +1,8 @@
 # Account Deletion
 
-> **Status:** In Progress
+> **Status:** Implemented
 > **Created:** 2026-04-17
-> **Implemented:** _pending_
+> **Implemented:** 2026-04-18
 
 ---
 
@@ -425,14 +425,24 @@ Apple rejected the learnimo iOS app (v1.0, build 28) on 2026-04-17 under **Guide
 > _This section is filled AFTER implementation._
 
 ### Commits
-_pending_
+- `d0cf9e9` docs: mark spec account-deletion as in progress
+- `3639db5` feat(backend): add deleted_at to users and partial unique indices
+- `6c666d2` feat(mobile): add deleteAccountApi and i18n keys for account deletion
+- `49f6631` feat(backend): add cascade-delete repository methods for account deletion
+- `e2bd0b0` feat(mobile): add DeleteAccountModal with typed-handle confirmation
+- `3698a7e` feat(backend): add DELETE /api/v1/users/me account deletion endpoint
+- `3e86213` feat(mobile): add account deletion flow to ProfileScreen
+- `e1e953e` test(backend): add unit and integration tests for account deletion
 
 ### Architectural Decisions
-
-_pending_
+- **`@SQLRestriction` instead of `@Where`**: The spec called for `@org.hibernate.annotations.Where` but this annotation was removed in Hibernate 7. Replaced with `@org.hibernate.annotations.SQLRestriction("deleted_at IS NULL")` which is the Hibernate 6/7 API.
+- **`[deleted]` display name instead of null**: The `display_name` column is `NOT NULL`. The spec said to null it, but `anonymizeUser()` sets it to the placeholder `"[deleted]"` instead.
+- **`StorageService` injected directly into `UserService`**: Avoids circular dependency through `AvatarService` as specified.
+- **Cascade uses `pokRepository.findIdsByUserId()` pre-fetch**: Collecting POK IDs once before the cascade loop avoids N+1 and ensures consistent state for all per-POK deletes.
 
 ### Deviations from Spec
-_pending_
+- `@SQLRestriction` used instead of `@Where` (Hibernate 7 API change).
+- `display_name` set to `"[deleted]"` not null (NOT NULL constraint).
 
 ### Lessons Learned
-_pending_
+- In-test `useState` override via `require('react').useState = fn` does NOT reach component closures when Babel captures named imports at module load time. Test state-setter behavior structurally (verify button exists + has handler) rather than spying on the setter.
