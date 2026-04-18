@@ -1,27 +1,28 @@
-import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import React, { useState } from 'react';
+import { Controller,useForm } from 'react-hook-form';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '@/contexts/ThemeContext';
-import { useI18n } from '@/contexts/I18nContext';
-import { useAuth } from '@/contexts/AuthContext';
-import { loginApi } from '@/lib/auth';
-import { ApiRequestError } from '@/lib/api';
-import { loginSchema, LoginFormData } from '@/lib/validations';
-import type { AuthStackParamList } from '@/navigation/AuthStack';
-import { Button } from '@/components/ui/Button';
-import { TextInput } from '@/components/ui/TextInput';
-import { Text } from '@/components/ui/Text';
-import { ErrorMessage } from '@/components/ui/ErrorMessage';
-import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
+
 import { AppleSignInButton } from '@/components/auth/AppleSignInButton';
-import { useGoogleAuth } from '@/hooks/useGoogleAuth';
-import type { GoogleAuthSuccess } from '@/hooks/useGoogleAuth';
-import { useAppleAuth } from '@/hooks/useAppleAuth';
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton';
+import { Button } from '@/components/ui/Button';
+import { ErrorMessage } from '@/components/ui/ErrorMessage';
+import { Text } from '@/components/ui/Text';
+import { TextInput } from '@/components/ui/TextInput';
+import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/contexts/I18nContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import type { AppleAuthSuccess } from '@/hooks/useAppleAuth';
+import { useAppleAuth } from '@/hooks/useAppleAuth';
+import type { GoogleAuthSuccess } from '@/hooks/useGoogleAuth';
+import { useGoogleAuth } from '@/hooks/useGoogleAuth';
+import { ApiRequestError } from '@/lib/api';
+import { loginApi } from '@/lib/auth';
+import { LoginFormData,loginSchema } from '@/lib/validations';
+import type { AuthStackParamList } from '@/navigation/AuthStack';
 
 type Nav = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
 
