@@ -68,14 +68,14 @@ function SupportContent() {
                 {t('faq.dataPrivacy.q')}
               </dt>
               <dd className="text-sm leading-relaxed">
-                {t('faq.dataPrivacy.a')}
+                {t('faq.dataPrivacy.a')}{' '}
+                <Link
+                  href={`/${params.locale}/privacy` as never}
+                  className="text-primary-600 hover:underline dark:text-primary-400"
+                >
+                  {t('faq.dataPrivacy.policyLink')}
+                </Link>
               </dd>
-              <Link
-                href={`/${params.locale}/privacy` as never}
-                className="text-sm text-primary-600 hover:underline dark:text-primary-400"
-              >
-                {t('faq.dataPrivacy.policyLink')}
-              </Link>
             </div>
 
             {/* Theme / language */}
@@ -94,17 +94,17 @@ function SupportContent() {
                 {t('faq.reportBug.q')}
               </dt>
               <dd className="text-sm leading-relaxed">
-                {t('faq.reportBug.a')}
+                {t('faq.reportBug.a')}{' '}
+                <a
+                  href="https://github.com/lucasxf/engineering-daybook/issues/new"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${t('faq.reportBug.linkLabel')} (opens in new tab)`}
+                  className="text-primary-600 hover:underline dark:text-primary-400"
+                >
+                  {t('faq.reportBug.linkLabel')}
+                </a>
               </dd>
-              <a
-                href="https://github.com/lucasxf/engineering-daybook/issues/new"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`${t('faq.reportBug.linkLabel')} (opens in new tab)`}
-                className="text-sm text-primary-600 hover:underline dark:text-primary-400"
-              >
-                {t('faq.reportBug.linkLabel')}
-              </a>
             </div>
 
           </dl>

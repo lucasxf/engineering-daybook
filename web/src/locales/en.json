@@ -468,7 +468,7 @@
       },
       "changeHandle": {
         "q": "Can I change my handle?",
-        "a": "Yes. Go to Settings → Profile and type a new handle. Handles must be unique and can only contain letters, numbers, and underscores."
+        "a": "Yes. Go to Settings → Profile and type a new handle. Handles must be unique and can only contain lowercase letters, numbers, and hyphens."
       },
       "dataPrivacy": {
         "q": "How is my data used?",

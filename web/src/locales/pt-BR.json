@@ -468,7 +468,7 @@
       },
       "changeHandle": {
         "q": "Posso alterar meu nome de usuário?",
-        "a": "Sim. Acesse Configurações → Perfil e digite um novo nome de usuário. Os nomes devem ser únicos e podem conter apenas letras, números e underscores."
+        "a": "Sim. Acesse Configurações → Perfil e digite um novo nome de usuário. Os nomes devem ser únicos e podem conter apenas letras minúsculas, números e hífens."
       },
       "dataPrivacy": {
         "q": "Como meus dados são usados?",
