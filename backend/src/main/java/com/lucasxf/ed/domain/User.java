@@ -56,6 +56,9 @@ public class User {
     @Column(name = "profile_visibility", nullable = false, length = 20)
     private ProfileVisibility profileVisibility = ProfileVisibility.PRIVATE;
 
+    @Column(name = "apple_sub", length = 255)
+    private String appleSub;
+
     @Column(name = "avatar_url", length = 500)
     private String avatarUrl;
 
@@ -150,6 +153,14 @@ public class User {
 
     public void setProfileVisibility(ProfileVisibility profileVisibility) {
         this.profileVisibility = profileVisibility;
+    }
+
+    public String getAppleSub() {
+        return appleSub;
+    }
+
+    public void setAppleSub(String appleSub) {
+        this.appleSub = appleSub;
     }
 
     public String getAvatarUrl() {
