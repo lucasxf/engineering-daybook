@@ -1,6 +1,6 @@
 # iOS 26 SDK / Xcode 26 Build-Chain Migration
 
-> **Status:** Approved
+> **Status:** In Progress
 > **Reviewed:** 2026-04-17
 > **Created:** 2026-04-17
 > **Implemented:** _pending_
