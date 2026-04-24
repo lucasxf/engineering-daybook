@@ -167,6 +167,17 @@ configurations.all {
     }
 }
 
+
+// Force androidx.core to a version compatible with compileSdk 35 and AGP 8.8.x.
+// androidx.core:1.17.0+ requires compileSdk 36 + AGP 8.9.1, which Expo SDK 53
+// does not yet target. Remove once Expo SDK upgrades its Gradle toolchain.
+configurations.all {
+    resolutionStrategy {
+        force 'androidx.core:core:1.15.0'
+        force 'androidx.core:core-ktx:1.15.0'
+    }
+}
+
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
