@@ -330,4 +330,6 @@ See `mobile/RELEASE_WORKFLOW.md` for the full step-by-step procedure.
 
 - **`expo prebuild --clean` on Windows cannot regenerate `mobile/ios/`:** The iOS project generation requires macOS. Running `expo prebuild --clean --platform ios` on Windows will CLEAR the `ios/` directory but then fail to regenerate it, printing "Skipping generating the iOS native project files. Run npx expo prebuild again from macOS or Linux." This step must be performed on macOS or left to EAS cloud builds (which run on macOS). If the worktree does not track `ios/`, this is a no-op issue. (Added 2026-04-18)
 
-*Last updated: 2026-04-18 (session: chore/ios-xcode26-sdk-migration — iOS 26 SDK / Xcode 26 build-chain migration)*
+- **`androidx.core:1.17.0+` breaks EAS Android builds under Expo SDK 53 (compileSdk 35 / AGP 8.8.x):** A transitive dependency resolved `androidx.core:core` and `androidx.core:core-ktx` to 1.17.0, which requires compileSdk 36 + AGP 8.9.1. Build fails at `:app:checkReleaseAarMetadata`. iOS build is unaffected. Fix: `mobile/plugins/withCorePin.js` force-pins both to 1.15.0 via `configurations.all { resolutionStrategy { force ... } }` in `app/build.gradle`. Remove this plugin when upgrading to Expo SDK 54+ (which targets compileSdk 36 + AGP 8.9.1). Same pattern as `withActivityPin.js`. (Added 2026-04-24)
+
+*Last updated: 2026-04-24 (session: fix/android-core-pin — pin androidx.core to unblock EAS Android production build)*
