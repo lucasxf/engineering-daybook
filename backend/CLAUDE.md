@@ -307,14 +307,18 @@ cd backend
 
 - **Flyway backfill migrations that introduce a new UNIQUE constraint must deduplicate before the bulk UPDATE:** When normalising a column that previously allowed two values to coexist (e.g. `"machine learning"` and `"machine-learning"` were distinct under `LOWER(name)` but both normalise to `"machine-learning"` after a spaces→dashes transform), the bulk `UPDATE` will produce duplicate values and the subsequent `ALTER TABLE … ADD CONSTRAINT … UNIQUE` (or the UPDATE itself if a unique index already exists) will fail with a uniqueness violation — aborting Flyway before startup. Fix: add a dedup step before the bulk UPDATE that (1) elects a winner per collision group using `ROW_NUMBER() OVER (PARTITION BY canonical ORDER BY created_at, id::text)` — **do NOT use `MIN(id)`, as PostgreSQL does not support `MIN()` on UUID columns** (no ordering aggregate registered for that type), (2) reassigns all FK references in every dependent table from loser to winner (using `NOT EXISTS` guards where the target table has a unique index), and (3) deletes the now-orphaned loser rows. Apply this pattern to any backfill that transforms a column used as a unique key. (Added 2026-03-06)
 
-- **Renaming a Flyway migration file requires `git rm` (or `git mv`) — plain `rm` leaves the deletion unstaged:** When renaming a migration (e.g. `cp V23__old.sql V24__new.sql && rm V23__old.sql`), the shell `rm` removes the file from disk but leaves it tracked in git. A subsequent `git add V24__new.sql` only stages the new file; the deletion stays unstaged. On CI, `git checkout` restores both files, causing Flyway's "Found more than one migration with version N" error at startup. Use `git mv` (preferred — stages the rename atomically) or pair `git rm` + `git add`:
+- **Renaming a Flyway migration file — always stage the deletion or git will restore the old file on CI:** When renaming a migration (e.g. `cp V23__old.sql V24__new.sql && rm V23__old.sql`), the shell `rm` removes the file from disk but leaves it tracked in git. A subsequent `git add V24__new.sql` only stages the new file; the deletion stays unstaged. On CI, `git checkout` restores both files, causing Flyway's "Found more than one migration with version N" error at startup. Use `git mv` (preferred — stages the rename atomically), or stage the deletion explicitly via `git rm`, `git add -u`, or `git add -A`:
 
   ```bash
   git mv V23__add_foo.sql V24__add_foo.sql   # preferred — stages rename atomically
   # OR
   cp V23__add_foo.sql V24__add_foo.sql
-  git rm V23__add_foo.sql                    # stages deletion
-  git add V24__add_foo.sql                   # stages addition
+  git rm V23__add_foo.sql                    # stages deletion explicitly
+  git add V24__add_foo.sql
+  # OR
+  cp V23__add_foo.sql V24__add_foo.sql
+  rm V23__add_foo.sql
+  git add -A                                 # stages both the addition and the deletion
   ```
 
   (Added 2026-04-18)

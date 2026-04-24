@@ -157,22 +157,14 @@ android {
 }
 
 
-// Force androidx.activity to a version compatible with compileSdk 35 and AGP 8.8.x.
-// androidx.activity:1.11.0+ requires compileSdk 36 + AGP 8.9.1, which Expo SDK 53
-// does not yet target. Remove once Expo SDK upgrades its Gradle toolchain.
+// Force AndroidX artifacts to versions compatible with compileSdk 35 and AGP 8.8.x.
+// androidx.activity:1.11.0+ and androidx.core:1.17.0+ require compileSdk 36 + AGP 8.9.1,
+// which Expo SDK 53 does not yet target. Remove both pin groups when upgrading to
+// Expo SDK 54+ (compileSdk 36 / AGP 8.9.1).
 configurations.all {
     resolutionStrategy {
         force 'androidx.activity:activity:1.9.3'
         force 'androidx.activity:activity-ktx:1.9.3'
-    }
-}
-
-
-// Force androidx.core to a version compatible with compileSdk 35 and AGP 8.8.x.
-// androidx.core:1.17.0+ requires compileSdk 36 + AGP 8.9.1, which Expo SDK 53
-// does not yet target. Remove once Expo SDK upgrades its Gradle toolchain.
-configurations.all {
-    resolutionStrategy {
         force 'androidx.core:core:1.15.0'
         force 'androidx.core:core-ktx:1.15.0'
     }
