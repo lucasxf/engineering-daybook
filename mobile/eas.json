@@ -53,7 +53,6 @@
         "releaseStatus": "draft"
       },
       "ios": {
-        "appleId": "$EXPO_APPLE_ID",
         "ascAppId": "6762233320",
         "appleTeamId": "6YCJ3MUUZP"
       }

@@ -2,7 +2,7 @@
   "expo": {
     "name": "learnimo",
     "slug": "learnimo",
-    "version": "1.0.22",
+    "version": "1.0.23",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -59,6 +59,7 @@
       "./plugins/withCleanPermissions",
       "./plugins/withReleaseSigning",
       "./plugins/withActivityPin",
+      "./plugins/withCorePin",
       "./plugins/withShortCxxPath"
     ],
     "extra": {
