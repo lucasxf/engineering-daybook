@@ -98,6 +98,10 @@ export const pokApi = {
   },
 
   async update(id: string, data: UpdatePokDto, signal?: AbortSignal): Promise<Pok> {
+    // DEBUG: remove before merge — confirms what JSON body is sent over the wire.
+    if (__DEV__) {
+      console.log('[TitleUpdate] pokApi.update body:', JSON.stringify(data));
+    }
     return apiFetch<Pok>(
       `/poks/${id}`,
       { method: 'PUT', body: JSON.stringify(data) },
