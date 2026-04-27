@@ -13,7 +13,7 @@
 - **i18n:** i18n-js 4 + expo-localization
 - **Auth storage:** expo-secure-store (tokens only)
 - **Media:** expo-image-picker (avatar upload)
-- **Testing (unit):** jest 29 + jest-expo preset (two-project config)
+- **Testing (unit):** jest 29 + jest-expo preset (four-project config)
 - **Testing (E2E):** Maestro YAML flows (`mobile/e2e/`)
 
 ---
@@ -25,7 +25,7 @@ mobile/
 ├── app.config.ts          # Expo config with env vars (EXPO_PUBLIC_API_URL)
 ├── app.json               # App metadata (scheme: learnimo, bundle ID)
 ├── eas.json               # EAS Build profiles (dev / preview / production)
-├── jest.config.js         # Two projects: lib (node env) + rn (jest-expo)
+├── jest.config.js         # Four projects: lib (node env), rn (jest-expo), screens (node), components (node)
 ├── e2e/                   # Maestro E2E YAML flows
 └── src/
     ├── App.tsx            # Root: GestureHandler > SafeArea > Theme > I18n > Auth > Navigator
@@ -81,14 +81,16 @@ See `src/lib/api.ts`, `src/lib/tokenStore.ts`, `src/contexts/AuthContext.tsx`.
 
 ## Jest Configuration
 
-Two jest projects (see `jest.config.js`):
+Four jest projects (see `jest.config.js`):
 
 | Project | Environment | Covers |
 |---------|-------------|--------|
-| `lib` | `node` | `src/lib/__tests__/` and `src/hooks/__tests__/` — pure TS logic |
-| `rn` | `jest-expo` | React Native components and hooks with rendering |
+| `lib` | `node` | `src/lib/__tests__/`, `src/hooks/__tests__/`, `src/i18n/__tests__/` — pure TS logic |
+| `rn` | `jest-expo` | Hooks/contexts needing the full Expo runtime; excludes `lib/`, `hooks/`, `screens/`, `components/` |
+| `screens` | `node` | `src/screens/**/__tests__/` — screen-level unit tests with manual RN mocks |
+| `components` | `node` | `src/components/**/__tests__/` — component unit tests with manual RN mocks |
 
-**Why two projects?** `jest-expo`'s setup file (`setup.js`) calls `Object.defineProperty` on React Native internals that break under Node 22 with RN 0.76+. Pure TypeScript lib tests (no rendering) run fine in `node` env.
+**Why four projects?** `jest-expo`'s setup file (`setup.js`) calls `Object.defineProperty` on React Native internals that break under Node 22 with RN 0.76+. Pure TypeScript lib tests (no rendering) run fine in `node` env. Screen and component tests require a `node` env too because `jest-expo` setup fails for native-module imports (e.g. `react-native-markdown-display`); they use `moduleNameMapper` stubs instead of the Expo runtime.
 
 **Run all tests:**
 ```bash
@@ -334,4 +336,4 @@ See `mobile/RELEASE_WORKFLOW.md` for the full step-by-step procedure.
 
 - **Adding a new Expo config plugin does NOT automatically update the committed `android/` directory:** This repo commits the generated `android/` tree. EAS cloud builds use those committed files as-is — `eas build` does NOT run `expo prebuild` unless `android/` is absent. Consequence: registering a new plugin in `app.json` (e.g. `./plugins/withCorePin`) is a no-op on EAS until the plugin's output is materialized in the committed `android/` tree. Two valid remediations: (a) run `npx expo prebuild --clean --platform android` locally and commit the regenerated `android/` tree; (b) manually apply the plugin's output to the relevant file(s) under `android/` and commit, keeping the plugin registered so future clean prebuilds re-emit the same block. Option (b) is preferred for hotfixes — smaller diff, no risk of unrelated regenerated changes. The first `withCorePin` commit (PR #272) fell into this trap: the plugin was registered but the committed `app/build.gradle` was never regenerated, and the next EAS build failed with the same error. (Added 2026-04-24)
 
-*Last updated: 2026-04-24 (session: fix/android-core-pin — pin androidx.core to unblock EAS Android production build)*
+*Last updated: 2026-04-25 (session: fix/mobile-tag-hyphen-input + fix/mobile-learning-title-update — jest config updated to four projects)*

@@ -314,7 +314,7 @@ cd backend
   # OR
   cp V23__add_foo.sql V24__add_foo.sql
   git rm V23__add_foo.sql                    # stages deletion explicitly
-  git add V24__add_foo.sql
+  git add V24__new.sql
   # OR
   cp V23__add_foo.sql V24__add_foo.sql
   rm V23__add_foo.sql
@@ -322,6 +322,26 @@ cd backend
   ```
 
   (Added 2026-04-18)
+
+- **`@Async` dispatched inside `@Transactional` causes full-row save to clobber changes under READ COMMITTED:** When a `@Transactional` method dispatches an `@Async` task that reloads and `pokRepository.save()`s the same entity, the async thread starts in a new transaction before the caller's transaction commits. Under READ COMMITTED isolation the async SELECT returns the pre-commit row. Without `@DynamicUpdate`, the async `save()` issues a full UPDATE that overwrites all columns — including fields just changed by the caller — with stale values. Symptom: intermittent data loss; the bug disappears when the async work takes longer than the transaction commit time (race window collapses). Fix: dispatch async tasks via `TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() { @Override public void afterCommit() { asyncService.doWork(id); } })`. Use `isSynchronizationActive()` guard for unit test compatibility. (Added 2026-04-25)
+
+  ```java
+  // WRONG — async thread may SELECT stale pre-commit row and clobber caller's changes
+  embeddingService.generateAndSave(pok.getId()); // @Async method, called inside @Transactional
+
+  // CORRECT — defer dispatch until after the caller's transaction commits
+  if (TransactionSynchronizationManager.isSynchronizationActive()) {
+      TransactionSynchronizationManager.registerSynchronization(
+          new TransactionSynchronization() {
+              @Override
+              public void afterCommit() {
+                  embeddingService.generateAndSave(pok.getId());
+              }
+          });
+  } else {
+      embeddingService.generateAndSave(pok.getId());
+  }
+  ```
 
 ---
 

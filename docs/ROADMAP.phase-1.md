@@ -586,6 +586,26 @@ Wave sequencing:
 | Auto-resizing + larger content textarea | ✅ Done | `feat/auto-resize-textarea` |
 | Test effectiveness: per-screen enforcement, flow tests, i18n smoke | ✅ Done | `chore/test-effectiveness` |
 
+### Bug Fix — Mobile Tag Hyphen Input (fix/mobile-tag-hyphen-input, 2026-04-25) ✅
+
+Root cause: `TagPickerModal.tsx` `onChangeText` stripped trailing and leading dashes on every keystroke via `.replace(/^-+|-+$/g, '')`. Typing `"system-"` immediately snapped back to `"system"`, making it impossible to type hyphenated tags.
+
+| Area | Fix |
+|------|-----|
+| `mobile/src/components/tags/TagPickerModal.tsx` | Removed leading/trailing dash strip from `onChangeText`; deferred sanitization to `onCreate` call site via `cleanTagQuery` derived variable |
+
+### Bug Fix — Mobile Learning Title Update (fix/mobile-learning-title-update, 2026-04-25) ✅
+
+Root cause (backend): `EmbeddingGenerationService.generateEmbeddingForPok` is `@Async` + `@Transactional`, dispatched inside open `@Transactional PokService.update()`. Under READ COMMITTED isolation the async thread SELECT'd the pre-commit row (old title), then issued a full-row `pokRepository.save()` that clobbered the new title. The race window meant the bug was intermittent — it disappeared when the async work took longer than the transaction commit.
+
+| Area | Fix |
+|------|-----|
+| `backend/src/main/java/com/lucasxf/ed/service/PokService.java` | Wrapped async dispatch in `TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() { afterCommit() {...} })` with `isSynchronizationActive()` guard |
+| `mobile/src/lib/pokApi.ts` | Added `specialTitles` fixture; added `pokApi.test.ts` and `validations.test.ts`; edit-mode tests; `LearningForm` title tests |
+| `mobile/src/lib/validations.ts` | Fixed `pokSchema.title` max from 255 → 200 to match backend constraint |
+| Maestro E2E | Added learning title update flow (`e2e/learning-title-update.yaml`) |
+| Version | Bumped to `1.0.24` |
+
 ---
 
 ## Active / Pending
