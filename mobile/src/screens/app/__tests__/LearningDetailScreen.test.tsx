@@ -13,12 +13,14 @@ let mockStateCallCount = 0;
 
 // Setters we want to capture for assertions
 const mockSetPok = jest.fn();
+const mockSetServerError = jest.fn();
 const mockSetTagActionLoading = jest.fn();
 
 // Per-test state configuration — reset in beforeEach
 interface TestState {
   pok: Record<string, unknown> | null;
   loading: boolean;
+  editing: boolean;
   allTags: unknown[];
   tagModalVisible: boolean;
   tagActionLoading: boolean;
@@ -49,6 +51,8 @@ jest.mock('react', () => {
       switch (mockStateCallCount) {
         case 1: return [mockTestState.pok, mockSetPok];
         case 2: return [mockTestState.loading, jest.fn()];
+        case 3: return [mockTestState.editing, jest.fn()];
+        case 5: return [null, mockSetServerError];
         case 9: return [mockTestState.allTags, jest.fn()];
         case 10: return [mockTestState.tagModalVisible, jest.fn()];
         case 11: return [mockTestState.tagActionLoading, mockSetTagActionLoading];
@@ -271,6 +275,7 @@ describe('LearningDetailScreen — tag creation flow', () => {
     mockTestState = {
       pok: mockPokWithTag,
       loading: false,
+      editing: false,
       allTags: [],
       tagModalVisible: false,
       tagActionLoading: false,
@@ -606,6 +611,135 @@ describe('LearningDetailScreen — tag creation flow', () => {
          (el.props.children as string).includes('showLessTags'))
       );
       expect(toggleText).toBeUndefined();
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Edit mode — title update regression tests
+  // ---------------------------------------------------------------------------
+  //
+  // These tests document and protect the title-update flow introduced in
+  // fix/mobile-learning-title-update. The bug: editing a title and saving
+  // silently dropped the change. Root cause was localised via the __DEV__ debug
+  // logs (see handleUpdate in LearningDetailScreen.tsx).
+  //
+  // Regression rule: ANY change to handleUpdate, pokApi.update, or LearningForm
+  // defaultValues must keep all tests in this describe block green.
+  // ---------------------------------------------------------------------------
+
+  describe('edit mode — title update', () => {
+    const ORIGINAL_TITLE = 'MAU - Monthly Active Users';
+    const pokForEdit = { ...mockPokWithTag, title: ORIGINAL_TITLE };
+    const updatedPok = { ...pokForEdit, title: 'MAU: Monthly Active Users', updatedAt: '2026-01-02T00:00:00Z' };
+
+    beforeEach(() => {
+      mockTestState.editing = true;
+      mockTestState.pok = pokForEdit;
+      (require('@/lib/pokApi').pokApi.update as jest.Mock).mockResolvedValue(updatedPok);
+    });
+
+    // Finds the mocked LearningForm element in the render tree and returns it.
+    function findLearningForm(result: unknown): AnyEl {
+      const forms = findAllByType(result, 'LearningForm');
+      expect(forms).toHaveLength(1);
+      return forms[0];
+    }
+
+    it('renders LearningForm with the current pok title as defaultValue', () => {
+      const result = LearningDetailScreen({} as never);
+      const form = findLearningForm(result);
+      expect(form.props.defaultValues).toEqual({
+        title: ORIGINAL_TITLE,
+        content: pokForEdit.content,
+      });
+    });
+
+    it('calls pokApi.update with the exact new title including colon', async () => {
+      const result = LearningDetailScreen({} as never);
+      const form = findLearningForm(result);
+      const onSubmit = form.props.onSubmit as (data: Record<string, unknown>) => Promise<void>;
+
+      await onSubmit({ title: 'MAU: Monthly Active Users', content: pokForEdit.content });
+
+      const { pokApi } = require('@/lib/pokApi');
+      expect(pokApi.update).toHaveBeenCalledWith(
+        'pok-1',
+        { title: 'MAU: Monthly Active Users', content: pokForEdit.content, visibility: 'PRIVATE' },
+      );
+    });
+
+    it('calls setPok with the server response after successful update', async () => {
+      const result = LearningDetailScreen({} as never);
+      const form = findLearningForm(result);
+      await (form.props.onSubmit as (d: Record<string, unknown>) => Promise<void>)(
+        { title: 'MAU: Monthly Active Users', content: pokForEdit.content }
+      );
+
+      expect(mockSetPok).toHaveBeenCalledWith(updatedPok);
+    });
+
+    it('converts empty string title to null before sending', async () => {
+      const result = LearningDetailScreen({} as never);
+      const form = findLearningForm(result);
+      await (form.props.onSubmit as (d: Record<string, unknown>) => Promise<void>)(
+        { title: '', content: pokForEdit.content }
+      );
+
+      const { pokApi } = require('@/lib/pokApi');
+      expect(pokApi.update).toHaveBeenCalledWith(
+        'pok-1',
+        expect.objectContaining({ title: null }),
+      );
+    });
+
+    it('sets serverError message on ApiRequestError failure', async () => {
+      const { ApiRequestError } = require('@/lib/api');
+      (require('@/lib/pokApi').pokApi.update as jest.Mock).mockRejectedValue(
+        Object.assign(new ApiRequestError('Title too long'), { status: 400 })
+      );
+
+      const result = LearningDetailScreen({} as never);
+      const form = findLearningForm(result);
+      await (form.props.onSubmit as (d: Record<string, unknown>) => Promise<void>)(
+        { title: 'x', content: pokForEdit.content }
+      );
+
+      expect(mockSetServerError).toHaveBeenCalledWith('Title too long');
+      expect(mockSetPok).not.toHaveBeenCalled();
+    });
+
+    it('sets generic saveFailed error on non-ApiRequestError failure', async () => {
+      (require('@/lib/pokApi').pokApi.update as jest.Mock).mockRejectedValue(new Error('network'));
+
+      const result = LearningDetailScreen({} as never);
+      const form = findLearningForm(result);
+      await (form.props.onSubmit as (d: Record<string, unknown>) => Promise<void>)(
+        { title: 'x', content: pokForEdit.content }
+      );
+
+      expect(mockSetServerError).toHaveBeenCalledWith('learnings.errors.saveFailed');
+      expect(mockSetPok).not.toHaveBeenCalled();
+    });
+
+    // Parameterized over the canonical special-character fixture to catch
+    // character-encoding regressions at the handleUpdate → pokApi.update boundary.
+    it.each(
+      (['MAU: Monthly Active Users', 'Q&A session', '🎯 Goal', 'שלום עולם', 'quote "embedded"'] as const)
+    )('sends title=%p unchanged to pokApi.update (special-char regression)', async (title) => {
+      const resp = { ...pokForEdit, title };
+      (require('@/lib/pokApi').pokApi.update as jest.Mock).mockResolvedValue(resp);
+
+      const result = LearningDetailScreen({} as never);
+      const form = findLearningForm(result);
+      await (form.props.onSubmit as (d: Record<string, unknown>) => Promise<void>)(
+        { title, content: pokForEdit.content }
+      );
+
+      const { pokApi } = require('@/lib/pokApi');
+      expect(pokApi.update).toHaveBeenCalledWith(
+        'pok-1',
+        expect.objectContaining({ title }),
+      );
     });
   });
 });

@@ -1,0 +1,60 @@
+appId: net.learnimo.app
+---
+# Regression: title update must persist after save (fix/mobile-learning-title-update)
+# Tests the complete edit round-trip: create → edit title → navigate away → navigate back → assert.
+
+- launchApp
+
+# Verify we are on the feed
+- assertVisible: "My Learnings"
+
+# Create a new learning with a plain title
+- tapOn:
+    text: "Save Learning"
+- tapOn:
+    text: "Optional title"
+- inputText: "Regression Test Original Title"
+- tapOn:
+    text: "What did you learn?"
+- inputText: "Content for regression test"
+- tapOn:
+    text: "Save"
+
+# Verify the new learning appears in the feed
+- assertVisible: "My Learnings"
+- assertVisible: "Regression Test Original Title"
+
+# Open the detail screen
+- tapOn:
+    text: "Regression Test Original Title"
+
+# Enter edit mode
+- tapOn:
+    text: "Edit"
+
+# Clear and replace the title with one containing a colon
+- tapOn:
+    text: "Optional title"
+- clearText
+- inputText: "Regression Test: Updated Title"
+
+# Save the edit
+- tapOn:
+    text: "Save Learning"
+
+# Verify the detail screen shows the NEW title
+- assertVisible: "Regression Test: Updated Title"
+- assertNotVisible: "Regression Test Original Title"
+
+# Navigate back to the feed
+- tapOn:
+    text: "Back"
+
+# Feed list should show the updated title (verifies stale-cache fix)
+- assertVisible: "Regression Test: Updated Title"
+- assertNotVisible: "Regression Test Original Title"
+
+# Navigate into the detail screen again to verify persistence across remounts
+- tapOn:
+    text: "Regression Test: Updated Title"
+- assertVisible: "Regression Test: Updated Title"

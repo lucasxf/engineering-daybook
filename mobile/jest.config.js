@@ -6,6 +6,7 @@ module.exports = {
       displayName: 'lib',
       testEnvironment: 'node',
       testRegex: 'src/(lib|hooks|i18n)/__tests__/.*\\.test\\.ts$',
+      globals: { __DEV__: true },
       transform: {
         '^.+\\.[jt]sx?$': ['babel-jest', { configFile: './babel.config.js' }],
       },
@@ -40,6 +41,7 @@ module.exports = {
       displayName: 'screens',
       testEnvironment: 'node',
       testRegex: 'src/screens/.*__tests__/.*\\.test\\.tsx?$',
+      globals: { __DEV__: true },
       transform: {
         '^.+\\.tsx?$': ['babel-jest', { configFile: './babel.config.js' }],
       },
@@ -64,6 +66,7 @@ module.exports = {
       displayName: 'components',
       testEnvironment: 'node',
       testRegex: 'src/components/.*__tests__/.*\\.test\\.tsx$',
+      globals: { __DEV__: true },
       transform: {
         '^.+\\.tsx?$': ['babel-jest', { configFile: './babel.config.js' }],
       },
