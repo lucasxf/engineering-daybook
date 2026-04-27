@@ -93,24 +93,12 @@ export function LearningDetailScreen() {
   async function handleUpdate(data: PokFormData) {
     if (!pok) return;
     setServerError(null);
-    // DEBUG: remove before merge — logs the title value at each layer to localize the bug.
-    if (__DEV__) {
-      const t1 = data.title;
-      console.log('[TitleUpdate] form data:', {
-        title: t1,
-        codepoints: t1 ? [...t1].map(c => c.codePointAt(0)) : null,
-      });
-    }
     try {
       const updated = await pokApi.update(pok.id, {
         title: data.title || null,
         content: data.content,
         visibility: editVisibility,
       });
-      // DEBUG: remove before merge — logs what the server returned.
-      if (__DEV__) {
-        console.log('[TitleUpdate] server response title:', updated.title);
-      }
       setPok(updated);
       setEditing(false);
     } catch (e) {
