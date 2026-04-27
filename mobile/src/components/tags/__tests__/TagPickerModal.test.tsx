@@ -196,6 +196,28 @@ describe('TagPickerModal', () => {
       expect(data.length).toBe(1);
       expect(data[0].name).toBe('typescript');
     });
+
+    it('shows existing tag when query has a trailing hyphen (e.g. "react-")', () => {
+      // Regression: raw tagQuery "react-" would cause "react".includes("react-") = false,
+      // hiding the tag and showing a misleading empty state.
+      mockTagQuery = 'react-';
+      const result = TagPickerModal(defaultProps);
+      const flatLists = findAllByType(result, 'FlatList');
+      expect(flatLists.length).toBe(1);
+      const data = flatLists[0].props.data as typeof tagA[];
+      expect(data.length).toBe(1);
+      expect(data[0].name).toBe('react');
+    });
+
+    it('shows existing tag when query has a leading hyphen (e.g. "-react")', () => {
+      mockTagQuery = '-react';
+      const result = TagPickerModal(defaultProps);
+      const flatLists = findAllByType(result, 'FlatList');
+      expect(flatLists.length).toBe(1);
+      const data = flatLists[0].props.data as typeof tagA[];
+      expect(data.length).toBe(1);
+      expect(data[0].name).toBe('react');
+    });
   });
 
   describe('"Create new tag" row visibility', () => {
@@ -376,20 +398,23 @@ describe('TagPickerModal', () => {
 
     it('does NOT show create row when tagQuery is only dashes (cleanTagQuery is empty)', () => {
       // "---" → cleanTagQuery = "" → showCreateRow = false.
-      // filteredTags also = [] (no tag named "---"), so the component renders an
-      // empty-state Text rather than a FlatList. Verify no create row by checking
-      // there is no FlatList (and no onCreate button) in the tree at all.
+      // filteredTags = availableTags (all tags shown, no query to filter on),
+      // so the FlatList renders with all tags but no create row in the footer.
       mockTagQuery = '---';
       const result = TagPickerModal(defaultProps);
       const flatLists = findAllByType(result, 'FlatList');
-      expect(flatLists.length).toBe(0);
+      expect(flatLists.length).toBe(1);
+      expect(flatLists[0].props.ListFooterComponent).toBeNull();
     });
 
     it('does NOT show create row when tagQuery is a single hyphen', () => {
+      // "-" → cleanTagQuery = "" → showCreateRow = false.
+      // filteredTags = availableTags (all tags shown), no create row.
       mockTagQuery = '-';
       const result = TagPickerModal(defaultProps);
       const flatLists = findAllByType(result, 'FlatList');
-      expect(flatLists.length).toBe(0);
+      expect(flatLists.length).toBe(1);
+      expect(flatLists[0].props.ListFooterComponent).toBeNull();
     });
   });
 });

@@ -48,17 +48,19 @@ export function TagPickerModal({
 
   const assignedIds = new Set(selectedTagIds);
   const availableTags = allTags.filter((tag) => !assignedIds.has(tag.tagId));
-  const filteredTags = tagQuery
-    ? availableTags.filter(
-        (tag) =>
-          tag.displayName.toLowerCase().includes(tagQuery.toLowerCase()) ||
-          tag.name.toLowerCase().includes(tagQuery.toLowerCase())
-      )
-    : availableTags;
   // Strip leading/trailing dashes only at the point of use (not during typing),
   // so the user can freely type "system-design" without "-" being swallowed
   // mid-keystroke after each character (fix for the Android hyphen input bug).
   const cleanTagQuery = tagQuery.replace(/^-+|-+$/g, '');
+  // Filter using cleanTagQuery so a trailing dash (e.g. "react-") still surfaces
+  // the "react" tag — raw tagQuery would cause "react".includes("react-") = false.
+  const filteredTags = cleanTagQuery
+    ? availableTags.filter(
+        (tag) =>
+          tag.displayName.toLowerCase().includes(cleanTagQuery.toLowerCase()) ||
+          tag.name.toLowerCase().includes(cleanTagQuery.toLowerCase())
+      )
+    : availableTags;
 
   const showCreateRow =
     cleanTagQuery.length > 0 &&
