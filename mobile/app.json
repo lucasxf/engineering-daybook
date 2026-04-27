@@ -52,6 +52,8 @@
       [
         "expo-image-picker",
         {
+          "photosPermission": "learnimo needs access to your photo library so you can choose a profile picture from your photos. For example, tap your avatar on the Profile screen and pick a saved photo to display next to the learnings you publish.",
+          "cameraPermission": false,
           "microphonePermission": false
         }
       ],
