@@ -123,6 +123,140 @@ beforeEach(() => {
 });
 
 // ---------------------------------------------------------------------------
+// Helpers — title controller
+// ---------------------------------------------------------------------------
+
+/** Render LearningForm, locate the title Controller, invoke its render prop,
+ *  and return the TextInput element produced. */
+function getTitleInputEl(overrides: object = {}): any {
+  const element = (LearningForm as any)({
+    onSubmit: jest.fn(),
+    onCancel: jest.fn(),
+    submitLabel: 'Save',
+    ...overrides,
+  });
+  const titleController = findControllerByName(element, 'title');
+  expect(titleController).not.toBeNull();
+  return titleController.props.render({
+    field: { onChange: jest.fn(), onBlur: jest.fn(), value: 'dummy' },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Tests — title input wiring
+// ---------------------------------------------------------------------------
+
+describe('LearningForm — title input', () => {
+  it('renders a title Controller with name="title"', () => {
+    const element = (LearningForm as any)({
+      onSubmit: jest.fn(),
+      onCancel: jest.fn(),
+      submitLabel: 'Save',
+    });
+    const titleController = findControllerByName(element, 'title');
+    expect(titleController).not.toBeNull();
+  });
+
+  it('renders TextInput with the value from the field', () => {
+    const element = (LearningForm as any)({
+      onSubmit: jest.fn(),
+      onCancel: jest.fn(),
+      submitLabel: 'Save',
+    });
+    const titleController = findControllerByName(element, 'title');
+    const testTitle = 'MAU: Monthly Active Users';
+    const textInputEl = titleController.props.render({
+      field: { onChange: jest.fn(), onBlur: jest.fn(), value: testTitle },
+    });
+    // value ?? '' — if value is a non-empty string, it is used as-is
+    expect(textInputEl.props.value).toBe(testTitle);
+  });
+
+  it('uses empty string when field value is undefined (value ?? "" guard)', () => {
+    const element = (LearningForm as any)({
+      onSubmit: jest.fn(),
+      onCancel: jest.fn(),
+      submitLabel: 'Save',
+    });
+    const titleController = findControllerByName(element, 'title');
+    const textInputEl = titleController.props.render({
+      field: { onChange: jest.fn(), onBlur: jest.fn(), value: undefined },
+    });
+    expect(textInputEl.props.value).toBe('');
+  });
+
+  it('wires onChangeText to field.onChange', () => {
+    const mockOnChange = jest.fn();
+    const element = (LearningForm as any)({
+      onSubmit: jest.fn(),
+      onCancel: jest.fn(),
+      submitLabel: 'Save',
+    });
+    const titleController = findControllerByName(element, 'title');
+    const textInputEl = titleController.props.render({
+      field: { onChange: mockOnChange, onBlur: jest.fn(), value: '' },
+    });
+    textInputEl.props.onChangeText('MAU: Monthly Active Users');
+    expect(mockOnChange).toHaveBeenCalledWith('MAU: Monthly Active Users');
+  });
+
+  it('wires onChangeText for titles containing special characters', () => {
+    const specialCases = ['MAU: Monthly Active Users', 'Q&A', '🎯 Goal', 'שלום'];
+    for (const title of specialCases) {
+      const mockOnChange = jest.fn();
+      const element = (LearningForm as any)({
+        onSubmit: jest.fn(),
+        onCancel: jest.fn(),
+        submitLabel: 'Save',
+      });
+      const titleController = findControllerByName(element, 'title');
+      const textInputEl = titleController.props.render({
+        field: { onChange: mockOnChange, onBlur: jest.fn(), value: '' },
+      });
+      textInputEl.props.onChangeText(title);
+      expect(mockOnChange).toHaveBeenCalledWith(title);
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Tests — submit wiring (handleSubmit mock returns fn directly)
+// ---------------------------------------------------------------------------
+
+describe('LearningForm — submit button calls onSubmit', () => {
+  it('passes onSubmit directly to the submit Button onPress (via handleSubmit mock)', () => {
+    const mockOnSubmit = jest.fn();
+    const element = (LearningForm as any)({
+      onSubmit: mockOnSubmit,
+      onCancel: jest.fn(),
+      submitLabel: 'Save',
+    });
+
+    // With handleSubmit: (fn) => fn, onPress IS the onSubmit function.
+    // We find the Button elements and assert the primary submit button has onPress = onSubmit.
+    function findAllButtons(el: any): any[] {
+      const results: any[] = [];
+      function walk(node: any) {
+        if (!node || typeof node !== 'object') return;
+        if (Array.isArray(node)) { node.forEach(walk); return; }
+        if (node.type === 'Button' || node.type?.name === 'Button') results.push(node);
+        const children = node.props?.children;
+        if (Array.isArray(children)) children.forEach(walk);
+        else if (children) walk(children);
+      }
+      walk(el);
+      return results;
+    }
+
+    const buttons = findAllButtons(element);
+    // Submit button has label = submitLabel ('Save') and its onPress is the onSubmit fn.
+    const submitBtn = buttons.find((b: any) => b.props.label === 'Save');
+    expect(submitBtn).toBeDefined();
+    expect(submitBtn.props.onPress).toBe(mockOnSubmit);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Tests — larger default size (#9)
 // ---------------------------------------------------------------------------
 

@@ -196,6 +196,28 @@ describe('TagPickerModal', () => {
       expect(data.length).toBe(1);
       expect(data[0].name).toBe('typescript');
     });
+
+    it('shows existing tag when query has a trailing hyphen (e.g. "react-")', () => {
+      // Regression: raw tagQuery "react-" would cause "react".includes("react-") = false,
+      // hiding the tag and showing a misleading empty state.
+      mockTagQuery = 'react-';
+      const result = TagPickerModal(defaultProps);
+      const flatLists = findAllByType(result, 'FlatList');
+      expect(flatLists.length).toBe(1);
+      const data = flatLists[0].props.data as typeof tagA[];
+      expect(data.length).toBe(1);
+      expect(data[0].name).toBe('react');
+    });
+
+    it('shows existing tag when query has a leading hyphen (e.g. "-react")', () => {
+      mockTagQuery = '-react';
+      const result = TagPickerModal(defaultProps);
+      const flatLists = findAllByType(result, 'FlatList');
+      expect(flatLists.length).toBe(1);
+      const data = flatLists[0].props.data as typeof tagA[];
+      expect(data.length).toBe(1);
+      expect(data[0].name).toBe('react');
+    });
   });
 
   describe('"Create new tag" row visibility', () => {
@@ -277,6 +299,122 @@ describe('TagPickerModal', () => {
         el.props.children === 'learnings.detail.noMoreTagsToAdd'
       );
       expect(msg).toBeDefined();
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // Regression tests: Android hyphen input bug (fix/mobile-tag-hyphen-input)
+  //
+  // Bug: typing "-" at the end of a tag name caused it to immediately vanish.
+  // Root cause: the onChangeText handler ran `.replace(/^-+|-+$/g, '')` on
+  // EVERY keystroke, stripping the trailing hyphen instantly.
+  // Fix: defer leading/trailing strip to the onCreate call site only.
+  // ---------------------------------------------------------------------------
+
+  describe('tag name normalisation — onChangeText', () => {
+    function getTextInputOnChangeText(result: unknown): (text: string) => void {
+      const inputs = findAllByType(result, 'TextInput');
+      expect(inputs.length).toBeGreaterThan(0);
+      return inputs[0].props.onChangeText as (text: string) => void;
+    }
+
+    it('accepts a trailing hyphen mid-typing (does NOT strip it)', () => {
+      const result = TagPickerModal(defaultProps);
+      const onChangeText = getTextInputOnChangeText(result);
+      onChangeText('system-');
+      // setTagQuery must be called with "system-" — trailing dash preserved during typing
+      expect(mockSetTagQuery).toHaveBeenCalledWith('system-');
+    });
+
+    it('accepts a leading hyphen mid-typing (does NOT strip it)', () => {
+      const result = TagPickerModal(defaultProps);
+      const onChangeText = getTextInputOnChangeText(result);
+      onChangeText('-system');
+      expect(mockSetTagQuery).toHaveBeenCalledWith('-system');
+    });
+
+    it('preserves a hyphen between words (system-design)', () => {
+      const result = TagPickerModal(defaultProps);
+      const onChangeText = getTextInputOnChangeText(result);
+      onChangeText('system-design');
+      expect(mockSetTagQuery).toHaveBeenCalledWith('system-design');
+    });
+
+    it('replaces spaces with hyphens', () => {
+      const result = TagPickerModal(defaultProps);
+      const onChangeText = getTextInputOnChangeText(result);
+      onChangeText('system design');
+      expect(mockSetTagQuery).toHaveBeenCalledWith('system-design');
+    });
+
+    it('collapses consecutive hyphens to one', () => {
+      const result = TagPickerModal(defaultProps);
+      const onChangeText = getTextInputOnChangeText(result);
+      onChangeText('system--design');
+      expect(mockSetTagQuery).toHaveBeenCalledWith('system-design');
+    });
+
+    it('replaces a space with a hyphen and keeps it (space→hyphen, no strip)', () => {
+      // Typing a space after "system" produces "system-" — this must NOT be
+      // stripped, otherwise the user has no way to continue typing the second word.
+      const result = TagPickerModal(defaultProps);
+      const onChangeText = getTextInputOnChangeText(result);
+      onChangeText('system ');
+      // space→hyphen, trailing hyphen kept: "system-"
+      expect(mockSetTagQuery).toHaveBeenCalledWith('system-');
+    });
+  });
+
+  describe('tag name normalisation — onCreate (trailing/leading strip at submit)', () => {
+    function getCreateRowOnPress(result: unknown): () => void {
+      const flatLists = findAllByType(result, 'FlatList');
+      const footer = flatLists[0].props.ListFooterComponent as AnyEl;
+      return footer.props.onPress as () => void;
+    }
+
+    it('strips trailing hyphen before calling onCreate', () => {
+      mockTagQuery = 'system-';
+      const onCreate = jest.fn();
+      const result = TagPickerModal({ ...defaultProps, onCreate });
+      getCreateRowOnPress(result)();
+      expect(onCreate).toHaveBeenCalledWith('system');
+    });
+
+    it('strips leading hyphen before calling onCreate', () => {
+      mockTagQuery = '-system';
+      const onCreate = jest.fn();
+      const result = TagPickerModal({ ...defaultProps, onCreate });
+      getCreateRowOnPress(result)();
+      expect(onCreate).toHaveBeenCalledWith('system');
+    });
+
+    it('calls onCreate with clean slug for "system-design"', () => {
+      mockTagQuery = 'system-design';
+      const onCreate = jest.fn();
+      const result = TagPickerModal({ ...defaultProps, onCreate });
+      getCreateRowOnPress(result)();
+      expect(onCreate).toHaveBeenCalledWith('system-design');
+    });
+
+    it('does NOT show create row when tagQuery is only dashes (cleanTagQuery is empty)', () => {
+      // "---" → cleanTagQuery = "" → showCreateRow = false.
+      // filteredTags = availableTags (all tags shown, no query to filter on),
+      // so the FlatList renders with all tags but no create row in the footer.
+      mockTagQuery = '---';
+      const result = TagPickerModal(defaultProps);
+      const flatLists = findAllByType(result, 'FlatList');
+      expect(flatLists.length).toBe(1);
+      expect(flatLists[0].props.ListFooterComponent).toBeNull();
+    });
+
+    it('does NOT show create row when tagQuery is a single hyphen', () => {
+      // "-" → cleanTagQuery = "" → showCreateRow = false.
+      // filteredTags = availableTags (all tags shown), no create row.
+      mockTagQuery = '-';
+      const result = TagPickerModal(defaultProps);
+      const flatLists = findAllByType(result, 'FlatList');
+      expect(flatLists.length).toBe(1);
+      expect(flatLists[0].props.ListFooterComponent).toBeNull();
     });
   });
 });
