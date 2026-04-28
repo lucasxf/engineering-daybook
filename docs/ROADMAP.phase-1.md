@@ -603,7 +603,7 @@ Root cause (backend): `EmbeddingGenerationService.generateEmbeddingForPok` is `@
 | `backend/src/main/java/com/lucasxf/ed/service/PokService.java` | Wrapped async dispatch in `TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() { afterCommit() {...} })` with `isSynchronizationActive()` guard |
 | `mobile/src/lib/pokApi.ts` | Added `specialTitles` fixture; added `pokApi.test.ts` and `validations.test.ts`; edit-mode tests; `LearningForm` title tests |
 | `mobile/src/lib/validations.ts` | Fixed `pokSchema.title` max from 255 → 200 to match backend constraint |
-| Maestro E2E | Added learning title update flow (`e2e/learning-title-update.yaml`) |
+| Maestro E2E | Added learning title update flow (`mobile/e2e/edit-learning-title.yaml`) |
 | Version | Bumped to `1.0.24` |
 
 ### iOS App Store Rejection Fix — Photo Library Purpose String (2026-04-27)

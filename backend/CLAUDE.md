@@ -314,7 +314,7 @@ cd backend
   # OR
   cp V23__add_foo.sql V24__add_foo.sql
   git rm V23__add_foo.sql                    # stages deletion explicitly
-  git add V24__new.sql
+  git add V24__add_foo.sql
   # OR
   cp V23__add_foo.sql V24__add_foo.sql
   rm V23__add_foo.sql

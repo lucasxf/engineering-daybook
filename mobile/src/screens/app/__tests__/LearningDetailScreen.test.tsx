@@ -31,6 +31,7 @@ interface TestState {
 let mockTestState: TestState = {
   pok: null,
   loading: false,
+  editing: false,
   allTags: [],
   tagModalVisible: false,
   tagActionLoading: false,
