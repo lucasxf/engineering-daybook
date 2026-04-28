@@ -19,6 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.lucasxf.ed.domain.Pok;
 import com.lucasxf.ed.domain.PokAuditLog;
@@ -133,11 +135,26 @@ public class PokService {
         // Assign requested tags atomically (within this transaction)
         tagService.assignTagsToNewPok(savedPok.getId(), request.tagIds(), userId);
 
-        // Trigger async AI tag suggestions (non-blocking)
-        tagSuggestionService.suggestTagsForPok(savedPok.getId(), userId);
-
-        // Trigger async vector embedding generation (non-blocking)
-        embeddingGenerationService.generateEmbeddingForPok(savedPok.getId());
+        // Dispatch async AI and embedding tasks only after this transaction commits.
+        // Both tasks reload and save the Pok in their own transactions; firing them while
+        // the create transaction is still open causes a race where they may not find the
+        // row yet (READ COMMITTED) and silently no-op — leaving the POK without an
+        // embedding or tag suggestions until the next edit.
+        //
+        // isSynchronizationActive() is false only in unit tests (no Spring tx context).
+        final UUID savedPokId = savedPok.getId();
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    embeddingGenerationService.generateEmbeddingForPok(savedPokId);
+                    tagSuggestionService.suggestTagsForPok(savedPokId, userId);
+                }
+            });
+        } else {
+            embeddingGenerationService.generateEmbeddingForPok(savedPokId);
+            tagSuggestionService.suggestTagsForPok(savedPokId, userId);
+        }
 
         List<TagResponse> tags = buildTagResponses(savedPok.getId(), userId);
         List<TagSuggestionResponse> suggestions = buildSuggestionResponses(savedPok.getId());
@@ -530,11 +547,27 @@ public class PokService {
 
         logUpdate(updatedPok, userId, oldTitle, oldContent);
 
-        // Trigger async vector embedding regeneration (non-blocking)
-        embeddingGenerationService.generateEmbeddingForPok(id);
-
-        // Trigger async AI tag suggestions (non-blocking) — content may have changed
-        tagSuggestionService.suggestTagsForPok(id, userId);
+        // Dispatch async tasks only after this transaction commits.
+        // Both tasks reload and save the Pok in their own transactions; firing them
+        // while the update transaction is still open causes a race where they read
+        // the pre-commit row and then overwrite all columns (including the new title)
+        // with stale values (EmbeddingGenerationService does a full pokRepository.save).
+        //
+        // isSynchronizationActive() is false only in unit tests (no Spring tx context).
+        // In production the method is always called within @Transactional, so
+        // synchronization is guaranteed to be active.
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    embeddingGenerationService.generateEmbeddingForPok(id);
+                    tagSuggestionService.suggestTagsForPok(id, userId);
+                }
+            });
+        } else {
+            embeddingGenerationService.generateEmbeddingForPok(id);
+            tagSuggestionService.suggestTagsForPok(id, userId);
+        }
 
         List<TagResponse> tags = buildTagResponses(id, userId);
         List<TagSuggestionResponse> suggestions = buildSuggestionResponses(id);

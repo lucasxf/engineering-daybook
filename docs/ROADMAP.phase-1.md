@@ -586,6 +586,34 @@ Wave sequencing:
 | Auto-resizing + larger content textarea | ✅ Done | `feat/auto-resize-textarea` |
 | Test effectiveness: per-screen enforcement, flow tests, i18n smoke | ✅ Done | `chore/test-effectiveness` |
 
+### Bug Fix — Mobile Tag Hyphen Input (fix/mobile-tag-hyphen-input, 2026-04-25) ✅
+
+Root cause: `TagPickerModal.tsx` `onChangeText` stripped trailing and leading dashes on every keystroke via `.replace(/^-+|-+$/g, '')`. Typing `"system-"` immediately snapped back to `"system"`, making it impossible to type hyphenated tags.
+
+| Area | Fix |
+|------|-----|
+| `mobile/src/components/tags/TagPickerModal.tsx` | Removed leading/trailing dash strip from `onChangeText`; deferred sanitization to `onCreate` call site via `cleanTagQuery` derived variable |
+
+### Bug Fix — Mobile Learning Title Update (fix/mobile-learning-title-update, 2026-04-25) ✅
+
+Root cause (backend): `EmbeddingGenerationService.generateEmbeddingForPok` is `@Async` + `@Transactional`, dispatched inside open `@Transactional PokService.update()`. Under READ COMMITTED isolation the async thread SELECT'd the pre-commit row (old title), then issued a full-row `pokRepository.save()` that clobbered the new title. The race window meant the bug was intermittent — it disappeared when the async work took longer than the transaction commit.
+
+| Area | Fix |
+|------|-----|
+| `backend/src/main/java/com/lucasxf/ed/service/PokService.java` | Wrapped async dispatch in `TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() { afterCommit() {...} })` with `isSynchronizationActive()` guard |
+| `mobile/src/lib/pokApi.ts` | Added `specialTitles` fixture; added `pokApi.test.ts` and `validations.test.ts`; edit-mode tests; `LearningForm` title tests |
+| `mobile/src/lib/validations.ts` | Fixed `pokSchema.title` max from 255 → 200 to match backend constraint |
+| Maestro E2E | Added learning title update flow (`mobile/e2e/edit-learning-title.yaml`) |
+| Version | Bumped to `1.0.24` |
+
+### iOS App Store Rejection Fix — Photo Library Purpose String (2026-04-27)
+
+Apple rejected submission 4c3112cc (build 11) under Guideline 5.1.1(ii): NSPhotoLibraryUsageDescription was expo-image-picker's generic default. Fixed by adding explicit `photosPermission` (avatar-specific string with example) and `cameraPermission: false` to the `expo-image-picker` plugin block in `mobile/app.json`. Version bumped to 1.0.24.
+
+| Area | Fix |
+|------|-----|
+| `mobile/app.json` | Added `photosPermission` (specific purpose string with example, per 5.1.1(ii)) and `cameraPermission: false` to `expo-image-picker` plugin block |
+
 ---
 
 ## Active / Pending
@@ -600,7 +628,7 @@ Mobile parity execution plan progress: Wave 4 (4-tier visibility) ✅ done (feat
 
 Milestone 3.4 (App Store Publishing): Play Store internal track updated to versionCode 11 (1.0.1) on 2026-03-19. Crash-on-launch permanently fixed via 4 Expo config plugins. `react` pinned to 19.0.0 to resolve JS crash from renderer version mismatch. Local signing workflow documented. Google OAuth for mobile still pending before production track promotion.
 
-✅ iOS App Store submission (2026-04-16): build 1.0.21/build 7 submitted via `eas submit`. Apple accepted the binary with warning ITMS-90725 — built with iOS 18.5 SDK (Xcode 16.x); starting 2026-04-28 all submissions must use iOS 26 SDK (Xcode 26). **Resolved 2026-04-18 (chore/ios-xcode26-sdk-migration):** EAS image `macos-sequoia-15.6-xcode-26.2` adopted in all build profiles (`production`, `preview`, `simulator`); `expo-image-picker` unpinned to `~55.0.5` (now `55.0.18`); app version bumped to `1.0.22`. All 148 tests pass. Next submission will use iOS 26 SDK and satisfy the ITMS-90725 requirement.
+✅ iOS App Store submission (2026-04-16): build 1.0.21/build 7 submitted via `eas submit`. Apple accepted the binary with warning ITMS-90725 — built with iOS 18.5 SDK (Xcode 16.x); starting 2026-04-28 all submissions must use iOS 26 SDK (Xcode 26). **Resolved 2026-04-18 (chore/ios-xcode26-sdk-migration):** EAS image `macos-sequoia-15.6-xcode-26.2` adopted in all build profiles (`production`, `preview`, `simulator`); `expo-image-picker` unpinned to `~55.0.5` (now `55.0.18`); app version bumped to `1.0.22`. All 148 tests pass. Next submission will use iOS 26 SDK and satisfy the ITMS-90725 requirement. **Rejected 2026-04-27 (submission 4c3112cc, build 11) under Guideline 5.1.1(ii):** `NSPhotoLibraryUsageDescription` was expo-image-picker's generic default — insufficient under Apple's purpose-string requirement. Remediated by adding explicit `photosPermission` (avatar-specific string with concrete example) and `cameraPermission: false` to the `expo-image-picker` plugin block in `mobile/app.json`; version bumped to 1.0.24. Re-submit pending.
 
 Apple rejection remediation — Spec B (support page): `/en/support` and `/pt-BR/support` pages implemented on `feat/support-page` (2026-04-18). Site-wide footer with Privacy + Support links added to locale layout. App Store Connect Support URL updated to `https://learnimo.net/en/support` in `docs/appstore-metadata.md`. 7 Playwright E2E tests covering AC1–AC7. Pre-existing timer leak in `useDebounce.test.ts` fixed (faker timer bleed into `PokForm.test.tsx`). PR pending for merge to develop → main.
 

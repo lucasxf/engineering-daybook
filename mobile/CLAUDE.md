@@ -13,7 +13,7 @@
 - **i18n:** i18n-js 4 + expo-localization
 - **Auth storage:** expo-secure-store (tokens only)
 - **Media:** expo-image-picker (avatar upload)
-- **Testing (unit):** jest 29 + jest-expo preset (two-project config)
+- **Testing (unit):** jest 29 + jest-expo preset (four-project config)
 - **Testing (E2E):** Maestro YAML flows (`mobile/e2e/`)
 
 ---
@@ -25,7 +25,7 @@ mobile/
 ├── app.config.ts          # Expo config with env vars (EXPO_PUBLIC_API_URL)
 ├── app.json               # App metadata (scheme: learnimo, bundle ID)
 ├── eas.json               # EAS Build profiles (dev / preview / production)
-├── jest.config.js         # Two projects: lib (node env) + rn (jest-expo)
+├── jest.config.js         # Four projects: lib (node env), rn (jest-expo), screens (node), components (node)
 ├── e2e/                   # Maestro E2E YAML flows
 └── src/
     ├── App.tsx            # Root: GestureHandler > SafeArea > Theme > I18n > Auth > Navigator
@@ -81,14 +81,16 @@ See `src/lib/api.ts`, `src/lib/tokenStore.ts`, `src/contexts/AuthContext.tsx`.
 
 ## Jest Configuration
 
-Two jest projects (see `jest.config.js`):
+Four jest projects (see `jest.config.js`):
 
 | Project | Environment | Covers |
 |---------|-------------|--------|
-| `lib` | `node` | `src/lib/__tests__/` and `src/hooks/__tests__/` — pure TS logic |
-| `rn` | `jest-expo` | React Native components and hooks with rendering |
+| `lib` | `node` | `src/lib/__tests__/`, `src/hooks/__tests__/`, `src/i18n/__tests__/` — pure TS logic |
+| `rn` | `jest-expo` | Hooks/contexts needing the full Expo runtime; excludes `lib/`, `hooks/`, `screens/`, `components/` |
+| `screens` | `node` | `src/screens/**/__tests__/` — screen-level unit tests with manual RN mocks |
+| `components` | `node` | `src/components/**/__tests__/` — component unit tests with manual RN mocks |
 
-**Why two projects?** `jest-expo`'s setup file (`setup.js`) calls `Object.defineProperty` on React Native internals that break under Node 22 with RN 0.76+. Pure TypeScript lib tests (no rendering) run fine in `node` env.
+**Why four projects?** `jest-expo`'s setup file (`setup.js`) calls `Object.defineProperty` on React Native internals that break under Node 22 with RN 0.76+. Pure TypeScript lib tests (no rendering) run fine in `node` env. Screen and component tests require a `node` env too because `jest-expo` setup fails for native-module imports (e.g. `react-native-markdown-display`); they use `moduleNameMapper` stubs instead of the Expo runtime.
 
 **Run all tests:**
 ```bash
@@ -256,7 +258,7 @@ See `mobile/RELEASE_WORKFLOW.md` for the full step-by-step procedure.
 - **`expo-auth-session` `invariantClientId()` throws synchronously when platform client ID is absent:** `Google.useAuthRequest()` calls `invariantClientId()` inside a `useMemo` during render. If the platform-specific ID (`androidClientId` on Android, `webClientId` on Expo Go/web) is `undefined`, it throws before the hook can return — crashing the app at launch. Any post-hook guard (e.g. `disabled = request === null`) never executes. Fix: compute `hasClientId` from env vars BEFORE calling `Google.useAuthRequest()`, pass a dummy `clientId: '__disabled__'` fallback when absent, and derive `disabled = !hasClientId`. See `useGoogleAuth.ts`. (Added 2026-03-19)
 
 
-- **`expo-image-picker` plugin must be registered in `app.json` with `microphonePermission: false`:** Installing the package is not enough. Without plugin registration, `expo prebuild --clean` does not apply the Expo config plugin for `expo-image-picker`. Additionally, registering without `{ "microphonePermission": false }` causes the plugin to add `RECORD_AUDIO` to the manifest (for video recording), which `withCleanPermissions` cannot remove because the permission is added via a different pipeline phase (`withPermissions`) that runs after `withAndroidManifest` modifiers. Pass `microphonePermission: false` to block it via manifest merger directive (`tools:node="remove"`). Correct `app.json` entry: `["expo-image-picker", { "microphonePermission": false }]`. (Added 2026-03-22)
+- **`expo-image-picker` plugin must be registered in `app.json` with `microphonePermission: false`:** Installing the package is not enough. Without plugin registration, `expo prebuild --clean` does not apply the Expo config plugin for `expo-image-picker`. Additionally, registering without `{ "microphonePermission": false }` causes the plugin to add `RECORD_AUDIO` to the manifest (for video recording), which `withCleanPermissions` cannot remove because the permission is added via a different pipeline phase (`withPermissions`) that runs after `withAndroidManifest` modifiers. Pass `microphonePermission: false` to block it via manifest merger directive (`tools:node="remove"`). Correct `app.json` entry: `["expo-image-picker", { "microphonePermission": false }]`. (Added 2026-03-22) — **Also set `photosPermission` and `cameraPermission` explicitly:** Failing to set `photosPermission` leaves `NSPhotoLibraryUsageDescription` at the plugin's generic default ("Allow learnimo to access your photos"), which Apple rejects under Guideline 5.1.1(ii) — purpose strings must name the specific feature and include a concrete example. Always set `photosPermission` to a feature-specific string (e.g., "learnimo needs access to your photo library so you can choose a profile picture... For example, tap your avatar on the Profile screen and pick a saved photo."). If the app does not use the camera, set `cameraPermission: false` to remove `NSCameraUsageDescription` from the Info.plist entirely. (Added 2026-04-27)
 
 - **`requestMediaLibraryPermissionsAsync()` always returns `denied` on Android 13+ without `READ_MEDIA_IMAGES` in manifest:** On Android 13+, `expo-image-picker`'s `launchImageLibraryAsync()` uses the system Photo Picker API (`MediaStore.ACTION_PICK_IMAGES`) which requires no permissions. However, calling `requestMediaLibraryPermissionsAsync()` first checks if `READ_MEDIA_IMAGES` is in the manifest — if not, it returns `denied` immediately, silently aborting the picker launch. Fix: gate the permission request behind `Platform.OS === 'ios'`. iOS still requires the explicit photo library permission dialog; Android 13+ does not. (Added 2026-03-22)
 
@@ -334,4 +336,4 @@ See `mobile/RELEASE_WORKFLOW.md` for the full step-by-step procedure.
 
 - **Adding a new Expo config plugin does NOT automatically update the committed `android/` directory:** This repo commits the generated `android/` tree. EAS cloud builds use those committed files as-is — `eas build` does NOT run `expo prebuild` unless `android/` is absent. Consequence: registering a new plugin in `app.json` (e.g. `./plugins/withCorePin`) is a no-op on EAS until the plugin's output is materialized in the committed `android/` tree. Two valid remediations: (a) run `npx expo prebuild --clean --platform android` locally and commit the regenerated `android/` tree; (b) manually apply the plugin's output to the relevant file(s) under `android/` and commit, keeping the plugin registered so future clean prebuilds re-emit the same block. Option (b) is preferred for hotfixes — smaller diff, no risk of unrelated regenerated changes. The first `withCorePin` commit (PR #272) fell into this trap: the plugin was registered but the committed `app/build.gradle` was never regenerated, and the next EAS build failed with the same error. (Added 2026-04-24)
 
-*Last updated: 2026-04-24 (session: fix/android-core-pin — pin androidx.core to unblock EAS Android production build)*
+*Last updated: 2026-04-27 (session: fix/mobile-learning-title-update — iOS App Store rejection fix: explicit photosPermission/cameraPermission in expo-image-picker plugin block)*

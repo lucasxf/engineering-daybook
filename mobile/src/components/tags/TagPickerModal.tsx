@@ -48,19 +48,26 @@ export function TagPickerModal({
 
   const assignedIds = new Set(selectedTagIds);
   const availableTags = allTags.filter((tag) => !assignedIds.has(tag.tagId));
-  const filteredTags = tagQuery
+  // Strip leading/trailing dashes only at the point of use (not during typing),
+  // so the user can freely type "system-design" without "-" being swallowed
+  // mid-keystroke after each character (fix for the Android hyphen input bug).
+  const cleanTagQuery = tagQuery.replace(/^-+|-+$/g, '');
+  // Filter using cleanTagQuery so a trailing dash (e.g. "react-") still surfaces
+  // the "react" tag — raw tagQuery would cause "react".includes("react-") = false.
+  const filteredTags = cleanTagQuery
     ? availableTags.filter(
         (tag) =>
-          tag.displayName.toLowerCase().includes(tagQuery.toLowerCase()) ||
-          tag.name.toLowerCase().includes(tagQuery.toLowerCase())
+          tag.displayName.toLowerCase().includes(cleanTagQuery.toLowerCase()) ||
+          tag.name.toLowerCase().includes(cleanTagQuery.toLowerCase())
       )
     : availableTags;
+
   const showCreateRow =
-    tagQuery.length > 0 &&
+    cleanTagQuery.length > 0 &&
     !allTags.some(
       (tag) =>
-        tag.name.toLowerCase() === tagQuery.toLowerCase() ||
-        tag.displayName.toLowerCase() === tagQuery.toLowerCase()
+        tag.name.toLowerCase() === cleanTagQuery.toLowerCase() ||
+        tag.displayName.toLowerCase() === cleanTagQuery.toLowerCase()
     );
 
   return (
@@ -92,10 +99,13 @@ export function TagPickerModal({
               <TextInput
                 value={tagQuery}
                 onChangeText={(text) => {
+                  // Collapse whitespace and consecutive dashes while typing.
+                  // Leading/trailing dash strip is deferred to onCreate so the
+                  // user can type "system-design" without the "-" being eaten
+                  // mid-keystroke (e.g. after typing "system-").
                   const normalized = text
                     .replace(/\s+/g, '-')
-                    .replace(/-+/g, '-')
-                    .replace(/^-+|-+$/g, '');
+                    .replace(/-+/g, '-');
                   setTagQuery(normalized);
                 }}
                 placeholder={t('learnings.detail.tagSearchPlaceholder')}
@@ -154,7 +164,7 @@ export function TagPickerModal({
                   ListFooterComponent={
                     showCreateRow ? (
                       <TouchableOpacity
-                        onPress={() => onCreate(tagQuery)}
+                        onPress={() => onCreate(cleanTagQuery)}
                         style={{
                           paddingHorizontal: theme.spacing.md,
                           paddingVertical: 10,
@@ -163,7 +173,7 @@ export function TagPickerModal({
                         }}
                       >
                         <Text variant="bodySm" color={theme.colors.primary}>
-                          {t('learnings.detail.tagCreateNew', { name: tagQuery })}
+                          {t('learnings.detail.tagCreateNew', { name: cleanTagQuery })}
                         </Text>
                       </TouchableOpacity>
                     ) : null
