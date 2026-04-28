@@ -135,11 +135,26 @@ public class PokService {
         // Assign requested tags atomically (within this transaction)
         tagService.assignTagsToNewPok(savedPok.getId(), request.tagIds(), userId);
 
-        // Trigger async AI tag suggestions (non-blocking)
-        tagSuggestionService.suggestTagsForPok(savedPok.getId(), userId);
-
-        // Trigger async vector embedding generation (non-blocking)
-        embeddingGenerationService.generateEmbeddingForPok(savedPok.getId());
+        // Dispatch async AI and embedding tasks only after this transaction commits.
+        // Both tasks reload and save the Pok in their own transactions; firing them while
+        // the create transaction is still open causes a race where they may not find the
+        // row yet (READ COMMITTED) and silently no-op — leaving the POK without an
+        // embedding or tag suggestions until the next edit.
+        //
+        // isSynchronizationActive() is false only in unit tests (no Spring tx context).
+        final UUID savedPokId = savedPok.getId();
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    embeddingGenerationService.generateEmbeddingForPok(savedPokId);
+                    tagSuggestionService.suggestTagsForPok(savedPokId, userId);
+                }
+            });
+        } else {
+            embeddingGenerationService.generateEmbeddingForPok(savedPokId);
+            tagSuggestionService.suggestTagsForPok(savedPokId, userId);
+        }
 
         List<TagResponse> tags = buildTagResponses(savedPok.getId(), userId);
         List<TagSuggestionResponse> suggestions = buildSuggestionResponses(savedPok.getId());
