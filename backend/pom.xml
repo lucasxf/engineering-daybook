@@ -25,7 +25,7 @@
         <testcontainers.version>1.21.4</testcontainers.version>
         <google-api-client.version>2.9.0</google-api-client.version>
         <jjwt.version>0.13.0</jjwt.version>
-        <jacoco.version>0.8.14</jacoco.version>
+        <jacoco.version>0.8.15</jacoco.version>
         <pgvector.version>0.1.6</pgvector.version>
         <thumbnailator.version>0.4.21</thumbnailator.version>
     </properties>
